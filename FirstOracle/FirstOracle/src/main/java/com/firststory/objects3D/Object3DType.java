@@ -29,6 +29,24 @@ public enum Object3DType {
         }
     },
     /**
+     * Text displayed with each glyph being new object and sharing single texture.
+     */
+    GLYPH_TEXT{
+        @Override
+        public String toString() {
+            return "Font";
+        }
+    },
+    /**
+     * Static text on texture displayed like Plane3D.
+     */
+    STATIC_TEXT{
+        @Override
+        public String toString() {
+            return "Static Text";
+        }
+    },
+    /**
      * Hexagonal Prism object.
      */
     HEXPRISM{

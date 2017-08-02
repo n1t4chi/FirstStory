@@ -5,8 +5,9 @@
  */
 package com.firststory.objects3D;
 
+import static com.firststory.objects3D.Object3D.hashUVparam;
 import com.firststory.objects3D.Terrain.Terrain3D;
-import com.firststory.objects3D.Positionable.PositionableObject3D;
+import java.util.HashMap;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector3i;
@@ -17,9 +18,6 @@ import org.joml.Vector3ic;
  * @author n1t4chi
  */
 public class CubeUtil {
-    
-    public static final double VERTEX_ID_CUBE = Math.pow(13, 13);
-    public static final double UV_ID_CUBE = Math.pow(13, 13);
     /**
      * Returns copy of array of triangles in VBO indexing that make up cube.
      * @return array of triangles
@@ -97,13 +95,20 @@ public class CubeUtil {
     }
     
     
-    public static float[] getUVMapCube(int frameIter,int frameCount,int lineCount){
-        if(frameIter <0  || frameIter >= frameCount)
-            throw new IllegalArgumentException("frameCount cannot be less than 1");
+    /**
+     * Returns UV map for plane object
+     * @param frame Which frame to return
+     * @param frames How many frames this texture represent
+     * @param rows How many rows for frames are in this texture.
+     * @return 
+     */
+    public static float[] getUVMapCube(int frame,int frames,int rows){
+        if(frame <0  || frame >= frames)
+            throw new IllegalArgumentException("illegal frame:"+frame+", frames:"+frames+", rows:"+rows);
         float hor = 1/8f;
         float del = 0.01f;
-        float vertUp = (frameIter)/(float)lineCount+del;
-        float vertDown = (frameIter+1)/(float)lineCount-del;
+        float vertUp = (frame)/(float)rows+del;
+        float vertDown = (frame+1)/(float)rows-del;
         float[] rtrn = {
             //face 0
             0*hor+del,vertDown, 1*hor-del,vertDown, 1*hor-del,vertUp,
@@ -133,9 +138,9 @@ public class CubeUtil {
         return rtrn;
     }          
     public static Vector3fc convertArrayToSpacePosition(int x, int y, int z,Vector3ic terrainMin) {
-        x -=terrainMin.x();
-        y -=terrainMin.y();
-        z -=terrainMin.z();
+        x +=terrainMin.x();
+        y +=terrainMin.y();
+        z +=terrainMin.z();
         return new Vector3f(2*x,2*y,2*z);
     }
 
@@ -147,8 +152,8 @@ public class CubeUtil {
         return isVisibleArrayId(x-terrainMin.x(),y-terrainMin.y(),z-terrainMin.z(),terrain,terrainSize);
     }
     public static boolean isVisibleArrayId(int x, int y, int z,Terrain3D[][][] terrain,Vector3ic terrainSize){
-        if( x<=0 || x>=terrainSize.x() || //check extremas so that next if statement will not fail
-            z<=0 || z>=terrainSize.z() ||
+        if( x<=0 || x>=terrainSize.x()-1 || //check extremas so that next if statement will not fail
+            z<=0 || z>=terrainSize.z()-1 ||
             y >= terrainSize.y()-1
         ){
             return true;
@@ -163,4 +168,31 @@ public class CubeUtil {
         }
         return true;
     }
+    private static int cubeVertexBufferID = 0;
+    public static void setCubeVertexBufferID(int VertexBufferID){
+        CubeUtil.cubeVertexBufferID = VertexBufferID;
+    }
+    public static int getCubeVertexBufferID(){
+        return cubeVertexBufferID;
+    }
+    
+    
+    private final static HashMap<Long,Integer> cubeUVBufferIDs = new HashMap<>(32);
+    
+    
+    
+    public static void setCubeUVBufferID(int UVBufferID, int frame, int direction, int rows, int columns) {
+        cubeUVBufferIDs.put(hashUVparam(frame, direction, rows, columns), UVBufferID);
+    }
+
+    public static int getCubeUVBufferID(int frame, int direction, int rows, int columns) {
+        Integer rtrn = cubeUVBufferIDs.get(hashUVparam(frame, direction, rows, columns));
+        if (rtrn == null)
+            return 0;
+        else
+            return rtrn;
+    }
+
+    
+    
 }

@@ -9,9 +9,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import org.lwjgl.opengl.ARBShaderObjects;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL32;
 
 /**
  * ShaderProgram utility class, new instance creates ready to use program with loaded shaders.
@@ -47,15 +47,15 @@ public class ShaderProgram{
      */
     private int compileSource(int type,String source){
         int shader;
-        if ((shader = glCreateShader(type)) == 0 ){
+        if ((shader = GL20.glCreateShader(type)) == 0 ){
             throw new RuntimeException("Shader creation failed, check OpenGL support.");
         }
-        glShaderSource(shader, source);
-        glCompileShader(shader);
+        GL20.glShaderSource(shader, source);
+        GL20.glCompileShader(shader);
         
-        int comp_stat = glGetShaderi(shader, GL_COMPILE_STATUS);
-        if (comp_stat == GL_FALSE){
-            String err = glGetShaderInfoLog(shader);
+        int comp_stat = GL20.glGetShaderi(shader, GL20.GL_COMPILE_STATUS);
+        if (comp_stat == GL11.GL_FALSE){
+            String err = GL20.glGetShaderInfoLog(shader);
             throw new RuntimeException("Shader creation failed.\nLog:"+err+"\ntype: "+shaderTypeToString(type));
         }
         return shader;
@@ -67,11 +67,11 @@ public class ShaderProgram{
      */
     private static String shaderTypeToString(int type){
         switch(type){
-            case GL_VERTEX_SHADER:
+            case GL20.GL_VERTEX_SHADER:
                 return "Vertex Shader";
-            case GL_FRAGMENT_SHADER:
+            case GL20.GL_FRAGMENT_SHADER:
                 return "Vertex Shader";
-            case GL_GEOMETRY_SHADER:
+            case GL32.GL_GEOMETRY_SHADER:
                 return "Geometry Shader";
             default:
                 return "Other Shader";
@@ -104,13 +104,13 @@ public class ShaderProgram{
         
         
 	// Compile Vertex Shader
-        vertexShader = compileSource(GL_VERTEX_SHADER,VertexContent);      
+        vertexShader = compileSource(GL20.GL_VERTEX_SHADER,VertexContent);      
 
 	// Compile Fragment Shader
-        fragmentShader = compileSource(GL_FRAGMENT_SHADER,FragmentContent);
+        fragmentShader = compileSource(GL20.GL_FRAGMENT_SHADER,FragmentContent);
         
         // Create program
-        program = glCreateProgram();
+        program = GL20.glCreateProgram();
         if (program == 0)
             throw new RuntimeException("Could not create program, check OpenGL support"
                 +"\nvertex:"+vertex_file_path
@@ -119,12 +119,12 @@ public class ShaderProgram{
         
 
 	// Link the program
-	glAttachShader(program, vertexShader);
-	glAttachShader(program, fragmentShader);
+	GL20.glAttachShader(program, vertexShader);
+	GL20.glAttachShader(program, fragmentShader);
         try{
-            glLinkProgram(program);
+            GL20.glLinkProgram(program);
             // Check the program
-            String err = glGetProgramInfoLog(program);
+            String err = GL20.glGetProgramInfoLog(program);
             if (err!=null && !err.isEmpty() ){
                 System.err.println("Error after program creation for shaders"
                     +"\nvertex:"+vertex_file_path
@@ -133,11 +133,11 @@ public class ShaderProgram{
                 );
             }
         }finally{
-            glDetachShader(program, vertexShader);
-            glDetachShader(program, fragmentShader);
+            GL20.glDetachShader(program, vertexShader);
+            GL20.glDetachShader(program, fragmentShader);
 
-            glDeleteShader(vertexShader);
-            glDeleteShader(fragmentShader);
+            GL20.glDeleteShader(vertexShader);
+            GL20.glDeleteShader(fragmentShader);
         }
         ready = true;
     }   
@@ -147,7 +147,7 @@ public class ShaderProgram{
      */
     public void dispose(){
         ready = false;
-        glDeleteProgram(program);
+        GL20.glDeleteProgram(program);
     }
     
 

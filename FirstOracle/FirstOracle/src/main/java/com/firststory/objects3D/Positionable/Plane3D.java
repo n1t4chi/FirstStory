@@ -6,14 +6,8 @@
 package com.firststory.objects3D.Positionable;
 
 import com.firststory.objects3D.Object3DType;
-import static com.firststory.objects3D.PlaneUtil.TRIANGLES_PLANE_NO_VBO;
 import com.firststory.objects3D.Texture;
-import java.io.IOException;
-import static com.firststory.objects3D.PlaneUtil.VERTEX_ID_PLANE;
-import static com.firststory.objects3D.PlaneUtil.UV_ID_PLANE;
-import static com.firststory.objects3D.PlaneUtil.getCommonPlaneVertex;
-import static com.firststory.objects3D.PlaneUtil.getTrainglesPlane;
-import static com.firststory.objects3D.PlaneUtil.getUVMapPlane;
+import static com.firststory.objects3D.PlaneUtil.*;
 
 /**
  * Class representing 3D plane.<br>
@@ -35,35 +29,17 @@ import static com.firststory.objects3D.PlaneUtil.getUVMapPlane;
  * @author n1t4chi
  */
 public class Plane3D extends PositionableObject3D{
-    @Override
-    public double getVertexID() {
-        return VERTEX_ID_PLANE;
-    }
-    @Override
-    public double getUVID() {
-        return UV_ID_PLANE;
-    }
-
     
     
 
-    public Plane3D(String path, int frameCount, int lineCount) throws IOException {
-        super(path, Object3DType.PLANE, frameCount, lineCount);
-    }
-
+    /**
+     * Initialises this object with given texture.
+     * @param texture 
+     */
     public Plane3D(Texture texture) {
         super(texture);
-    }
+    }    
 
-    @Override
-    public boolean usesVBOIndexing() {
-        return true;
-    }
-
-    @Override
-    public short[] getTrianglesVBO() {
-        return getTrainglesPlane();
-    }
     @Override
     public float[] getTriangles() {
         //throw new UnsupportedOperationException("Plane uses VBO for triangle representation");
@@ -81,9 +57,44 @@ public class Plane3D extends PositionableObject3D{
     }
      
     @Override
-    public float[] getUV(int frameIter) {
-        return getUVMapPlane(frameIter,getTexture().getFrameCount(),getTexture().getLineCount());
+    public float[] getUV(int frame,int direction) {
+        Texture tex = getTexture();
+        return getUVMapPlane(frame,direction,tex.getFrames(),tex.getDirections(),tex.getRows(),tex.getColumns());
     }
+    
+    
+    
+    @Override
+    public boolean isVertexBufferLoaded() {
+        return getPlaneVertexBufferID() > 0;
+    }
+
+    @Override
+    public int getVertexBufferID() {
+        return getPlaneVertexBufferID();
+    }
+
+    @Override
+    public void setVertexBufferID(int VertexBufferID) {
+        setPlaneVertexBufferID(VertexBufferID);
+    }
+
+
+    @Override
+    public boolean isUVBufferLoaded(int frame, int direction) {
+        return getPlaneUVBufferID(frame, direction, getRows(),getColumns()) >0;
+    }
+
+    @Override
+    public void setUVBufferID(int UVBufferID, int frame, int direction) {
+        setPlaneUVBufferID(UVBufferID, frame, direction, getRows(), getColumns());
+    }
+
+    @Override
+    public int getUVBufferID(int frame, int direction) {
+        return getPlaneUVBufferID(frame, direction, getRows(), getColumns());
+    }
+    
     
     
 }

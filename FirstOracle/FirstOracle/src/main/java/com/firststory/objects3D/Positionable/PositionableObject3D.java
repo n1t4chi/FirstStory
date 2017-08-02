@@ -22,11 +22,14 @@ import org.joml.Vector3fc;
  */
 public abstract class PositionableObject3D extends Object3D {
     private final Vector3f position = new Vector3f(0,0,0);
+    private final Vector3f scale = new Vector3f(1,1,1);
+    private final Vector3f rotation = new Vector3f(0,0,0);
     
 
-    public PositionableObject3D(String path,Object3DType type,int frameCount, int lineCount ) throws IOException {
-        super(path, type, frameCount, lineCount);
-    }
+    /**
+     * Creates new object using given texture.
+     * @param texture 
+     */
     public PositionableObject3D(Texture texture) {
         super(texture);
     }
@@ -83,4 +86,116 @@ public abstract class PositionableObject3D extends Object3D {
     public Vector3f getPositionMutable(){
         return position;
     }
+    /**
+     * Changes rotation of this object.<br>
+     * Remember that scaling Y will result in base of the object being higher if lower points are not 0 on Y dimension.
+     * @param scale new rotation
+     */
+    public void setScale(Vector3fc scale) {
+        this.scale.set(scale);
+    }
+    /**
+     * Changes scale of this object.
+     * @param x x coordinate
+     * @param y y coordinate
+     * @param z z coordinate
+     */
+    public void setScale(float x,float y,float z) {
+        this.scale.set(x,y,z);
+    }
+    /**
+     * Changes X scale of this object.
+     * @param x X coordinate
+     */
+    public void setScaleX(float x) {
+        this.scale.set(x,this.scale.y,this.scale.z);
+    }
+    /**
+     * Changes Y scale of this object.<br>
+     * Remember that scaling Y will result in base of the object being higher if lower points are not 0 on Y dimension.
+     * @param y Y coordinate
+     */
+    public void setScaleY(float y) {
+        this.scale.set(this.scale.x,y,this.scale.z);
+    }
+    /**
+     * Changes Z scale of this object.
+     * @param z Z coordinate
+     */
+    public void setScaleZ(float z) {
+        this.scale.set(this.scale.x,this.scale.y,z);
+    }
+    /**
+     * Returns immutable scale vector of this object.
+     * @return scale
+     */
+    @Override
+    public Vector3fc getScale(){
+        return scale.toImmutable();
+    }
+    /**
+     * Returns mutable scale vector of this object. Use with caution!
+     * @return mutable scale
+     */
+    public Vector3f getScaleMutable(){
+        return scale;
+    }
+    
+     /**
+     * Changes rotation of this object.<br>
+     * X,Y,Z coordinates of given vector indicate angles on each axis.<br>
+     * Then position will be rotated relative to (1,0,0), (0,1,0) or (0,0,1) vector 
+     * depending which axis rotation is currently calculated.
+     * @param rotation new rotation angles with values in radians
+     */
+    public void setRotation(Vector3fc rotation) {
+        this.rotation.set(rotation);
+    }
+    /**
+     * Changes rotation of this object.
+     * @param x angle on X coordinate in radians
+     * @param y angle on Y coordinate in radians
+     * @param z angle on Z coordinate in radians
+     */
+    public void setRotation(float x,float y,float z) {
+        this.rotation.set(x,y,z);
+    }
+    /**
+     * Changes X rotation of this object.
+     * @param x angle on X coordinate in radians
+     */
+    public void setRotationX(float x) {
+        setRotation(x,this.rotation.y,this.rotation.z);
+    }
+    /**
+     * Changes Y rotation of this object.<br>
+     * @param y angle on Y coordinate in radians
+     */
+    public void setRotationY(float y) {
+        setRotation(this.rotation.x,y,this.rotation.z);
+    }
+    /**
+     * Changes Z rotation of this object.
+     * @param z angle on Z coordinate in radians
+     */
+    public void setRotationZ(float z) {
+        setRotation(this.rotation.x,this.rotation.y,z);
+    }
+    /**
+     * Returns immutable rotation angles of this object.
+     * @return rotation
+     */
+    @Override
+    public Vector3fc getRotation(){
+        return rotation.toImmutable();
+    }
+    /**
+     * Returns mutable rotation angles of this object. Use with caution!
+     * @return mutable rotation
+     */
+    public Vector3f getRotationMutable(){
+        return rotation;
+    }
+    
+    
 }

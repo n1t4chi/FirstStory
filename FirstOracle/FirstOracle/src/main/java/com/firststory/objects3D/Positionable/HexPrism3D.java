@@ -5,15 +5,9 @@
  */
 package com.firststory.objects3D.Positionable;
 
-import static com.firststory.objects3D.HexPrismUtil.TRIANGLES_HEXAGONAL_NO_VBO;
-import static com.firststory.objects3D.HexPrismUtil.TRIANGLES_HEXAGONAL_PRISM;
-import static com.firststory.objects3D.HexPrismUtil.getUVMapHex;
 import com.firststory.objects3D.Object3DType;
 import com.firststory.objects3D.Texture;
-import java.io.IOException;
-import static com.firststory.objects3D.HexPrismUtil.VERTEX_ID_HEX;
-import static com.firststory.objects3D.HexPrismUtil.UV_ID_HEX;
-import static com.firststory.objects3D.HexPrismUtil.getCommonHexVertex;
+import static com.firststory.objects3D.HexPrismUtil.*;
 
 /** 
  * Class representing 3D hexagonal Prism.<br>
@@ -52,32 +46,15 @@ import static com.firststory.objects3D.HexPrismUtil.getCommonHexVertex;
  */
 public class HexPrism3D extends PositionableObject3D{
     
-    @Override
-    public double getVertexID() {
-        return VERTEX_ID_HEX;
-    }
-    @Override
-    public double getUVID() {
-        return UV_ID_HEX;
-    }
     
+    /**
+     * Initialises this object with given texture.
+     * @param texture 
+     */
     public HexPrism3D(Texture texture) {
         super(texture);
-    }
-    public HexPrism3D(String path, int frameCount, int lineCount) throws IOException {
-        super(path,Object3DType.HEXPRISM, frameCount, lineCount);
-    }
-    
+    }    
 
-    @Override
-    public boolean usesVBOIndexing() {
-        return true;
-    }
-
-    @Override
-    public short[] getTrianglesVBO() {
-        return TRIANGLES_HEXAGONAL_PRISM;
-    }
 
     @Override
     public float[] getTriangles() {
@@ -95,12 +72,53 @@ public class HexPrism3D extends PositionableObject3D{
         return Object3DType.HEXPRISM;
     }
 
+    /**
+     * Returns array containing UV coordinates.
+     * @param frame which frame to return
+     * @param direction not used
+     * @return UV coordinates
+     */
     @Override
-    public float[] getUV(int frameIter) {
+    public float[] getUV(int frame,int direction) {
         Texture tex = getTexture();
-        int fc = tex.getFrameCount();
-        int lc = tex.getLineCount();
-        return getUVMapHex(frameIter,fc,lc);
+        int fc = tex.getFrames();
+        int lc = tex.getRows();
+        return getUVMapHex(frame,fc,lc);
     }
+    
+    
+    
+    @Override
+    public boolean isVertexBufferLoaded() {
+        return getHexPrismVertexBufferID() > 0;
+    }
+
+    @Override
+    public int getVertexBufferID() {
+        return getHexPrismVertexBufferID();
+    }
+
+    @Override
+    public void setVertexBufferID(int VertexBufferID) {
+        setHexPrismVertexBufferID(VertexBufferID);
+    }
+
+
+    @Override
+    public boolean isUVBufferLoaded(int frame, int direction) {
+        return getHexPrismUVBufferID(frame, direction, getRows(),getColumns()) >0;
+    }
+
+    @Override
+    public void setUVBufferID(int UVBufferID, int frame, int direction) {
+        setHexPrismUVBufferID(UVBufferID, frame, direction, getRows(), getColumns());
+    }
+
+    @Override
+    public int getUVBufferID(int frame, int direction) {
+        return getHexPrismUVBufferID(frame, direction, getRows(), getColumns());
+    }
+    
+    
     
 }

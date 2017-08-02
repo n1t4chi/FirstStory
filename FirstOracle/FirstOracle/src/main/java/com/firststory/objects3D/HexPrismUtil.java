@@ -7,6 +7,8 @@ package com.firststory.objects3D;
 
 import com.firststory.objects3D.Terrain.Terrain3D;
 import static com.firststory.objects3D.Object3D.getHexVertexStart;
+import static com.firststory.objects3D.Object3D.hashUVparam;
+import java.util.HashMap;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector3i;
@@ -18,8 +20,6 @@ import org.joml.Vector3ic;
  * @author n1t4chi
  */
 public class HexPrismUtil {
-    public static final double VERTEX_ID_HEX = Math.pow(1337, 16);
-    public static final double UV_ID_HEX = Math.pow(1337, 16);
     /**
      * Value of sqrt(3)/2; Double version.
      */
@@ -128,17 +128,30 @@ public class HexPrismUtil {
         }
         TRIANGLES_HEXAGONAL_NO_VBO = g;  
     }
-    public static float[] getUVMapHex(int frameIter,int frameCount,int lineCount){
-        if(frameIter <0  || frameIter >= frameCount)
-            throw new IllegalArgumentException("frameCount cannot be less than 1");
+    
+    /**
+     * Returns UV map for plane object
+     * @param frame Which frame to return
+     * @param frames How many frames this texture represent
+     * @param rows How many rows for frames are in this texture.
+     * @return 
+     */
+    public static float[] getUVMapHex(int frame,int frames,int rows){
+        if(frame <0  || frame >= frames)
+            throw new IllegalArgumentException("illegal frame:"+frame+", frames:"+frames+", rows:"+rows);
+        
+        
         float hor = 1/8f;
         //lower a bit UV map so pixels from other face will not be taken into consideration.
         float del = 0.01f;
-        float vertUp = (frameIter)/(float)lineCount+del;
-        float vertDown = (frameIter+1)/(float)lineCount-del;
-        float vertMiddle = (frameIter+0.5f)/(float)lineCount;
-        float vertMidUp = (frameIter+0.5f-SQRT3_DIV2/2)/lineCount+del;
-        float vertMidDown = (frameIter+0.5f+SQRT3_DIV2/2)/lineCount-del;
+        float vertUp =  (frame)/(float)rows+del;
+        float vertDown = (frame+1)/(float)rows-del;
+                
+        float vertMiddle = (frame+0.5f)/(float)rows;
+        float vertMidUp = (frame+0.5f-SQRT3_DIV2/2)/rows+del;
+        float vertMidDown = (frame+0.5f+SQRT3_DIV2/2)/rows-del;
+        
+        
         float[] rtrn = {
             //face 0
             0*hor+del,vertDown, 1*hor-del,vertDown, 1*hor-del,vertUp,
@@ -185,9 +198,9 @@ public class HexPrismUtil {
     
     
     public static Vector3fc convertArrayToSpacePosition(int x, int y, int z,Vector3ic terrainMin) {
-        x -=terrainMin.x();
-        y -=terrainMin.y();
-        z -=terrainMin.z();
+        x +=terrainMin.x();
+        y +=terrainMin.y();
+        z +=terrainMin.z();
         return new Vector3f(x*1.5f/*spacing: 0.75 but size dim is 2*/, 2 * y, (2*z+Math.abs(x)%2)*SQRT3_DIV2);
     }
 
@@ -218,6 +231,33 @@ public class HexPrismUtil {
             return false;
         }
         return true;
+    }
+    
+    
+    
+    private static int hexPrismVertexBufferID = 0;
+    public static void setHexPrismVertexBufferID(int VertexBufferID){
+        HexPrismUtil.hexPrismVertexBufferID = VertexBufferID;
+    }
+    public static int getHexPrismVertexBufferID(){
+        return hexPrismVertexBufferID;
+    }
+    
+    
+    private final static HashMap<Long,Integer> hexPrismUVBufferIDs = new HashMap<>(32);
+    
+    
+    
+    public static void setHexPrismUVBufferID(int UVBufferID, int frame, int direction, int rows, int columns) {
+        hexPrismUVBufferIDs.put(hashUVparam(frame, direction, rows, columns), UVBufferID);
+    }
+
+    public static int getHexPrismUVBufferID(int frame, int direction, int rows, int columns) {
+        Integer rtrn = hexPrismUVBufferIDs.get(hashUVparam(frame, direction, rows, columns));
+        if (rtrn == null)
+            return 0;
+        else
+            return rtrn;
     }
     
 }

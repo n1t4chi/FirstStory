@@ -5,16 +5,9 @@
  */
 package com.firststory.objects3D.Positionable;
 
-import static com.firststory.objects3D.CubeUtil.TRIANGLES_CUBE;
-import static com.firststory.objects3D.CubeUtil.TRIANGLES_CUBE_NO_VBO;
-import static com.firststory.objects3D.CubeUtil.getUVMapCube;
 import com.firststory.objects3D.Object3DType;
 import com.firststory.objects3D.Texture;
-import java.io.IOException;
-import java.util.Arrays;
-import static com.firststory.objects3D.CubeUtil.VERTEX_ID_CUBE;
-import static com.firststory.objects3D.CubeUtil.UV_ID_CUBE;
-import static com.firststory.objects3D.CubeUtil.getCommonCubeVertex;
+import static com.firststory.objects3D.CubeUtil.*;
 
 /** 
  * Class representing 3D cube.<br>
@@ -56,33 +49,18 @@ import static com.firststory.objects3D.CubeUtil.getCommonCubeVertex;
  * @author n1t4chi
  */
 public class Cube3D extends PositionableObject3D{
-    @Override
-    public double getVertexID() {
-        return VERTEX_ID_CUBE;
-    }
-    @Override
-    public double getUVID() {
-        return UV_ID_CUBE;
-    }
 
+
+    /**
+     * Initialises this object with given texture.
+     * @param texture 
+     */
     public Cube3D(Texture texture) {
         super(texture);
-    }
-    public Cube3D(String path, int frameCount, int lineCount) throws IOException {
-        super(path, Object3DType.CUBE, frameCount, lineCount);
-    }
+    }    
     
     
 
-    @Override
-    public boolean usesVBOIndexing() {
-        return true;
-    }
-
-    @Override
-    public short[] getTrianglesVBO() {
-        return TRIANGLES_CUBE;
-    }
 
     @Override
     public float[] getTriangles() {
@@ -101,9 +79,49 @@ public class Cube3D extends PositionableObject3D{
     }
 
     
+    /**
+     * Returns array containing UV coordinates.
+     * @param frame which frame to return
+     * @param direction not used
+     * @return UV coordinates
+     */
     @Override
-    public float[] getUV(int frameIter) {
-        return getUVMapCube(frameIter,getTexture().getFrameCount(),getTexture().getLineCount());
+    public float[] getUV(int frame,int direction) {
+        Texture tex = getTexture();
+        int fc = tex.getFrames();
+        int lc = tex.getRows();
+        return getUVMapCube(frame,fc,lc);
+    }
+
+    @Override
+    public boolean isVertexBufferLoaded() {
+        return getCubeVertexBufferID() > 0;
+    }
+
+    @Override
+    public int getVertexBufferID() {
+        return getCubeVertexBufferID();
+    }
+
+    @Override
+    public void setVertexBufferID(int VertexBufferID) {
+        setCubeVertexBufferID(VertexBufferID);
+    }
+
+
+    @Override
+    public boolean isUVBufferLoaded(int frame, int direction) {
+        return getCubeUVBufferID(frame, direction, getRows(),getColumns()) >0;
+    }
+
+    @Override
+    public void setUVBufferID(int UVBufferID, int frame, int direction) {
+        setCubeUVBufferID(UVBufferID, frame, direction, getRows(), getColumns());
+    }
+
+    @Override
+    public int getUVBufferID(int frame, int direction) {
+        return getCubeUVBufferID(frame, direction, getRows(), getColumns());
     }
     
     

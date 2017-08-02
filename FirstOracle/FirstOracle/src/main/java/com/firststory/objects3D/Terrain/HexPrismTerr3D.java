@@ -6,21 +6,11 @@
 package com.firststory.objects3D.Terrain;
 
 import com.firststory.objects3D.HexPrismUtil;
-import static com.firststory.objects3D.HexPrismUtil.SQRT3_DIV2;
-import static com.firststory.objects3D.HexPrismUtil.TRIANGLES_HEXAGONAL_NO_VBO;
-import static com.firststory.objects3D.HexPrismUtil.TRIANGLES_HEXAGONAL_PRISM;
-import static com.firststory.objects3D.HexPrismUtil.getUVMapHex;
-import com.firststory.objects3D.Positionable.*;
+import static com.firststory.objects3D.HexPrismUtil.*;
 import com.firststory.objects3D.Object3DType;
 import com.firststory.objects3D.Texture;
-import java.io.IOException;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.joml.Vector3i;
 import org.joml.Vector3ic;
-import static com.firststory.objects3D.HexPrismUtil.VERTEX_ID_HEX;
-import static com.firststory.objects3D.HexPrismUtil.UV_ID_HEX;
-import static com.firststory.objects3D.HexPrismUtil.getCommonHexVertex;
 
 /** 
  * Class representing 3D hexagonal Prism.<br>
@@ -58,36 +48,19 @@ import static com.firststory.objects3D.HexPrismUtil.getCommonHexVertex;
  * @author n1t4chi
  */
 public class HexPrismTerr3D extends Terrain3D{
-    
-    @Override
-    public double getVertexID() {
-        return VERTEX_ID_HEX;
-    }
-    @Override
-    public double getUVID() {
-        return UV_ID_HEX;
-    }
+  
     
     
     
-    
+    /**
+     * Initialises this object with given texture.
+     * @param texture 
+     */
     public HexPrismTerr3D(Texture texture) {
         super(texture);
-    }
-    public HexPrismTerr3D(String path, int frameCount, int lineCount) throws IOException {
-        super(path,Object3DType.HEXPRISM, frameCount, lineCount);
-    }
+    }    
     
 
-    @Override
-    public boolean usesVBOIndexing() {
-        return true;
-    }
-
-    @Override
-    public short[] getTrianglesVBO() {
-        return TRIANGLES_HEXAGONAL_PRISM;
-    }
 
     @Override
     public float[] getTriangles() {
@@ -104,13 +77,18 @@ public class HexPrismTerr3D extends Terrain3D{
     public Object3DType getType() {
         return Object3DType.HEXPRISM;
     }
-
+    /**
+     * Returns array containing UV coordinates.
+     * @param frame which frame to return
+     * @param direction not used
+     * @return UV coordinates
+     */
     @Override
-    public float[] getUV(int frameIter) {
+    public float[] getUV(int frame,int direction) {
         Texture tex = getTexture();
-        int fc = tex.getFrameCount();
-        int lc = tex.getLineCount();
-        return getUVMapHex(frameIter,fc,lc);
+        int fc = tex.getFrames();
+        int lc = tex.getRows();
+        return getUVMapHex(frame,fc,lc);
     }
 
     @Override
@@ -128,5 +106,38 @@ public class HexPrismTerr3D extends Terrain3D{
     public boolean isVisibleArrayPos(int x, int y, int z, Terrain3D[][][] terrain, Vector3ic terrainSize) {
         return HexPrismUtil.isVisibleArrayId(x, y, z, terrain, terrainSize);
     }
+    
+    
+    @Override
+    public boolean isVertexBufferLoaded() {
+        return getHexPrismVertexBufferID() > 0;
+    }
+
+    @Override
+    public int getVertexBufferID() {
+        return getHexPrismVertexBufferID();
+    }
+
+    @Override
+    public void setVertexBufferID(int VertexBufferID) {
+        setHexPrismVertexBufferID(VertexBufferID);
+    }
+
+
+    @Override
+    public boolean isUVBufferLoaded(int frame, int direction) {
+        return getHexPrismUVBufferID(frame, direction, getRows(),getColumns()) >0;
+    }
+
+    @Override
+    public void setUVBufferID(int UVBufferID, int frame, int direction) {
+        setHexPrismUVBufferID(UVBufferID, frame, direction, getRows(), getColumns());
+    }
+
+    @Override
+    public int getUVBufferID(int frame, int direction) {
+        return getHexPrismUVBufferID(frame, direction, getRows(), getColumns());
+    }
+    
     
 }
