@@ -8,8 +8,6 @@ import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import java.util.Arrays;
-
 public class GridRenderer3D implements Renderer3D {
 
     private final float[] interAxesArray;
@@ -26,10 +24,7 @@ public class GridRenderer3D implements Renderer3D {
     private Vector4f colour = new Vector4f( 0, 0, 0, 0 );
 
     public GridRenderer3D(
-        ShaderProgram3D shaderProgram,
-        int gridSize,
-        int interAxesStep,
-        int smallAxesStep
+        ShaderProgram3D shaderProgram, int gridSize, int interAxesStep, int smallAxesStep
     )
     {
         this.shaderProgram = shaderProgram;
@@ -44,15 +39,11 @@ public class GridRenderer3D implements Renderer3D {
         //X
         //Y
         //Z
-        mainAxesArray = new float[]{
-            -gridSize, 0, 0,
-            gridSize, 0, 0,//X
+        mainAxesArray = new float[]{ -gridSize, 0, 0, gridSize, 0, 0,//X
 
-            0, -gridSize, 0,
-            0, gridSize, 0,//Y
+                                     0, -gridSize, 0, 0, gridSize, 0,//Y
 
-            0, 0, -gridSize,
-            0, 0, gridSize//Z
+                                     0, 0, -gridSize, 0, 0, gridSize//Z
         };
         interAxesArray = new float[interAxesSize];
         smallPositiveAxesArray = new float[smallPositiveAxesSize];
@@ -68,9 +59,7 @@ public class GridRenderer3D implements Renderer3D {
 
             if ( Math.abs( i % interAxesStep ) == 0 ) {
                 float[] axes = createAxes( gridSize, i );
-                for ( int j = 0; j < axes.length; j++ ) {
-                    interAxesArray[interAxesArrayIt + j] = axes[j];
-                }
+                System.arraycopy( axes, 0, interAxesArray, interAxesArrayIt, axes.length );
                 interAxesArrayIt += axes.length;
             } else if ( Math.abs( i % smallAxesStep ) == 0 ) {
                 boolean positive = false;
@@ -89,52 +78,33 @@ public class GridRenderer3D implements Renderer3D {
                 }
             }
         }
-        System.err.println( Arrays.toString( interAxesArray ) );
     }
 
     private float[] createAxes( int gridSize, int i ) {
         return new float[]{
             //perpendicular to Z axis
-            i, 0, -gridSize,
-            i, 0, gridSize,
-            -i, 0, -gridSize,
-            -i, 0, gridSize,
+            i, 0, -gridSize, i, 0, gridSize, -i, 0, -gridSize, -i, 0, gridSize,
 
-            0, i, -gridSize,
-            0, i, gridSize,
-            0, -i, -gridSize,
-            0, -i, gridSize,
+            0, i, -gridSize, 0, i, gridSize, 0, -i, -gridSize, 0, -i, gridSize,
 
             //perpendicular to Y axis
-            i, -gridSize, 0,
-            i, gridSize, 0,
-            -i, -gridSize, 0,
-            -i, gridSize, 0,
+            i, -gridSize, 0, i, gridSize, 0, -i, -gridSize, 0, -i, gridSize, 0,
 
-            0, -gridSize, i,
-            0, gridSize, i,
-            0, -gridSize, -i,
-            0, gridSize, -i,
+            0, -gridSize, i, 0, gridSize, i, 0, -gridSize, -i, 0, gridSize, -i,
 
             //perpendicular to Z axis
-            -gridSize, i, 0,
-            gridSize, i, 0,
-            -gridSize, -i, 0,
-            gridSize, -i, 0,
+            -gridSize, i, 0, gridSize, i, 0, -gridSize, -i, 0, gridSize, -i, 0,
 
-            -gridSize, 0, i,
-            gridSize, 0, i,
-            -gridSize, 0, -i,
-            gridSize, 0, -i,
-        };
+            -gridSize, 0, i, gridSize, 0, i, -gridSize, 0, -i, gridSize, 0, -i,
+            };
     }
 
     @Override
     public void render() {
-        renderGridArray( mainAxes, 1f, 1, 0f, 0f , 1f );
+        renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );
         renderGridArray( interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
         renderGridArray( smallNegativeAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
-        renderGridArray( smallPositiveAxes, 0.1f, 1f, 0.25f, 0.25f , 0.5f );
+        renderGridArray( smallPositiveAxes, 0.1f, 1f, 0.25f, 0.25f, 0.5f );
     }
 
     @Override
@@ -154,12 +124,7 @@ public class GridRenderer3D implements Renderer3D {
     }
 
     private void renderGridArray(
-        ArrayBuffer buffer,
-        float width,
-        float red,
-        float green,
-        float blue,
-        float alpha
+        ArrayBuffer buffer, float width, float red, float green, float blue, float alpha
     )
     {
         colour.set( red, green, blue, alpha );

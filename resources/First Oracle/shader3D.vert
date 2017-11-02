@@ -9,7 +9,6 @@ out vec2 UV;
 
 // Values that stay constant for the whole mesh.
 uniform mat4 camera;
-
 uniform vec3 translation;
 uniform vec3 scale;
 uniform vec3 rotation;
@@ -56,7 +55,7 @@ void main(){
         posY = (x*sinZ) + (y*cosZ);
     }
     gl_Position =  
-        camera * 
+        camera *
         vec4( //#3 object position in space
             translation.x+posX,
             translation.y+posY,
