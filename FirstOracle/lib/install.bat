@@ -1,0 +1,2 @@
+start "" mvn install:install-file -Dfile=.\jfxgl-0.4.jar -DgroupId=jfxgl -DartifactId=jfxgl -Dversion=0.4 -Dpackaging=jar
+start "" mvn install:install-file -Dfile=.\jfxgl-jfxrt-0.4.jar -DgroupId=jfxgl -DartifactId=jfxgl-jfxrt -Dversion=0.4 -Dpackaging=jar

@@ -4,18 +4,18 @@
 package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.util.IOUtilities;
-
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.nio.*;
-import javax.imageio.ImageIO;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.stb.STBImage;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 /**
  * Single texture object. Colours are stored in RGBA format. <br>

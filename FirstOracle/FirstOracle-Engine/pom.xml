@@ -4,7 +4,6 @@
                           http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.FirstStory.FirstOracle-Engine</groupId>
     <artifactId>FirstOracle-Engine</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -17,97 +16,101 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.FirstStory.FirstOracle.FirstOracle-Interfaces</groupId>
+            <groupId>com.FirstStory.FirstOracle</groupId>
             <artifactId>FirstOracle-Interfaces</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.FirstStory.FirstOracle</groupId>
+            <artifactId>FirstOracle-Impl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jfxgl</groupId>
+            <artifactId>jfxgl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jfxgl</groupId>
+            <artifactId>jfxgl-jfxrt</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-glfw</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-nuklear</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-openal</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-opencl</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-opengl</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-stb</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-vulkan</artifactId>
-            <version>${lwjgl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl</artifactId>
-            <version>${lwjgl.version}</version>
             <classifier>${lwjgl.natives}</classifier>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-glfw</artifactId>
-            <version>${lwjgl.version}</version>
             <classifier>${lwjgl.natives}</classifier>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-nuklear</artifactId>
-            <version>${lwjgl.version}</version>
             <classifier>${lwjgl.natives}</classifier>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-openal</artifactId>
-            <version>${lwjgl.version}</version>
             <classifier>${lwjgl.natives}</classifier>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-opengl</artifactId>
-            <version>${lwjgl.version}</version>
             <classifier>${lwjgl.natives}</classifier>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-stb</artifactId>
-            <version>${lwjgl.version}</version>
             <classifier>${lwjgl.natives}</classifier>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.joml</groupId>
             <artifactId>joml</artifactId>
-            <version>${joml.version}</version>
         </dependency>
 
     </dependencies>
+    <modules>
+        <module>../FirstOracle-Interfaces</module>
+        <module>../FirstOracle-Impl</module>
+    </modules>
 </project>

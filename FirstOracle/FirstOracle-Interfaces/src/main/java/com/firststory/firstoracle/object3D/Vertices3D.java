@@ -3,7 +3,6 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.VertexAttributes;
 import com.firststory.firstoracle.object.Vertices;
 
 /**

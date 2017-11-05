@@ -4,8 +4,7 @@
 package com.firststory.firstoracle.window;
 
 import com.firststory.firstoracle.CheckSupport;
-import com.firststory.firstoracle.rendering.Renderer3D;
-import com.firststory.firstoracle.window.shader.ShaderProgram;
+import com.firststory.firstoracle.rendering.GraphicRenderer;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGL;
@@ -21,11 +20,14 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.Callback;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
  * Class window that creates JavaFX with possible OpenGL rendering in background provided using
- * {@link SceneRenderer3D} and {@link com.firststory.firstoracle.rendering.SceneProvider}
+ * {@link SceneRenderer} and {@link com.firststory.firstoracle.rendering.SceneProvider}
  * <p>
  * Window creates {@link Application} internally and provides overlay panel {@link Pane}
  * on which all overlay components can be placed onto.
@@ -50,41 +52,44 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  *
  * @author: n1t4chi
  */
-public class Window implements Runnable {
+public final class Window implements Runnable, TimeNotifier {
 
-    private static Window instance;
+    private static Window instance = null;
 
     public static synchronized Window getInstance(
         WindowSettings windowSettings,
         Application application,
         ShaderProgram2D shaderProgram2D,
         ShaderProgram3D shaderProgram3D,
-        Renderer3D renderer
+        GraphicRenderer renderer
     )
     {
-        return instance = new Window(
-            windowSettings,
-            application,
-            shaderProgram2D,
-            shaderProgram3D,
-            renderer
-        );
+        if ( instance == null ) {
+            instance = new Window( windowSettings,
+                application,
+                shaderProgram2D,
+                shaderProgram3D,
+                renderer
+            );
+        }
+        return instance;
     }
 
     private final WindowSettings windowSettings;
+    ArrayList< TimeObserver > timeObservers = new ArrayList<>( 3 );
     private long windowID = -1;
     private GLFWErrorCallback errorCallback;
     private Application application;
     private ShaderProgram2D shaderProgram2D;
     private ShaderProgram3D shaderProgram3D;
-    private Renderer3D renderer;
+    private GraphicRenderer renderer;
 
     public Window(
         WindowSettings windowSettings,
         Application application,
         ShaderProgram2D shaderProgram2D,
         ShaderProgram3D shaderProgram3D,
-        Renderer3D renderer
+        GraphicRenderer renderer
     )
     {
         this.windowSettings = windowSettings;
@@ -133,11 +138,17 @@ public class Window implements Runnable {
         }
     }
 
+    @Override
+    public Collection< TimeObserver > getObservers() {
+        return timeObservers;
+    }
+
     private void loop() {
         while ( !GLFW.glfwWindowShouldClose( windowID ) ) {
             GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
-            renderer.render();
+            notifyObservers( GLFW.glfwGetTime() );
             JFXGL.render();
+            renderer.render();
             GLFW.glfwSwapBuffers( windowID );
             GLFW.glfwPollEvents();
         }

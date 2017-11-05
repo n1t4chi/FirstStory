@@ -3,16 +3,12 @@
  */
 package com.firststory.firstoracle.window.shader;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
+
 import java.io.IOException;
 import java.util.HashMap;
-
-import com.firststory.firstoracle.camera.camera3D.Camera3D;
-import org.joml.Matrix4fc;
-import org.joml.Vector3fc;
-import org.joml.Vector4fc;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL32;
 
 import static com.firststory.firstoracle.util.IOUtilities.readTextResource;
 
@@ -36,23 +32,16 @@ public abstract class ShaderProgram {
         }
     }
 
-    private final String vertex_file_path;
-    private final String fragment_file_path;
+    private final String vertexFilePath;
+    private final String fragmentFilePath;
     private final HashMap< String, UniformLocation > uniformLocations = new HashMap<>( 6 );
     private int vertexShader;
     private int fragmentShader;
     private int program;
 
-    /**
-     * Additional constructor, compiles given shader files and creates program ready to use.
-     *
-     * @param vertex_file_path
-     * @param fragment_file_path
-     * @throws IOException
-     */
-    public ShaderProgram( String vertex_file_path, String fragment_file_path ) {
-        this.vertex_file_path = vertex_file_path;
-        this.fragment_file_path = fragment_file_path;
+    public ShaderProgram( String vertexFilePath, String fragmentFilePath ) {
+        this.vertexFilePath = vertexFilePath;
+        this.fragmentFilePath = fragmentFilePath;
     }
 
     public void useProgram() {
@@ -60,51 +49,28 @@ public abstract class ShaderProgram {
     }
 
     public void compile() throws IOException {
-        // Create the shaders
 
-        // Read the Vertex Shader code from the file
-        String VertexContent = readTextResource( vertex_file_path );
-        String FragmentContent = readTextResource( fragment_file_path );
+        String VertexContent = readTextResource( vertexFilePath );
+        String FragmentContent = readTextResource( fragmentFilePath );
 
-        // Compile Vertex Shader
         vertexShader = compileSource( GL20.GL_VERTEX_SHADER, VertexContent );
-
-        // Compile Fragment Shader
         fragmentShader = compileSource( GL20.GL_FRAGMENT_SHADER, FragmentContent );
 
-        // Create program
         program = GL20.glCreateProgram();
-        if ( program < 1 ) {
-            throw new ShaderException(
-                "Could not create program, check OpenGL support" + "\nvertex:" + vertex_file_path +
-                "\nfragment:" + fragment_file_path );
-        }
+        checkCreatedProgram();
 
-        // Link the program
-        GL20.glAttachShader( program, vertexShader );
-        GL20.glAttachShader( program, fragmentShader );
-        try {
-            GL20.glLinkProgram( program );
-            // Check the program
-            String err = GL20.glGetProgramInfoLog( program );
-            if ( err != null && !err.isEmpty() ) {
-                System.err.println(
-                    "Error after program creation for shaders" + "\nvertex:" + vertex_file_path +
-                    "\nfragment:" + fragment_file_path + "\nerror:" + err );
-            }
-        } finally {
-            GL20.glDetachShader( program, vertexShader );
-            GL20.glDetachShader( program, fragmentShader );
-
-            GL20.glDeleteShader( vertexShader );
-            GL20.glDeleteShader( fragmentShader );
-        }
+        linkProgram();
         initUniformLocations();
     }
 
-    /**
-     * Disposes this object resources. No operation should be performed after dispose().
-     */
+    private void checkCreatedProgram() {
+        if ( program < 1 ) {
+            throw new ShaderException(
+                "Could not create program, check OpenGL support" + "\nvertex:" + vertexFilePath +
+                "\nfragment:" + fragmentFilePath );
+        }
+    }
+
     public void dispose() {
         GL20.glDeleteProgram( program );
     }
@@ -121,13 +87,30 @@ public abstract class ShaderProgram {
         }
     }
 
-    /**
-     * Compiles given shader source.
-     *
-     * @param type   type of a shader
-     * @param source shader source
-     * @return shader
-     */
+    private void linkProgram() {
+        GL20.glAttachShader( program, vertexShader );
+        GL20.glAttachShader( program, fragmentShader );
+        try {
+            GL20.glLinkProgram( program );
+            checkLinkingOfProgram();
+        } finally {
+            GL20.glDetachShader( program, vertexShader );
+            GL20.glDetachShader( program, fragmentShader );
+
+            GL20.glDeleteShader( vertexShader );
+            GL20.glDeleteShader( fragmentShader );
+        }
+    }
+
+    private void checkLinkingOfProgram() {
+        String err = GL20.glGetProgramInfoLog( program );
+        if ( err != null && !err.isEmpty() ) {
+            System.err.println(
+                "Error after program creation for shaders" + "\nvertex:" + vertexFilePath +
+                "\nfragment:" + fragmentFilePath + "\nerror:" + err );
+        }
+    }
+
     private int compileSource( int type, String source ) {
         int shader;
         if ( ( shader = GL20.glCreateShader( type ) ) == 0 ) {

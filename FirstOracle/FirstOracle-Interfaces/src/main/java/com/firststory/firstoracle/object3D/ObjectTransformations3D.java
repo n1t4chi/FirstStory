@@ -10,13 +10,9 @@ import org.joml.Vector3fc;
 /**
  * @author: n1t4chi
  */
-public interface ObjectTransformations3D extends ObjectTransformations<Vector3fc> {
-
-    ObjectTransformations3D IDENTITY_TRANSFORMATION = new IdentityTransformations3D();
+public interface ObjectTransformations3D extends ObjectTransformations<Vector3fc,Vector3fc,Vector3fc> {
     Vector3fc ZERO = new Vector3f( 0, 0, 0 );
     Vector3fc ONE = new Vector3f( 1, 1, 1 );
-
-    static ObjectTransformations3D getIdentity() {return IDENTITY_TRANSFORMATION;}
 
     @Override
     default Vector3fc getScale() { return ONE; }
@@ -27,5 +23,4 @@ public interface ObjectTransformations3D extends ObjectTransformations<Vector3fc
     @Override
     default Vector3fc getPosition() { return ZERO; }
 
-    class IdentityTransformations3D implements ObjectTransformations3D {}
 }

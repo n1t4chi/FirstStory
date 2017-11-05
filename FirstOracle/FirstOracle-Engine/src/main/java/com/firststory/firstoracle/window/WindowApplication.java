@@ -6,49 +6,60 @@ package com.firststory.firstoracle.window;
 import com.sun.prism.es2.JFXGLContext;
 import cuchaz.jfxgl.CalledByEventsThread;
 import cuchaz.jfxgl.CalledByMainThread;
+import cuchaz.jfxgl.JFXGL;
 import cuchaz.jfxgl.controls.OpenGLPane;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 
 /**
  * @author: n1t4chi
  */
-public final class WindowApplication extends Application {
+public final class WindowApplication extends Application implements FpsObserver, TimeObserver {
+
+    private int lastFpsUpdate = 0;
+    private double lastTimeUpdate;
     private OpenGLPane glpane;
     private Pane overlayPanel;
-    private WindowOverlayInitialiser overlayInitialiser;
+    private OverlayContentManager contentUpdater;
 
-    public WindowApplication(WindowOverlayInitialiser overlayInitialiser) {
-        this.overlayInitialiser = overlayInitialiser;
-    }
-
-    public Pane getOverlayPanel() {
-        return overlayPanel;
+    public WindowApplication( OverlayContentManager contentUpdater ) {
+        this.contentUpdater = contentUpdater;
     }
 
     @Override
     @CalledByEventsThread
-    public void start( Stage stage )
-        throws IOException
+    public void start( Stage stage ) throws IOException
     {
         // create the UI
         glpane = new OpenGLPane();
-        glpane.setRenderer( c -> render(c) );
-        overlayPanel = new Pane();
-        overlayInitialiser.init( overlayPanel );
+        overlayPanel = contentUpdater.createOverlayPanel();
+
+        glpane.setRenderer( c -> render( c ) );
         glpane.getChildren().add( overlayPanel );
+
+        contentUpdater.init();
+
         stage.setScene( new Scene( glpane ) );
     }
 
-    @CalledByMainThread
-    private void render( JFXGLContext context ) {}
+    @Override
+    public void notify( int newFpsCount, FpsNotifier source ) {
+        lastFpsUpdate = newFpsCount;
+    }
 
-    public interface WindowOverlayInitialiser {
-        void init( Pane overlayPanel );
+    @Override
+    public void notify( double newTimeSnapshot, TimeNotifier source ) {
+        lastTimeUpdate = newTimeSnapshot;
+    }
+
+    @CalledByMainThread
+    private void render( JFXGLContext context ) {
+        JFXGL.runOnEventsThread( () -> {
+            contentUpdater.update(lastTimeUpdate, lastFpsUpdate );
+        } );
     }
 }

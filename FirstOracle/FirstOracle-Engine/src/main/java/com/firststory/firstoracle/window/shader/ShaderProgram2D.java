@@ -3,7 +3,7 @@
  */
 package com.firststory.firstoracle.window.shader;
 
-import com.firststory.firstoracle.camera.camera2D.Camera2D;
+import com.firststory.firstoracle.camera2D.Camera2D;
 import org.joml.Matrix3fc;
 import org.joml.Vector2fc;
 import org.joml.Vector4fc;

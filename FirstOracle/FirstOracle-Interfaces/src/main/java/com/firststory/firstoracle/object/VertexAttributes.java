@@ -15,57 +15,52 @@ import java.util.Map;
  * @author: n1t4chi
  */
 public abstract class VertexAttributes implements Closeable {
-    
+
     private static Map< Integer, Integer > lastBinds = new HashMap<>( 2 );
-    
-    private static void bindAttributePointer( ArrayBuffer buffer, int index, int vertexSize ) {
-        if ( lastBinds.get( index ) == buffer.getBufferID() ) {
+
+    static void bindAttributePointer( ArrayBuffer buffer, int index, int vertexSize ) {
+        Integer integer = lastBinds.get( index );
+        if ( integer!=null && integer == buffer.getBufferID() ) {
             buffer.bind();
             GL20.glVertexAttribPointer( index, vertexSize, GL11.GL_FLOAT, false, 0, 0 );
             lastBinds.put( index, buffer.getBufferID() );
         }
     }
-    
-    float[][] verticesByFrame;
-    ArrayBuffer[] buffers;
-    
-    public VertexAttributes( float[][] verticesByFrame ) {
-        setVertices( verticesByFrame );
+
+    private HashMap< Long, ArrayBuffer > buffers = new HashMap<>(  );
+
+    protected int bindBufferAndGetSize( long key ) {
+        int vertexSize = getVertexSize();
+        bindAttributePointer( getBuffer( key ), getIndex(), vertexSize );
+        return vertexSize;
     }
-    
-    /**
-     * @param verticesByFrame
-     */
-    public void setVertices( float[][] verticesByFrame ) {
-        if ( buffers != null ) {
-            close();
+
+    protected abstract float[] getArray( long key );
+
+    protected int getVertexLength( long key ){
+        return buffers.get( key ).getLength()/getVertexSize();
+    }
+
+    protected abstract int getVertexSize();
+
+    protected abstract int getIndex();
+
+    private ArrayBuffer getBuffer( long key ) {
+        ArrayBuffer buffer = buffers.get( key );
+        if ( buffer == null ) {
+            buffer = new ArrayBuffer();
+            buffer.create();
+            buffer.load( getArray( key ) );
+            buffers.put( key, buffer );
         }
-        this.verticesByFrame = verticesByFrame;
-        buffers = new ArrayBuffer[verticesByFrame.length];
+        return buffer;
     }
-    
-    public void bind( int frame ) {
-        checkBuffer( frame );
-        bindAttributePointer( buffers[frame], getIndex(), getVertexSize() );
-    }
-    
+
     @Override
     public void close() {
-        for ( ArrayBuffer buffer : buffers ) {
+        for ( ArrayBuffer buffer : buffers.values() ) {
             buffer.close();
         }
-    }
-    
-    protected abstract int getVertexSize();
-    
-    protected abstract int getIndex();
-    
-    private void checkBuffer( int frame ) {
-        if ( buffers[frame] == null ) {
-            ArrayBuffer buffer = new ArrayBuffer();
-            buffer.create();
-            buffer.load( verticesByFrame[frame] );
-            buffers[frame] = buffer;
-        }
+        buffers.clear();
     }
 }

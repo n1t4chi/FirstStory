@@ -5,10 +5,7 @@ package com.firststory.firstoracle.util;
 
 import com.firststory.firstoracle.object.Texture;
 
-import static java.awt.Font.TRUETYPE_FONT;
-import static java.awt.Font.TYPE1_FONT;
-
-import java.awt.FontFormatException;
+import java.awt.*;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -19,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import static java.awt.Font.TRUETYPE_FONT;
+import static java.awt.Font.TYPE1_FONT;
 import static org.lwjgl.BufferUtils.createByteBuffer;
 
 /**
@@ -101,7 +100,7 @@ public class IOUtilities {
             try (
                 InputStream io = Texture.class.getClassLoader()
                     .getResourceAsStream( resource ); ReadableByteChannel rbc = Channels.newChannel(
-                io );
+                io )
             )
             {
                 bf = createByteBuffer( 16384 );

@@ -3,8 +3,8 @@
  */
 package com.firststory.firstoracle.window.shader;
 
-import com.firststory.firstoracle.camera.camera2D.Camera2D;
-import com.firststory.firstoracle.camera.camera3D.Camera3D;
+import com.firststory.firstoracle.camera2D.Camera2D;
+import com.firststory.firstoracle.camera3D.Camera3D;
 import org.joml.*;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;

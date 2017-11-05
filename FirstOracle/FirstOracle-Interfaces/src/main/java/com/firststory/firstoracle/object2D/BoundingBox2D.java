@@ -70,10 +70,10 @@ public class BoundingBox2D implements BoundingBox<BoundingBox2D,ObjectTransforma
         maxX = this.maxX;
         minY = this.minY;
         maxY = this.maxY;
-        Vector2fc rotation = transformations.getRotation();
+        Float rotation = transformations.getRotation();
         Vector2fc position = transformations.getPosition();
         Vector2fc scale = transformations.getScale();
-        if ( rotation.lengthSquared() != 0 ) {
+        if ( rotation != 0 ) {
             minX *= 1.5;
             maxX *= 1.5;
             minY *= 1.5;

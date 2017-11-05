@@ -6,11 +6,11 @@ package com.firststory.firstoracle.object;
 /**
  * @author: n1t4chi
  */
-public interface ObjectTransformations< Vector > {
+public interface ObjectTransformations< Scale, Rotation, Position > {
 
-    Vector getScale();
+    Scale getScale();
 
-    Vector getRotation();
+    Rotation getRotation();
 
-    Vector getPosition();
+    Position getPosition();
 }

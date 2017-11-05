@@ -14,4 +14,16 @@
 	</parent>
 	
     <packaging>pom</packaging>
+
+    <modules>
+        <module>
+            FirstOracle-Interfaces
+        </module>
+        <module>
+            FirstOracle-Impl
+        </module>
+        <module>
+            FirstOracle-Engine
+        </module>
+    </modules>
 </project>
