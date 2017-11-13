@@ -8,7 +8,7 @@ import com.firststory.firstoracle.object.UvMap;
 
 /**
  * Class representing 3D Object, contains texture, UV mapping, vertices and objectTransformations.
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public abstract class MutableObject3D implements Object3D {
     Texture texture;

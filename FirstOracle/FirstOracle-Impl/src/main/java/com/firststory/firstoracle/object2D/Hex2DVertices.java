@@ -6,7 +6,7 @@ package com.firststory.firstoracle.object2D;
 import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class Hex2DVertices extends FramelessVertices2D {
 

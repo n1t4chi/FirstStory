@@ -8,7 +8,7 @@ import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class Rectangle implements Object2D {
     private Texture texture;

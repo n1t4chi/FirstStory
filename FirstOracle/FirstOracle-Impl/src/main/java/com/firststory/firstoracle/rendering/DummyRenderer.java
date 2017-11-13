@@ -4,7 +4,7 @@
 package com.firststory.firstoracle.rendering;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class DummyRenderer implements GraphicRenderer {
     public static final GraphicRenderer DUMMY_RENDERER = new DummyRenderer();

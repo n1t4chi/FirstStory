@@ -8,7 +8,7 @@ import org.lwjgl.opengl.GL15;
 import java.io.Closeable;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class ArrayBuffer implements Closeable {
     

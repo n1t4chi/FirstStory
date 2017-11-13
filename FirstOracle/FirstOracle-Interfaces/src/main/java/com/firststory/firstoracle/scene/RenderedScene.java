@@ -10,7 +10,7 @@ import com.firststory.firstoracle.rendering.Object3DRenderer;
 import org.joml.Vector4fc;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface RenderedScene {
 

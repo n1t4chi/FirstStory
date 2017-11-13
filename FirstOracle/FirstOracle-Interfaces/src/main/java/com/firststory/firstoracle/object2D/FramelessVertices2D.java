@@ -7,7 +7,7 @@ import com.firststory.firstoracle.object.Vertices;
 import com.firststory.firstoracle.object3D.Vertices3D;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class FramelessVertices2D extends Vertices2D {
 

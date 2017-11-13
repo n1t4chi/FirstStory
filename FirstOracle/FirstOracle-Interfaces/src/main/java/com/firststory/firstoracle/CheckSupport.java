@@ -8,7 +8,7 @@ import org.lwjgl.opengl.GLCapabilities;
 import static org.lwjgl.opengl.GL.getCapabilities;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class CheckSupport {
 

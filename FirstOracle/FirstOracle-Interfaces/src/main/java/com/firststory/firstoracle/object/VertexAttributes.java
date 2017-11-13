@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public abstract class VertexAttributes implements Closeable {
 

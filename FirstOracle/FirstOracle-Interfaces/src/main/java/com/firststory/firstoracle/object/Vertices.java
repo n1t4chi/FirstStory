@@ -6,7 +6,7 @@ package com.firststory.firstoracle.object;
 import java.util.Arrays;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public abstract class Vertices< BoundingBox > extends VertexAttributes {
 

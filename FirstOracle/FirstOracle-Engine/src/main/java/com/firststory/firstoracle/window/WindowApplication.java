@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public final class WindowApplication extends Application implements FpsListener, TimeListener {
 

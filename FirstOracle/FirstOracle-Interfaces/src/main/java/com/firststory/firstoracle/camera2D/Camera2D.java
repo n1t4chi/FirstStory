@@ -9,7 +9,7 @@ import org.joml.Matrix3fc;
 import org.joml.Vector2fc;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public abstract class Camera2D {
 

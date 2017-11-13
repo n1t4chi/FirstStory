@@ -9,7 +9,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class MovableCamera2D extends Camera2D {
 
@@ -75,7 +75,8 @@ public class MovableCamera2D extends Camera2D {
     public boolean contains( float minX, float maxX, float minY, float maxY ) { return true; }
 
     private void updateMatrix() {
-        if ( !update ) {
+        if ( update ) {
+            System.err.println( "Camera2D Update" );
             camera.identity();
             camera.scale( width, width * heightByWidthRatio, 1 );
             translate();

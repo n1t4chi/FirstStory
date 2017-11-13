@@ -8,7 +8,7 @@ import com.firststory.firstoracle.object.UvMap;
 
 /**
  * Class representing 2D Object, contains texture, UV mapping, vertices and objectTransformations.
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public abstract class MutableObject2D implements Object2D {
     Texture texture;

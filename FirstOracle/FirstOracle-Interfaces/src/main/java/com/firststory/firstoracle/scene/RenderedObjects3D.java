@@ -6,7 +6,7 @@ package com.firststory.firstoracle.scene;
 import com.firststory.firstoracle.rendering.Object3DRenderer;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface RenderedObjects3D {
 

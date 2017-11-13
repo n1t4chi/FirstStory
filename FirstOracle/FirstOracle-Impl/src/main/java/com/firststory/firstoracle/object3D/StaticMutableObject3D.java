@@ -7,7 +7,7 @@ import com.firststory.firstoracle.object3D.MutableObject3D;
 
 /**
  * Class representing 3D Object, contains texture, UV mapping, vertices and objectTransformations.
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class StaticMutableObject3D extends MutableObject3D {
 

@@ -8,7 +8,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface ObjectTransformations2D extends ObjectTransformations< Vector2fc, Float, Vector2fc > {
 

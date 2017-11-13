@@ -6,7 +6,7 @@ package com.firststory.firstoracle.rendering;
 import com.firststory.firstoracle.scene.RenderedScene;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface SceneProvider {
     RenderedScene getNextScene();

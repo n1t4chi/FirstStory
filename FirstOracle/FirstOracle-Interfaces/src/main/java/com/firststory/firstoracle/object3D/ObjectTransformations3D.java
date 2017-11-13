@@ -8,7 +8,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface ObjectTransformations3D extends ObjectTransformations<Vector3fc,Vector3fc,Vector3fc> {
     Vector3fc ZERO = new Vector3f( 0, 0, 0 );

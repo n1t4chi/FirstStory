@@ -10,7 +10,7 @@ import org.joml.Vector2fc;
 import org.joml.Vector2ic;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class RectangleGrid extends Rectangle {
     private static Vector2f position = new Vector2f(  );

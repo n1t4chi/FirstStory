@@ -7,7 +7,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class ObjectTransformations3DMutable implements ObjectTransformations3D {
     

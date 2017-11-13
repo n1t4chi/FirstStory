@@ -6,7 +6,7 @@ package com.firststory.firstoracle.object;
 import java.util.HashMap;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class PlaneUvMap extends UvMap {
     private static HashMap< Long, PlaneUvMap > map = new HashMap<>( 25 );

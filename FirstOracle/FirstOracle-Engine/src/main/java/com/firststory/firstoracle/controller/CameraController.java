@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.lang.Thread.sleep;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class CameraController extends GLFWKeyCallback implements Runnable,
     CameraNotifier,
@@ -33,7 +33,7 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
     private long refreshLatency;
     private float speed = 15f;
 
-    private ConcurrentHashMap< Integer, Integer > KeyMap = new ConcurrentHashMap<>( 10 );
+    private ConcurrentHashMap< Integer, Integer > keyMap = new ConcurrentHashMap<>( 10 );
     private Collection< CameraListener > cameraObservers = new ArrayList<>( 3 );
 
     private float rotationY = 0;
@@ -82,11 +82,12 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
         while ( keepWorking ) {
             double currentTime = GLFW.glfwGetTime();
             boolean updated = false;
-            if ( !KeyMap.isEmpty() ) {
+            if ( !keyMap.isEmpty() ) {
+//                System.err.println( "keep working: "+keyMap.size() );
                 float timeDelta = ( float ) ( ( currentTime - lastTime ) * speed );
-                for ( Map.Entry< Integer, Integer > e : KeyMap.entrySet() ) {
+                for ( Map.Entry< Integer, Integer > e : keyMap.entrySet() ) {
                     if ( key( e.getKey(), e.getValue(), timeDelta ) ) {
-                        KeyMap.remove( e.getKey() );
+                        keyMap.remove( e.getKey() );
                     } else {
                         updated = true;
                     }
@@ -107,12 +108,12 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
 
     @Override
     public void invoke( long window, int key, int scancode, int action, int mods ) {
-        System.err.println(
-            "w:" + window + ", k:" + key + ", sc" + scancode + ", a:" + action + ", m:" + mods );
+//        System.err.println(
+//            "w:" + window + ", k:" + key + ", sc" + scancode + ", a:" + action + ", m:" + mods );
         if ( action == GLFW.GLFW_PRESS ) {
-            KeyMap.put( key, mods );
+            keyMap.put( key, mods );
         } else if ( action == GLFW.GLFW_RELEASE ) {
-            KeyMap.remove( key );
+            keyMap.remove( key );
         }
     }
 
@@ -126,7 +127,6 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
         QuitEvent event, QuitNotifier source
     )
     {
-        System.err.println( "quit" );
         keepWorking = false;
     }
 
@@ -152,6 +152,7 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
         } else if ( cameraKeyMap.shouldRotateRight( key, mods ) ) {
             rotateRight( timeDelta );
         } else if ( cameraKeyMap.shouldMoveForward( key, mods ) ) {
+            System.err.println( "forward" );
             moveForward();
         } else if ( cameraKeyMap.shouldMoveBackwards( key, mods ) ) {
             moveBackwards();
@@ -167,46 +168,6 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
             return true;
         }
         return false;
-    }
-
-    private boolean shouldMoveDown( int key, int mods ) {
-        return cameraKeyMap.shouldMoveDown( key, mods );
-    }
-
-    private boolean shouldMoveUp( int key, int mods ) {
-        return cameraKeyMap.shouldMoveUp( key, mods );
-    }
-
-    private boolean shouldMoveLeft( int key, int mods ) {
-        return cameraKeyMap.shouldMoveLeft( key, mods );
-    }
-
-    private boolean shouldMoveRight( int key, int mods ) {
-        return cameraKeyMap.shouldMoveRight( key, mods );
-    }
-
-    private boolean shouldMoveBackwards( int key, int mods ) {
-        return cameraKeyMap.shouldMoveBackwards( key, mods );
-    }
-
-    private boolean shouldMoveForward( int key, int mods ) {
-        return cameraKeyMap.shouldMoveForward( key, mods );
-    }
-
-    private boolean shouldRotateRight( int key, int mods ) {
-        return cameraKeyMap.shouldRotateRight( key, mods );
-    }
-
-    private boolean shouldRotateLeft( int key, int mods ) {
-        return cameraKeyMap.shouldRotateLeft( key, mods );
-    }
-
-    private boolean shouldRotateDown( int key, int mods ) {
-        return cameraKeyMap.shouldRotateDown( key, mods );
-    }
-
-    private boolean shouldRotateUp( int key, int mods ) {
-        return cameraKeyMap.shouldRotateUp( key, mods );
     }
 
     private void rotateDown( float timeDelta ) {
@@ -266,7 +227,9 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
     }
 
     private void moveForward() {
+        System.err.println( "before pos: "+posX+","+posZ);
         posX += direction.x;
         posZ += direction.y;
+        System.err.println( "after pos: "+posX+","+posZ);
     }
 }

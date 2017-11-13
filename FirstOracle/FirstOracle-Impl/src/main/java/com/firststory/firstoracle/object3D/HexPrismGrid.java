@@ -10,7 +10,7 @@ import org.joml.Vector3fc;
 import org.joml.Vector3ic;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class HexPrismGrid extends HexPrism {
 

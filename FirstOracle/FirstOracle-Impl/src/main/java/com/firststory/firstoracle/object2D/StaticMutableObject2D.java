@@ -5,7 +5,7 @@ package com.firststory.firstoracle.object2D;
 
 /**
  * Class representing 2D Object, contains texture, UV mapping, vertices and objectTransformations.
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class StaticMutableObject2D extends MutableObject2D {
 

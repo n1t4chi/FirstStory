@@ -12,7 +12,7 @@ import org.lwjgl.system.MemoryStack;
 import static org.lwjgl.system.MemoryStack.stackPush;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class UniformLocation {
 

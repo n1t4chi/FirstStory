@@ -6,7 +6,7 @@ package com.firststory.firstoracle.window;
 import javafx.scene.layout.Pane;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface OverlayContentManager {
 

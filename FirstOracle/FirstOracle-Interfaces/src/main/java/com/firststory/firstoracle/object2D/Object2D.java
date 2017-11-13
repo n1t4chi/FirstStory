@@ -6,7 +6,7 @@ package com.firststory.firstoracle.object2D;
 import com.firststory.firstoracle.object.GraphicObject;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface Object2D extends GraphicObject< ObjectTransformations2D, BoundingBox2D, Vertices2D > {
 

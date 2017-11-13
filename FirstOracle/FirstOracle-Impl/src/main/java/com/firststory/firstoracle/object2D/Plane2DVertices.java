@@ -4,7 +4,7 @@
 package com.firststory.firstoracle.object2D;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class Plane2DVertices extends FramelessVertices2D {
 

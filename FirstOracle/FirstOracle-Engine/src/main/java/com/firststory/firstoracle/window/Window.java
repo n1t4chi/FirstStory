@@ -4,17 +4,16 @@
 package com.firststory.firstoracle.window;
 
 import com.firststory.firstoracle.CheckSupport;
+import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.rendering.GraphicRenderer;
+import com.firststory.firstoracle.window.notifying.*;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGL;
 import cuchaz.jfxgl.LWJGLDebug;
 import javafx.application.Application;
 import javafx.scene.layout.Pane;
-import org.lwjgl.glfw.Callbacks;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -23,6 +22,7 @@ import org.lwjgl.system.Callback;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static java.lang.Thread.sleep;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
@@ -50,9 +50,14 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  * //any OpenGL context can be used after
  * run(); <- starts rendering loop so it's advised to put it into new thread
  *
- * @author: n1t4chi
+ * @author n1t4chi
  */
-public final class Window implements Runnable, TimeNotifier {
+public class Window implements Runnable,
+    TimeNotifier,
+    WindowResizedNotifier,
+    WindowMovementNotifier,
+    QuitNotifier
+{
 
     private static Window instance = null;
 
@@ -76,7 +81,10 @@ public final class Window implements Runnable, TimeNotifier {
     }
 
     private final WindowSettings windowSettings;
-    ArrayList< TimeObserver > timeObservers = new ArrayList<>( 3 );
+    private final ArrayList< TimeListener > timeListeners = new ArrayList<>( 3 );
+    private final ArrayList< WindowResizedListener > sizeListeners = new ArrayList<>( 3 );
+    private final ArrayList< WindowMovementListener > movementListeners = new ArrayList<>( 3 );
+    private final ArrayList< QuitListener > quitListeners = new ArrayList<>( 3 );
     private long windowID = -1;
     private GLFWErrorCallback errorCallback;
     private Application application;
@@ -110,6 +118,7 @@ public final class Window implements Runnable, TimeNotifier {
                 throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
             }
             enableFunctionality();
+            setupCallbacks();
             shaderProgram2D.compile();
             shaderProgram3D.compile();
             renderer.init();
@@ -128,6 +137,8 @@ public final class Window implements Runnable, TimeNotifier {
         JFXGL.start( windowID, new String[]{}, application );
         try {
             loop();
+            notifyQuitListeners();
+            sleep( 10 );
         } catch ( Exception ex ) {
             System.err.println( "Exception:\n" + ex );
             ex.printStackTrace();
@@ -138,17 +149,70 @@ public final class Window implements Runnable, TimeNotifier {
         }
     }
 
+    /**
+     * Returns whether the window should close before next rendering cycle.
+     * <p>
+     * If this method is overridden then also {@link #quit()} needs to be overridden
+     * or there will be inconsistencies.
+     *
+     * @return true when window should close
+     */
+    public boolean shouldWindowClose() {
+        return !GLFW.glfwWindowShouldClose( windowID );
+    }
+
+    /**
+     * Notifies window that it should stop rendering and close itself.
+     * <p>
+     * If this method is overridden then also {@link #shouldWindowClose()} needs to be overridden
+     * or there will be inconsistencies.
+     */
+    public void quit() {
+        GLFW.glfwSetWindowShouldClose( windowID, true );
+    }
+
     @Override
-    public Collection< TimeObserver > getObservers() {
-        return timeObservers;
+    public Collection< TimeListener > getTimeObservers() {
+        return timeListeners;
+    }
+
+    @Override
+    public Collection< QuitListener > getQuitListeners() {
+        return quitListeners;
+    }
+
+    @Override
+    public Collection< WindowMovementListener > getMovementObservers() {
+        return movementListeners;
+    }
+
+    @Override
+    public Collection< WindowResizedListener > getSizeObservers() {
+        return sizeListeners;
+    }
+
+    public void addKeyCallbackController( GLFWKeyCallback controller ) {
+        GLFW.glfwSetKeyCallback( windowID, controller );
+    }
+
+    public void addMouseScrollCallbackController( GLFWScrollCallback controller ) {
+        GLFW.glfwSetScrollCallback( windowID, controller );
+    }
+
+    public void addMouseButtonCallbackController( GLFWMouseButtonCallback controller ) {
+        GLFW.glfwSetMouseButtonCallback( windowID, controller );
+    }
+
+    public void addMousePositionCallbackController( GLFWCursorPosCallback controller ) {
+        GLFW.glfwSetCursorPosCallback( windowID, controller );
     }
 
     private void loop() {
-        while ( !GLFW.glfwWindowShouldClose( windowID ) ) {
+        while ( shouldWindowClose() ) {
             GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
-            notifyObservers( GLFW.glfwGetTime() );
-            JFXGL.render();
+            notifyTimeObservers( GLFW.glfwGetTime() );
             renderer.render();
+            JFXGL.render();
             GLFW.glfwSwapBuffers( windowID );
             GLFW.glfwPollEvents();
         }
@@ -163,10 +227,11 @@ public final class Window implements Runnable, TimeNotifier {
         }
     }
 
-    private void setVisible() { GLFW.glfwShowWindow( windowID ); }
+    private void setVisible() {
+        GLFW.glfwShowWindow( windowID );
+    }
 
-    private void enableFunctionality()
-    {
+    private void enableFunctionality() {
         if ( windowSettings.isVerticalSync() ) {
             GLFW.glfwSwapInterval( 1 );
         } else {
@@ -175,6 +240,7 @@ public final class Window implements Runnable, TimeNotifier {
         GL11.glEnable( GL11.GL_CULL_FACE );
         GL11.glCullFace( GL11.GL_BACK );
         GL11.glEnable( GL11.GL_BLEND );
+        GL11.glEnable( GL11.GL_TEXTURE_2D );
         GL11.glBlendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
         GL11.glFrontFace( GL11.GL_CCW );
         ARBVertexArrayObject.glBindVertexArray( ARBVertexArrayObject.glGenVertexArrays() );
@@ -242,6 +308,17 @@ public final class Window implements Runnable, TimeNotifier {
         }
     }
 
+    private void setupCallbacks() {
+        GLFW.glfwSetWindowSizeCallback( windowID, ( window, width, height ) -> {
+            GLFW.glfwSetWindowSize( windowID, width, height );
+            GLFW.glfwSwapBuffers( windowID );
+            notifySizeListeners( width, height );
+        } );
+        GLFW.glfwSetWindowPosCallback( windowID, ( window, xpos, ypos ) -> {
+            notifyMovementObservers( xpos, ypos );
+        } );
+    }
+
     private void setWindowHints() {
         GLFW.glfwDefaultWindowHints();
         GLFW.glfwWindowHint( GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3 );
@@ -249,7 +326,10 @@ public final class Window implements Runnable, TimeNotifier {
         GLFW.glfwWindowHint( GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE );
         GLFW.glfwWindowHint( GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE );
         GLFW.glfwWindowHint( GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE );
-        GLFW.glfwWindowHint( GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE );
+        GLFW.glfwWindowHint(
+            GLFW.GLFW_RESIZABLE,
+            ( windowSettings.isResizeable() ) ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE
+        );
         GLFW.glfwWindowHint( GLFW.GLFW_SAMPLES, windowSettings.getAntiAliasing() );
     }
 
@@ -270,10 +350,14 @@ public final class Window implements Runnable, TimeNotifier {
     }
 
     private void freeErrorCallback() {
-        if ( errorCallback != null ) { errorCallback.free(); }
+        if ( errorCallback != null ) {
+            errorCallback.free();
+        }
     }
 
-    private boolean openGLSupportedEnough() { return CheckSupport.checkSupport(); }
+    private boolean openGLSupportedEnough() {
+        return CheckSupport.checkSupport();
+    }
 
     private void initOpenGL() {
         if ( !GLFW.glfwInit() ) {

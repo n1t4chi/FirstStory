@@ -8,7 +8,7 @@ import java.util.HashMap;
 import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class Hex2DUvMap extends UvMap {
     private static HashMap< Long, Hex2DUvMap > instances = new HashMap<>( 5 );

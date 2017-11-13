@@ -106,7 +106,8 @@ public class IsometricCamera3D extends Camera3D {
     }
 
     private void updateMatrix() {
-        if ( !update ) {
+        if ( update ) {
+            System.err.println( "Camera3D Update" );
             float planeX = initialHalfXSize;
             //float planeZ = (size+1)*(size+1);
             float planeY = ( planeX ) * heightByWidthRatio;

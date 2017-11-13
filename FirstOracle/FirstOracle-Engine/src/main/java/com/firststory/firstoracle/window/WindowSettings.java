@@ -4,7 +4,7 @@
 package com.firststory.firstoracle.window;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class WindowSettings {
 

@@ -8,7 +8,7 @@ import org.joml.Vector3fc;
 import org.joml.Vector4fc;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface Object3DRenderer {
 

@@ -6,7 +6,7 @@ package com.firststory.firstoracle.window.notifying;
 import java.util.Collection;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface TimeNotifier {
     Collection<TimeListener > getTimeObservers();

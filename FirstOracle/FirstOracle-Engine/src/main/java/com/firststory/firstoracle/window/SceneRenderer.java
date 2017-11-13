@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public class SceneRenderer implements GraphicRenderer,
     Object2DRenderer,

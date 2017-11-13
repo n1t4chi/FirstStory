@@ -4,7 +4,7 @@
 package com.firststory.firstoracle.object;
 
 /**
- * @author: n1t4chi
+ * @author n1t4chi
  */
 public interface GraphicObject< TransformationsType extends ObjectTransformations, BoundingBoxType extends BoundingBox, VerticesType extends Vertices > {
 
