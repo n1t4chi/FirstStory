@@ -23,7 +23,7 @@ public class IsometricCamera3D extends Camera3D {
     private boolean update;
 
     /**
-     * @param size        Initial half of size on X dimension of orthogonal projection.
+     * @param size               Initial half of size on X dimension of orthogonal projection.
      * @param X
      * @param Y
      * @param Z
@@ -54,34 +54,31 @@ public class IsometricCamera3D extends Camera3D {
     }
 
     public void setRotationY( float rotationY ) {
-        update = false;
-        this.rotationY = rotationY;
+        if ( this.rotationY != rotationY ) {
+            update = true;
+            this.rotationY = rotationY;
+        }
     }
 
     public void setRotationX( float rotationX ) {
-        update = false;
-        this.rotationX = rotationX;
+        if ( this.rotationX != rotationX ) {
+            update = true;
+            this.rotationX = rotationX;
+        }
     }
 
     public void setSize( float size ) {
-        update = false;
-        this.initialHalfXSize = size;
+        if ( this.initialHalfXSize != size ) {
+            update = true;
+            this.initialHalfXSize = size;
+        }
     }
 
     public final void setCenterPoint( float X, float Y, float Z ) {
-        update = false;
-        this.position.set( X, Y, Z );
-    }
-
-    @Override
-    public Matrix4fc getMatrixRepresentation() {
-        updateMatrix();
-        return camera;
-    }
-
-    @Override
-    public Vector3fc getCenterPoint() {
-        return position;
+        if ( position.x != X || position.y != Y || position.z != Z ) {
+            update = true;
+            this.position.set( X, Y, Z );
+        }
     }
 
     @Override
@@ -95,6 +92,17 @@ public class IsometricCamera3D extends Camera3D {
     )
     {
         return true;
+    }
+
+    @Override
+    public Matrix4fc getMatrixRepresentation() {
+        updateMatrix();
+        return camera;
+    }
+
+    @Override
+    public Vector3fc getCenterPoint() {
+        return position;
     }
 
     private void updateMatrix() {

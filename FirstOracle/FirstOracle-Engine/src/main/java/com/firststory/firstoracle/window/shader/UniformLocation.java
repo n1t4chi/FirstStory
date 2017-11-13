@@ -81,7 +81,7 @@ public class UniformLocation {
     public void bind( Matrix3fc camera ) {
         if ( !camera.equals( lastBind ) ) {
             try ( MemoryStack stack = stackPush() ) {
-                GL20.glUniformMatrix4fv(
+                GL20.glUniformMatrix3fv(
                     locationID,
                     false,
                     camera.get( stack.callocFloat( 9 ) )

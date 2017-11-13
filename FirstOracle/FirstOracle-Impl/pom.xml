@@ -15,10 +15,6 @@
     </parent>
     <packaging>jar</packaging>
 
-    <modules>
-        <module>../FirstOracle-Interfaces</module>
-    </modules>
-
     <dependencies>
 
         <dependency>

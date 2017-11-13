@@ -41,8 +41,8 @@ public class ShaderProgram2D extends ShaderProgram {
         positionLocation.bind( vector );
     }
 
-    public void bindCamera( Camera2D camera3D ) {
-        cameraLocation.bind( camera3D );
+    public void bindCamera( Camera2D camera2D ) {
+        cameraLocation.bind( camera2D );
     }
 
     public void bindCamera( Matrix3fc camera ) {

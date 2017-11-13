@@ -14,6 +14,15 @@
     </parent>
     <packaging>jar</packaging>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>../../resources/First Oracle</directory>
+                <targetPath>resources/First Oracle</targetPath>
+            </resource>
+        </resources>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>com.FirstStory.FirstOracle</groupId>
@@ -109,8 +118,4 @@
         </dependency>
 
     </dependencies>
-    <modules>
-        <module>../FirstOracle-Interfaces</module>
-        <module>../FirstOracle-Impl</module>
-    </modules>
 </project>

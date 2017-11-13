@@ -21,11 +21,7 @@ public class MovableCamera2D extends Camera2D {
     private float rotation;
 
     public MovableCamera2D(
-        float width,
-        float X,
-        float Y,
-        float heightByWidthRatio,
-        float rotation
+        float width, float X, float Y, float heightByWidthRatio, float rotation
     )
     {
         this.position = new Vector2f( X, Y );
@@ -36,6 +32,34 @@ public class MovableCamera2D extends Camera2D {
         this.heightByWidthRatio = heightByWidthRatio;
     }
 
+    public void setRotation( float rotation ) {
+        if ( this.rotation != rotation ) {
+            update = true;
+            this.rotation = rotation;
+        }
+    }
+
+    public void setWidth( float width ) {
+        if ( this.width != width ) {
+            update = true;
+            this.width = width;
+        }
+    }
+
+    public void setHeightByWidthRatio( float ratio ) {
+        if ( heightByWidthRatio != ratio ) {
+            update = true;
+            this.heightByWidthRatio = ratio;
+        }
+    }
+
+    public final void setCenterPoint( float X, float Y ) {
+        if ( position.x != X || position.y != Y ) {
+            update = true;
+            this.position.set( X, Y );
+        }
+    }
+
     @Override
     public Matrix3fc getMatrixRepresentation() {
         updateMatrix();
@@ -44,7 +68,7 @@ public class MovableCamera2D extends Camera2D {
 
     @Override
     public Vector2fc getCenterPoint() {
-        return null;
+        return position;
     }
 
     @Override
@@ -53,7 +77,7 @@ public class MovableCamera2D extends Camera2D {
     private void updateMatrix() {
         if ( !update ) {
             camera.identity();
-            camera.scale( width , width*heightByWidthRatio , 1 );
+            camera.scale( width, width * heightByWidthRatio, 1 );
             translate();
             camera.rotateX( ( float ) java.lang.Math.toRadians( rotation ) );
             update = false;

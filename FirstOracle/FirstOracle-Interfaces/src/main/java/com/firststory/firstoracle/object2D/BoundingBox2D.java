@@ -9,7 +9,7 @@ import org.joml.Vector2fc;
 /**
  * @author n1t4chi
  */
-public class BoundingBox2D implements BoundingBox<BoundingBox2D,ObjectTransformations2D> {
+public class BoundingBox2D implements BoundingBox< BoundingBox2D, ObjectTransformations2D > {
 
     public static BoundingBox2D getBoundingBox2D( float[] vertices ) {
         float minX, maxX, minY, maxY;
@@ -20,7 +20,7 @@ public class BoundingBox2D implements BoundingBox<BoundingBox2D,ObjectTransforma
             if ( vertices[i] > maxX ) { maxX = vertices[i]; }
             if ( vertices[i + 1] < minY ) { minY = vertices[i]; }
             if ( vertices[i + 1] > maxY ) { maxY = vertices[i]; }
-    }
+        }
         return new BoundingBox2D( minX, maxX, minY, maxY );
     }
 
@@ -88,5 +88,10 @@ public class BoundingBox2D implements BoundingBox<BoundingBox2D,ObjectTransforma
         maxY *= scale.y();
         maxY += position.y();
         return new BoundingBox2D( minX, maxX, minY, maxY );
+    }
+
+    @Override
+    public String toString() {
+        return "BBox2D: [" + minX + "," + maxX + "] [" + minY + "," + maxY + "]";
     }
 }

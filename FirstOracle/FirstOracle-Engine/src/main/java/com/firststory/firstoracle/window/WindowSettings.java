@@ -7,7 +7,7 @@ package com.firststory.firstoracle.window;
  * @author: n1t4chi
  */
 public class WindowSettings {
-    
+
     private final WindowMode windowMode;
     private final String title;
     private final int antiAliasing;
@@ -19,19 +19,21 @@ public class WindowSettings {
     private boolean drawGrid = false;
     private boolean drawBorder = false;
     private boolean useTexture = true;
-    
+    private boolean resizeable = false;
+
     public WindowSettings(
-                             WindowMode windowMode,
-                             String title,
-                             int width,
-                             int height,
-                             int positionX,
-                             int positionY,
-                             boolean verticalSync,
-                             int antiAliasing,
-                             boolean drawGrid,
-                             boolean drawBorder,
-                             boolean useTexture
+        WindowMode windowMode,
+        String title,
+        int width,
+        int height,
+        int positionX,
+        int positionY,
+        boolean verticalSync,
+        boolean resizeable,
+        int antiAliasing,
+        boolean drawGrid,
+        boolean drawBorder,
+        boolean useTexture
     )
     {
         this.windowMode = windowMode;
@@ -41,86 +43,95 @@ public class WindowSettings {
         this.width = width;
         this.height = height;
         this.verticalSync = verticalSync;
+        this.resizeable = resizeable;
         this.antiAliasing = antiAliasing;
         this.drawGrid = drawGrid;
         this.drawBorder = drawBorder;
         this.useTexture = useTexture;
     }
-    
+
+    public boolean isResizeable() {
+        return resizeable;
+    }
+
+    public void setResizeable( boolean resizeable ) {
+        this.resizeable = resizeable;
+    }
+
     public WindowMode getWindowMode() {
         return windowMode;
     }
-    
+
     public String getTitle() {
         return title;
     }
-    
+
     public int getAntiAliasing() {
         return antiAliasing;
     }
-    
+
     public boolean isVerticalSync() {
         return verticalSync;
     }
-    
+
     public int getWidth() {
         return width;
     }
-    
+
     public void setWidth( int width ) {
         this.width = width;
     }
-    
+
     public int getHeight() {
         return height;
     }
-    
+
     public void setHeight( int height ) {
         this.height = height;
     }
-    
+
     public int getPositionX() {
         return positionX;
     }
-    
+
     public void setPositionX( int positionX ) {
         this.positionX = positionX;
     }
-    
+
     public int getPositionY() {
         return positionY;
     }
-    
+
     public void setPositionY( int positionY ) {
         this.positionY = positionY;
     }
-    
+
     public boolean isDrawGrid() {
         return drawGrid;
     }
-    
+
     public void setDrawGrid( boolean drawGrid ) {
         this.drawGrid = drawGrid;
     }
-    
+
     public boolean isDrawBorder() {
         return drawBorder;
     }
-    
+
     public void setDrawBorder( boolean drawBorder ) {
         this.drawBorder = drawBorder;
     }
-    
+
     public boolean isUseTexture() {
         return useTexture;
     }
-    
+
     public void setUseTexture( boolean useTexture ) {
         this.useTexture = useTexture;
     }
-    
+
     public static class WindowSettingsBuilder {
-        
+
         private WindowMode windowMode = WindowMode.WINDOWED;
         private String title = "Window";
         private int antiAliasing = 8;
@@ -132,72 +143,81 @@ public class WindowSettings {
         private boolean drawGrid = false;
         private boolean drawBorder = false;
         private boolean useTexture = true;
-        
+        private boolean resizeable = false;
+
         public WindowSettings build() {
-            return new WindowSettings( windowMode,
-                                         title,
-                                         width,
-                                         height,
-                                         positionX,
-                                         positionY,
-                                         verticalSync,
-                                         antiAliasing,
-                                         drawGrid,
-                                         drawBorder,
-                                         useTexture );
-            
+            return new WindowSettings(
+                windowMode,
+                title,
+                width,
+                height,
+                positionX,
+                positionY,
+                verticalSync,
+                resizeable,
+                antiAliasing,
+                drawGrid,
+                drawBorder,
+                useTexture
+            );
+
         }
-    
+
         public WindowSettingsBuilder setWindowMode( WindowMode windowMode ) {
             this.windowMode = windowMode;
             return this;
         }
-    
+
         public WindowSettingsBuilder setTitle( String title ) {
             this.title = title;
             return this;
         }
-    
+
         public WindowSettingsBuilder setAntiAliasing( int antiAliasing ) {
             this.antiAliasing = antiAliasing;
             return this;
         }
-    
+
         public WindowSettingsBuilder setVerticalSync( boolean verticalSync ) {
             this.verticalSync = verticalSync;
             return this;
         }
-    
+
+        public WindowSettingsBuilder setResizeable( boolean resizeable ) {
+            this.resizeable = resizeable;
+            return this;
+        }
+
         public WindowSettingsBuilder setWidth( int width ) {
             this.width = width;
             return this;
         }
-    
+
         public WindowSettingsBuilder setHeight( int height ) {
             this.height = height;
             return this;
         }
-    
+
         public WindowSettingsBuilder setPositionX( int positionX ) {
             this.positionX = positionX;
             return this;
         }
-    
+
         public WindowSettingsBuilder setPositionY( int positionY ) {
             this.positionY = positionY;
             return this;
         }
-    
+
         public WindowSettingsBuilder setDrawGrid( boolean drawGrid ) {
             this.drawGrid = drawGrid;
             return this;
         }
-    
+
         public WindowSettingsBuilder setDrawBorder( boolean drawBorder ) {
             this.drawBorder = drawBorder;
             return this;
         }
-    
+
         public WindowSettingsBuilder setUseTexture( boolean useTexture ) {
             this.useTexture = useTexture;
             return this;

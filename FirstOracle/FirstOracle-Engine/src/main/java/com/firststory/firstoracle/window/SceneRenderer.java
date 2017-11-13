@@ -13,6 +13,8 @@ import com.firststory.firstoracle.rendering.Object2DRenderer;
 import com.firststory.firstoracle.rendering.Object3DRenderer;
 import com.firststory.firstoracle.rendering.SceneProvider;
 import com.firststory.firstoracle.scene.RenderedScene;
+import com.firststory.firstoracle.window.notifying.FpsNotifier;
+import com.firststory.firstoracle.window.notifying.FpsListener;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import org.joml.Vector2fc;
@@ -49,7 +51,7 @@ public class SceneRenderer implements GraphicRenderer,
     private int lastFps;
     private GridRenderer gridRenderer;
     private SceneProvider sceneProvider;
-    private ArrayList< FpsObserver > observers = new ArrayList<>( 5 );
+    private ArrayList< FpsListener > observers = new ArrayList<>( 5 );
 
     public SceneRenderer(
         ShaderProgram2D shaderProgram2D,
@@ -137,7 +139,7 @@ public class SceneRenderer implements GraphicRenderer,
             lastFps = ( int ) ( ( float ) frameCount / (lastFrameUpdate-lastFpsUpdate) );
             lastFpsUpdate = lastFrameUpdate;
             frameCount = 0;
-            notifyObservers( lastFps );
+            notifyFpsListeners( lastFps );
         }
         frameCount++;
 
@@ -152,7 +154,7 @@ public class SceneRenderer implements GraphicRenderer,
     }
 
     @Override
-    public Collection< FpsObserver > getObservers() {
+    public Collection< FpsListener > getFpsObservers() {
         return observers;
     }
 

@@ -1,26 +1,14 @@
 #version 330 core
 
-// Input vertex data, different for all executions of this shader.
 layout (location = 0) in vec2 vertexPosition;
 layout (location = 1) in vec2 vertexUV;
 
-// Output data ; will be interpolated for each fragment.
 out vec2 UV;
 
-// Values that stay constant for the whole mesh.
 uniform mat3 camera;
 uniform vec2 translation;
 uniform vec2 scale;
 uniform float rotation;
-
-/**
-    0-2 -> object position in space
-    3-5 -> object scale
-    6-8 -> object rotation
-    9-12 -> object overlay color
-    13 -> object max alpha channel override
-*/
-//uniform float[14] objectData;
 
 void main(){
     UV = vertexUV;
@@ -38,7 +26,7 @@ void main(){
     }
     vec3 v =
         camera *
-        vec3( //#3 object position in space
+        vec3(
             translation.x+posX,
             translation.y+posY,
             1

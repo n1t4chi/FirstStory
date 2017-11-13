@@ -208,7 +208,6 @@ public class CheckSupport {
             System.err.println( "Function glDeleteTextures not supported" );
             proceed = false;
         }
-
         if ( 0 == capabilities.glGenTextures ) {
             System.err.println( "Function glGenTextures not supported" );
             proceed = false;
@@ -223,12 +222,10 @@ public class CheckSupport {
             System.err.println( "Function glTexImage2D not supported" );
             proceed = false;
         }
-
         if ( 0 == capabilities.glTexParameteri ) {
             System.err.println( "Function glTexParameteri not supported" );
             proceed = false;
         }
-
         if ( 0 == capabilities.glGenerateMipmap ) {
             System.err.println( "Function glGenerateMipmap not supported" );
             proceed = false;

@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.window;
 
+import com.firststory.firstoracle.window.notifying.*;
 import com.sun.prism.es2.JFXGLContext;
 import cuchaz.jfxgl.CalledByEventsThread;
 import cuchaz.jfxgl.CalledByMainThread;
@@ -18,7 +19,7 @@ import java.io.IOException;
 /**
  * @author: n1t4chi
  */
-public final class WindowApplication extends Application implements FpsObserver, TimeObserver {
+public final class WindowApplication extends Application implements FpsListener, TimeListener {
 
     private int lastFpsUpdate = 0;
     private double lastTimeUpdate;

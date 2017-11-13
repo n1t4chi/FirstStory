@@ -9,7 +9,7 @@ import org.joml.Vector3fc;
 /**
  * @author n1t4chi
  */
-public class BoundingBox3D implements BoundingBox<BoundingBox3D,ObjectTransformations3D> {
+public class BoundingBox3D implements BoundingBox< BoundingBox3D, ObjectTransformations3D > {
 
     public static BoundingBox3D getBoundingBox3D( float[] vertices ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
@@ -17,12 +17,12 @@ public class BoundingBox3D implements BoundingBox<BoundingBox3D,ObjectTransforma
         maxZ = maxY = maxX = -Float.MAX_VALUE;
         for ( int i = 0; i < vertices.length; i += 3 ) {
             if ( vertices[i] < minX ) { minX = vertices[i]; }
-            if ( vertices[i] > maxX ) { maxX = vertices[i]; }
-            if ( vertices[i + 1] < minY ) { minY = vertices[i]; }
-            if ( vertices[i + 1] > maxY ) { maxY = vertices[i]; }
-            if ( vertices[i + 2] < minZ ) { minZ = vertices[i]; }
-            if ( vertices[i + 2] > maxZ ) { maxZ = vertices[i]; }
-        }
+        if ( vertices[i] > maxX ) { maxX = vertices[i]; }
+        if ( vertices[i + 1] < minY ) { minY = vertices[i + 1]; }
+        if ( vertices[i + 1] > maxY ) { maxY = vertices[i + 1]; }
+        if ( vertices[i + 2] < minZ ) { minZ = vertices[i + 2]; }
+        if ( vertices[i + 2] > maxZ ) { maxZ = vertices[i + 2]; }
+    }
         return new BoundingBox3D( minX, maxX, minY, maxY, minZ, maxZ );
     }
 
@@ -34,10 +34,10 @@ public class BoundingBox3D implements BoundingBox<BoundingBox3D,ObjectTransforma
             for ( int i = 0; i < vertices.length; i += 3 ) {
                 if ( vertices[i] < minX ) { minX = vertices[i]; }
                 if ( vertices[i] > maxX ) { maxX = vertices[i]; }
-                if ( vertices[i + 1] < minY ) { minY = vertices[i]; }
-                if ( vertices[i + 1] > maxY ) { maxY = vertices[i]; }
-                if ( vertices[i + 2] < minZ ) { minZ = vertices[i]; }
-                if ( vertices[i + 2] > maxZ ) { maxZ = vertices[i]; }
+                if ( vertices[i + 1] < minY ) { minY = vertices[i + 1]; }
+                if ( vertices[i + 1] > maxY ) { maxY = vertices[i + 1]; }
+                if ( vertices[i + 2] < minZ ) { minZ = vertices[i + 2]; }
+                if ( vertices[i + 2] > maxZ ) { maxZ = vertices[i + 2]; }
             }
         }
         return new BoundingBox3D( minX, maxX, minY, maxY, minZ, maxZ );
@@ -110,5 +110,11 @@ public class BoundingBox3D implements BoundingBox<BoundingBox3D,ObjectTransforma
         maxZ *= scale.z();
         maxZ += position.z();
         return new BoundingBox3D( minX, maxX, minY, maxY, minZ, maxZ );
+    }
+
+    @Override
+    public String toString() {
+        return "BBox3D: " + "[" + minX + "," + maxX + "] " + "[" + minY + "," + maxY + "] " + "[" +
+               minZ + "," + maxZ + "]";
     }
 }

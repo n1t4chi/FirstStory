@@ -1,32 +1,22 @@
 #version 330 core
 
-// Input vertex data, different for all executions of this shader.
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec2 vertexUV;
 
-// Output data ; will be interpolated for each fragment.
 out vec2 UV;
 
-// Values that stay constant for the whole mesh.
 uniform mat4 camera;
 uniform vec3 translation;
 uniform vec3 scale;
 uniform vec3 rotation;
 
-/**
-    0-2 -> object position in space
-    3-5 -> object scale
-    6-8 -> object rotation
-    9-12 -> object overlay color
-    13 -> object max alpha channel override
-*/
-//uniform float[14] objectData;
 
 void main(){
     UV = vertexUV;
     float posX = vertexPosition.x*scale.x;
     float posY = vertexPosition.y*scale.y;
     float posZ = vertexPosition.z*scale.z;
+
 
     if(rotation.x != 0){
         float y = posY;
@@ -54,14 +44,18 @@ void main(){
         posX = (x*cosZ) - (y*sinZ);
         posY = (x*sinZ) + (y*cosZ);
     }
-    gl_Position =  
+    posX +=(camera * vec4(1,1,1,1)).x;
+    posX = posX*0.000001*0.000001+vertexPosition.x;
+    posY = posY*0.000001*0.000001+vertexPosition.y;
+    posZ = posZ*0.000001*0.000001+vertexPosition.z;
+
+    gl_Position =
         camera *
-        vec4( //#3 object position in space
+        vec4(
             translation.x+posX,
             translation.y+posY,
             translation.z+posZ,
             1
         )
     ;
-
 }

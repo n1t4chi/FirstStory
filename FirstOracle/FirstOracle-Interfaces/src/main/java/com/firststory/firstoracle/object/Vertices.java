@@ -3,6 +3,8 @@
  */
 package com.firststory.firstoracle.object;
 
+import java.util.Arrays;
+
 /**
  * @author: n1t4chi
  */
@@ -36,4 +38,9 @@ public abstract class Vertices< BoundingBox > extends VertexAttributes {
     }
 
     protected int getIndex() { return 0; }
+
+    @Override
+    public String toString() {
+        return "Vertices: "+Arrays.deepToString( verticesByFrame );
+    }
 }
