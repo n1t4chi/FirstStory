@@ -44,13 +44,6 @@ import java.nio.IntBuffer;
  */
 public final class Texture implements Closeable {
 
-    /**
-     * Converts Image to ByteBuffer.
-     *
-     * @param image
-     * @return
-     * @throws IOException
-     */
     private static ByteBuffer imageToByteBuffer( BufferedImage image ) throws IOException {
         ByteBuffer bf;
         byte[] b;
@@ -97,7 +90,7 @@ public final class Texture implements Closeable {
      * @param directions How many directions this texture can represent.
      * @param rows       How many rows for frames are in this texture.
      * @param columns    How many columns for directions are in this texture.
-     * @throws java.io.IOException
+     * @throws IOException on problems with loading the image
      */
     public Texture( BufferedImage image, int frames, int directions, int rows, int columns ) throws
         IOException
@@ -109,8 +102,8 @@ public final class Texture implements Closeable {
      * Creates object containing texture data from given image.<br>
      * Uses single frame and line count.
      *
-     * @param image
-     * @throws IOException
+     * @param image image to be used as texture
+     * @throws IOException on problems with loading the image
      */
     public Texture( BufferedImage image ) throws IOException {
         this( image, 1, 1, 1, 1 );
@@ -125,11 +118,10 @@ public final class Texture implements Closeable {
      * @param directions How many directions this texture can represent.
      * @param rows       How many rows for frames are in this texture.
      * @param columns    How many columns for directions are in this texture.
-     * @throws IOException
      */
     public Texture(
         ByteBuffer bf, String name, int frames, int directions, int rows, int columns
-    ) throws IOException
+    )
     {
         if ( name == null || name.isEmpty() || frames < 1 || rows < 1 || frames > rows ||
              directions < 1 || directions > columns )
@@ -164,7 +156,7 @@ public final class Texture implements Closeable {
      * @param directions How many directions this texture can represent.
      * @param rows       How many rows for frames are in this texture.
      * @param columns    How many columns for directions are in this texture.
-     * @throws IOException
+     * @throws IOException on problems with loading the image
      */
     public Texture( String path, int frames, int directions, int rows, int columns ) throws
         IOException
@@ -176,8 +168,8 @@ public final class Texture implements Closeable {
      * Creates object containing texture data from image under given path.<br>
      * Uses single frame and line count.
      *
-     * @param path
-     * @throws IOException
+     * @param path image file path
+     * @throws IOException on problems with loading the image
      */
     public Texture( String path ) throws IOException {
         this( path, 1, 1, 1, 1 );
@@ -277,18 +269,18 @@ public final class Texture implements Closeable {
         }
         //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture);
     }
-
-    public final boolean isTextureLoaded() {
-        return textureID > 0;
-    }
-
-    /**
-     * Returns
-     *
-     * @return
-     */
-    public final int getTextureID() {
-        return textureID;
-    }
+//
+//    public final boolean isTextureLoaded() {
+//        return textureID > 0;
+//    }
+//
+//    /**
+//     * Returns texture ID
+//     *
+//     * @return returns te
+//     */
+//    public final int getTextureID() {
+//        return textureID;
+//    }
 
 }

@@ -23,9 +23,7 @@ public final class WindowApplication extends Application implements FpsListener,
 
     private int lastFpsUpdate = 0;
     private double lastTimeUpdate;
-    private OpenGLPane glpane;
-    private Pane overlayPanel;
-    private OverlayContentManager contentUpdater;
+    private final OverlayContentManager contentUpdater;
 
     public WindowApplication( OverlayContentManager contentUpdater ) {
         this.contentUpdater = contentUpdater;
@@ -36,8 +34,8 @@ public final class WindowApplication extends Application implements FpsListener,
     public void start( Stage stage ) throws IOException
     {
         // create the UI
-        glpane = new OpenGLPane();
-        overlayPanel = contentUpdater.createOverlayPanel();
+        OpenGLPane glpane = new OpenGLPane();
+        Pane overlayPanel = contentUpdater.createOverlayPanel();
 
         glpane.setRenderer( c -> render( c ) );
         glpane.getChildren().add( overlayPanel );

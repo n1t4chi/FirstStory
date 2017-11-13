@@ -13,7 +13,7 @@ import org.joml.Vector3ic;
  * @author n1t4chi
  */
 public class CubeGrid extends Cube {
-    private static Vector3f position = new Vector3f(  );
+    private static final Vector3f position = new Vector3f(  );
 
     public CubeGrid( Texture texture ) {
         super( texture, IdentityTransformations3D.getIdentity() );
@@ -21,11 +21,11 @@ public class CubeGrid extends Cube {
 
     /**
      * Retruns position in space based on position in array
-     * @param x
-     * @param y
-     * @param z
+     * @param x x position in array
+     * @param y y position in array
+     * @param z z position in array
      * @param arrayShift shift of array
-     * @return
+     * @return same vector with updated positions for current rendering
      */
     public Vector3fc computePosition(int x, int y, int z, Vector3ic arrayShift){
         return position.set(

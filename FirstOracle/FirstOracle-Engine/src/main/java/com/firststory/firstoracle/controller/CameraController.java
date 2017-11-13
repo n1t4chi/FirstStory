@@ -9,8 +9,7 @@ import com.firststory.firstoracle.window.notifying.QuitEvent;
 import com.firststory.firstoracle.window.notifying.QuitListener;
 import com.firststory.firstoracle.window.notifying.QuitNotifier;
 import org.joml.Vector2f;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,32 +21,46 @@ import static java.lang.Thread.sleep;
 /**
  * @author n1t4chi
  */
-public class CameraController extends GLFWKeyCallback implements Runnable,
-    CameraNotifier,
-    QuitListener
-{
+public class CameraController implements Runnable, CameraNotifier, QuitListener {
 
     private static final int DIRECTION_BASE_ROTATION = 135;
 
     private final CameraKeyMap cameraKeyMap;
-    private long refreshLatency;
+    private final long refreshLatency;
     private float speed = 15f;
 
-    private ConcurrentHashMap< Integer, Integer > keyMap = new ConcurrentHashMap<>( 10 );
-    private Collection< CameraListener > cameraObservers = new ArrayList<>( 3 );
-
+    private final ConcurrentHashMap< Integer, Integer > keyMap = new ConcurrentHashMap<>( 10 );
+    private final GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
+        @Override
+        public void invoke( long window, int key, int scancode, int action, int mods ) {
+            //        System.err.println(
+            //            "w:" + window + ", k:" + key + ", sc" + scancode + ", a:" + action + ", m:" + mods );
+            if ( action == GLFW.GLFW_PRESS ) {
+                keyMap.put( key, mods );
+            } else if ( action == GLFW.GLFW_RELEASE ) {
+                keyMap.remove( key );
+            }
+        }
+    };
+    private final Collection< CameraListener > cameraObservers = new ArrayList<>( 3 );
     private float rotationY = 0;
     private float rotationX = 0;
     private float posX = 0;
     private float posY = 0;
     private float posZ = 0;
-    private double lastTime;
-
+    private float cameraSize = 25;
+    private final GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
+        @Override
+        public void invoke( long l, double deltaX, double deltaY ) {
+            cameraSize -= deltaY;
+            if ( cameraSize < 1 ) {
+                cameraSize = 1;
+            }
+        }
+    };
     private volatile boolean keepWorking = true;
-
-    private Vector2f direction = new Vector2f( 1, 1 );
-    private Vector2f perpendicularDirection = new Vector2f( 1, 1 );
-
+    private final Vector2f direction = new Vector2f( 1, 1 );
+    private final Vector2f perpendicularDirection = new Vector2f( 1, 1 );
     public CameraController( CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
         this.cameraKeyMap = cameraKeyMap;
         this.refreshLatency = refreshLatency;
@@ -55,13 +68,35 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
         rotateVectors();
     }
 
+    public GLFWKeyCallback getKeyCallback() {
+        return keyCallback;
+    }
+
+    public GLFWScrollCallback getScrollCallback() {
+        return scrollCallback;
+    }
+
+    public void setInitialValues(
+        float rotationY, float rotationX, float posX, float posY, float posZ, float cameraSize
+    )
+    {
+        this.rotationY = rotationY;
+        this.rotationX = rotationX;
+        this.posX = posX;
+        this.posY = posY;
+        this.posZ = posZ;
+        this.cameraSize = cameraSize;
+    }
+
     public void updateIsometricCamera3D( IsometricCamera3D camera ) {
+        camera.setSize( cameraSize );
         camera.setCenterPoint( posX, posY, posZ );
         camera.setRotationX( rotationX );
         camera.setRotationY( rotationY );
     }
 
     public void updateMovableCamera2D( MovableCamera2D camera ) {
+        camera.setWidth( cameraSize );
         camera.setCenterPoint( posX, posZ );
         camera.setRotation( rotationX );
     }
@@ -72,7 +107,7 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
 
     @Override
     public void run() {
-        lastTime = GLFW.glfwGetTime();
+        double lastTime = GLFW.glfwGetTime();
         try {
             sleep( refreshLatency );
         } catch ( InterruptedException ex ) {
@@ -103,17 +138,6 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
                 System.err.println( "Controller sleep interrupted:" + ex );
                 Thread.currentThread().interrupt();
             }
-        }
-    }
-
-    @Override
-    public void invoke( long window, int key, int scancode, int action, int mods ) {
-//        System.err.println(
-//            "w:" + window + ", k:" + key + ", sc" + scancode + ", a:" + action + ", m:" + mods );
-        if ( action == GLFW.GLFW_PRESS ) {
-            keyMap.put( key, mods );
-        } else if ( action == GLFW.GLFW_RELEASE ) {
-            keyMap.remove( key );
         }
     }
 
@@ -184,7 +208,6 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
             rotationX = rotationX - 360;
         }
         rotateVectors();
-        return;
     }
 
     private void rotateLeft( float timeDelta ) {
@@ -227,9 +250,9 @@ public class CameraController extends GLFWKeyCallback implements Runnable,
     }
 
     private void moveForward() {
-        System.err.println( "before pos: "+posX+","+posZ);
+        System.err.println( "before pos: " + posX + "," + posZ );
         posX += direction.x;
         posZ += direction.y;
-        System.err.println( "after pos: "+posX+","+posZ);
+        System.err.println( "after pos: " + posX + "," + posZ );
     }
 }

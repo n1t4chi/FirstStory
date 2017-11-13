@@ -9,7 +9,7 @@ import java.util.HashMap;
  * @author n1t4chi
  */
 public class PlaneUvMap extends UvMap {
-    private static HashMap< Long, PlaneUvMap > map = new HashMap<>( 25 );
+    private static final HashMap< Long, PlaneUvMap > map = new HashMap<>( 25 );
 
     public static PlaneUvMap getPlaneUvMap() {
         return getPlaneUvMap(1,1,1,1);
@@ -21,14 +21,13 @@ public class PlaneUvMap extends UvMap {
      * @param frames     How many frames will be in texture
      * @param rows       How many rows for frames will be in texture
      * @param columns    How many columns for directions will be in texture
-     * @return
+     * @return UV map instance
      */
     public static PlaneUvMap getPlaneUvMap( int directions, int frames, int rows, int columns ) {
         long hash = hash( directions, frames, rows, columns );
-        PlaneUvMap instance = map.get( hash );
-        if ( instance == null ) {
-            map.put( hash, instance = new PlaneUvMap( directions, frames, rows, columns ) );
-        }
+        PlaneUvMap instance = map.computeIfAbsent( hash,
+            k -> new PlaneUvMap( directions, frames, rows, columns )
+        );
         return instance;
     }
 
@@ -73,11 +72,10 @@ public class PlaneUvMap extends UvMap {
         float horLeft = ( direction ) / ( float ) columns + del;
         float horRight = ( direction + 1 ) / ( float ) columns - del;
 
-        float[] rtrn = {
+        return new float[]{
             horLeft, vertDown, horRight, vertDown, horRight, vertUp, horLeft, vertDown, horRight,
             vertUp, horLeft, vertUp
         };
-        return rtrn;
     }
 
     public PlaneUvMap( int directions, int frames, int rows, int columns ) {

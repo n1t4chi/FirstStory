@@ -8,7 +8,7 @@ package com.firststory.firstoracle.object3D;
  */
 public class Plane3DVertices extends FramelessVertices3D {
 
-    private static Plane3DVertices Plane3DVertices = new Plane3DVertices();
+    private static final Plane3DVertices Plane3DVertices = new Plane3DVertices();
 
     public static Plane3DVertices getPlane3DVertices() {
         return Plane3DVertices;

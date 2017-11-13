@@ -8,7 +8,7 @@ package com.firststory.firstoracle.object3D;
  */
 public class CubeVertices extends FramelessVertices3D {
 
-    private static CubeVertices cubeVertices = new CubeVertices();
+    private static final CubeVertices cubeVertices = new CubeVertices();
 
     public static CubeVertices getCubeVertices() {
         return cubeVertices;

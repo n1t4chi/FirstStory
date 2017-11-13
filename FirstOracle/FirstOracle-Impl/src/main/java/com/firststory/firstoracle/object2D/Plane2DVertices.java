@@ -8,7 +8,7 @@ package com.firststory.firstoracle.object2D;
  */
 public class Plane2DVertices extends FramelessVertices2D {
 
-    private static Plane2DVertices Plane2DVertices = new Plane2DVertices();
+    private static final Plane2DVertices Plane2DVertices = new Plane2DVertices();
 
     public static Plane2DVertices getPlane2DVertices() {
         return Plane2DVertices;

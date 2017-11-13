@@ -28,12 +28,12 @@ public class UniformLocation {
         this.locationID = locationID;
     }
 
-    private static Vector2f VEC_2 = new Vector2f();
-    private static Vector3f VEC_3 = new Vector3f();
-    private static Vector4f VEC_4 = new Vector4f();
+    private static final Vector2f VEC_2 = new Vector2f();
+    private static final Vector3f VEC_3 = new Vector3f();
+    private static final Vector4f VEC_4 = new Vector4f();
 
-    private static Matrix3f MAT_3 = new Matrix3f();
-    private static Matrix4f MAT_4 = new Matrix4f();
+    private static final Matrix3f MAT_3 = new Matrix3f();
+    private static final Matrix4f MAT_4 = new Matrix4f();
 
     private Object lastBind = null;
 

@@ -5,19 +5,17 @@ package com.firststory.firstoracle;/*
 import org.junit.Assert;
 import org.junit.Test;
 
-import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
-
 /**
  * @author n1t4chi
  */
 public class FirstOracleConstantsTest {
 
-    int[] testCasesInt = {
+    final int[] testCasesInt = {
         -666,
         -10, -2, -1, 0, 1, 2, 10
         , 666
     };
-    float[] testCasesFloat = {
+    final float[] testCasesFloat = {
         -666.666f,
         -3, -1.5f, -1, -0.001f, -0.1f, -0, 0, +0, 0.1f, 0.001f, 1, 1.5f, 3
         , 666.666f
@@ -97,11 +95,9 @@ public class FirstOracleConstantsTest {
     public void transHexPrismZ() {
         for ( int startValue : testCasesInt ) {
             assertHexPrismZ( startValue );
-            System.err.println();
         }
         for ( float startValue : testCasesFloat ) {
             assertHexPrismZ( startValue );
-            System.err.println();
         }
     }
 

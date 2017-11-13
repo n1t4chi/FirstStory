@@ -22,7 +22,7 @@ public class CameraBoxXZDimension {
         p1 is lowest on X, if 2 points have same X then lowest on Z is taken
         p2 is connected with p2 [like p4] and is further on X than p4, or lower on Z if both have same X
      */
-    private final Vector4f[] points;
+    //private final Vector4f[] points;
     /**
      * lines[x] connects points[x] and point[(x+1)%4]
      */
@@ -123,9 +123,9 @@ public class CameraBoxXZDimension {
     
     /**
      * Returns minimum and maximum Z values for given X.<br>
-     * If no such values were found then pair min/max = (1,-1) is returned which should fail every time on min&lt;=z && z&lt;=max check
+     * If no such values were found then pair min/max = (1,-1) is returned which should fail every time on min&lt;=z {@literal @}{@literal @} z&lt;=max check
      *
-     * @param X
+     * @param X x position
      * @return min/max Z
      */
     public CameraBoxZDimension getZDimension( float X ) {
@@ -168,7 +168,7 @@ public class CameraBoxXZDimension {
     }
     
     public CameraBoxXZDimension( Vector4f[] points ) {
-        this.points = points;
+        //this.points = points;
         this.minX = java.lang.Math.min( java.lang.Math.min( points[0].x, points[1].x ),
             java.lang.Math.min( points[2].x, points[3].x ) );
         this.maxX = java.lang.Math.max( java.lang.Math.max( points[0].x, points[1].x ),

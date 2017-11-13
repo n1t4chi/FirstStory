@@ -10,7 +10,7 @@ import java.util.Arrays;
  */
 public abstract class Vertices< BoundingBox > extends VertexAttributes {
 
-    private BoundingBox boundingBox;
+    private final BoundingBox boundingBox;
     private float[][] verticesByFrame;
 
     public Vertices( float[][] verticesByFrame, BoundingBox boundingBox ) {

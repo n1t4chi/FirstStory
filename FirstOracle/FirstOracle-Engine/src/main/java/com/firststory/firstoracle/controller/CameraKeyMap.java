@@ -4,7 +4,8 @@ import org.lwjgl.glfw.GLFW;
 
 public class CameraKeyMap {
 
-    private static CameraKeyMap alpabeticalLayout = new CameraKeyMap( GLFW.GLFW_KEY_W,
+    private static final CameraKeyMap alpabeticalLayout = new CameraKeyMap(
+        GLFW.GLFW_KEY_W,
         GLFW.GLFW_KEY_S,
         GLFW.GLFW_KEY_A,
         GLFW.GLFW_KEY_D,
@@ -15,8 +16,10 @@ public class CameraKeyMap {
         GLFW.GLFW_KEY_R,
         GLFW.GLFW_KEY_F,
         GLFW.GLFW_MOD_CONTROL,
-        GLFW.GLFW_MOD_CONTROL );
-    private static CameraKeyMap functionKeyLayout = new CameraKeyMap( GLFW.GLFW_KEY_UP,
+        GLFW.GLFW_MOD_CONTROL
+    );
+    private static final CameraKeyMap functionKeyLayout = new CameraKeyMap(
+        GLFW.GLFW_KEY_UP,
         GLFW.GLFW_KEY_DOWN,
         GLFW.GLFW_KEY_LEFT,
         GLFW.GLFW_KEY_RIGHT,
@@ -27,7 +30,8 @@ public class CameraKeyMap {
         GLFW.GLFW_KEY_UP,
         GLFW.GLFW_KEY_DOWN,
         0,
-        GLFW.GLFW_MOD_CONTROL );
+        GLFW.GLFW_MOD_CONTROL
+    );
 
     public static CameraKeyMap getAlphabetKeyLayout() {
         return alpabeticalLayout;
@@ -37,18 +41,18 @@ public class CameraKeyMap {
         return functionKeyLayout;
     }
 
-    private int moveForwardKey;
-    private int moveBackwardsKey;
-    private int moveLeftKey;
-    private int moveRightKey;
-    private int moveUpKey;
-    private int moveDownKey;
-    private int rotateLeftKey;
-    private int rotateRightKey;
-    private int rotateUpKey;
-    private int rotateDownKey;
-    private int movementUnlockKeyMods;
-    private int rotationUnlockKeyMods;
+    private final int moveForwardKey;
+    private final int moveBackwardsKey;
+    private final int moveLeftKey;
+    private final int moveRightKey;
+    private final int moveUpKey;
+    private final int moveDownKey;
+    private final int rotateLeftKey;
+    private final int rotateRightKey;
+    private final int rotateUpKey;
+    private final int rotateDownKey;
+    private final int movementUnlockKeyMods;
+    private final int rotationUnlockKeyMods;
 
     public CameraKeyMap(
         int moveForwardKey,

@@ -14,7 +14,7 @@ import org.joml.Vector2ic;
  */
 public class Hex2DGrid extends Hexagon2D {
 
-    private static Vector2f position = new Vector2f();
+    private static final Vector2f position = new Vector2f();
 
     public Hex2DGrid( Texture texture ) {
         super( texture, IdentityTransformations2D.getIdentity() );
@@ -23,10 +23,10 @@ public class Hex2DGrid extends Hexagon2D {
     /**
      * Retruns position in space based on position in array
      *
-     * @param x
-     * @param y
+     * @param x x position in array
+     * @param y y position in array
      * @param arrayShift shift of array
-     * @return
+     * @return same vector with updated positions for current rendering
      */
     public Vector2fc computePosition( int x, int y, Vector2ic arrayShift ) {
         return position.set(

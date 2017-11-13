@@ -8,11 +8,11 @@ package com.firststory.firstoracle.controller;
  */
 public class CameraEvent {
 
-    private double posX;
-    private double posY;
-    private double posZ;
-    private double rotationY;
-    private double rotationX;
+    private final double posX;
+    private final double posY;
+    private final double posZ;
+    private final double rotationY;
+    private final double rotationX;
 
     CameraEvent( double posX, double posY, double posZ, double rotationY, double rotationX ) {
         this.posX = posX;

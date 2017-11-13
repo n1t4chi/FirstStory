@@ -11,7 +11,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
  * @author n1t4chi
  */
 public class Hex2DUvMap extends UvMap {
-    private static HashMap< Long, Hex2DUvMap > instances = new HashMap<>( 5 );
+    private static final HashMap< Long, Hex2DUvMap > instances = new HashMap<>( 5 );
 
     public static Hex2DUvMap getHex2DUvMap() {
         return getHex2DUvMap( 1,1 );
@@ -21,14 +21,11 @@ public class Hex2DUvMap extends UvMap {
      *
      * @param frames How many frames will be in texture
      * @param rows   How many rows for frames will be in texture
-     * @return
+     * @return UV map instance
      */
     public static Hex2DUvMap getHex2DUvMap( int frames, int rows ) {
         long hash = hash( frames, rows );
-        Hex2DUvMap instance = instances.get( hash );
-        if ( instance == null ) {
-            instances.put( hash, instance = new Hex2DUvMap( frames, rows ) );
-        }
+        Hex2DUvMap instance = instances.computeIfAbsent( hash, k -> new Hex2DUvMap( frames, rows ) );
         return instance;
     }
 
@@ -60,7 +57,7 @@ public class Hex2DUvMap extends UvMap {
         float vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + del;
         float vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - del;
 
-        float[] rtrn = {
+        return new float[]{
             0.5f * hor, vertMiddle, 0.75f * hor - del, vertUp, 0.25f * hor + del, vertUp,
             0.5f * hor, vertMiddle, 0.25f * hor + del, vertUp, 0 * hor + del, vertMiddle,
             0.5f * hor, vertMiddle, 0 * hor + del, vertMiddle, 0.25f * hor + del, vertDown,
@@ -68,8 +65,6 @@ public class Hex2DUvMap extends UvMap {
             0.5f * hor, vertMiddle, 0.75f * hor - del, vertDown, 1 * hor - del, vertMiddle,
             0.5f * hor, vertMiddle, 1 * hor - del, vertMiddle, 0.75f * hor - del, vertUp,
         };
-
-        return rtrn;
     }
 
     private Hex2DUvMap( int frames, int rows ){

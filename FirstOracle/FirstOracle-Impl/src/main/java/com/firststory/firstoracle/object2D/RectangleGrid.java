@@ -13,7 +13,7 @@ import org.joml.Vector2ic;
  * @author n1t4chi
  */
 public class RectangleGrid extends Rectangle {
-    private static Vector2f position = new Vector2f(  );
+    private static final Vector2f position = new Vector2f(  );
 
     public RectangleGrid( Texture texture ) {
         super( texture, IdentityTransformations2D.getIdentity() );
@@ -21,10 +21,11 @@ public class RectangleGrid extends Rectangle {
 
     /**
      * Retruns position in space based on position in array
-     * @param x
-     * @param y
+     *
+     * @param x x position in array
+     * @param y y position in array
      * @param arrayShift shift of array
-     * @return
+     * @return same vector with updated positions for current rendering
      */
     public Vector2fc computePosition(int x, int y, Vector2ic arrayShift){
         return position.set(

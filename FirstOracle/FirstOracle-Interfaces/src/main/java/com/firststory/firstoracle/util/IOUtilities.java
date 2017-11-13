@@ -57,7 +57,7 @@ public class IOUtilities {
      *
      * @param path Path to file
      * @return Text from that wile
-     * @throws IOException
+     * @throws IOException on problems with loading the resource
      */
     public static String readTextResource( String path ) throws IOException {
         Path p = Paths.get( path );

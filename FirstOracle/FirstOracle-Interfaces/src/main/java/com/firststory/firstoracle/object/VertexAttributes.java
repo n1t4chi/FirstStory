@@ -16,29 +16,41 @@ import java.util.Map;
  */
 public abstract class VertexAttributes implements Closeable {
 
-    private static Map< Integer, Integer > lastBinds = new HashMap<>( 2 );
+    private static final Map< Integer, Integer > lastBinds = new HashMap<>( 2 );
 
     static void bindAttributePointer( ArrayBuffer buffer, int index, int vertexSize ) {
         Integer integer = lastBinds.get( index );
-        if ( integer!=null && integer == buffer.getBufferID() ) {
+        if ( integer == null || integer != buffer.getBufferID() ) {
             buffer.bind();
             GL20.glVertexAttribPointer( index, vertexSize, GL11.GL_FLOAT, false, 0, 0 );
             lastBinds.put( index, buffer.getBufferID() );
         }
     }
 
-    private HashMap< Long, ArrayBuffer > buffers = new HashMap<>(  );
+    private final HashMap< Long, ArrayBuffer > buffers = new HashMap<>();
+
+    @Override
+    public void close() {
+        for ( ArrayBuffer buffer : buffers.values() ) {
+            buffer.close();
+        }
+        buffers.clear();
+    }
 
     protected int bindBufferAndGetSize( long key ) {
-        int vertexSize = getVertexSize();
-        bindAttributePointer( getBuffer( key ), getIndex(), vertexSize );
-        return vertexSize;
+        ArrayBuffer buffer = getBuffer( key );
+        bindAttributePointer( buffer, getIndex(), getVertexSize() );
+        return getVertexLength( buffer );
     }
 
     protected abstract float[] getArray( long key );
 
-    protected int getVertexLength( long key ){
-        return buffers.get( key ).getLength()/getVertexSize();
+    protected int getVertexLength( long key ) {
+        return buffers.get( key ).getLength() / getVertexSize();
+    }
+
+    protected int getVertexLength( ArrayBuffer buffer ) {
+        return buffer.getLength() / getVertexSize();
     }
 
     protected abstract int getVertexSize();
@@ -54,13 +66,5 @@ public abstract class VertexAttributes implements Closeable {
             buffers.put( key, buffer );
         }
         return buffer;
-    }
-
-    @Override
-    public void close() {
-        for ( ArrayBuffer buffer : buffers.values() ) {
-            buffer.close();
-        }
-        buffers.clear();
     }
 }

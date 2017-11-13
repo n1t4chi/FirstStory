@@ -23,14 +23,14 @@ public class IsometricCamera3D extends Camera3D {
     private boolean update;
 
     /**
-     * @param size               Initial half of size on X dimension of orthogonal projection.
-     * @param X
-     * @param Y
-     * @param Z
+     * @param size  Initial half of size on X dimension of orthogonal projection.
+     * @param X x position
+     * @param Y y position
+     * @param Z z position
      * @param heightByWidthRatio Height/Width screen ratio
-     * @param rotationX
-     * @param rotationY
-     * @param alpha
+     * @param rotationX rotation around x axis
+     * @param rotationY rotation around y axis
+     * @param alpha max alpha channel
      */
     public IsometricCamera3D(
         float size,

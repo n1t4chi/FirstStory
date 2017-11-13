@@ -10,14 +10,11 @@ import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object2D.RectangleGrid;
 import com.firststory.firstoracle.object3D.CubeGrid;
-import com.firststory.firstoracle.rendering.Object2DRenderer;
-import com.firststory.firstoracle.rendering.Object3DRenderer;
-import com.firststory.firstoracle.rendering.SceneProvider;
+import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedObjects2D;
 import com.firststory.firstoracle.scene.RenderedObjects3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.*;
-import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGLLauncher;
@@ -51,6 +48,7 @@ public class MainTemplate {
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
         WindowSettings settings = new WindowSettings.WindowSettingsBuilder()
+            .setDrawBorder( true )
             .setVerticalSync( false )
             .setResizeable( true )
             .setWidth( 1000 )
@@ -60,8 +58,8 @@ public class MainTemplate {
         ShaderProgram3D shaderProgram3D = new ShaderProgram3D();
         ShaderProgram2D shaderProgram2D = new ShaderProgram2D();
         //GridRenderer will be changed so it works as either 2D or 3D. For now leave it as it is so you can see whether the rendering still works.
-        GridRenderer gridRenderer = new GridRenderer( shaderProgram3D, 100, 25, 5 );
-
+        Grid3DRenderer grid3DRenderer = new BoundedGrid3DRenderer( shaderProgram3D, 100, 25, 5 );
+        Grid2DRenderer grid2DRenderer = new DummyGrid2DRenderer();
         //Rendered scene is what is displayed via OpenGL rendering, it should be most likely moved to SceneProvider
         //Which will provide next scenes to render when something changes.
         RenderedSceneMutable renderedScene = new RenderedSceneMutable();
@@ -135,10 +133,11 @@ public class MainTemplate {
             //Renderer renders all openGL content in Window, nothing to add much here
             SceneRenderer renderer = new SceneRenderer( shaderProgram2D,
                 shaderProgram3D,
-                gridRenderer,
+                grid2DRenderer,
+                grid3DRenderer,
                 sceneProvider,
-                true,
-                true
+                settings.isUseTexture(),
+                settings.isDrawBorder()
             );
             //ContentManager is where everything related to GUI should be made
             //any JavaFX object creation and even access to statics of JavaFX classes should be from within those methods
@@ -191,7 +190,8 @@ public class MainTemplate {
             window.init();
             //OpenGL is initialised now. You can use all classes that use it.
             window.addQuitObserver( cameraController );
-            window.addKeyCallbackController( cameraController );
+            window.addKeyCallbackController( cameraController.getKeyCallback() );
+            window.addMouseScrollCallbackController( cameraController.getScrollCallback() );
 
             //Now it's place to spawn all other threads like game thread or controller thread.
             Thread cameraControllerThread = new Thread( cameraController );

@@ -8,7 +8,7 @@ package com.firststory.firstoracle.object;
  */
 public class UvMap extends VertexAttributes {
 
-    private float[][][] uvMapByDirectionAndFrame;
+    private final float[][][] uvMapByDirectionAndFrame;
 
     public UvMap( float[][][] uvMapByDirectionAndFrame ) {
         this.uvMapByDirectionAndFrame =uvMapByDirectionAndFrame;

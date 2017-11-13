@@ -44,10 +44,6 @@ void main(){
         posX = (x*cosZ) - (y*sinZ);
         posY = (x*sinZ) + (y*cosZ);
     }
-    posX +=(camera * vec4(1,1,1,1)).x;
-    posX = posX*0.000001*0.000001+vertexPosition.x;
-    posY = posY*0.000001*0.000001+vertexPosition.y;
-    posZ = posZ*0.000001*0.000001+vertexPosition.z;
 
     gl_Position =
         camera *

@@ -10,7 +10,7 @@ import java.util.HashMap;
  */
 public class CubeUvMap extends UvMap {
 
-    private static HashMap< Long, CubeUvMap > instances = new HashMap<>( 5 );
+    private static final HashMap< Long, CubeUvMap > instances = new HashMap<>( 5 );
 
     public static CubeUvMap getCubeUvMap() {
         return getCubeUvMap( 1,1 );
@@ -20,14 +20,11 @@ public class CubeUvMap extends UvMap {
      *
      * @param frames How many frames will be in texture
      * @param rows   How many rows for frames will be in texture
-     * @return
+     * @return UV map instance
      */
     public static CubeUvMap getCubeUvMap( int frames, int rows ) {
         long hash = hash( frames, rows );
-        CubeUvMap instance = instances.get( hash );
-        if ( instance == null ) {
-            instances.put( hash, instance = new CubeUvMap( frames, rows ) );
-        }
+        CubeUvMap instance = instances.computeIfAbsent( hash, k -> new CubeUvMap( frames, rows ) );
         return instance;
     }
 
@@ -53,7 +50,8 @@ public class CubeUvMap extends UvMap {
         float del = 0.01f;
         float vertUp = ( frame ) / ( float ) rows + del;
         float vertDown = ( frame + 1 ) / ( float ) rows - del;
-        float[] rtrn = {
+
+        return new float[]{
             //face 0
             0 * hor + del, vertDown,
             1 * hor - del, vertDown,
@@ -90,8 +88,6 @@ public class CubeUvMap extends UvMap {
             6 * hor - del, vertUp,
             5 * hor + del, vertDown, 6 * hor - del, vertUp, 5 * hor + del, vertUp
         };
-
-        return rtrn;
     }
 
     private CubeUvMap( int frames, int rows ) {

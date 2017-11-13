@@ -4,8 +4,8 @@
 package com.firststory.firstoracle.window;
 
 import com.firststory.firstoracle.CheckSupport;
-import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.rendering.GraphicRenderer;
+import com.firststory.firstoracle.rendering.SceneRenderer;
 import com.firststory.firstoracle.window.notifying.*;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
@@ -37,18 +37,18 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  * public static void main(String[] args) {
  * JFXGLLauncher.launchMain(&lt;class with jfxlmain&gt;.class, args);
  * }
- * <code/>
+ * </code>
  * Also there needs to be method jfxglmain(String[] args) (whose class is referenced in main above)
  * and only from there you can create any objects or threads, Window included.
  * <code>
  * public static void jfxglmain(String[] args) {
  * &lt;create all threads and windows here&gt;
  * };
- * <code/>
+ * </code>
  * Also Window needs to be initialised in this order:
  * init();
  * //any OpenGL context can be used after
- * run(); <- starts rendering loop so it's advised to put it into new thread
+ * run(); &gt;- starts rendering loop so it's advised to put it into new thread
  *
  * @author n1t4chi
  */
@@ -87,10 +87,10 @@ public class Window implements Runnable,
     private final ArrayList< QuitListener > quitListeners = new ArrayList<>( 3 );
     private long windowID = -1;
     private GLFWErrorCallback errorCallback;
-    private Application application;
-    private ShaderProgram2D shaderProgram2D;
-    private ShaderProgram3D shaderProgram3D;
-    private GraphicRenderer renderer;
+    private final Application application;
+    private final ShaderProgram2D shaderProgram2D;
+    private final ShaderProgram3D shaderProgram3D;
+    private final GraphicRenderer renderer;
 
     public Window(
         WindowSettings windowSettings,

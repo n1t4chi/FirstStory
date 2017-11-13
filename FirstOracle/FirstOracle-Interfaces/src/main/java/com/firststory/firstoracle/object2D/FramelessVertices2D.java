@@ -3,9 +3,6 @@
  */
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.object.Vertices;
-import com.firststory.firstoracle.object3D.Vertices3D;
-
 /**
  * @author n1t4chi
  */

@@ -27,7 +27,7 @@ public class Rectangle implements Object2D {
         return texture;
     }
     public void setTexture(Texture texture) {
-        this.transformations = transformations;
+        this.texture = texture;
     }
 
     @Override

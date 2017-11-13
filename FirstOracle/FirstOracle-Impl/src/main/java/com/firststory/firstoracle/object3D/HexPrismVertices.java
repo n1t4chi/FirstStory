@@ -10,7 +10,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
  */
 public class HexPrismVertices extends FramelessVertices3D {
 
-    private static HexPrismVertices cubeVertices = new HexPrismVertices();
+    private static final HexPrismVertices cubeVertices = new HexPrismVertices();
 
     public static HexPrismVertices getHexPrismVertices() {
         return cubeVertices;
