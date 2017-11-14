@@ -65,8 +65,6 @@ public class MainTemplate2D {
 
             Vector4f colour = new Vector4f( 0, 0, 0, 0 );
             float maxFloat = 1;
-            RectangleGrid overlay = new RectangleGrid( new Texture(
-                "resources/First Oracle/grid.png" ) );
             renderedScene.setOverlay( new RenderedObjects2D() {
                 @Override
                 public void render( Object2DRenderer renderer ) { }
@@ -106,13 +104,14 @@ public class MainTemplate2D {
                 cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
                 return renderedScene;
             };
-            SceneRenderer renderer = new SceneRenderer( shaderProgram2D,
+            SceneRenderer renderer = new SceneRenderer(
+                shaderProgram2D,
                 shaderProgram3D,
                 grid2DRenderer,
                 grid3DRenderer,
                 sceneProvider,
-                true,
-                true
+                settings.isUseTexture(),
+                settings.isDrawBorder()
             );
             OverlayContentManager contentManager = new OverlayContentManager() {
                 @Override

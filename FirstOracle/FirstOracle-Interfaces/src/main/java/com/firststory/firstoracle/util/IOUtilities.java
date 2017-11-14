@@ -99,7 +99,7 @@ public class IOUtilities {
             }
         } else {
             InputStream io = Texture.class.getClassLoader().getResourceAsStream( resource );
-            if ( io != null ) {
+            if ( io == null ) {
                 throw new IOException( "Cannot find file: "+resource );
             }
             ReadableByteChannel rbc = Channels.newChannel( io );
