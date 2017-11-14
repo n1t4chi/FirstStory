@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ */
+
 package com.firststory.firstoracle;/*
  * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
  */

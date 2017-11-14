@@ -4,6 +4,7 @@
 package com.firststory.firstoracle.util;
 
 import com.firststory.firstoracle.object.Texture;
+import org.lwjgl.system.CallbackI;
 
 import java.awt.*;
 import java.io.*;
@@ -97,21 +98,19 @@ public class IOUtilities {
                 }
             }
         } else {
-            try (
-                InputStream io = Texture.class.getClassLoader()
-                    .getResourceAsStream( resource ); ReadableByteChannel rbc = Channels.newChannel(
-                io )
-            )
-            {
-                bf = createByteBuffer( 16384 );
-                while ( rbc.read( bf ) != -1 ) {
-                    if ( bf.remaining() == 0 ) {
-                        //  System.err.println("here8.0.1.2.2.3");
-                        ByteBuffer nbf = createByteBuffer( bf.capacity() * 2 );
-                        bf.flip();
-                        nbf.put( nbf );
-                        bf = nbf;
-                    }
+            InputStream io = Texture.class.getClassLoader().getResourceAsStream( resource );
+            if ( io != null ) {
+                throw new IOException( "Cannot find file: "+resource );
+            }
+            ReadableByteChannel rbc = Channels.newChannel( io );
+            bf = createByteBuffer( 16384 );
+            while ( rbc.read( bf ) != -1 ) {
+                if ( bf.remaining() == 0 ) {
+                    //  System.err.println("here8.0.1.2.2.3");
+                    ByteBuffer nbf = createByteBuffer( bf.capacity() * 2 );
+                    bf.flip();
+                    nbf.put( nbf );
+                    bf = nbf;
                 }
             }
         }

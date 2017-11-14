@@ -14,16 +14,16 @@ import org.joml.Vector4fc;
  */
 public interface RenderedScene {
 
-    default void renderBackground( Object2DRenderer renderer ) {
-        getBackground().render( renderer );
-    }
-
     default void renderScene2D( Object2DRenderer renderer ) {
         getScene2D().render( renderer );
     }
 
     default void renderScene3D( Object3DRenderer renderer ) {
         getScene3D().render( renderer );
+    }
+
+    default void renderBackground( Object2DRenderer renderer ) {
+        getBackground().render( renderer );
     }
 
     default void renderOverlay( Object2DRenderer renderer ) {

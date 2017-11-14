@@ -76,17 +76,17 @@ public class MovableCamera2D extends Camera2D {
 
     private void updateMatrix() {
         if ( update ) {
-            System.err.println( "Camera2D Update" );
             camera.identity();
-            camera.scale( width, width * heightByWidthRatio, 1 );
+            camera.scale( 1/width, 1/(width * heightByWidthRatio), 1 );
+            camera.rotateZ( ( float ) java.lang.Math.toRadians( rotation ) );
             translate();
-            camera.rotateX( ( float ) java.lang.Math.toRadians( rotation ) );
             update = false;
         }
     }
 
     private void translate() {
-        camera.m02 = position.x;
-        camera.m12 = position.y;
+        camera.m20 = position.x;
+        camera.m21 = position.y;
+        camera.m22 = 1;
     }
 }

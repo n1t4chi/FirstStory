@@ -3,35 +3,34 @@
  */
 package com.firststory.firstoracle.controller;
 
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+
 /**
  * @author n1t4chi
  */
 public class CameraEvent {
 
-    private final double posX;
-    private final double posY;
-    private final double posZ;
+    private final Vector2fc pos2D;
+    private final Vector3fc pos3D;
     private final double rotationY;
     private final double rotationX;
 
-    CameraEvent( double posX, double posY, double posZ, double rotationY, double rotationX ) {
-        this.posX = posX;
-        this.posY = posY;
-        this.posZ = posZ;
+    public CameraEvent( Vector2fc pos2D, Vector3fc pos3D, float rotationY, float rotationX ) {
+        this.pos2D = new Vector2f( pos2D );
+        this.pos3D = new Vector3f( pos3D );
         this.rotationY = rotationY;
         this.rotationX = rotationX;
     }
 
-    public double getPosX() {
-        return posX;
+    public Vector2fc getPos2D() {
+        return pos2D;
     }
 
-    public double getPosY() {
-        return posY;
-    }
-
-    public double getPosZ() {
-        return posZ;
+    public Vector3fc getPos3D() {
+        return pos3D;
     }
 
     public double getRotationY() {

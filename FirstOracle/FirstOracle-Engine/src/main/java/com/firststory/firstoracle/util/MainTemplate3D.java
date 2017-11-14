@@ -30,7 +30,7 @@ import org.joml.Vector4f;
  *
  * @author n1t4chi
  */
-public class MainTemplate {
+public class MainTemplate3D {
 
     //necessary main, you must run it like that or nothing works.
     //Every instance created before launchMain() will not be compatibile with any object made after
@@ -40,7 +40,7 @@ public class MainTemplate {
     //Also ALL THREADS must be created AFTER calling launchMain, Preferably after running Window thread
     public static void main( String[] args ) {
         JFXGLLauncher.showFilterWarnings = false;
-        JFXGLLauncher.launchMain( MainTemplate.class, args );
+        JFXGLLauncher.launchMain( MainTemplate3D.class, args );
     }
 
     //it's called by main above though some hack magicks called reflection
@@ -91,9 +91,6 @@ public class MainTemplate {
             CubeGrid terrain1 = new CubeGrid( new Texture( "resources/First Oracle/texture3D.png" ) );
 
             CubeGrid[][][] array = new CubeGrid[10][20][20];
-
-            System.err.println( terrain1.getBBO() );
-            System.err.println( terrain1.getVertices() );
 
             for ( int y = 0; y < 10; y++ ) {
                 for ( int x = 0; x < 20; x++ ) {

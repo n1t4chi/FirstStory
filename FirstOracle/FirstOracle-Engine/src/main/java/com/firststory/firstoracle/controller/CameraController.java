@@ -9,6 +9,7 @@ import com.firststory.firstoracle.window.notifying.QuitEvent;
 import com.firststory.firstoracle.window.notifying.QuitListener;
 import com.firststory.firstoracle.window.notifying.QuitNotifier;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.*;
 
 import java.util.ArrayList;
@@ -27,8 +28,6 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
 
     private final CameraKeyMap cameraKeyMap;
     private final long refreshLatency;
-    private float speed = 15f;
-
     private final ConcurrentHashMap< Integer, Integer > keyMap = new ConcurrentHashMap<>( 10 );
     private final GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
         @Override
@@ -43,11 +42,15 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
         }
     };
     private final Collection< CameraListener > cameraObservers = new ArrayList<>( 3 );
+    private final Vector2f direction2D = new Vector2f( 1, 1 );
+    private final Vector2f perpendicularDirection2D = new Vector2f( 1, 1 );
+    private final Vector2f direction3D = new Vector2f( 1, 1 );
+    private final Vector2f perpendicularDirection3D = new Vector2f( 1, 1 );
+    private float speed;
     private float rotationY = 0;
     private float rotationX = 0;
-    private float posX = 0;
-    private float posY = 0;
-    private float posZ = 0;
+    private Vector3f pos3D = new Vector3f( 0, 0, 0 );
+    private Vector2f pos2D = new Vector2f( 0, 0 );
     private float cameraSize = 25;
     private final GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
         @Override
@@ -59,8 +62,7 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
         }
     };
     private volatile boolean keepWorking = true;
-    private final Vector2f direction = new Vector2f( 1, 1 );
-    private final Vector2f perpendicularDirection = new Vector2f( 1, 1 );
+
     public CameraController( CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
         this.cameraKeyMap = cameraKeyMap;
         this.refreshLatency = refreshLatency;
@@ -76,29 +78,17 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
         return scrollCallback;
     }
 
-    public void setInitialValues(
-        float rotationY, float rotationX, float posX, float posY, float posZ, float cameraSize
-    )
-    {
-        this.rotationY = rotationY;
-        this.rotationX = rotationX;
-        this.posX = posX;
-        this.posY = posY;
-        this.posZ = posZ;
-        this.cameraSize = cameraSize;
-    }
-
     public void updateIsometricCamera3D( IsometricCamera3D camera ) {
         camera.setSize( cameraSize );
-        camera.setCenterPoint( posX, posY, posZ );
+        camera.setCenterPoint( pos3D.x, pos3D.y, pos3D.z );
         camera.setRotationX( rotationX );
         camera.setRotationY( rotationY );
     }
 
     public void updateMovableCamera2D( MovableCamera2D camera ) {
         camera.setWidth( cameraSize );
-        camera.setCenterPoint( posX, posZ );
-        camera.setRotation( rotationX );
+        camera.setCenterPoint( pos2D.x, pos2D.y );
+        camera.setRotation( rotationY );
     }
 
     public void kill() {
@@ -118,7 +108,6 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
             double currentTime = GLFW.glfwGetTime();
             boolean updated = false;
             if ( !keyMap.isEmpty() ) {
-//                System.err.println( "keep working: "+keyMap.size() );
                 float timeDelta = ( float ) ( ( currentTime - lastTime ) * speed );
                 for ( Map.Entry< Integer, Integer > e : keyMap.entrySet() ) {
                     if ( key( e.getKey(), e.getValue(), timeDelta ) ) {
@@ -129,7 +118,7 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
                 }
             }
             if ( updated ) {
-                notifyCameraListeners( new CameraEvent( posX, posY, posZ, rotationY, rotationX ) );
+                notifyCameraListeners( new CameraEvent( pos2D, pos3D, rotationY, rotationX ) );
             }
             lastTime = currentTime;
             try {
@@ -155,10 +144,21 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
 
     private void rotateVectors() {
-        double radians = Math.toRadians( DIRECTION_BASE_ROTATION + rotationY );
-        direction.set( ( float ) Math.cos( radians ), ( float ) Math.sin( radians ) );
-        radians = Math.toRadians( DIRECTION_BASE_ROTATION + rotationY + 90 );
-        perpendicularDirection.set( ( float ) Math.cos( radians ), ( float ) Math.sin( radians ) );
+        double radians3D = Math.toRadians( DIRECTION_BASE_ROTATION + rotationY );
+        direction3D.set( ( float ) Math.cos( radians3D ), ( float ) Math.sin( radians3D ) );
+        radians3D = Math.toRadians( DIRECTION_BASE_ROTATION + rotationY + 90 );
+        perpendicularDirection3D.set(
+            ( float ) Math.cos( radians3D ),
+            ( float ) Math.sin( radians3D )
+        );
+
+        double radians2D = Math.toRadians( rotationX - 90 );
+        direction2D.set( ( float ) Math.cos( radians2D ), ( float ) Math.sin( radians2D ) );
+        radians2D = Math.toRadians( rotationX );
+        perpendicularDirection2D.set(
+            ( float ) Math.cos( radians2D ),
+            ( float ) Math.sin( radians2D )
+        );
     }
 
     /**
@@ -176,14 +176,13 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
         } else if ( cameraKeyMap.shouldRotateRight( key, mods ) ) {
             rotateRight( timeDelta );
         } else if ( cameraKeyMap.shouldMoveForward( key, mods ) ) {
-            System.err.println( "forward" );
-            moveForward();
+            moveForward( timeDelta );
         } else if ( cameraKeyMap.shouldMoveBackwards( key, mods ) ) {
-            moveBackwards();
+            moveBackwards( timeDelta );
         } else if ( cameraKeyMap.shouldMoveRight( key, mods ) ) {
-            moveRight();
+            moveRight( timeDelta );
         } else if ( cameraKeyMap.shouldMoveLeft( key, mods ) ) {
-            moveLeft();
+            moveLeft( timeDelta );
         } else if ( cameraKeyMap.shouldMoveUp( key, mods ) ) {
             moveUp( timeDelta );
         } else if ( cameraKeyMap.shouldMoveDown( key, mods ) ) {
@@ -195,64 +194,70 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
 
     private void rotateDown( float timeDelta ) {
-        rotationX -= timeDelta;
-        if ( rotationX <= 0 ) {
-            rotationX = 360 - rotationX;
-        }
+        rotationX -= 10*timeDelta;
+        rotationX%=360;
         rotateVectors();
     }
 
     private void rotateUp( float timeDelta ) {
-        rotationX += timeDelta;
-        if ( rotationX >= 360 ) {
-            rotationX = rotationX - 360;
-        }
+        rotationX += 10*timeDelta;
+        rotationX%=360;
         rotateVectors();
     }
 
     private void rotateLeft( float timeDelta ) {
-        rotationY += timeDelta;
-        if ( rotationY >= 360 ) {
-            rotationY = rotationY - 360;
-        }
+        rotationY += 10*timeDelta;
+        rotationY%=360;
         rotateVectors();
     }
 
     private void rotateRight( float timeDelta ) {
-        rotationY -= timeDelta;
-        if ( rotationY <= 0 ) {
-            rotationY = 360 - rotationY;
-        }
+        rotationY -= 10*timeDelta;
+        rotationY%=360;
         rotateVectors();
     }
 
     private void moveDown( float timeDelta ) {
-        posZ -= timeDelta;
+        pos3D.sub( 0, timeDelta, 0 );
     }
 
     private void moveUp( float timeDelta ) {
-        posY += timeDelta;
+        pos3D.add( 0, timeDelta, 0 );
     }
 
-    private void moveLeft() {
-        posX -= perpendicularDirection.x;
-        posZ -= perpendicularDirection.y;
+    private void moveLeft( float timeDelta ) {
+        addDirectionToVector( timeDelta, perpendicularDirection3D, pos3D );
+        addDirectionToVector( timeDelta, perpendicularDirection2D, pos2D );
     }
 
-    private void moveRight() {
-        posX += perpendicularDirection.x;
-        posZ += perpendicularDirection.y;
+    private void moveRight( float timeDelta ) {
+        subDirectionToVector( timeDelta, perpendicularDirection3D, pos3D );
+        subDirectionToVector( timeDelta, perpendicularDirection2D, pos2D );
     }
 
-    private void moveBackwards() {
-        posX -= direction.x;
-        posZ -= direction.y;
+    private void moveBackwards( float timeDelta ) {
+        subDirectionToVector( timeDelta, direction3D, pos3D );
+        subDirectionToVector( timeDelta, direction2D, pos2D );
     }
 
-    private void moveForward() {
-        System.err.println( "before pos: " + posX + "," + posZ );
-        posX += direction.x;
-        posZ += direction.y;
-        System.err.println( "after pos: " + posX + "," + posZ );
+    private void moveForward( float timeDelta ) {
+        addDirectionToVector( timeDelta, direction3D, pos3D );
+        addDirectionToVector( timeDelta, direction2D, pos2D );
+    }
+
+    private void addDirectionToVector( float timeDelta, Vector2f direction, Vector3f vector ) {
+        vector.add( timeDelta * direction.x, timeDelta * direction.y, 0 );
+    }
+
+    private void addDirectionToVector( float timeDelta, Vector2f direction, Vector2f vector ) {
+        vector.add( timeDelta * direction.x, timeDelta * direction.y );
+    }
+
+    private void subDirectionToVector( float timeDelta, Vector2f direction, Vector3f vector ) {
+        vector.sub( timeDelta * direction.x, timeDelta * direction.y, 0 );
+    }
+
+    private void subDirectionToVector( float timeDelta, Vector2f direction, Vector2f vector ) {
+        vector.sub( timeDelta * direction.x, timeDelta * direction.y );
     }
 }
