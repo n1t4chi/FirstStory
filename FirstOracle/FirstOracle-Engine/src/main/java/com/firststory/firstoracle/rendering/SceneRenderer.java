@@ -9,16 +9,15 @@ import com.firststory.firstoracle.object2D.Object2D;
 import com.firststory.firstoracle.object2D.ObjectTransformations2D;
 import com.firststory.firstoracle.object3D.Object3D;
 import com.firststory.firstoracle.object3D.ObjectTransformations3D;
-import com.firststory.firstoracle.rendering.GraphicRenderer;
-import com.firststory.firstoracle.rendering.Object2DRenderer;
-import com.firststory.firstoracle.rendering.Object3DRenderer;
-import com.firststory.firstoracle.rendering.SceneProvider;
 import com.firststory.firstoracle.scene.RenderedScene;
-import com.firststory.firstoracle.window.notifying.FpsNotifier;
 import com.firststory.firstoracle.window.notifying.FpsListener;
+import com.firststory.firstoracle.window.notifying.FpsNotifier;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
-import org.joml.*;
+import org.joml.Vector2fc;
+import org.joml.Vector3fc;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -37,7 +36,7 @@ public class SceneRenderer implements GraphicRenderer,
     Object3DRenderer, FpsNotifier
 {
 
-    public static final Vector4f BORDER_COLOUR = new Vector4f( 1f, 0f, 0f, 0.75f );
+    private static final Vector4f BORDER_COLOUR = new Vector4f( 1f, 0f, 0f, 0.75f );
     private final boolean useTexture;
     private final boolean drawBorder;
     private final ShaderProgram2D shaderProgram2D;
@@ -185,15 +184,12 @@ public class SceneRenderer implements GraphicRenderer,
         GL11.glDrawArrays( GL11.GL_TRIANGLES, 0, bufferSize );
 
         if ( drawBorder ) {
-            shaderProgram3D.bindMaxAlphaChannel( 1 );
-            shaderProgram3D.bindOverlayColour( BORDER_COLOUR );
+            shaderProgram2D.bindMaxAlphaChannel( 1 );
+            shaderProgram2D.bindOverlayColour( BORDER_COLOUR );
             GL11.glLineWidth( 1 );
             GL11.glDrawArrays( GL11.GL_LINE_LOOP, 0, bufferSize );
         }
     }
-
-    private Vector3f ones = new Vector3f( 1, 1, 1 );
-    private Vector3f zeroes = new Vector3f( 0, 0, 0 );
 
     @Override
     public void render(
@@ -247,7 +243,6 @@ public class SceneRenderer implements GraphicRenderer,
         disableDepth();
         shaderProgram2D.useProgram();
         shaderProgram2D.bindCamera( scene.getCamera2D() );
-
         scene.renderBackground( this );
         scene.renderScene2D( this );
         emptyTexture.bind();

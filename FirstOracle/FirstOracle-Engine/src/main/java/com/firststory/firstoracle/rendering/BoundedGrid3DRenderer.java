@@ -3,12 +3,11 @@
  */
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.ArrayBuffer;
+import com.firststory.firstoracle.object3D.Vertices3D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
 
 public class BoundedGrid3DRenderer implements Grid3DRenderer {
 
@@ -17,10 +16,10 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     private final float[] smallNegativeAxesArray;
     private final float[] mainAxesArray;
     private final ShaderProgram3D shaderProgram;
-    private final ArrayBuffer mainAxes = new ArrayBuffer();
-    private final ArrayBuffer interAxes = new ArrayBuffer();
-    private final ArrayBuffer smallPositiveAxes = new ArrayBuffer();
-    private final ArrayBuffer smallNegativeAxes = new ArrayBuffer();
+    private final Vertices3D mainAxes;
+    private final Vertices3D interAxes;
+    private final Vertices3D smallPositiveAxes;
+    private final Vertices3D smallNegativeAxes;
     private final Vector3f zeros = new Vector3f( 0, 0, 0 );
     private final Vector3f ones = new Vector3f( 1, 1, 1 );
     private final Vector4f colour = new Vector4f( 0, 0, 0, 0 );
@@ -80,6 +79,10 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
                 }
             }
         }
+        mainAxes = new Vertices3D( new float[][]{ mainAxesArray } );
+        interAxes = new Vertices3D( new float[][]{ interAxesArray } );
+        smallPositiveAxes = new Vertices3D( new float[][]{ smallPositiveAxesArray } );
+        smallNegativeAxes = new Vertices3D( new float[][]{ smallNegativeAxesArray } );
     }
 
     private float[] createAxes( int gridSize, int i ) {
@@ -102,44 +105,33 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     }
 
     @Override
-    public void render() {
-        renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );
-        renderGridArray( interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
-        renderGridArray( smallNegativeAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
-        renderGridArray( smallPositiveAxes, 0.1f, 1f, 0.25f, 0.25f, 0.5f );
-    }
-
-    @Override
-    public void init() {
-        mainAxes.create().load( mainAxesArray );
-        interAxes.create().load( interAxesArray );
-        smallPositiveAxes.create().load( smallPositiveAxesArray );
-        smallNegativeAxes.create().load( smallNegativeAxesArray );
-    }
+    public void init() { }
 
     @Override
     public void dispose() {
-        mainAxes.delete();
-        interAxes.delete();
-        smallPositiveAxes.delete();
-        smallNegativeAxes.delete();
+        mainAxes.close();
+        interAxes.close();
+        smallPositiveAxes.close();
+        smallNegativeAxes.close();
+    }
+
+    @Override
+    public void render() {
+        renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );
+        renderGridArray( interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
+        renderGridArray( smallPositiveAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
+        renderGridArray( smallNegativeAxes, 0.1f, 1f, 0.25f, 0.25f, 0.5f );
     }
 
     private void renderGridArray(
-        ArrayBuffer buffer, float width, float red, float green, float blue, float alpha
+        Vertices3D buffer, float width, float red, float green, float blue, float alpha
     )
     {
         colour.set( red, green, blue, alpha );
         bindUniformData();
-        buffer.bind();
-        renderLines( buffer, width );
-    }
-
-    private void renderLines( ArrayBuffer buffer, float width ) {
-        GL20.glVertexAttribPointer( 0, 3, GL11.GL_FLOAT, false, 0, 0 );
-        GL20.glVertexAttribPointer( 1, 2, GL11.GL_FLOAT, false, 0, 0 );
+        int length = buffer.bind( 0 );
         GL11.glLineWidth( width );
-        GL11.glDrawArrays( GL11.GL_LINES, 0, buffer.getLength() / 2 );
+        GL11.glDrawArrays( GL11.GL_LINES, 0, length );
     }
 
     private void bindUniformData() {

@@ -4,15 +4,12 @@
 package com.firststory.firstoracle.util;
 
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
-import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object2D.RectangleGrid;
-import com.firststory.firstoracle.object3D.CubeGrid;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedObjects2D;
-import com.firststory.firstoracle.scene.RenderedObjects3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
@@ -21,11 +18,9 @@ import com.firststory.firstoracle.window.WindowSettings;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGLLauncher;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
-import org.joml.Vector3i;
 import org.joml.Vector4f;
 
 /**
@@ -63,11 +58,16 @@ public class MainTemplate2D {
 
             RenderedSceneMutable renderedScene = new RenderedSceneMutable();
 
+            RectangleGrid overlay = new RectangleGrid( new Texture(
+                "resources/First Oracle/grid.png" ) );
+
             Vector4f colour = new Vector4f( 0, 0, 0, 0 );
             float maxFloat = 1;
             renderedScene.setOverlay( new RenderedObjects2D() {
                 @Override
-                public void render( Object2DRenderer renderer ) { }
+                public void render( Object2DRenderer renderer ) {
+                    renderer.render( overlay, colour, maxFloat );
+                }
             } );
 
             RectangleGrid terrain1 = new RectangleGrid( new Texture(
@@ -89,6 +89,20 @@ public class MainTemplate2D {
                         for ( int y = 0; y < array[x].length; y++ ) {
                             renderer.render( array[x][y],
                                 array[x][y].computePosition( x, y, arrayShift ),
+                                colour,
+                                maxFloat
+                            );
+                        }
+                    }
+                    for ( int x = 0; x < array.length; x++ ) {
+                        for ( int y = 0; y < array[x].length; y++ ) {
+                            renderer.render( array[x][y],
+                                (
+                                    ( Vector2f ) array[x][y].computePosition( x,
+                                        y,
+                                        arrayShift
+                                    )
+                                ).add( 0.5f, 0.5f ),
                                 colour,
                                 maxFloat
                             );

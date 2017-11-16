@@ -32,11 +32,6 @@ public abstract class Vertices< BoundingBox > extends VertexAttributes {
         return verticesByFrame[( int ) key];
     }
 
-    @Override
-    protected int getVertexSize() {
-        return 3;
-    }
-
     protected int getIndex() { return 0; }
 
     @Override

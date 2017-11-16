@@ -31,6 +31,6 @@ void main(){
             translation.y+posY,
             1
         );
-    gl_Position = vec4(v.x,v.y,v.z,1);
+    gl_Position = vec4(v.x,v.y,1,1);
 
 }

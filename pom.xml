@@ -109,12 +109,12 @@
             <dependency>
                 <groupId>jfxgl</groupId>
                 <artifactId>jfxgl</artifactId>
-                <version>0.4</version>
+                <version>0.5</version>
             </dependency>
             <dependency>
                 <groupId>jfxgl</groupId>
                 <artifactId>jfxgl-jfxrt</artifactId>
-                <version>0.4</version>
+                <version>0.5</version>
             </dependency>
 
 
