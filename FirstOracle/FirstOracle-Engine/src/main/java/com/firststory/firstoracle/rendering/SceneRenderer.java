@@ -186,7 +186,7 @@ public class SceneRenderer implements GraphicRenderer,
         if ( drawBorder ) {
             shaderProgram2D.bindMaxAlphaChannel( 1 );
             shaderProgram2D.bindOverlayColour( BORDER_COLOUR );
-            GL11.glLineWidth( 1 );
+            GL11.glLineWidth( 1f );
             GL11.glDrawArrays( GL11.GL_LINE_LOOP, 0, bufferSize );
         }
     }

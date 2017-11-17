@@ -82,12 +82,23 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, ObjectTransfor
         minX *= scale.x();
         minX += position.x();
         maxX *= scale.x();
-        maxX += position.y();
+        maxX += position.x();
         minY *= scale.y();
         minY += position.y();
         maxY *= scale.y();
         maxY += position.y();
         return new BoundingBox2D( minX, maxX, minY, maxY );
+    }
+
+    /**
+     * Returns whether the given bounding box intersects with this bounding box
+     *
+     * @param boundingBox2D
+     * @return true if they intersect
+     */
+    public boolean intersects( BoundingBox2D boundingBox2D ) {
+        return minX <= boundingBox2D.maxX && maxX >= boundingBox2D.minX &&
+               minY <= boundingBox2D.maxY && maxY >= boundingBox2D.minY;
     }
 
     @Override
