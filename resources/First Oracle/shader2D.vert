@@ -10,6 +10,11 @@ uniform vec2 translation;
 uniform vec2 scale;
 uniform float rotation;
 
+
+float toRadians(float angle){
+    return angle/0.01745329251994329576923690768488612713442871888541725456;
+}
+
 void main(){
     UV = vertexUV;
     float posX = vertexPosition.x*scale.x;
@@ -18,8 +23,9 @@ void main(){
     if(rotation != 0){
         float x = posX;
         float y = posY;
-        float sinZ = sin(rotation);
-        float cosZ = cos(rotation);
+        float rot = toRadians(rotation);
+        float sinZ = sin(rot);
+        float cosZ = cos(rot);
 
         posX = (x*cosZ) - (y*sinZ);
         posY = (x*sinZ) + (y*cosZ);

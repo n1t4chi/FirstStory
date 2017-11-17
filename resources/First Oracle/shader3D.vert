@@ -10,6 +10,9 @@ uniform vec3 translation;
 uniform vec3 scale;
 uniform vec3 rotation;
 
+float toRadians(float angle){
+    return angle/0.01745329251994329576923690768488612713442871888541725456;
+}
 
 void main(){
     UV = vertexUV;
@@ -21,26 +24,27 @@ void main(){
     if(rotation.x != 0){
         float y = posY;
         float z = posZ;
-        float sinX = sin(rotation.x);
-        float cosX = cos(rotation.x);
+        float rotX = toRadians(rotation.x);
+        float sinX = sin(rotX);
+        float cosX = cos(rotX);
         posY = (y*cosX) - (z*sinX);
         posZ = (y*sinX) + (z*cosX);
     }
     if(rotation.y != 0){
         float x = posX;
         float z = posZ;
-        float sinY = sin(rotation.y);
-        float cosY = cos(rotation.y);
-
+        float rotY = toRadians(rotation.y);
+        float sinY = sin(rotY);
+        float cosY = cos(rotY);
         posX = (x*cosY) - (z*sinY);
         posZ = (x*sinY) + (z*cosY);
     }
     if(rotation.z != 0){
         float x = posX;
         float y = posY;
-        float sinZ = sin(rotation.z);
-        float cosZ = cos(rotation.z);
-
+        float rotZ = toRadians(rotation.z);
+        float sinZ = sin(rotZ);
+        float cosZ = cos(rotZ);
         posX = (x*cosZ) - (y*sinZ);
         posY = (x*sinZ) + (y*cosZ);
     }
