@@ -10,7 +10,9 @@ import com.firststory.firstoracle.window.notifying.QuitListener;
 import com.firststory.firstoracle.window.notifying.QuitNotifier;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.*;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.GLFWScrollCallback;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,6 +54,43 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     private Vector3f pos3D = new Vector3f( 0, 0, 0 );
     private Vector2f pos2D = new Vector2f( 0, 0 );
     private float cameraSize = 25;
+
+    public Vector2f getDirection2D() {
+        return direction2D;
+    }
+
+    public Vector2f getPerpendicularDirection2D() {
+        return perpendicularDirection2D;
+    }
+
+    public Vector2f getDirection3D() {
+        return direction3D;
+    }
+
+    public Vector2f getPerpendicularDirection3D() {
+        return perpendicularDirection3D;
+    }
+
+    public float getRotationY() {
+        return rotationY;
+    }
+
+    public float getRotationX() {
+        return rotationX;
+    }
+
+    public Vector3f getPos3D() {
+        return pos3D;
+    }
+
+    public Vector2f getPos2D() {
+        return pos2D;
+    }
+
+    public float getCameraSize() {
+        return cameraSize;
+    }
+
     private final GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
         @Override
         public void invoke( long l, double deltaX, double deltaY ) {
