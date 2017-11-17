@@ -36,9 +36,6 @@
                             <goals>
                                 <goal>jar</goal>
                             </goals>
-                            <configuration>
-                                <outputDirectory>../FirstOracle</outputDirectory>
-                            </configuration>
                         </execution>
                     </executions>
                 </plugin>

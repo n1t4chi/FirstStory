@@ -6,8 +6,7 @@ package com.firststory.firstoracle.object2D;
 import com.firststory.firstoracle.object.BoundingBox;
 import org.joml.Vector2fc;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import static java.lang.Math.*;
 
 /**
  * @author n1t4chi
@@ -45,10 +44,10 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, ObjectTransfor
     private final float minX, maxX, minY, maxY;
 
     public BoundingBox2D( float minX, float maxX, float minY, float maxY ) {
-        this.minX = minX;
-        this.maxX = maxX;
-        this.minY = minY;
-        this.maxY = maxY;
+        this.minX = ( minX < maxX ) ? minX : maxX;
+        this.maxX = ( minX > maxX ) ? minX : maxX;
+        this.minY = ( minY < maxY ) ? minY : maxY;
+        this.maxY = ( minY > maxY ) ? minY : maxY;
     }
 
     public float getMaxX() {
@@ -76,14 +75,16 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, ObjectTransfor
         Float rotation = transformations.getRotation();
         Vector2fc position = transformations.getPosition();
         Vector2fc scale = transformations.getScale();
+
         minX *= scale.x();
         maxX *= scale.x();
         minY *= scale.y();
         maxY *= scale.y();
 
         if ( rotation != 0 ) {
-            float sinZ = ( float ) sin( rotation );
-            float cosZ = ( float ) cos( rotation );
+            double rot = toRadians( rotation );
+            float sinZ = ( float ) sin( rot );
+            float cosZ = ( float ) cos( rot );
 
             float x = minX;
             float y = minY;
