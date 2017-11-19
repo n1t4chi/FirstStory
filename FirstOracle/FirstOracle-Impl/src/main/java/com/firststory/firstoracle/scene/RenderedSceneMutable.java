@@ -4,7 +4,7 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
-import com.firststory.firstoracle.camera2D.IdentityCamera2D;
+import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
@@ -23,9 +23,9 @@ public class RenderedSceneMutable implements RenderedScene {
     private RenderedObjects3D scene3D;
     private RenderedObjects2D overlay;
 
-    public RenderedSceneMutable() {
-        camera2D = new IdentityCamera2D();
-        isometricCamera3D = new IsometricCamera3D( 10, 0, 0, 0, 1, 0, 0, 1 );
+    public RenderedSceneMutable( float heightByWidthRatio ) {
+        camera2D = new MovableCamera2D( 10, 0, 0, heightByWidthRatio, 0 );
+        isometricCamera3D = new IsometricCamera3D( 10, 0, 0, 0, heightByWidthRatio, 0, 0, 1 );
         backgroundColour = new Vector4f( 1, 1, 1, 1 );
         background = scene2D = overlay = new RenderedObjects2D() {};
         scene3D = new RenderedObjects3D() {};
@@ -53,10 +53,6 @@ public class RenderedSceneMutable implements RenderedScene {
     @Override
     public IsometricCamera3D getCamera3D() {
         return isometricCamera3D;
-    }
-
-    public void setIsometricCamera3D( IsometricCamera3D isometricCamera3D ) {
-        this.isometricCamera3D = isometricCamera3D;
     }
 
     @Override
@@ -111,5 +107,9 @@ public class RenderedSceneMutable implements RenderedScene {
 
     public void setOverlay( RenderedObjects2D overlay ) {
         this.overlay = overlay;
+    }
+
+    public void setIsometricCamera3D( IsometricCamera3D isometricCamera3D ) {
+        this.isometricCamera3D = isometricCamera3D;
     }
 }

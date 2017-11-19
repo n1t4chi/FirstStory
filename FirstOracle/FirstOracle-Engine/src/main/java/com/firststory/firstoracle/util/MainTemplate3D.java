@@ -14,7 +14,10 @@ import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedObjects2D;
 import com.firststory.firstoracle.scene.RenderedObjects3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
-import com.firststory.firstoracle.window.*;
+import com.firststory.firstoracle.window.OverlayContentManager;
+import com.firststory.firstoracle.window.Window;
+import com.firststory.firstoracle.window.WindowApplication;
+import com.firststory.firstoracle.window.WindowSettings;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGLLauncher;
@@ -47,8 +50,7 @@ public class MainTemplate3D {
     public static void jfxglmain( String[] args ) {
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
-        WindowSettings settings = new WindowSettings.WindowSettingsBuilder()
-            .setDrawBorder( true )
+        WindowSettings settings = new WindowSettings.WindowSettingsBuilder().setDrawBorder( true )
             .setVerticalSync( false )
             .setResizeable( true )
             .setWidth( 1000 )
@@ -62,7 +64,8 @@ public class MainTemplate3D {
         Grid2DRenderer grid2DRenderer = new DummyGrid2DRenderer();
         //Rendered scene is what is displayed via OpenGL rendering, it should be most likely moved to SceneProvider
         //Which will provide next scenes to render when something changes.
-        RenderedSceneMutable renderedScene = new RenderedSceneMutable();
+        RenderedSceneMutable renderedScene = new RenderedSceneMutable(
+            ( ( float ) settings.getHeight() ) / settings.getWidth() );
         renderedScene.setIsometricCamera3D( new IsometricCamera3D( 40, 0, 0, 0, 0.5f, 0, 0, 1 ) );
         renderedScene.setCamera2D( new MovableCamera2D( 1, 0, 0, 1, 0 ) );
         renderedScene.setBackgroundColour( new Vector4f( 0, 1, 0, 1 ) );
@@ -120,8 +123,8 @@ public class MainTemplate3D {
             //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
             //Most likely you would want to create your own SceneProvider that implements this interface
             CameraController cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(),
-                10,
-                15 );
+                10, 15
+            );
             SceneProvider sceneProvider = () -> {
                 cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
                 cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );

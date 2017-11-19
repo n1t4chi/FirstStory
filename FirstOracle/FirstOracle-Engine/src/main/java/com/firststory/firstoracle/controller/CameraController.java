@@ -97,6 +97,8 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
             cameraSize -= deltaY;
             if ( cameraSize < 1 ) {
                 cameraSize = 1;
+            } else {
+                notifyCameraListeners( new CameraEvent( pos2D, pos3D, rotationY, rotationX ) );
             }
         }
     };
@@ -233,26 +235,26 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
 
     private void rotateDown( float timeDelta ) {
-        rotationX -= 10*timeDelta;
-        rotationX%=360;
+        rotationX -= 10 * timeDelta;
+        rotationX %= 360;
         rotateVectors();
     }
 
     private void rotateUp( float timeDelta ) {
-        rotationX += 10*timeDelta;
-        rotationX%=360;
+        rotationX += 10 * timeDelta;
+        rotationX %= 360;
         rotateVectors();
     }
 
     private void rotateLeft( float timeDelta ) {
-        rotationY += 10*timeDelta;
-        rotationY%=360;
+        rotationY += 10 * timeDelta;
+        rotationY %= 360;
         rotateVectors();
     }
 
     private void rotateRight( float timeDelta ) {
-        rotationY -= 10*timeDelta;
-        rotationY%=360;
+        rotationY -= 10 * timeDelta;
+        rotationY %= 360;
         rotateVectors();
     }
 

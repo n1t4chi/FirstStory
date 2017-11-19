@@ -31,4 +31,6 @@ public abstract class Camera2D {
         BoundingBox2D bb = object.getBBO();
         return contains( bb.getMinX(), bb.getMaxX(), bb.getMinY(), bb.getMaxY() );
     }
+
+    public abstract Vector2fc translatePointOnScreen( float x, float y, int width, int height );
 }

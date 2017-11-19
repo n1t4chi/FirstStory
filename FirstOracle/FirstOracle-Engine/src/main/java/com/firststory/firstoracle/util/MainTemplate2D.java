@@ -7,6 +7,8 @@ import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.object2D.ObjectTransformations2DMutable;
+import com.firststory.firstoracle.object2D.Rectangle;
 import com.firststory.firstoracle.object2D.RectangleGrid;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedObjects2D;
@@ -18,8 +20,10 @@ import com.firststory.firstoracle.window.WindowSettings;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGLLauncher;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import org.joml.Vector2f;
+import org.joml.Vector2fc;
 import org.joml.Vector2i;
 import org.joml.Vector4f;
 
@@ -56,7 +60,8 @@ public class MainTemplate2D {
             );
             Grid3DRenderer grid3DRenderer = new DummyGrid3DRenderer();
 
-            RenderedSceneMutable renderedScene = new RenderedSceneMutable();
+            RenderedSceneMutable renderedScene = new RenderedSceneMutable(
+                ( ( float ) settings.getHeight() ) / settings.getWidth() );
 
             Vector4f colour = new Vector4f( 0, 0, 0, 0 );
             float maxFloat = 1;
@@ -72,6 +77,12 @@ public class MainTemplate2D {
 
             RectangleGrid terrain1 = new RectangleGrid( new Texture(
                 "resources/First Oracle/texture2D.png" ) );
+
+            ObjectTransformations2DMutable transformations = new ObjectTransformations2DMutable();
+            Rectangle object = new Rectangle(
+                new Texture( "resources/First Oracle/obj.png" ),
+                transformations
+            );
 
             RectangleGrid[][] array = new RectangleGrid[20][20];
 
@@ -96,26 +107,25 @@ public class MainTemplate2D {
                     }
                     for ( int x = 0; x < array.length; x++ ) {
                         for ( int y = 0; y < array[x].length; y++ ) {
-                            renderer.render( array[x][y],
-                                (
-                                    ( Vector2f ) array[x][y].computePosition( x,
-                                        y,
-                                        arrayShift
-                                    )
-                                ).add( 0.5f, 0.5f ),
-                                colour,
-                                maxFloat
-                            );
+                            renderer.render( array[x][y], (
+                                ( Vector2f ) array[x][y].computePosition( x, y, arrayShift )
+                            ).add( 0.5f, 0.5f ), colour, maxFloat );
                         }
                     }
+                    renderer.render( object, colour, maxFloat );
                 }
             } );
             CameraController cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(),
                 10,
                 1f
             );
-            SceneProvider sceneProvider = () -> {
+            cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
+            cameraController.addCameraObserver( ( event, source ) -> {
                 cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
+
+            } );
+
+            SceneProvider sceneProvider = () -> {
                 return renderedScene;
             };
             SceneRenderer renderer = new SceneRenderer(
@@ -128,14 +138,35 @@ public class MainTemplate2D {
                 settings.isDrawBorder()
             );
             OverlayContentManager contentManager = new OverlayContentManager() {
-                @Override
-                public Pane createOverlayPanel() { return new Pane(); }
+                boolean update;
+                float x = 0;
+                float y = 0;
+                private Pane pane;
 
                 @Override
-                public void init() {}
+                public Pane createOverlayPanel() {
+                    return pane = new Pane();
+                }
 
                 @Override
-                public void update( double v, int i ) {}
+                public void init() {
+                    pane.addEventFilter( MouseEvent.MOUSE_MOVED, event -> {
+                        Vector2fc translated = renderedScene.getCamera2D()
+                            .translatePointOnScreen( ( float ) event.getX(),
+                                ( float ) event.getY(),
+                                width,
+                                height
+                            );
+                        x = translated.x();
+                        y = translated.y();
+                        transformations.setPosition( x, y );
+                    } );
+                }
+
+                @Override
+                public void update( double v, int i ) {
+
+                }
             };
             WindowApplication application = new WindowApplication( contentManager );
             renderer.addFpsObserver( application );
@@ -146,12 +177,6 @@ public class MainTemplate2D {
                 renderer
             );
             window.init();
-            renderedScene.setCamera2D( new MovableCamera2D( 1,
-                0,
-                0,
-                ( ( float ) settings.getHeight() ) / settings.getWidth(),
-                0
-            ) );
             renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
 
             window.addQuitObserver( cameraController );
