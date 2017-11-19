@@ -5,6 +5,7 @@ package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.camera2D.IdentityCamera2D;
 import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object2D.Object2D;
 import com.firststory.firstoracle.object2D.ObjectTransformations2D;
 import com.firststory.firstoracle.object3D.Object3D;
@@ -102,6 +103,7 @@ public class SceneRenderer implements GraphicRenderer,
         emptyTexture.bind();
     }
 
+    UvMap emptyUvMap;
     @Override
     public void init() {
         try {
@@ -112,6 +114,7 @@ public class SceneRenderer implements GraphicRenderer,
             graphics.dispose();
             emptyTexture = new Texture( image );
             emptyTexture.load();
+            emptyUvMap = new UvMap( new float[1][1][3] );
             grid3DRenderer.init();
             grid2DRenderer.init();
         } catch ( IOException ex ) {
@@ -236,6 +239,7 @@ public class SceneRenderer implements GraphicRenderer,
 
         scene.renderScene3D( this );
         emptyTexture.bind();
+        emptyUvMap.bind( 0, 0 );
         grid3DRenderer.render();
     }
 
@@ -246,6 +250,7 @@ public class SceneRenderer implements GraphicRenderer,
         scene.renderBackground( this );
         scene.renderScene2D( this );
         emptyTexture.bind();
+        emptyUvMap.bind( 0, 0 );
         grid2DRenderer.render();
     }
 
