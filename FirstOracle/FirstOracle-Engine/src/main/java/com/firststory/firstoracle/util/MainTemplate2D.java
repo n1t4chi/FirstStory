@@ -161,6 +161,10 @@ public class MainTemplate2D {
                         y = translated.y();
                         transformations.setPosition( x, y );
                     } );
+                    pane.addEventFilter( MouseEvent.MOUSE_CLICKED, event ->
+                    {
+                        System.err.println( x + "," + y );
+                    } );
                 }
 
                 @Override
