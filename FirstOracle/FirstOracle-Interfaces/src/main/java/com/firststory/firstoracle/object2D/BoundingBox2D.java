@@ -17,7 +17,7 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, ObjectTransfor
         float minX, maxX, minY, maxY;
         minX = minY = Float.MAX_VALUE;
         maxY = maxX = -Float.MAX_VALUE;
-        for ( int i = 0; i < vertices.length; i += 3 ) {
+        for ( int i = 0; i < vertices.length; i += 2 ) {
             if ( vertices[i] < minX ) { minX = vertices[i]; }
             if ( vertices[i] > maxX ) { maxX = vertices[i]; }
             if ( vertices[i + 1] < minY ) { minY = vertices[i + 1]; }
@@ -27,11 +27,11 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, ObjectTransfor
     }
 
     public static BoundingBox2D getBoundingBox2D( float[][] verticesArray ) {
-        float minX, maxX, minY, maxY, minZ, maxZ;
+        float minX, maxX, minY, maxY;
         minX = minY = Float.MAX_VALUE;
         maxY = maxX = -Float.MAX_VALUE;
         for ( float[] vertices : verticesArray ) {
-            for ( int i = 0; i < vertices.length; i += 3 ) {
+            for ( int i = 0; i < vertices.length; i += 2 ) {
                 if ( vertices[i] < minX ) { minX = vertices[i]; }
                 if ( vertices[i] > maxX ) { maxX = vertices[i]; }
                 if ( vertices[i + 1] < minY ) { minY = vertices[i + 1]; }

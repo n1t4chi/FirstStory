@@ -33,7 +33,8 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     private final ConcurrentHashMap< Integer, Integer > keyMap = new ConcurrentHashMap<>( 10 );
     private final GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
         @Override
-        public void invoke( long window, int key, int scancode, int action, int mods ) {
+        public void invoke( long window, int key, int scancode, int action, int mods )
+        {
             //        System.err.println(
             //            "w:" + window + ", k:" + key + ", sc" + scancode + ", a:" + action + ", m:" + mods );
             if ( action == GLFW.GLFW_PRESS ) {
@@ -54,6 +55,30 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     private Vector3f pos3D = new Vector3f( 0, 0, 0 );
     private Vector2f pos2D = new Vector2f( 0, 0 );
     private float cameraSize = 25;
+    private final GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
+        @Override
+        public void invoke( long l, double deltaX, double deltaY )
+        {
+            cameraSize -= deltaY;
+            if ( cameraSize < 1 ) {
+                cameraSize = 1;
+            } else {
+                notifyCameraListeners( new CameraEvent( pos2D, pos3D, rotationY, rotationX ) );
+            }
+        }
+    };
+    private volatile boolean keepWorking = true;
+
+    public CameraController( CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
+        this.cameraKeyMap = cameraKeyMap;
+        this.refreshLatency = refreshLatency;
+        this.speed = speed;
+        rotateVectors();
+    }
+
+    public void setSpeed( float speed ) {
+        this.speed = speed;
+    }
 
     public Vector2f getDirection2D() {
         return direction2D;
@@ -75,40 +100,40 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
         return rotationY;
     }
 
+    public void setRotationY( float rotationY ) {
+        this.rotationY = rotationY;
+    }
+
     public float getRotationX() {
         return rotationX;
+    }
+
+    public void setRotationX( float rotationX ) {
+        this.rotationX = rotationX;
     }
 
     public Vector3f getPos3D() {
         return pos3D;
     }
 
+    public void setPos3D( Vector3f pos3D ) {
+        this.pos3D = pos3D;
+    }
+
     public Vector2f getPos2D() {
         return pos2D;
+    }
+
+    public void setPos2D( Vector2f pos2D ) {
+        this.pos2D = pos2D;
     }
 
     public float getCameraSize() {
         return cameraSize;
     }
 
-    private final GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
-        @Override
-        public void invoke( long l, double deltaX, double deltaY ) {
-            cameraSize -= deltaY;
-            if ( cameraSize < 1 ) {
-                cameraSize = 1;
-            } else {
-                notifyCameraListeners( new CameraEvent( pos2D, pos3D, rotationY, rotationX ) );
-            }
-        }
-    };
-    private volatile boolean keepWorking = true;
-
-    public CameraController( CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
-        this.cameraKeyMap = cameraKeyMap;
-        this.refreshLatency = refreshLatency;
-        this.speed = speed;
-        rotateVectors();
+    public void setCameraSize( float cameraSize ) {
+        this.cameraSize = cameraSize;
     }
 
     public GLFWKeyCallback getKeyCallback() {
@@ -120,16 +145,44 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
 
     public void updateIsometricCamera3D( IsometricCamera3D camera ) {
+        setCamera3dSize( camera );
+        setCamera3dPosition( camera );
+        setCamera3dRotationX( camera );
+        setCamera3dRotationY( camera );
+    }
+
+    public void setCamera3dSize( IsometricCamera3D camera ) {
         camera.setSize( cameraSize );
+    }
+
+    public void setCamera3dPosition( IsometricCamera3D camera ) {
         camera.setCenterPoint( pos3D.x, pos3D.y, pos3D.z );
+    }
+
+    public void setCamera3dRotationX( IsometricCamera3D camera ) {
         camera.setRotationX( rotationX );
+    }
+
+    public void setCamera3dRotationY( IsometricCamera3D camera ) {
         camera.setRotationY( rotationY );
     }
 
     public void updateMovableCamera2D( MovableCamera2D camera ) {
-        camera.setWidth( cameraSize );
-        camera.setCenterPoint( pos2D.x, pos2D.y );
+        setCamera2dWidth( camera );
+        setCamera2dTranslation( camera );
+        setCamera2dRotation( camera );
+    }
+
+    public void setCamera2dRotation( MovableCamera2D camera ) {
         camera.setRotation( rotationY );
+    }
+
+    public void setCamera2dTranslation( MovableCamera2D camera ) {
+        camera.setTranslation( pos2D.x, pos2D.y );
+    }
+
+    public void setCamera2dWidth( MovableCamera2D camera ) {
+        camera.setWidth( cameraSize );
     }
 
     public void kill() {
@@ -235,25 +288,25 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
 
     private void rotateDown( float timeDelta ) {
-        rotationX -= 10 * timeDelta;
+        rotationX -= 45 * timeDelta;
         rotationX %= 360;
         rotateVectors();
     }
 
     private void rotateUp( float timeDelta ) {
-        rotationX += 10 * timeDelta;
+        rotationX += 45 * timeDelta;
         rotationX %= 360;
         rotateVectors();
     }
 
     private void rotateLeft( float timeDelta ) {
-        rotationY += 10 * timeDelta;
+        rotationY += 45 * timeDelta;
         rotationY %= 360;
         rotateVectors();
     }
 
     private void rotateRight( float timeDelta ) {
-        rotationY -= 10 * timeDelta;
+        rotationY -= 45 * timeDelta;
         rotationY %= 360;
         rotateVectors();
     }
