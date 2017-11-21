@@ -108,7 +108,10 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     }
 
     private void createGrid() {
-        mainAxesArray = new float[]{ 0, 0, gridWidth, 0, 0, 0, 0, gridHeight };
+        mainAxesArray = new float[]{
+            0, 0, gridWidth, 0, 0, 0, 0, gridHeight, 0, gridHeight, gridWidth, gridHeight,
+            gridWidth, 0, gridWidth, gridHeight
+        };
 
         int interAxesSize = (
                                 gridWidth / intermediateAxesStep + gridHeight / intermediateAxesStep
@@ -120,7 +123,7 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
         int interAxesIt = 0;
         int smallAxesIt = 0;
 
-        for ( int i = 1; i <= gridWidth; i++ ) {
+        for ( int i = 1; i < gridWidth; i++ ) {
             float[] verticalAxes = createVerticalAxes( i, gridHeight );
             if ( Math.abs( i % intermediateAxesStep ) == 0 ) {
                 interAxesIt = addAxesToArray( interAxesIt, interAxesArray, verticalAxes );
@@ -128,7 +131,7 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
                 smallAxesIt = addAxesToArray( smallAxesIt, smallAxesArray, verticalAxes );
             }
         }
-        for ( int i = 1; i <= gridHeight; i++ ) {
+        for ( int i = 1; i < gridHeight; i++ ) {
             float[] horizontalAxes = createHorizontalAxes( i, gridWidth );
             if ( Math.abs( i % intermediateAxesStep ) == 0 ) {
                 interAxesIt = addAxesToArray( interAxesIt, interAxesArray, horizontalAxes );
