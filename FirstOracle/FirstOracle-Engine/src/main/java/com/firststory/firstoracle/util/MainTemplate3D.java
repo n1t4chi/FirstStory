@@ -21,9 +21,11 @@ import com.firststory.firstoracle.window.WindowSettings;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGLLauncher;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import org.joml.Vector3i;
 import org.joml.Vector4f;
 
@@ -161,7 +163,7 @@ public class MainTemplate3D {
                 }
 
                 @Override
-                public void init() {
+                public void init( Stage stage, Scene scene ) {
                     fpsLabel = new Label();
                     timeLabel = new Label();
                     overlayPanel.setTop( fpsLabel );

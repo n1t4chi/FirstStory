@@ -3,7 +3,10 @@
  */
 package com.firststory.firstoracle.window;
 
-import com.firststory.firstoracle.window.notifying.*;
+import com.firststory.firstoracle.window.notifying.FpsListener;
+import com.firststory.firstoracle.window.notifying.FpsNotifier;
+import com.firststory.firstoracle.window.notifying.TimeListener;
+import com.firststory.firstoracle.window.notifying.TimeNotifier;
 import com.sun.prism.es2.JFXGLContext;
 import cuchaz.jfxgl.CalledByEventsThread;
 import cuchaz.jfxgl.CalledByMainThread;
@@ -37,12 +40,12 @@ public final class WindowApplication extends Application implements FpsListener,
         OpenGLPane glpane = new OpenGLPane();
         Pane overlayPanel = contentUpdater.createOverlayPanel();
 
-        glpane.setRenderer( c -> render( c ) );
+        glpane.setRenderer( this::render );
         glpane.getChildren().add( overlayPanel );
 
-        contentUpdater.init();
-
-        stage.setScene( new Scene( glpane ) );
+        Scene scene = new Scene( glpane );
+        stage.setScene( scene );
+        contentUpdater.init( stage, scene );
     }
 
     @Override
@@ -57,8 +60,6 @@ public final class WindowApplication extends Application implements FpsListener,
 
     @CalledByMainThread
     private void render( JFXGLContext context ) {
-        JFXGL.runOnEventsThread( () -> {
-            contentUpdater.update(lastTimeUpdate, lastFpsUpdate );
-        } );
+        JFXGL.runOnEventsThread( () -> contentUpdater.update( lastTimeUpdate, lastFpsUpdate ) );
     }
 }

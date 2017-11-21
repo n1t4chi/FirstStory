@@ -11,6 +11,7 @@ import com.firststory.firstoracle.object2D.ObjectTransformations2DMutable;
 import com.firststory.firstoracle.object2D.Rectangle;
 import com.firststory.firstoracle.object2D.RectangleGrid;
 import com.firststory.firstoracle.rendering.*;
+import com.firststory.firstoracle.scene.RenderedObjects2D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
@@ -19,9 +20,13 @@ import com.firststory.firstoracle.window.WindowSettings;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGLLauncher;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import org.joml.Vector2fc;
+import org.joml.Vector2i;
 import org.joml.Vector4f;
 
 /**
@@ -50,7 +55,8 @@ public class MainTemplate2D {
                 .build();
             ShaderProgram3D shaderProgram3D = new ShaderProgram3D();
             ShaderProgram2D shaderProgram2D = new ShaderProgram2D();
-            Grid2DRenderer grid2DRenderer = new BoundedPositiveGrid2DRenderer( shaderProgram2D,
+            BoundedPositiveGrid2DRenderer grid2DRenderer = new BoundedPositiveGrid2DRenderer(
+                shaderProgram2D,
                 20,
                 30,
                 10
@@ -68,15 +74,6 @@ public class MainTemplate2D {
             Vector4f colour = new Vector4f( 0, 0, 0, 0 );
             float maxFloat = 0.3f;
 
-//            RectangleGrid overlay = new RectangleGrid( new Texture(
-//                "resources/First Oracle/grid.png" ) );
-//            renderedScene.setOverlay( new RenderedObjects2D() {
-//                @Override
-//                public void render( Object2DRenderer renderer ) {
-//                    renderer.render( overlay, colour, maxFloat );
-//                }
-//            } );
-
             RectangleGrid terrain1 = new RectangleGrid( new Texture(
                 "resources/First Oracle/texture2D.png" ) );
 
@@ -93,30 +90,24 @@ public class MainTemplate2D {
                     array[x][y] = terrain1;
                 }
             }
-//            renderedScene.setScene2D( new RenderedObjects2D() {
-//                @Override
-//                public void render( Object2DRenderer renderer )
-//                {
-//                    Vector2i arrayShift = new Vector2i( 0, 0 );
-//                    for ( int x = 0; x < array.length; x++ ) {
-//                        for ( int y = 0; y < array[x].length; y++ ) {
-//                            renderer.render( array[x][y],
-//                                array[x][y].computePosition( x, y, arrayShift ),
-//                                colour,
-//                                maxFloat
-//                            );
-//                        }
-//                    }
-//                    for ( int x = 0; x < array.length; x++ ) {
-//                        for ( int y = 0; y < array[x].length; y++ ) {
-//                            renderer.render( array[x][y], (
-//                                ( Vector2f ) array[x][y].computePosition( x, y, arrayShift )
-//                            ).add( 0.5f, 0.5f ), colour, maxFloat );
-//                        }
-//                    }
-//                    renderer.render( object, colour, maxFloat );
-//                }
-//            } );
+            renderedScene.setScene2D( new RenderedObjects2D() {
+                @Override
+                public void render( Object2DRenderer renderer )
+                {
+                    Vector2i arrayShift = new Vector2i( 0, 0 );
+                    for ( int x = 0; x < array.length; x++ ) {
+                        for ( int y = 0; y < array[x].length; y++ ) {
+                            renderer.render(
+                                array[x][y],
+                                array[x][y].computePosition( x, y, arrayShift ),
+                                colour,
+                                maxFloat
+                            );
+                        }
+                    }
+                    renderer.render( object, colour, maxFloat );
+                }
+            } );
             CameraController cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(),
                 10,
                 1f
@@ -147,7 +138,7 @@ public class MainTemplate2D {
                 }
 
                 @Override
-                public void init() {
+                public void init( Stage stage, Scene scene ) {
                     pane.addEventFilter( MouseEvent.MOUSE_MOVED, event -> {
                         Vector2fc translated = renderedScene.getCamera2D()
                             .translatePointOnScreen( ( float ) event.getX(),
@@ -159,9 +150,31 @@ public class MainTemplate2D {
                         y = translated.y();
                         transformations.setPosition( x, y );
                     } );
-                    pane.addEventFilter( MouseEvent.MOUSE_CLICKED,
-                        event -> System.err.println( x + "," + y )
-                    );
+                    scene.addEventFilter( KeyEvent.KEY_TYPED, event -> {
+                        System.err.println( "typed:" + event.getCharacter() );
+                        switch ( event.getCharacter() ) {
+                            case "n":
+                                grid2DRenderer.setGridWidth( grid2DRenderer.getGridWidth() - 1 );
+                                break;
+                            case "m":
+                                grid2DRenderer.setGridWidth( grid2DRenderer.getGridWidth() + 1 );
+                                break;
+                            case "k":
+                                grid2DRenderer.setGridHeight( grid2DRenderer.getGridHeight() - 1 );
+                                break;
+                            case "l":
+                                grid2DRenderer.setGridHeight( grid2DRenderer.getGridHeight() + 1 );
+                                break;
+                            case "o":
+                                grid2DRenderer.setIntermediateAxesStep(
+                                    grid2DRenderer.getIntermediateAxesStep() - 1 );
+                                break;
+                            case "p":
+                                grid2DRenderer.setIntermediateAxesStep(
+                                    grid2DRenderer.getIntermediateAxesStep() + 1 );
+                                break;
+                        }
+                    } );
                 }
 
                 @Override
