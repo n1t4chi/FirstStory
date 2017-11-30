@@ -12,10 +12,12 @@ import org.joml.Vector3fc;
  * @author n1t4chi
  */
 public abstract class Camera3D {
+
+    private boolean update = true;
+
     public boolean contains( Object3D object ) {
         BoundingBox3D bb = object.getBBO();
-        return contains(
-            bb.getMinX(),
+        return contains(bb.getMinX(),
             bb.getMaxX(),
             bb.getMinY(),
             bb.getMaxY(),
@@ -41,4 +43,16 @@ public abstract class Camera3D {
     public abstract Matrix4fc getMatrixRepresentation();
 
     public abstract Vector3fc getCenterPoint();
+
+    public boolean mustUpdate() {
+        return update;
+    }
+
+    public void forceUpdate() {
+        update = true;
+    }
+
+    protected void updated() {
+        update = false;
+    }
 }

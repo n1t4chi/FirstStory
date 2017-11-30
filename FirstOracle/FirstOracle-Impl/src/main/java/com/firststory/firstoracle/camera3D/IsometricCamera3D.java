@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.camera3D;
 
+import com.firststory.firstoracle.WindowSettings;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
@@ -13,71 +14,69 @@ import org.joml.Vector3fc;
  */
 public class IsometricCamera3D extends Camera3D {
 
-    private final float heightByWidthRatio;
     private final float aboveYAlphaOverride;
     private final Vector3f position;
     private final Matrix4f camera;
+    private WindowSettings settings;
     private float initialHalfXSize;
     private float rotationX;
     private float rotationY;
-    private boolean update;
 
     /**
-     * @param size  Initial half of size on X dimension of orthogonal projection.
-     * @param X x position
-     * @param Y y position
-     * @param Z z position
-     * @param heightByWidthRatio Height/Width screen ratio
+     * @param settings  window settings
+     * @param size      Initial half of size on X dimension of orthogonal projection.
+     * @param X         x position
+     * @param Y         y position
+     * @param Z         z position
      * @param rotationX rotation around x axis
      * @param rotationY rotation around y axis
-     * @param alpha max alpha channel
+     * @param alpha     max alpha channel
      */
     public IsometricCamera3D(
-        float size,
-        float X,
-        float Y,
-        float Z,
-        float heightByWidthRatio,
-        float rotationX,
-        float rotationY,
-        float alpha
+            WindowSettings settings,
+            float size,
+            int X,
+            int Y,
+            int Z,
+            int rotationX,
+            int rotationY,
+            int alpha
     )
     {
+        this.settings = settings;
         this.aboveYAlphaOverride = alpha;
         this.rotationX = rotationX;
         this.rotationY = rotationY;
         this.position = new Vector3f( X, Y, Z );
-        this.heightByWidthRatio = heightByWidthRatio;
         this.initialHalfXSize = size;
         camera = new Matrix4f();
-        update = false;
     }
 
     public void setRotationY( float rotationY ) {
         if ( this.rotationY != rotationY ) {
-            update = true;
             this.rotationY = rotationY;
+            forceUpdate();
         }
     }
 
     public void setRotationX( float rotationX ) {
         if ( this.rotationX != rotationX ) {
-            update = true;
             this.rotationX = rotationX;
+            forceUpdate();
         }
     }
 
     public void setSize( float size ) {
         if ( this.initialHalfXSize != size ) {
-            update = true;
             this.initialHalfXSize = size;
+            forceUpdate();
         }
     }
 
     public final void setCenterPoint( float X, float Y, float Z ) {
         if ( position.x != X || position.y != Y || position.z != Z ) {
-            update = true;
             this.position.set( X, Y, Z );
+            forceUpdate();
         }
     }
 
@@ -106,11 +105,11 @@ public class IsometricCamera3D extends Camera3D {
     }
 
     private void updateMatrix() {
-        if ( update ) {
+        if (mustUpdate()) {
             System.err.println( "Camera3D Update" );
             float planeX = initialHalfXSize;
             //float planeZ = (size+1)*(size+1);
-            float planeY = ( planeX ) * heightByWidthRatio;
+            float planeY = (planeX) * settings.getHeightByWidthRatio();
             float planeZ = 5 + planeX;
             planeZ *= planeZ;
             //planeZ +=105;
@@ -118,7 +117,7 @@ public class IsometricCamera3D extends Camera3D {
             camera.rotateX( ( float ) java.lang.Math.toRadians( 30 + rotationX ) );
             camera.rotateY( ( float ) java.lang.Math.toRadians( 45.0 + rotationY ) );
             camera.translate( -position.x, 0, -position.z );
-            update = false;
+            updated();
         }
     }
 

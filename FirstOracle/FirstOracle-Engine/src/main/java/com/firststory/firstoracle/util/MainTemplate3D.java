@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.util;
 
+import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
@@ -17,7 +18,6 @@ import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.WindowApplication;
-import com.firststory.firstoracle.window.WindowSettings;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGLLauncher;
@@ -37,6 +37,17 @@ import org.joml.Vector4f;
  */
 public class MainTemplate3D {
 
+    private static Window window;
+    private static OverlayContentManager contentManager;
+    private static SceneRenderer renderer;
+    private static SceneProvider sceneProvider;
+    private static CameraController cameraController;
+    private static RenderedSceneMutable renderedScene;
+    private static Grid3DRenderer grid3DRenderer;
+    private static ShaderProgram2D shaderProgram2D;
+    private static ShaderProgram3D shaderProgram3D;
+    private static WindowSettings settings;
+
     //necessary main, you must run it like that or nothing works.
     //Every instance created before launchMain() will not be compatibile with any object made after
     //Even same classes will be seen as different
@@ -48,28 +59,30 @@ public class MainTemplate3D {
         JFXGLLauncher.launchMain( MainTemplate3D.class, args );
     }
 
+    private static Grid2DRenderer grid2DRenderer;
+    private static WindowApplication application;
+
     //it's called by main above though some hack magicks called reflection
     public static void jfxglmain( String[] args ) {
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
-        WindowSettings settings = new WindowSettings.WindowSettingsBuilder().setDrawBorder( true )
+        settings = new WindowSettings.WindowSettingsBuilder().setDrawBorder(true)
             .setVerticalSync( false )
             .setResizeable( true )
             .setWidth( 1000 )
             .setHeight( 800 )
             .build();
         //Those shader programs are necessary. For now I didn't remove anything with 3D so it will need to be left as it is.
-        ShaderProgram3D shaderProgram3D = new ShaderProgram3D();
-        ShaderProgram2D shaderProgram2D = new ShaderProgram2D();
+        shaderProgram3D = new ShaderProgram3D();
+        shaderProgram2D = new ShaderProgram2D();
         //GridRenderer will be changed so it works as either 2D or 3D. For now leave it as it is so you can see whether the rendering still works.
-        Grid3DRenderer grid3DRenderer = new BoundedGrid3DRenderer( shaderProgram3D, 100, 25, 5 );
-        Grid2DRenderer grid2DRenderer = new DummyGrid2DRenderer();
+        grid3DRenderer = new BoundedGrid3DRenderer(shaderProgram3D, 100, 25, 5);
+        grid2DRenderer = new DummyGrid2DRenderer();
         //Rendered scene is what is displayed via OpenGL rendering, it should be most likely moved to SceneProvider
         //Which will provide next scenes to render when something changes.
-        RenderedSceneMutable renderedScene = new RenderedSceneMutable(
-            ( ( float ) settings.getHeight() ) / settings.getWidth() );
-        renderedScene.setIsometricCamera3D( new IsometricCamera3D( 40, 0, 0, 0, 0.5f, 0, 0, 1 ) );
-        renderedScene.setCamera2D( new MovableCamera2D( 1, 0, 0, 1, 0 ) );
+        renderedScene = new RenderedSceneMutable(settings);
+        renderedScene.setIsometricCamera3D(new IsometricCamera3D(settings, 0.5f, 40, 0, 0, 0, 0, 1));
+        renderedScene.setCamera2D(new MovableCamera2D(settings, 1, 1, 0, 0));
         renderedScene.setBackgroundColour( new Vector4f( 0, 1, 0, 1 ) );
 
         //it's used for rendering, not necessary here
@@ -124,19 +137,17 @@ public class MainTemplate3D {
             //SceneProvider is object which provides all next scenes for renderer below
             //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
             //Most likely you would want to create your own SceneProvider that implements this interface
-            CameraController cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(),
+            cameraController = new CameraController(CameraKeyMap.getFunctionalKeyLayout(),
                 10, 15
             );
-            SceneProvider sceneProvider = () -> {
+            sceneProvider = () -> {
                 cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
                 cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
                 return renderedScene;
             };
             //Renderer renders all openGL content in Window, nothing to add much here
-            SceneRenderer renderer = new SceneRenderer( shaderProgram2D,
-                shaderProgram3D,
-                grid2DRenderer,
-                grid3DRenderer,
+            renderer = new SceneRenderer(shaderProgram2D,
+                    shaderProgram3D, grid2DRenderer, grid3DRenderer,
                 sceneProvider,
                 settings.isUseTexture(),
                 settings.isDrawBorder()
@@ -152,7 +163,7 @@ public class MainTemplate3D {
             //side note for JavaFX modifications:
             //You could use JFXGL.runOnEventsThread( () -> {}) to create and modify JavaFX content but
             //it does not look so good but I'm not stopping you from creating another thread for example
-            OverlayContentManager contentManager = new OverlayContentManager() {
+            contentManager = new OverlayContentManager() {
                 Label fpsLabel;
                 Label timeLabel;
                 BorderPane overlayPanel;
@@ -178,13 +189,12 @@ public class MainTemplate3D {
             };
 
             //WindowApplication is JavaFX application that
-            WindowApplication application = new WindowApplication( contentManager );
+            application = new WindowApplication(contentManager);
             renderer.addFpsObserver( application );
             //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
             //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
             //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
-            Window window = Window.getInstance( settings,
-                application,
+            window = Window.getInstance(settings, application,
                 shaderProgram2D,
                 shaderProgram3D,
                 renderer
@@ -194,6 +204,10 @@ public class MainTemplate3D {
             window.addQuitObserver( cameraController );
             window.addKeyCallbackController( cameraController.getKeyCallback() );
             window.addMouseScrollCallbackController( cameraController.getScrollCallback() );
+            window.addSizeObserver((newWidth, newHeight, source) -> {
+                renderedScene.getCamera2D().forceUpdate();
+                renderedScene.getCamera3D().forceUpdate();
+            });
 
             //Now it's place to spawn all other threads like game thread or controller thread.
             Thread cameraControllerThread = new Thread( cameraController );
@@ -205,5 +219,4 @@ public class MainTemplate3D {
             e.printStackTrace();
         }
     }
-
 }

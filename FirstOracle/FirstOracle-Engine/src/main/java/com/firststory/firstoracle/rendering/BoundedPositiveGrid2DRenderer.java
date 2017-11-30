@@ -16,9 +16,6 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     private final Vector2f ones = new Vector2f( 1, 1 );
     private final Vector4f colour = new Vector4f( 0, 0, 0, 0 );
     private boolean reload;
-    private float[] interAxesArray;
-    private float[] smallAxesArray;
-    private float[] mainAxesArray;
     private int gridWidth;
     private int gridHeight;
     private int intermediateAxesStep;
@@ -108,7 +105,7 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     }
 
     private void createGrid() {
-        mainAxesArray = new float[]{
+        float[] mainAxesArray = new float[]{
             0, 0, gridWidth, 0, 0, 0, 0, gridHeight, 0, gridHeight, gridWidth, gridHeight,
             gridWidth, 0, gridWidth, gridHeight
         };
@@ -118,8 +115,8 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
                             ) * 4;
         int smallPositiveAxesSize = ( gridHeight + gridWidth ) * 4 - interAxesSize;
 
-        interAxesArray = new float[interAxesSize];
-        smallAxesArray = new float[smallPositiveAxesSize];
+        float[] interAxesArray = new float[interAxesSize];
+        float[] smallAxesArray = new float[smallPositiveAxesSize];
         int interAxesIt = 0;
         int smallAxesIt = 0;
 

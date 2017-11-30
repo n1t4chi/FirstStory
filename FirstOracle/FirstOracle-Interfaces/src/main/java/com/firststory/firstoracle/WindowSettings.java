@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
  */
-package com.firststory.firstoracle.window;
+package com.firststory.firstoracle;
 
 /**
  * @author n1t4chi
@@ -72,6 +72,10 @@ public class WindowSettings {
 
     public boolean isVerticalSync() {
         return verticalSync;
+    }
+
+    public float getHeightByWidthRatio() {
+        return ((float) height) / width;
     }
 
     public int getWidth() {

@@ -23,7 +23,11 @@ public class IdentityCamera3D extends Camera3D {
     
     @Override
     public Vector3fc getCenterPoint() { return POINT; }
-    
+
+    @Override
+    public void forceUpdate() {
+    }
+
     @Override
     public float getAboveMaxYAlphaChannel() { return 0; }
     

@@ -13,6 +13,8 @@ import org.joml.Vector2fc;
  */
 public abstract class Camera2D {
 
+    private boolean update = true;
+
     public abstract Matrix3fc getMatrixRepresentation();
 
     public abstract Vector2fc getCenterPoint();
@@ -33,4 +35,16 @@ public abstract class Camera2D {
     }
 
     public abstract Vector2fc translatePointOnScreen( float x, float y, int width, int height );
+
+    public boolean mustUpdate() {
+        return update;
+    }
+
+    public void forceUpdate() {
+        update = true;
+    }
+
+    protected void updated() {
+        update = false;
+    }
 }
