@@ -7,28 +7,28 @@ package com.firststory.firstoracle.object;
  * @author n1t4chi
  */
 public interface GraphicObject< TransformationsType extends ObjectTransformations, BoundingBoxType extends BoundingBox, VerticesType extends Vertices > {
-
+    
     Texture getTexture();
-
-    UvMap getUvMap();
-
+    
     BoundingBoxType getBBO();
-
-    VerticesType getVertices();
-
+    
     TransformationsType getTransformations();
-
-    int getCurrentVertexFrame();
-
-    int getCurrentUvMapFrame();
-
-    int getCurrentUvMapDirection();
-
+    
     default void bindCurrentUvMap() {
         getUvMap().bind( getCurrentUvMapDirection(), getCurrentUvMapFrame() );
     }
-
+    
+    UvMap getUvMap();
+    
+    int getCurrentUvMapDirection();
+    
+    int getCurrentUvMapFrame();
+    
     default int bindCurrentVerticesAndGetSize() {
         return getVertices().bind( getCurrentVertexFrame() );
     }
+    
+    VerticesType getVertices();
+    
+    int getCurrentVertexFrame();
 }

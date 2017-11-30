@@ -12,30 +12,33 @@ import org.joml.Vector2fc;
  * @author n1t4chi
  */
 public class IdentityCamera2D extends Camera2D {
-
+    
     private static final IdentityCamera2D CAMERA = new IdentityCamera2D();
-
+    private static final Matrix3f IDENTITY_MATRIX = new Matrix3f();
+    private static final Vector2f POINT = new Vector2f();
+    
     public static IdentityCamera2D getCamera() {
         return CAMERA;
     }
-
-    private static final Matrix3f IDENTITY_MATRIX = new Matrix3f();
-    private static final Vector2f POINT = new Vector2f();
-
+    
     @Override
-    public Matrix3fc getMatrixRepresentation() { return IDENTITY_MATRIX; }
-
+    public Matrix3fc getMatrixRepresentation() {
+        return IDENTITY_MATRIX;
+    }
+    
     @Override
-    public Vector2fc getCenterPoint() { return POINT; }
-
+    public Vector2fc getCenterPoint() {
+        return POINT;
+    }
+    
     @Override
     public boolean contains( float minX, float maxX, float minY, float maxY ) {
         return minX <= 1 && maxX >= -1 && minY <= 1 && maxY >= -1;
     }
-
+    
     @Override
     public Vector2fc translatePointOnScreen( float x, float y, int width, int height ) {
         return new Vector2f( 2f * x / width - 1f, -( 2f * y / height - 1f ) );
     }
-
+    
 }

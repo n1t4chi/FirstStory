@@ -12,38 +12,38 @@ import org.joml.Vector2fc;
  * @author n1t4chi
  */
 public abstract class Camera2D {
-
+    
     private boolean update = true;
-
+    
     public abstract Matrix3fc getMatrixRepresentation();
-
+    
     public abstract Vector2fc getCenterPoint();
-
-    public abstract boolean contains( float minX, float maxX, float minY, float maxY );
-
-    public boolean contains( float X, float Y ) {
-        return contains( X, X, Y, Y );
-    }
-
+    
     public boolean contains( Vector2fc point ) {
         return contains( point.x(), point.y() );
     }
-
+    
+    public boolean contains( float X, float Y ) {
+        return contains( X, X, Y, Y );
+    }
+    
+    public abstract boolean contains( float minX, float maxX, float minY, float maxY );
+    
     public boolean contains( Object2D object ) {
         BoundingBox2D bb = object.getBBO();
         return contains( bb.getMinX(), bb.getMaxX(), bb.getMinY(), bb.getMaxY() );
     }
-
+    
     public abstract Vector2fc translatePointOnScreen( float x, float y, int width, int height );
-
+    
     public boolean mustUpdate() {
         return update;
     }
-
+    
     public void forceUpdate() {
         update = true;
     }
-
+    
     protected void updated() {
         update = false;
     }

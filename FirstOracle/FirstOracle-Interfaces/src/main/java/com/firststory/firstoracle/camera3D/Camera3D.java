@@ -12,12 +12,12 @@ import org.joml.Vector3fc;
  * @author n1t4chi
  */
 public abstract class Camera3D {
-
+    
     private boolean update = true;
-
+    
     public boolean contains( Object3D object ) {
         BoundingBox3D bb = object.getBBO();
-        return contains(bb.getMinX(),
+        return contains( bb.getMinX(),
             bb.getMaxX(),
             bb.getMinY(),
             bb.getMaxY(),
@@ -25,33 +25,33 @@ public abstract class Camera3D {
             bb.getMaxZ()
         );
     }
-
-    public abstract float getAboveMaxYAlphaChannel();
-
+    
     public abstract boolean contains(
         float minX, float maxX, float minY, float maxY, float minZ, float maxZ
     );
-
-    public boolean contains( float X, float Y, float Z ) {
-        return contains( X, X, Y, Y, Z, Z );
-    }
-
+    
+    public abstract float getAboveMaxYAlphaChannel();
+    
     public boolean contains( Vector3fc point ) {
         return contains( point.x(), point.y(), point.z() );
     }
-
+    
+    public boolean contains( float X, float Y, float Z ) {
+        return contains( X, X, Y, Y, Z, Z );
+    }
+    
     public abstract Matrix4fc getMatrixRepresentation();
-
+    
     public abstract Vector3fc getCenterPoint();
-
+    
     public boolean mustUpdate() {
         return update;
     }
-
+    
     public void forceUpdate() {
         update = true;
     }
-
+    
     protected void updated() {
         update = false;
     }

@@ -15,7 +15,7 @@ import java.util.Map;
  * @author n1t4chi
  */
 public abstract class VertexAttributes implements Closeable {
-
+    
     private static final Map< Integer, Integer > lastBinds = new HashMap<>( 2 );
 
     static void bindAttributePointer( ArrayBuffer buffer, int index, int vertexSize ) {
@@ -26,9 +26,8 @@ public abstract class VertexAttributes implements Closeable {
             lastBinds.put( index, buffer.getBufferID() );
         }
     }
-
     private final HashMap< Long, ArrayBuffer > buffers = new HashMap<>();
-
+    
     @Override
     public void close() {
         for ( ArrayBuffer buffer : buffers.values() ) {
@@ -36,27 +35,27 @@ public abstract class VertexAttributes implements Closeable {
         }
         buffers.clear();
     }
-
+    
     protected int bindBufferAndGetSize( long key ) {
         ArrayBuffer buffer = getBuffer( key );
         bindAttributePointer( buffer, getIndex(), getVertexSize() );
         return getVertexLength( buffer );
     }
-
-    protected abstract float[] getArray( long key );
-
-    protected int getVertexLength( long key ) {
-        return buffers.get( key ).getLength() / getVertexSize();
-    }
-
+    
+    protected abstract int getIndex();
+    
+    protected abstract int getVertexSize();
+    
     protected int getVertexLength( ArrayBuffer buffer ) {
         return buffer.getLength() / getVertexSize();
     }
-
-    protected abstract int getVertexSize();
-
-    protected abstract int getIndex();
-
+    
+    protected abstract float[] getArray( long key );
+    
+    protected int getVertexLength( long key ) {
+        return buffers.get( key ).getLength() / getVertexSize();
+    }
+    
     private ArrayBuffer getBuffer( long key ) {
         ArrayBuffer buffer = buffers.get( key );
         if ( buffer == null ) {

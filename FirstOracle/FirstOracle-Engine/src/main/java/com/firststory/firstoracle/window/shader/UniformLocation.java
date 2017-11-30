@@ -15,56 +15,56 @@ import static org.lwjgl.system.MemoryStack.stackPush;
  * @author n1t4chi
  */
 public class UniformLocation {
-
+    
     private final int locationID;
-
+    private final Vector2f VEC_2 = new Vector2f();
+    private final Vector3f VEC_3 = new Vector3f();
+    private final Vector4f VEC_4 = new Vector4f();
+    private final Matrix3f MAT_3 = new Matrix3f();
+    private final Matrix4f MAT_4 = new Matrix4f();
+    private Object lastBind = null;
+    
     public UniformLocation( int program, String locationName ) throws
-        CannotCreateUniformLocationException
-    {
+        CannotCreateUniformLocationException {
         int locationID = GL20.glGetUniformLocation( program, locationName );
         if ( locationID < 0 ) {
             throw new CannotCreateUniformLocationException( locationName );
         }
         this.locationID = locationID;
     }
-
-    private final Vector2f VEC_2 = new Vector2f();
-    private final Vector3f VEC_3 = new Vector3f();
-    private final Vector4f VEC_4 = new Vector4f();
-
-    private final Matrix3f MAT_3 = new Matrix3f();
-    private final Matrix4f MAT_4 = new Matrix4f();
-
-    private Object lastBind = null;
-
+    
     public void bind( Vector2fc vector ) {
         if ( !vector.equals( lastBind ) ) {
             GL20.glUniform2f( locationID, vector.x(), vector.y() );
             lastBind = VEC_2.set( vector );
         }
     }
-
+    
     public void bind( Vector3fc vector ) {
         if ( !vector.equals( lastBind ) ) {
             GL20.glUniform3f( locationID, vector.x(), vector.y(), vector.z() );
             lastBind = VEC_3.set( vector );
         }
     }
-
+    
     public void bind( Vector4fc vector ) {
         if ( !vector.equals( lastBind ) ) {
             GL20.glUniform4f( locationID, vector.x(), vector.y(), vector.z(), vector.w() );
             lastBind = VEC_4.set( vector );
         }
     }
-
+    
     public void bind( float value ) {
-        if ( !(((Float)value).equals( lastBind )) ) {
+        if ( !( ( ( Float ) value ).equals( lastBind ) ) ) {
             GL20.glUniform1f( locationID, value );
             lastBind = value;
         }
     }
-
+    
+    public void bind( Camera3D camera3D ) {
+        bind( camera3D.getMatrixRepresentation() );
+    }
+    
     public void bind( Matrix4fc camera ) {
         if ( !camera.equals( lastBind ) ) {
             try ( MemoryStack stack = stackPush() ) {
@@ -77,7 +77,11 @@ public class UniformLocation {
             lastBind = MAT_4.set( camera );
         }
     }
-
+    
+    public void bind( Camera2D camera2D ) {
+        bind( camera2D.getMatrixRepresentation() );
+    }
+    
     public void bind( Matrix3fc camera ) {
         if ( !camera.equals( lastBind ) ) {
             try ( MemoryStack stack = stackPush() ) {
@@ -90,17 +94,9 @@ public class UniformLocation {
             lastBind = MAT_3.set( camera );
         }
     }
-
-    public void bind( Camera3D camera3D ) {
-        bind( camera3D.getMatrixRepresentation() );
-    }
-
-    public void bind( Camera2D camera2D ) {
-        bind( camera2D.getMatrixRepresentation() );
-    }
-
+    
     public class CannotCreateUniformLocationException extends RuntimeException {
-
+        
         public CannotCreateUniformLocationException( String s ) {
             super( "Cannot create uniform location: " + s );
         }

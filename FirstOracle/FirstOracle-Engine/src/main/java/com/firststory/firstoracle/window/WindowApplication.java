@@ -23,41 +23,40 @@ import java.io.IOException;
  * @author n1t4chi
  */
 public final class WindowApplication extends Application implements FpsListener, TimeListener {
-
+    
+    private final OverlayContentManager contentUpdater;
     private int lastFpsUpdate = 0;
     private double lastTimeUpdate;
-    private final OverlayContentManager contentUpdater;
-
+    
     public WindowApplication( OverlayContentManager contentUpdater ) {
         this.contentUpdater = contentUpdater;
     }
-
+    
     @Override
     @CalledByEventsThread
-    public void start( Stage stage ) throws IOException
-    {
+    public void start( Stage stage ) throws IOException {
         // create the UI
         OpenGLPane glpane = new OpenGLPane();
         Pane overlayPanel = contentUpdater.createOverlayPanel();
-
+        
         glpane.setRenderer( this::render );
         glpane.getChildren().add( overlayPanel );
-
+        
         Scene scene = new Scene( glpane );
         stage.setScene( scene );
         contentUpdater.init( stage, scene );
     }
-
+    
     @Override
     public void notify( int newFpsCount, FpsNotifier source ) {
         lastFpsUpdate = newFpsCount;
     }
-
+    
     @Override
     public void notify( double newTimeSnapshot, TimeNotifier source ) {
         lastTimeUpdate = newTimeSnapshot;
     }
-
+    
     @CalledByMainThread
     private void render( JFXGLContext context ) {
         JFXGL.runOnEventsThread( () -> contentUpdater.update( lastTimeUpdate, lastFpsUpdate ) );

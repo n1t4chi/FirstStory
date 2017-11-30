@@ -43,17 +43,17 @@ import java.nio.IntBuffer;
  * @author n1t4chi
  */
 public final class Texture implements Closeable {
-
+    
     private static ByteBuffer imageToByteBuffer( BufferedImage image ) throws IOException {
         ByteBuffer bf;
         byte[] b;
-
+        
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write( image, "PNG", baos );
         byte[] arr = baos.toByteArray();
         bf = ByteBuffer.allocateDirect( arr.length - 1 );
         bf.put( arr, 0, arr.length - 1 );
-
+        
         // b = new byte[bf.remaining()];
         // bf.get(b);
         bf.position( 0 );
@@ -68,10 +68,9 @@ public final class Texture implements Closeable {
         bf.get(b);
         bf.reset();
         System.out.println(bf);*/
-
+        
         return bf;
     }
-
     private final int width;
     private final int height;
     private final ByteBuffer texture;
@@ -81,7 +80,19 @@ public final class Texture implements Closeable {
     private final int rows;
     private final int columns;
     private int textureID = 0;
-
+    
+    /**
+     * Creates object containing texture data from given image.<br>
+     * Uses single frame and line count.
+     *
+     * @param image image to be used as texture
+     *
+     * @throws IOException on problems with loading the image
+     */
+    public Texture( BufferedImage image ) throws IOException {
+        this( image, 1, 1, 1, 1 );
+    }
+    
     /**
      * Creates object containing texture data from given image.
      *
@@ -90,25 +101,14 @@ public final class Texture implements Closeable {
      * @param directions How many directions this texture can represent.
      * @param rows       How many rows for frames are in this texture.
      * @param columns    How many columns for directions are in this texture.
+     *
      * @throws IOException on problems with loading the image
      */
     public Texture( BufferedImage image, int frames, int directions, int rows, int columns ) throws
-        IOException
-    {
+        IOException {
         this( imageToByteBuffer( image ), image.toString(), frames, directions, rows, columns );
     }
-
-    /**
-     * Creates object containing texture data from given image.<br>
-     * Uses single frame and line count.
-     *
-     * @param image image to be used as texture
-     * @throws IOException on problems with loading the image
-     */
-    public Texture( BufferedImage image ) throws IOException {
-        this( image, 1, 1, 1, 1 );
-    }
-
+    
     /**
      * Creates texture out of given buffer.
      *
@@ -121,20 +121,18 @@ public final class Texture implements Closeable {
      */
     public Texture(
         ByteBuffer bf, String name, int frames, int directions, int rows, int columns
-    )
-    {
+    ) {
         if ( name == null || name.isEmpty() || frames < 1 || rows < 1 || frames > rows ||
-             directions < 1 || directions > columns )
-        {
+            directions < 1 || directions > columns ) {
             throw new IllegalArgumentException(
                 "Illegal arguments for Texture.\n" + "Name:" + name + ", Frames:" + frames +
-                ", Rows:" + rows + ", Directions:" + directions + ", Columns:" + columns + "." );
+                    ", Rows:" + rows + ", Directions:" + directions + ", Columns:" + columns + "." );
         }
         this.name = name;
         IntBuffer w = BufferUtils.createIntBuffer( 1 );
         IntBuffer h = BufferUtils.createIntBuffer( 1 );
         IntBuffer c = BufferUtils.createIntBuffer( 1 );
-
+    
         texture = STBImage.stbi_load_from_memory( bf, w, h, c, 4 );
         if ( texture == null ) {
             throw new RuntimeException( "Cannot load image:" + name );
@@ -145,9 +143,21 @@ public final class Texture implements Closeable {
         this.rows = rows;
         this.directions = directions;
         this.columns = columns;
-
+    
     }
-
+    
+    /**
+     * Creates object containing texture data from image under given path.<br>
+     * Uses single frame and line count.
+     *
+     * @param path image file path
+     *
+     * @throws IOException on problems with loading the image
+     */
+    public Texture( String path ) throws IOException {
+        this( path, 1, 1, 1, 1 );
+    }
+    
     /**
      * Creates object containing texture data from image under given path.
      *
@@ -156,57 +166,46 @@ public final class Texture implements Closeable {
      * @param directions How many directions this texture can represent.
      * @param rows       How many rows for frames are in this texture.
      * @param columns    How many columns for directions are in this texture.
+     *
      * @throws IOException on problems with loading the image
      */
     public Texture( String path, int frames, int directions, int rows, int columns ) throws
-        IOException
-    {
+        IOException {
         this( IOUtilities.readBinaryResource( path ), path, frames, directions, rows, columns );
     }
-
-    /**
-     * Creates object containing texture data from image under given path.<br>
-     * Uses single frame and line count.
-     *
-     * @param path image file path
-     * @throws IOException on problems with loading the image
-     */
-    public Texture( String path ) throws IOException {
-        this( path, 1, 1, 1, 1 );
-    }
-
+    
     public int getFrames() {
         return frames;
     }
-
+    
     public int getRows() {
         return rows;
     }
-
+    
     public int getColumns() {
         return columns;
     }
-
+    
     public int getDirections() {
         return directions;
     }
-
+    
     public int getWidth() {
         return width;
     }
-
+    
     public ByteBuffer getTexture() {
         return texture;
     }
-
+    
     public int getHeight() {
         return height;
     }
-
+    
     public String getName() {
         return name;
     }
-
+    
     /**
      * Releases texture resources associated with this object by calling {@link #release()}
      */
@@ -214,7 +213,7 @@ public final class Texture implements Closeable {
     public void close() {
         release();
     }
-
+    
     /**
      * Releases GPU memory resources associated with this texture.
      */
@@ -224,7 +223,19 @@ public final class Texture implements Closeable {
             textureID = 0;
         }
     }
-
+    
+    /**
+     * Binds texture for usage, if texture is not loaded then it will also load it.
+     */
+    public final void bind() {
+        if ( textureID > 0 ) {
+            GL11.glBindTexture( GL11.GL_TEXTURE_2D, textureID );
+        } else {
+            load();
+        }
+        //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture);
+    }
+    
     /**
      * Loads texture data into GPU memory.<br>
      * <b>Will release previously loaded texture by this object!!!</b><br>
@@ -245,29 +256,17 @@ public final class Texture implements Closeable {
             GL11.GL_UNSIGNED_BYTE,
             texture
         );
-
+    
         //repeat, could be used for giant objects.
         //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
         //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-
+    
         GL11.glTexParameteri( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR );
         GL11.glTexParameteri( GL11.GL_TEXTURE_2D,
             GL11.GL_TEXTURE_MIN_FILTER,
             GL11.GL_LINEAR_MIPMAP_LINEAR
         );
         GL30.glGenerateMipmap( GL11.GL_TEXTURE_2D );
-    }
-
-    /**
-     * Binds texture for usage, if texture is not loaded then it will also load it.
-     */
-    public final void bind() {
-        if ( textureID > 0 ) {
-            GL11.glBindTexture( GL11.GL_TEXTURE_2D, textureID );
-        } else {
-            load();
-        }
-        //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture);
     }
 //
 //    public final boolean isTextureLoaded() {

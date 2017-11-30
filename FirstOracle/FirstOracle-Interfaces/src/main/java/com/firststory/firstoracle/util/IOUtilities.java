@@ -4,7 +4,6 @@
 package com.firststory.firstoracle.util;
 
 import com.firststory.firstoracle.object.Texture;
-import org.lwjgl.system.CallbackI;
 
 import java.awt.*;
 import java.io.*;
@@ -27,11 +26,10 @@ import static org.lwjgl.BufferUtils.createByteBuffer;
  * @author n1t4chi
  */
 public class IOUtilities {
-
+    
     public static java.awt.Font loadFontFromResource(
         String resourceName, boolean externalFile
-    ) throws IOException
-    {
+    ) throws IOException {
         InputStream is;
         if ( externalFile ) {
             File file = new File( resourceName );
@@ -52,18 +50,20 @@ public class IOUtilities {
         }
         return font;
     }
-
+    
     /**
      * Reads given text file and returns in string format.
      *
      * @param path Path to file
+     *
      * @return Text from that wile
+     *
      * @throws IOException on problems with loading the resource
      */
     public static String readTextResource( String path ) throws IOException {
         Path p = Paths.get( path );
         Reader r;
-
+    
         if ( Files.isReadable( p ) ) {
             r = new FileReader( path );
         } else {
@@ -78,14 +78,16 @@ public class IOUtilities {
         try ( BufferedReader br = new BufferedReader( r ) ) {
             StringBuilder vertexSB = new StringBuilder();
             br.lines().forEach( ( s ) -> vertexSB.append( s ).append( '\n' ) );
-
+    
             if ( vertexSB.length() > 0 ) {
                 return vertexSB.substring( 0, vertexSB.length() - 1 );
-            } else { return vertexSB.toString(); }
+            } else {
+                return vertexSB.toString();
+            }
         }
-
+    
     }
-
+    
     public static ByteBuffer readBinaryResource( String resource ) throws IOException {
         Path p = Paths.get( resource );
         ByteBuffer bf;
@@ -93,14 +95,14 @@ public class IOUtilities {
             try ( SeekableByteChannel sbc = Files.newByteChannel( p, StandardOpenOption.READ ) ) {
                 bf = createByteBuffer( ( int ) ( sbc.size() - 1 ) );
                 int read;
-                while ( ( read = sbc.read( bf ) ) != -1 && sbc.position() + 1 != sbc.size() ) {
-
-                }
+                do {
+                    read = sbc.read( bf );
+                } while ( read != -1 && sbc.position() + 1 != sbc.size() );
             }
         } else {
             InputStream io = Texture.class.getClassLoader().getResourceAsStream( resource );
             if ( io == null ) {
-                throw new IOException( "Cannot find file: "+resource );
+                throw new IOException( "Cannot find file: " + resource );
             }
             ReadableByteChannel rbc = Channels.newChannel( io );
             bf = createByteBuffer( 16384 );

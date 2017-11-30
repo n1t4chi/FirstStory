@@ -7,7 +7,7 @@ package com.firststory.firstoracle.controller;
 import org.lwjgl.glfw.GLFW;
 
 public class CameraKeyMap {
-
+    
     private static final CameraKeyMap alpabeticalLayout = new CameraKeyMap(
         GLFW.GLFW_KEY_W,
         GLFW.GLFW_KEY_S,
@@ -36,15 +36,15 @@ public class CameraKeyMap {
         0,
         GLFW.GLFW_MOD_CONTROL
     );
-
+    
     public static CameraKeyMap getAlphabetKeyLayout() {
         return alpabeticalLayout;
     }
-
+    
     public static CameraKeyMap getFunctionalKeyLayout() {
         return functionKeyLayout;
     }
-
+    
     private final int moveForwardKey;
     private final int moveBackwardsKey;
     private final int moveLeftKey;
@@ -57,7 +57,7 @@ public class CameraKeyMap {
     private final int rotateDownKey;
     private final int movementUnlockKeyMods;
     private final int rotationUnlockKeyMods;
-
+    
     public CameraKeyMap(
         int moveForwardKey,
         int moveBackwardsKey,
@@ -71,8 +71,7 @@ public class CameraKeyMap {
         int rotateDownKey,
         int movementUnlockKeyMods,
         int rotationUnlockKeyMods
-    )
-    {
+    ) {
         this.moveForwardKey = moveForwardKey;
         this.moveBackwardsKey = moveBackwardsKey;
         this.moveLeftKey = moveLeftKey;
@@ -86,51 +85,51 @@ public class CameraKeyMap {
         this.movementUnlockKeyMods = movementUnlockKeyMods;
         this.rotationUnlockKeyMods = rotationUnlockKeyMods;
     }
-
+    
     boolean shouldMoveDown( int key, int mods ) {
         return correctMovementMods( mods ) && key == moveDownKey;
     }
-
+    
     boolean shouldMoveUp( int key, int mods ) {
         return correctMovementMods( mods ) && key == moveUpKey;
     }
-
+    
     boolean shouldMoveLeft( int key, int mods ) {
         return correctMovementMods( mods ) && key == moveLeftKey;
     }
-
+    
     boolean shouldMoveRight( int key, int mods ) {
         return correctMovementMods( mods ) && key == moveRightKey;
     }
-
+    
     boolean shouldMoveBackwards( int key, int mods ) {
         return correctMovementMods( mods ) && key == moveBackwardsKey;
     }
-
+    
     boolean shouldMoveForward( int key, int mods ) {
         return correctMovementMods( mods ) && key == moveForwardKey;
     }
-
+    
     boolean shouldRotateRight( int key, int mods ) {
         return correctRotationMods( mods ) && key == rotateRightKey;
     }
-
+    
     boolean shouldRotateLeft( int key, int mods ) {
         return correctRotationMods( mods ) && key == rotateLeftKey;
     }
-
+    
     boolean shouldRotateDown( int key, int mods ) {
         return correctRotationMods( mods ) && key == rotateDownKey;
     }
-
+    
     boolean shouldRotateUp( int key, int mods ) {
         return correctRotationMods( mods ) && key == rotateUpKey;
     }
-
+    
     private boolean correctMovementMods( int mods ) {
         return ( movementUnlockKeyMods & mods ) == movementUnlockKeyMods;
     }
-
+    
     private boolean correctRotationMods( int mods ) {
         return ( rotationUnlockKeyMods & mods ) == rotationUnlockKeyMods;
     }

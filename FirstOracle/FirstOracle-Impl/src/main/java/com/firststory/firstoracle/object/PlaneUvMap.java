@@ -12,8 +12,9 @@ public class PlaneUvMap extends UvMap {
     private static final HashMap< Long, PlaneUvMap > map = new HashMap<>( 25 );
 
     public static PlaneUvMap getPlaneUvMap() {
-        return getPlaneUvMap(1,1,1,1);
+        return getPlaneUvMap( 1, 1, 1, 1 );
     }
+
     /**
      * Returns UV map specifically designed for cube objects
      *
@@ -21,14 +22,14 @@ public class PlaneUvMap extends UvMap {
      * @param frames     How many frames will be in texture
      * @param rows       How many rows for frames will be in texture
      * @param columns    How many columns for directions will be in texture
+     *
      * @return UV map instance
      */
     public static PlaneUvMap getPlaneUvMap( int directions, int frames, int rows, int columns ) {
         long hash = hash( directions, frames, rows, columns );
-        PlaneUvMap instance = map.computeIfAbsent( hash,
+        return map.computeIfAbsent( hash,
             k -> new PlaneUvMap( directions, frames, rows, columns )
         );
-        return instance;
     }
 
     private static long hash( int directions, int frames, int columns, int rows ) {
@@ -39,11 +40,11 @@ public class PlaneUvMap extends UvMap {
     }
 
     private static float[][][] getUvMap( int directions, int frames, int columns, int rows ) {
-        float[][][] map = new float[directions][frames][];
+        float[][][] map = new float[ directions ][ frames ][];
 
         for ( int direction = 0; direction < directions; direction++ ) {
             for ( int frame = 0; frame < frames; frame++ ) {
-                map[direction][frame] = createUvMapPlane( direction,
+                map[ direction ][ frame ] = createUvMapPlane( direction,
                     frame,
                     directions,
                     frames,
@@ -57,13 +58,12 @@ public class PlaneUvMap extends UvMap {
 
     private static float[] createUvMapPlane(
         int direction, int frame, int directions, int frames, int columns, int rows
-    )
-    {
+    ) {
         if ( frame < 0 || frame >= frames || direction < 0 || direction >= directions ) {
             throw new IllegalArgumentException(
                 "Illegal frame/Direction: " + "direction:" + direction + ", frame:" + frame +
-                " for parameters: " + "directions:" + directions + ", " + "frames:" + frames +
-                ", " + "columns:" + columns + ", " + "rows:" + rows + "." );
+                    " for parameters: " + "directions:" + directions + ", " + "frames:" + frames +
+                    ", " + "columns:" + columns + ", " + "rows:" + rows + "." );
         }
         float del = 0.01f;
         float vertUp = ( frame ) / ( float ) rows + del;

@@ -10,7 +10,7 @@ import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 
 public class BoundedGrid3DRenderer implements Grid3DRenderer {
-
+    
     private final float[] interAxesArray;
     private final float[] smallPositiveAxesArray;
     private final float[] smallNegativeAxesArray;
@@ -23,16 +23,15 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     private final Vector3f zeros = new Vector3f( 0, 0, 0 );
     private final Vector3f ones = new Vector3f( 1, 1, 1 );
     private final Vector4f colour = new Vector4f( 0, 0, 0, 0 );
-
+    
     public BoundedGrid3DRenderer(
         ShaderProgram3D shaderProgram, int gridSize, int interAxesStep, int smallAxesStep
-    )
-    {
+    ) {
         this.shaderProgram = shaderProgram;
         int interAxesSize = gridSize / interAxesStep / 2;
         int smallPositiveAxesSize = ( gridSize - interAxesSize ) / 2 / smallAxesStep;
         int smallNegativeAxesSize = smallPositiveAxesSize;
-
+        
         //3 axes * 2 perpendicular lines * 2 sides * 2 point * 3 coordinates * 2 gridsize = 144
         interAxesSize *= 144;
         smallNegativeAxesSize *= 144 * 2 * gridSize;
@@ -41,23 +40,23 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         //Y
         //Z
         mainAxesArray = new float[]{ -gridSize, 0, 0, gridSize, 0, 0,//X
-
-                                     0, -gridSize, 0, 0, gridSize, 0,//Y
-
-                                     0, 0, -gridSize, 0, 0, gridSize//Z
+    
+            0, -gridSize, 0, 0, gridSize, 0,//Y
+    
+            0, 0, -gridSize, 0, 0, gridSize//Z
         };
-        interAxesArray = new float[interAxesSize];
-        smallPositiveAxesArray = new float[smallPositiveAxesSize];
-        smallNegativeAxesArray = new float[smallNegativeAxesSize];
+        interAxesArray = new float[ interAxesSize ];
+        smallPositiveAxesArray = new float[ smallPositiveAxesSize ];
+        smallNegativeAxesArray = new float[ smallNegativeAxesSize ];
         int interAxesArrayIt = 0;
         int smallPositiveAxesArrayIt = 0;
         int smallNegativeAxesArrayIt = 0;
-
+        
         for ( int i = 1; i <= gridSize; i++ ) {
             if ( i == 0 ) {
                 continue;
             }
-
+            
             if ( java.lang.Math.abs( i % interAxesStep ) == 0 ) {
                 float[] axes = createAxes( gridSize, i );
                 System.arraycopy( axes, 0, interAxesArray, interAxesArrayIt, axes.length );
@@ -70,10 +69,10 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
                         positive = !positive;
                     }
                     if ( positive ) {
-                        smallPositiveAxesArray[smallPositiveAxesArrayIt] = axes[j];
+                        smallPositiveAxesArray[ smallPositiveAxesArrayIt ] = axes[ j ];
                         smallPositiveAxesArrayIt++;
                     } else {
-                        smallNegativeAxesArray[smallNegativeAxesArrayIt] = axes[j];
+                        smallNegativeAxesArray[ smallNegativeAxesArrayIt ] = axes[ j ];
                         smallNegativeAxesArrayIt++;
                     }
                 }
@@ -84,29 +83,11 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         smallPositiveAxes = new Vertices3D( new float[][]{ smallPositiveAxesArray } );
         smallNegativeAxes = new Vertices3D( new float[][]{ smallNegativeAxesArray } );
     }
-
-    private float[] createAxes( int gridSize, int i ) {
-        return new float[]{
-            //perpendicular to Z axis
-            i, 0, -gridSize, i, 0, gridSize, -i, 0, -gridSize, -i, 0, gridSize,
-
-            0, i, -gridSize, 0, i, gridSize, 0, -i, -gridSize, 0, -i, gridSize,
-
-            //perpendicular to Y axis
-            i, -gridSize, 0, i, gridSize, 0, -i, -gridSize, 0, -i, gridSize, 0,
-
-            0, -gridSize, i, 0, gridSize, i, 0, -gridSize, -i, 0, gridSize, -i,
-
-            //perpendicular to Z axis
-            -gridSize, i, 0, gridSize, i, 0, -gridSize, -i, 0, gridSize, -i, 0,
-
-            -gridSize, 0, i, gridSize, 0, i, -gridSize, 0, -i, gridSize, 0, -i,
-            };
-    }
-
+    
     @Override
-    public void init() { }
-
+    public void init() {
+    }
+    
     @Override
     public void dispose() {
         mainAxes.close();
@@ -114,7 +95,7 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         smallPositiveAxes.close();
         smallNegativeAxes.close();
     }
-
+    
     @Override
     public void render() {
         renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );
@@ -122,18 +103,36 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         renderGridArray( smallPositiveAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
         renderGridArray( smallNegativeAxes, 0.1f, 1f, 0.25f, 0.25f, 0.5f );
     }
-
+    
+    private float[] createAxes( int gridSize, int i ) {
+        return new float[]{
+            //perpendicular to Z axis
+            i, 0, -gridSize, i, 0, gridSize, -i, 0, -gridSize, -i, 0, gridSize,
+            
+            0, i, -gridSize, 0, i, gridSize, 0, -i, -gridSize, 0, -i, gridSize,
+            
+            //perpendicular to Y axis
+            i, -gridSize, 0, i, gridSize, 0, -i, -gridSize, 0, -i, gridSize, 0,
+            
+            0, -gridSize, i, 0, gridSize, i, 0, -gridSize, -i, 0, gridSize, -i,
+            
+            //perpendicular to Z axis
+            -gridSize, i, 0, gridSize, i, 0, -gridSize, -i, 0, gridSize, -i, 0,
+            
+            -gridSize, 0, i, gridSize, 0, i, -gridSize, 0, -i, gridSize, 0, -i,
+        };
+    }
+    
     private void renderGridArray(
         Vertices3D buffer, float width, float red, float green, float blue, float alpha
-    )
-    {
+    ) {
         colour.set( red, green, blue, alpha );
         bindUniformData();
         int length = buffer.bind( 0 );
         GL11.glLineWidth( width );
         GL11.glDrawArrays( GL11.GL_LINES, 0, length );
     }
-
+    
     private void bindUniformData() {
         shaderProgram.bindPosition( zeros );
         shaderProgram.bindScale( ones );

@@ -37,7 +37,7 @@ import org.joml.Vector4f;
  * @author n1t4chi
  */
 public class MainTemplate2D {
-
+    
     private static Window window;
     private static OverlayContentManager contentManager;
     private static SceneRenderer renderer;
@@ -49,64 +49,62 @@ public class MainTemplate2D {
     private static ShaderProgram2D shaderProgram2D;
     private static ShaderProgram3D shaderProgram3D;
     private static WindowSettings settings;
-
+    private static WindowApplication application;
+    
     public static void main( String[] args ) {
         JFXGLLauncher.showFilterWarnings = false;
         JFXGLLauncher.launchMain( MainTemplate2D.class, args );
     }
-
-    private static WindowApplication application;
-
+    
     public static void jfxglmain( String[] args ) {
         try {
             int width = 300;
             int height = 300;
-            settings = new WindowSettings.WindowSettingsBuilder().setVerticalSync(false)
+            settings = new WindowSettings.WindowSettingsBuilder().setVerticalSync( false )
                 .setResizeable( true )
-                    .setWindowMode(WindowMode.WINDOWED)
+                .setWindowMode( WindowMode.WINDOWED )
                 .setWidth( width )
                 .setHeight( height )
                 .setDrawBorder( true )
                 .build();
             shaderProgram3D = new ShaderProgram3D();
             shaderProgram2D = new ShaderProgram2D();
-            grid2DRenderer = new BoundedPositiveGrid2DRenderer(shaderProgram2D, 20, 30, 10);
+            grid2DRenderer = new BoundedPositiveGrid2DRenderer( shaderProgram2D, 20, 30, 10 );
 //            Grid2DRenderer grid2DRenderer = new BoundedGrid2DRenderer( shaderProgram2D,
 //                100,
 //                10,
 //                1
 //            );
             grid3DRenderer = new DummyGrid3DRenderer();
-
-            renderedScene = new RenderedSceneMutable(settings);
-
+    
+            renderedScene = new RenderedSceneMutable( settings );
+            
             Vector4f colour = new Vector4f( 0, 0, 0, 0 );
             float maxFloat = 0.3f;
-
+    
             RectangleGrid terrain1 = new RectangleGrid( new Texture(
                 "resources/First Oracle/texture2D.png" ) );
-
+    
             ObjectTransformations2DMutable transformations = new ObjectTransformations2DMutable();
-            Rectangle object = new Rectangle(new Texture("resources/First Oracle/obj.png"),
+            Rectangle object = new Rectangle( new Texture( "resources/First Oracle/obj.png" ),
                 transformations
             );
-
-            RectangleGrid[][] array = new RectangleGrid[20][20];
-
+    
+            RectangleGrid[][] array = new RectangleGrid[ 20 ][ 20 ];
+            
             for ( int x = 0; x < array.length; x++ ) {
-                for ( int y = 0; y < array[x].length; y++ ) {
-                    array[x][y] = terrain1;
+                for ( int y = 0; y < array[ x ].length; y++ ) {
+                    array[ x ][ y ] = terrain1;
                 }
             }
             renderedScene.setScene2D( new RenderedObjects2D() {
                 @Override
-                public void render( Object2DRenderer renderer )
-                {
+                public void render( Object2DRenderer renderer ) {
                     Vector2i arrayShift = new Vector2i( 0, 0 );
                     for ( int x = 0; x < array.length; x++ ) {
-                        for ( int y = 0; y < array[x].length; y++ ) {
-                            renderer.render(array[x][y],
-                                array[x][y].computePosition( x, y, arrayShift ),
+                        for ( int y = 0; y < array[ x ].length; y++ ) {
+                            renderer.render( array[ x ][ y ],
+                                array[ x ][ y ].computePosition( x, y, arrayShift ),
                                 colour,
                                 maxFloat
                             );
@@ -115,16 +113,16 @@ public class MainTemplate2D {
                     renderer.render( object, colour, maxFloat );
                 }
             } );
-            cameraController = new CameraController(CameraKeyMap.getFunctionalKeyLayout(),
+            cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(),
                 10,
                 1f
             );
             cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
             cameraController.addCameraObserver( ( event, source ) -> cameraController.updateMovableCamera2D(
                 ( MovableCamera2D ) renderedScene.getCamera2D() ) );
-
+    
             sceneProvider = () -> renderedScene;
-            renderer = new SceneRenderer(shaderProgram2D,
+            renderer = new SceneRenderer( shaderProgram2D,
                 shaderProgram3D,
                 grid2DRenderer,
                 grid3DRenderer,
@@ -137,16 +135,16 @@ public class MainTemplate2D {
                 float x = 0;
                 float y = 0;
                 private Pane pane;
-
+    
                 @Override
                 public Pane createOverlayPanel() {
                     return pane = new Pane();
                 }
-
+    
                 @Override
                 public void init( Stage stage, Scene scene ) {
-                    pane.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> window.resize());
-
+                    pane.addEventFilter( MouseEvent.MOUSE_CLICKED, event -> window.resize() );
+                    
                     pane.addEventFilter( MouseEvent.MOUSE_MOVED, event -> {
                         Vector2fc translated = renderedScene.getCamera2D()
                             .translatePointOnScreen( ( float ) event.getX(),
@@ -166,14 +164,14 @@ public class MainTemplate2D {
                                 break;
                             case "m":
                                 grid2DRenderer.setGridWidth(
-                                        2 * grid2DRenderer.getGridWidth() + 1);
+                                    2 * grid2DRenderer.getGridWidth() + 1 );
                                 break;
                             case "k":
                                 grid2DRenderer.setGridHeight( grid2DRenderer.getGridHeight() - 1 );
                                 break;
                             case "l":
                                 grid2DRenderer.setGridHeight(
-                                        2 * grid2DRenderer.getGridHeight() + 1);
+                                    2 * grid2DRenderer.getGridHeight() + 1 );
                                 break;
                             case "o":
                                 grid2DRenderer.setIntermediateAxesStep(
@@ -186,33 +184,33 @@ public class MainTemplate2D {
                         }
                     } );
                 }
-
+    
                 @Override
                 public void update( double v, int i ) {
-
+        
                 }
             };
-            application = new WindowApplication(contentManager);
+            application = new WindowApplication( contentManager );
             renderer.addFpsObserver( application );
-            window = Window.getInstance(settings, application,
+            window = Window.getInstance( settings, application,
                 shaderProgram2D,
                 shaderProgram3D,
                 renderer
             );
             window.init();
             renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
-
+    
             window.addQuitObserver( cameraController );
             window.addKeyCallbackController( cameraController.getKeyCallback() );
             window.addMouseScrollCallbackController( cameraController.getScrollCallback() );
-            window.addSizeObserver((newWidth, newHeight, source) -> {
+            window.addSizeObserver( ( newWidth, newHeight, source ) -> {
                 renderedScene.getCamera2D().forceUpdate();
                 renderedScene.getCamera3D().forceUpdate();
-            });
-
+            } );
+            
             Thread cameraControllerThread = new Thread( cameraController );
             cameraControllerThread.start();
-
+    
             window.run();
         } catch ( Exception e ) {
             e.printStackTrace();

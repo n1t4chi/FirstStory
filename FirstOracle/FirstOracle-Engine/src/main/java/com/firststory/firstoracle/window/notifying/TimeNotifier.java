@@ -9,18 +9,22 @@ import java.util.Collection;
  * @author n1t4chi
  */
 public interface TimeNotifier {
-    Collection<TimeListener > getTimeObservers();
-    default void addTimeObserver(TimeListener observer){
+    default void addTimeObserver( TimeListener observer ) {
         getTimeObservers().add( observer );
     }
-    default void removeTimeObserver(TimeListener observer){
+    
+    Collection< TimeListener > getTimeObservers();
+    
+    default void removeTimeObserver( TimeListener observer ) {
         getTimeObservers().remove( observer );
     }
-    default void removeAllTimeObservers(TimeListener observer){
+    
+    default void removeAllTimeObservers( TimeListener observer ) {
         getTimeObservers().clear();
     }
-    default void notifyTimeObservers(double newTime){
-        for(TimeListener observer : getTimeObservers()){
+    
+    default void notifyTimeObservers( double newTime ) {
+        for ( TimeListener observer : getTimeObservers() ) {
             observer.notify( newTime, this );
         }
     }

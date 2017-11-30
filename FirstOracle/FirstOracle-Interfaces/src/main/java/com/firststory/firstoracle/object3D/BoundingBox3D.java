@@ -10,41 +10,65 @@ import org.joml.Vector3fc;
  * @author n1t4chi
  */
 public class BoundingBox3D implements BoundingBox< BoundingBox3D, ObjectTransformations3D > {
-
+    
     public static BoundingBox3D getBoundingBox3D( float[] vertices ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
         minX = minY = minZ = Float.MAX_VALUE;
         maxZ = maxY = maxX = -Float.MAX_VALUE;
         for ( int i = 0; i < vertices.length; i += 3 ) {
-            if ( vertices[i] < minX ) { minX = vertices[i]; }
-            if ( vertices[i] > maxX ) { maxX = vertices[i]; }
-            if ( vertices[i + 1] < minY ) { minY = vertices[i + 1]; }
-            if ( vertices[i + 1] > maxY ) { maxY = vertices[i + 1]; }
-            if ( vertices[i + 2] < minZ ) { minZ = vertices[i + 2]; }
-            if ( vertices[i + 2] > maxZ ) { maxZ = vertices[i + 2]; }
+            if ( vertices[ i ] < minX ) {
+                minX = vertices[ i ];
+            }
+            if ( vertices[ i ] > maxX ) {
+                maxX = vertices[ i ];
+            }
+            if ( vertices[ i + 1 ] < minY ) {
+                minY = vertices[ i + 1 ];
+            }
+            if ( vertices[ i + 1 ] > maxY ) {
+                maxY = vertices[ i + 1 ];
+            }
+            if ( vertices[ i + 2 ] < minZ ) {
+                minZ = vertices[ i + 2 ];
+            }
+            if ( vertices[ i + 2 ] > maxZ ) {
+                maxZ = vertices[ i + 2 ];
+            }
         }
         return new BoundingBox3D( minX, maxX, minY, maxY, minZ, maxZ );
     }
-
+    
     public static BoundingBox3D getBoundingBox3D( float[][] verticesArray ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
         minX = minY = minZ = Float.MAX_VALUE;
         maxZ = maxY = maxX = -Float.MAX_VALUE;
         for ( float[] vertices : verticesArray ) {
             for ( int i = 0; i < vertices.length; i += 3 ) {
-                if ( vertices[i] < minX ) { minX = vertices[i]; }
-                if ( vertices[i] > maxX ) { maxX = vertices[i]; }
-                if ( vertices[i + 1] < minY ) { minY = vertices[i + 1]; }
-                if ( vertices[i + 1] > maxY ) { maxY = vertices[i + 1]; }
-                if ( vertices[i + 2] < minZ ) { minZ = vertices[i + 2]; }
-                if ( vertices[i + 2] > maxZ ) { maxZ = vertices[i + 2]; }
+                if ( vertices[ i ] < minX ) {
+                    minX = vertices[ i ];
+                }
+                if ( vertices[ i ] > maxX ) {
+                    maxX = vertices[ i ];
+                }
+                if ( vertices[ i + 1 ] < minY ) {
+                    minY = vertices[ i + 1 ];
+                }
+                if ( vertices[ i + 1 ] > maxY ) {
+                    maxY = vertices[ i + 1 ];
+                }
+                if ( vertices[ i + 2 ] < minZ ) {
+                    minZ = vertices[ i + 2 ];
+                }
+                if ( vertices[ i + 2 ] > maxZ ) {
+                    maxZ = vertices[ i + 2 ];
+                }
             }
         }
         return new BoundingBox3D( minX, maxX, minY, maxY, minZ, maxZ );
     }
-
+    
     private final float minX, maxX, minY, maxY, minZ, maxZ;
-
+    
     public BoundingBox3D( float minX, float maxX, float minY, float maxY, float minZ, float maxZ ) {
         this.minX = minX;
         this.maxX = maxX;
@@ -53,7 +77,7 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, ObjectTransfor
         this.minZ = minZ;
         this.maxZ = maxZ;
     }
-
+    
     @Override
     public int hashCode() {
         int result = ( minX != +0.0f ? Float.floatToIntBits( minX ) : 0 );
@@ -64,49 +88,53 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, ObjectTransfor
         result = 31 * result + ( maxZ != +0.0f ? Float.floatToIntBits( maxZ ) : 0 );
         return result;
     }
-
+    
     @Override
     public boolean equals( Object o ) {
-        if ( this == o ) { return true; }
-        if ( o == null || getClass() != o.getClass() ) { return false; }
-
+        if ( this == o ) {
+            return true;
+        }
+        if ( o == null || getClass() != o.getClass() ) {
+            return false;
+        }
+        
         BoundingBox3D that = ( BoundingBox3D ) o;
-
+        
         return Float.compare( that.minX, minX ) == 0 && Float.compare( that.maxX, maxX ) == 0 &&
-               Float.compare( that.minY, minY ) == 0 && Float.compare( that.maxY, maxY ) == 0 &&
-               Float.compare( that.minZ, minZ ) == 0 && Float.compare( that.maxZ, maxZ ) == 0;
+            Float.compare( that.minY, minY ) == 0 && Float.compare( that.maxY, maxY ) == 0 &&
+            Float.compare( that.minZ, minZ ) == 0 && Float.compare( that.maxZ, maxZ ) == 0;
     }
-
+    
     @Override
     public String toString() {
         return "BBox3D: " + "[" + minX + "," + maxX + "] " + "[" + minY + "," + maxY + "] " + "[" +
-               minZ + "," + maxZ + "]";
+            minZ + "," + maxZ + "]";
     }
-
+    
     public float getMaxX() {
         return maxX;
     }
-
+    
     public float getMaxY() {
         return maxY;
     }
-
+    
     public float getMaxZ() {
         return maxZ;
     }
-
+    
     public float getMinX() {
         return minX;
     }
-
+    
     public float getMinY() {
         return minY;
     }
-
+    
     public float getMinZ() {
         return minZ;
     }
-
+    
     public BoundingBox3D getTransformedBoundingBox( ObjectTransformations3D transformations ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
         minX = this.minX;

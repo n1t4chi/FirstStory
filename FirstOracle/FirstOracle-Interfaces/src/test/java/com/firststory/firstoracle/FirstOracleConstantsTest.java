@@ -13,7 +13,7 @@ import org.junit.Test;
  * @author n1t4chi
  */
 public class FirstOracleConstantsTest {
-
+    
     final int[] testCasesInt = {
         -666,
         -10, -2, -1, 0, 1, 2, 10
@@ -24,7 +24,7 @@ public class FirstOracleConstantsTest {
         -3, -1.5f, -1, -0.001f, -0.1f, -0, 0, +0, 0.1f, 0.001f, 1, 1.5f, 3
         , 666.666f
     };
-
+    
     @Test
     public void transCube() {
         for ( int startValue : testCasesInt ) {
@@ -34,7 +34,7 @@ public class FirstOracleConstantsTest {
             assertTransformCube( startValue );
         }
     }
-
+    
     @Test
     public void transPlane() {
         for ( int startValue : testCasesInt ) {
@@ -44,7 +44,7 @@ public class FirstOracleConstantsTest {
             assertTransformPlane( startValue );
         }
     }
-
+    
     @Test
     public void transAbsolutePlane() {
         for ( int startValue : testCasesInt ) {
@@ -54,7 +54,7 @@ public class FirstOracleConstantsTest {
             assertAbsoluteTransformPlane( startValue );
         }
     }
-
+    
     @Test
     public void transHexX() {
         for ( int startValue : testCasesInt ) {
@@ -64,7 +64,7 @@ public class FirstOracleConstantsTest {
             assertHexX( startValue );
         }
     }
-
+    
     @Test
     public void transHexY() {
         for ( int startValue : testCasesInt ) {
@@ -74,7 +74,7 @@ public class FirstOracleConstantsTest {
             assertHexY( startValue );
         }
     }
-
+    
     @Test
     public void transHexPrismX() {
         for ( int startValue : testCasesInt ) {
@@ -84,7 +84,7 @@ public class FirstOracleConstantsTest {
             assertHexPrismX( startValue );
         }
     }
-
+    
     @Test
     public void transHexPrismY() {
         for ( int startValue : testCasesInt ) {
@@ -94,7 +94,7 @@ public class FirstOracleConstantsTest {
             assertHexPrismY( startValue );
         }
     }
-
+    
     @Test
     public void transHexPrismZ() {
         for ( int startValue : testCasesInt ) {
@@ -104,7 +104,7 @@ public class FirstOracleConstantsTest {
             assertHexPrismZ( startValue );
         }
     }
-
+    
     private void assertTransformCube( int startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transCubeSpaceToDiscrete( FirstOracleConstants.transCubeDiscreteToSpace(
@@ -114,7 +114,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertTransformCube( float startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transCubeDiscreteToSpace( FirstOracleConstants.transCubeSpaceToDiscrete(
@@ -124,7 +124,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertTransformPlane( int startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transPlaneSpaceToDiscrete( FirstOracleConstants.transPlaneDiscreteToSpace(
@@ -134,7 +134,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertTransformPlane( float startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transPlaneDiscreteToSpace( FirstOracleConstants.transPlaneSpaceToDiscrete(
@@ -144,7 +144,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertAbsoluteTransformPlane( int startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transAbsolutePlaneSpaceToDiscrete( FirstOracleConstants.transAbsolutePlaneDiscreteToSpace(
@@ -154,9 +154,9 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertAbsoluteTransformPlane( float startValue ) {
-
+        
         Assert.assertEquals( startValue,
             FirstOracleConstants.transAbsolutePlaneDiscreteToSpace( FirstOracleConstants.transAbsolutePlaneSpaceToDiscrete(
                 startValue,
@@ -165,7 +165,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertHexX( int startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexXSpaceToDiscrete( FirstOracleConstants.transHexXDiscreteToSpace(
@@ -175,7 +175,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertHexX( float startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexXDiscreteToSpace( FirstOracleConstants.transHexXSpaceToDiscrete(
@@ -185,7 +185,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertHexY( int startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexYSpaceToDiscrete( 0,
@@ -195,7 +195,7 @@ public class FirstOracleConstantsTest {
             ),
             0.001f
         );
-
+        
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexYSpaceToDiscrete( 1.5f,
                 FirstOracleConstants.transHexYDiscreteToSpace( 1, startValue, 0, 0 ),
@@ -205,7 +205,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertHexY( float startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexYDiscreteToSpace( 0,
@@ -215,7 +215,7 @@ public class FirstOracleConstantsTest {
             ),
             0.001f
         );
-
+        
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexYDiscreteToSpace( 1,
                 FirstOracleConstants.transHexYSpaceToDiscrete( 1.5f, startValue, 0, 0 ),
@@ -225,7 +225,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertHexPrismX( int startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexPrismXSpaceToDiscrete( FirstOracleConstants.transHexPrismXDiscreteToSpace(
@@ -235,7 +235,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertHexPrismX( float startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexPrismXDiscreteToSpace( FirstOracleConstants.transHexPrismXSpaceToDiscrete(
@@ -245,7 +245,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertHexPrismY( int startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexPrismYSpaceToDiscrete( FirstOracleConstants.transHexPrismYDiscreteToSpace(
@@ -255,7 +255,7 @@ public class FirstOracleConstantsTest {
             0.001f
         );
     }
-
+    
     private void assertHexPrismY( float startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexPrismYDiscreteToSpace( FirstOracleConstants.transHexPrismYSpaceToDiscrete(
@@ -265,29 +265,29 @@ public class FirstOracleConstantsTest {
             0.0001f
         );
     }
-
+    
     private void assertHexPrismZ( int startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexPrismZSpaceToDiscrete( 0,
                 FirstOracleConstants.transHexPrismZDiscreteToSpace( 0, startValue, 0, 0 )
-                ,0,
+                , 0,
                 0
-            ),0.001f
+            ), 0.001f
         );
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexPrismZSpaceToDiscrete( 1.5f,
                 FirstOracleConstants.transHexPrismZDiscreteToSpace( 1, startValue, 0, 0 )
-                    ,0,
-                    0
-            ),0.001f
+                , 0,
+                0
+            ), 0.001f
         );
     }
-
+    
     private void assertHexPrismZ( float startValue ) {
         Assert.assertEquals( startValue,
             FirstOracleConstants.transHexPrismZDiscreteToSpace( 0,
                 FirstOracleConstants.transHexPrismZSpaceToDiscrete( 0, startValue, 0, 0 )
-                ,0,
+                , 0,
                 0
             ),
             0.001f

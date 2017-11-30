@@ -14,21 +14,22 @@ public class HexPrismUvMap extends UvMap {
     private static final HashMap< Long, HexPrismUvMap > instances = new HashMap<>( 5 );
 
     public static HexPrismUvMap getHexPrismUvMap() {
-        return getHexPrismUvMap( 1,1 );
+        return getHexPrismUvMap( 1, 1 );
     }
+
     /**
      * Returns UV map specifically designed for cube objects
      *
      * @param frames How many frames will be in texture
      * @param rows   How many rows for frames will be in texture
+     *
      * @return UV map instance
      */
     public static HexPrismUvMap getHexPrismUvMap( int frames, int rows ) {
         long hash = hash( frames, rows );
-        HexPrismUvMap instance = instances.computeIfAbsent( hash,
+        return instances.computeIfAbsent( hash,
             k -> new HexPrismUvMap( frames, rows )
         );
-        return instance;
     }
 
     private static long hash( int frames, int rows ) {
@@ -36,10 +37,10 @@ public class HexPrismUvMap extends UvMap {
     }
 
     private static float[][][] getUvMap( int frames, int rows ) {
-        float[][][] map = new float[1][frames][];
+        float[][][] map = new float[ 1 ][ frames ][];
 
         for ( int frame = 0; frame < frames; frame++ ) {
-            map[0][frame] = createUvMapHexPrism( frame, frames, rows );
+            map[ 0 ][ frame ] = createUvMapHexPrism( frame, frames, rows );
         }
         return map;
     }
@@ -101,8 +102,8 @@ public class HexPrismUvMap extends UvMap {
             7.5f * hor, vertMiddle, 8 * hor - del, vertMiddle, 7.75f * hor - del, vertUp
         };
     }
-
-    private HexPrismUvMap( int frames, int rows ){
+    
+    private HexPrismUvMap( int frames, int rows ) {
         super( getUvMap( frames, rows ) );
     }
 }

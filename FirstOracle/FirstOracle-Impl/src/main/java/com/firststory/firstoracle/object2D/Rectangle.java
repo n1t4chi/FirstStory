@@ -11,37 +11,27 @@ import com.firststory.firstoracle.object.UvMap;
  * @author n1t4chi
  */
 public class Rectangle implements Object2D {
+    final UvMap map = PlaneUvMap.getPlaneUvMap( 1, 1, 1, 1 );
+    final Vertices2D vertices = Plane2DVertices.getPlane2DVertices();
     private Texture texture;
     private ObjectTransformations2D transformations;
-
+    
     public Rectangle(
         Texture texture, ObjectTransformations2D transformations
-    )
-    {
+    ) {
         this.texture = texture;
         this.transformations = transformations;
     }
-
+    
     @Override
     public Texture getTexture() {
         return texture;
     }
-    public void setTexture(Texture texture) {
+    
+    public void setTexture( Texture texture ) {
         this.texture = texture;
     }
-
-    @Override
-    public ObjectTransformations2D getTransformations() {
-        return transformations;
-    }
-
-    public void setTransformations( ObjectTransformations2D transformations ) {
-        this.transformations = transformations;
-    }
-
-    final UvMap map = PlaneUvMap.getPlaneUvMap( 1,1,1,1 );
-    final Vertices2D vertices = Plane2DVertices.getPlane2DVertices();
-
+    
     @Override
     public UvMap getUvMap() {
         return map;
@@ -51,17 +41,26 @@ public class Rectangle implements Object2D {
     public Vertices2D getVertices() {
         return vertices;
     }
-
+    
+    @Override
+    public ObjectTransformations2D getTransformations() {
+        return transformations;
+    }
+    
+    public void setTransformations( ObjectTransformations2D transformations ) {
+        this.transformations = transformations;
+    }
+    
     @Override
     public int getCurrentVertexFrame() {
         return 0;
     }
-
+    
     @Override
     public int getCurrentUvMapFrame() {
         return 0;
     }
-
+    
     @Override
     public int getCurrentUvMapDirection() {
         return 0;

@@ -8,11 +8,14 @@ package com.firststory.firstoracle.rendering;
  */
 public class DummyGrid3DRenderer implements Grid3DRenderer {
     @Override
-    public void init() {}
-
+    public void init() {
+    }
+    
     @Override
-    public void dispose() {}
-
+    public void dispose() {
+    }
+    
     @Override
-    public void render() {}
+    public void render() {
+    }
 }

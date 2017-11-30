@@ -13,34 +13,34 @@ import org.joml.Vector4fc;
  * @author n1t4chi
  */
 public interface RenderedScene {
-
+    
     default void renderScene2D( Object2DRenderer renderer ) {
         getScene2D().render( renderer );
     }
-
+    
+    RenderedObjects2D getScene2D();
+    
     default void renderScene3D( Object3DRenderer renderer ) {
         getScene3D().render( renderer );
     }
-
+    
+    RenderedObjects3D getScene3D();
+    
     default void renderBackground( Object2DRenderer renderer ) {
         getBackground().render( renderer );
     }
-
+    
+    RenderedObjects2D getBackground();
+    
     default void renderOverlay( Object2DRenderer renderer ) {
         getOverlay().render( renderer );
     }
-
-    Camera3D getCamera3D();
-
-    Camera2D getCamera2D();
-
-    Vector4fc getBackgroundColour();
-
-    RenderedObjects2D getBackground();
-
-    RenderedObjects2D getScene2D();
-
-    RenderedObjects3D getScene3D();
-
+    
     RenderedObjects2D getOverlay();
+    
+    Camera3D getCamera3D();
+    
+    Camera2D getCamera2D();
+    
+    Vector4fc getBackgroundColour();
 }

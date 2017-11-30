@@ -11,7 +11,7 @@ import static org.lwjgl.opengl.GL.getCapabilities;
  * @author n1t4chi
  */
 public class CheckSupport {
-
+    
     public static boolean checkSupport() {
         boolean proceed = true;
         GLCapabilities capabilities = getCapabilities();
@@ -43,7 +43,7 @@ public class CheckSupport {
             System.err.println( "Fragment shader not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glCreateShader ) {
             System.err.println( "Function glCreateShader not supported" );
             proceed = false;
@@ -92,118 +92,118 @@ public class CheckSupport {
             System.err.println( "Function glDeleteProgram not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glDepthMask ) {
             System.err.println( "Function glDepthMask not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glEnable ) {
             System.err.println( "Function glEnable not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glDepthFunc ) {
             System.err.println( "Function glDepthFunc not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glClear ) {
             System.err.println( "Function glClear not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glDisable ) {
             System.err.println( "Function glDisable not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glCullFace ) {
             System.err.println( "Function glCullFace not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glBlendFunc ) {
             System.err.println( "Function glBlendFunc not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glFrontFace ) {
             System.err.println( "Function glFrontFace not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glClearColor ) {
             System.err.println( "Function glClearColor not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glUseProgram ) {
             System.err.println( "Function glUseProgram not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glEnableVertexAttribArray ) {
             System.err.println(
                 "Function glEnableVertexAttribArray not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glBindBuffer ) {
             System.err.println( "Function glBindBuffer not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glUniform1fv ) {
             System.err.println( "Function glUniform1fv not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glVertexAttribPointer ) {
             System.err.println( "Function glVertexAttribPointer not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glDrawArrays ) {
             System.err.println( "Function glDrawArrays not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glLineWidth ) {
             System.err.println( "Function glLineWidth not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glGetUniformLocation ) {
             System.err.println( "Function glGetUniformLocation not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glUniformMatrix4fv ) {
             System.err.println( "Function glUniformMatrix4fv not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glBindBuffer ) {
             System.err.println( "Function glBindBuffer not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glBufferData ) {
             System.err.println( "Function glBufferData not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glGenBuffers ) {
             System.err.println( "Function glGenBuffers not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glDeleteBuffers ) {
             System.err.println( "Function glDeleteBuffers not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glDeleteTextures ) {
             System.err.println( "Function glDeleteTextures not supported" );
             proceed = false;
@@ -212,12 +212,12 @@ public class CheckSupport {
             System.err.println( "Function glGenTextures not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glBindTexture ) {
             System.err.println( "Function glBindTexture not supported" );
             proceed = false;
         }
-
+        
         if ( 0 == capabilities.glTexImage2D ) {
             System.err.println( "Function glTexImage2D not supported" );
             proceed = false;
@@ -230,7 +230,7 @@ public class CheckSupport {
             System.err.println( "Function glGenerateMipmap not supported" );
             proceed = false;
         }
-
+        
         return proceed;
     }
 }

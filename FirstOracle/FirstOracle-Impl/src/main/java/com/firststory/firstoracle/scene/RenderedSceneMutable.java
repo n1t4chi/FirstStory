@@ -25,27 +25,28 @@ public class RenderedSceneMutable implements RenderedScene {
     private RenderedObjects2D overlay;
 
     private WindowSettings settings;
-
-    public RenderedSceneMutable(WindowSettings settings) {
+    
+    public RenderedSceneMutable( WindowSettings settings ) {
         this.settings = settings;
-        camera2D = new MovableCamera2D(settings, 10, 0, 0, 0);
-        isometricCamera3D = new IsometricCamera3D(settings, 10, 0, 0, 0, 0, 0, 1);
+        camera2D = new MovableCamera2D( settings, 10, 0, 0, 0 );
+        isometricCamera3D = new IsometricCamera3D( settings, 10, 0, 0, 0, 0, 0, 1 );
         backgroundColour = new Vector4f( 1, 1, 1, 1 );
-        background = scene2D = overlay = new RenderedObjects2D() {};
-        scene3D = new RenderedObjects3D() {};
+        background = scene2D = overlay = new RenderedObjects2D() {
+        };
+        scene3D = new RenderedObjects3D() {
+        };
     }
 
     public RenderedSceneMutable(
-            WindowSettings settings,
-            Camera2D camera2D,
-            IsometricCamera3D isometricCamera3D,
-            Vector4fc backgroundColour,
-            RenderedObjects2D background,
-            RenderedObjects2D scene2D,
-            RenderedObjects3D scene3D,
-            RenderedObjects2D overlay
-    )
-    {
+        WindowSettings settings,
+        Camera2D camera2D,
+        IsometricCamera3D isometricCamera3D,
+        Vector4fc backgroundColour,
+        RenderedObjects2D background,
+        RenderedObjects2D scene2D,
+        RenderedObjects3D scene3D,
+        RenderedObjects2D overlay
+    ) {
         this.settings = settings;
         this.camera2D = camera2D;
         this.isometricCamera3D = isometricCamera3D;
@@ -60,8 +61,8 @@ public class RenderedSceneMutable implements RenderedScene {
     public IsometricCamera3D getCamera3D() {
         return isometricCamera3D;
     }
-
-    public void setCamera3D(IsometricCamera3D camera3D) {
+    
+    public void setCamera3D( IsometricCamera3D camera3D ) {
         this.isometricCamera3D = camera3D;
     }
 
@@ -122,8 +123,8 @@ public class RenderedSceneMutable implements RenderedScene {
     public WindowSettings getSettings() {
         return settings;
     }
-
-    public void setSettings(WindowSettings settings) {
+    
+    public void setSettings( WindowSettings settings ) {
         this.settings = settings;
     }
 

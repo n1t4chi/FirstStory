@@ -13,7 +13,7 @@ import org.junit.Test;
  * @author n1t4chi
  */
 public class BoundingBox2DTest {
-
+    
     @Test
     public void testBBO() {
         BoundingBox2D bb = new BoundingBox2D( -1, 1, -1, 1 );
@@ -24,9 +24,9 @@ public class BoundingBox2DTest {
         assertBBO( bb, 10, 10, 10, 5, 180, 0, 20, 5, 15 );
         assertBBO( bb, 10, 10, 10, 5, 90, 5, 15, 0, 20 );
         assertBBO( bb, 10, 10, 10, 5, -90, 5, 15, 0, 20 );
-
+        
     }
-
+    
     private void assertBBO(
         BoundingBox2D bb,
         int x,
@@ -38,8 +38,7 @@ public class BoundingBox2DTest {
         int maxX,
         int minY,
         int maxY
-    )
-    {
+    ) {
         Vector2fc scale = new Vector2f( sx, sy );
         Vector2fc pos = new Vector2f( x, y );
         BoundingBox2D assertBB = bb.getTransformedBoundingBox( new ObjectTransformations2D() {
@@ -47,12 +46,12 @@ public class BoundingBox2DTest {
             public Vector2fc getScale() {
                 return scale;
             }
-
+    
             @Override
             public Float getRotation() {
                 return rot;
             }
-
+    
             @Override
             public Vector2fc getPosition() {
                 return pos;

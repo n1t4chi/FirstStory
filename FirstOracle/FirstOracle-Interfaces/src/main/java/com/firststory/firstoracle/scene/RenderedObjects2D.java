@@ -9,6 +9,7 @@ import com.firststory.firstoracle.rendering.Object2DRenderer;
  * @author n1t4chi
  */
 public interface RenderedObjects2D {
-
-    default void render( Object2DRenderer renderer ){}
+    
+    default void render( Object2DRenderer renderer ) {
+    }
 }

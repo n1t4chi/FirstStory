@@ -6,21 +6,21 @@ package com.firststory.firstoracle.window.notifying;
 import java.util.Collection;
 
 public interface FpsNotifier {
-
-    Collection< FpsListener > getFpsObservers();
-
+    
     default void addFpsObserver( FpsListener observer ) {
         getFpsObservers().add( observer );
     }
-
+    
+    Collection< FpsListener > getFpsObservers();
+    
     default void removeFpsObserver( FpsListener observer ) {
         getFpsObservers().remove( observer );
     }
-
+    
     default void removeAllFpsObservers() {
         getFpsObservers().clear();
     }
-
+    
     default void notifyFpsListeners( int newFps ) {
         for ( FpsListener observer : getFpsObservers() ) {
             observer.notify( newFps, this );

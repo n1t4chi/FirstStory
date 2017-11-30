@@ -10,17 +10,23 @@ import org.joml.Vector3fc;
 /**
  * @author n1t4chi
  */
-public interface ObjectTransformations3D extends ObjectTransformations<Vector3fc,Vector3fc,Vector3fc> {
+public interface ObjectTransformations3D extends ObjectTransformations< Vector3fc, Vector3fc, Vector3fc > {
     Vector3fc ZERO = new Vector3f( 0, 0, 0 );
     Vector3fc ONE = new Vector3f( 1, 1, 1 );
-
+    
     @Override
-    default Vector3fc getScale() { return ONE; }
-
+    default Vector3fc getScale() {
+        return ONE;
+    }
+    
     @Override
-    default Vector3fc getRotation() { return ZERO; }
-
+    default Vector3fc getRotation() {
+        return ZERO;
+    }
+    
     @Override
-    default Vector3fc getPosition() { return ZERO; }
-
+    default Vector3fc getPosition() {
+        return ZERO;
+    }
+    
 }

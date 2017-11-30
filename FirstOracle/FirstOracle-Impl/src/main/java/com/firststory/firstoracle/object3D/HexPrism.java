@@ -19,8 +19,7 @@ public class HexPrism implements Object3D {
 
     public HexPrism(
         Texture texture, ObjectTransformations3D transformations
-    )
-    {
+    ) {
         this.texture = texture;
         this.transformations = transformations;
     }
@@ -28,6 +27,10 @@ public class HexPrism implements Object3D {
     @Override
     public Texture getTexture() {
         return texture;
+    }
+    
+    public void setTexture( Texture texture ) {
+        this.texture = texture;
     }
 
     @Override
@@ -62,9 +65,5 @@ public class HexPrism implements Object3D {
     @Override
     public int getCurrentUvMapDirection() {
         return 0;
-    }
-
-    public void setTexture(Texture texture) {
-        this.texture=texture;
     }
 }

@@ -9,11 +9,11 @@ import com.firststory.firstoracle.object.Vertices;
  * @author n1t4chi
  */
 public class Vertices2D extends Vertices< BoundingBox2D > {
-
+    
     public Vertices2D( float[][] verticesByFrame ) {
         super( verticesByFrame, BoundingBox2D.getBoundingBox2D( verticesByFrame ) );
     }
-
+    
     @Override
     protected int getVertexSize() {
         return 2;

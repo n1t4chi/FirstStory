@@ -22,29 +22,53 @@ public class ObjectTransformations2DMutable implements ObjectTransformations2D {
     }
     
     @Override
-    public Vector2fc getScale() { return scale; }
+    public Vector2fc getScale() {
+        return scale;
+    }
+    
+    public void setScale( Vector2fc scale ) {
+        this.scale.set( scale );
+    }
     
     @Override
-    public Float getRotation() { return rotation; }
+    public Float getRotation() {
+        return rotation;
+    }
+    
+    public void setRotation( float rotation ) {
+        this.rotation = rotation;
+    }
     
     @Override
-    public Vector2fc getPosition() { return position; }
+    public Vector2fc getPosition() {
+        return position;
+    }
     
-    public void setPosition( Vector2fc position ) { this.position.set( position ); }
+    public void setPosition( Vector2fc position ) {
+        this.position.set( position );
+    }
     
-    public void setRotation( float rotation ) { this.rotation = rotation; }
+    public void setPosition( float x, float y ) {
+        position.set( x, y );
+    }
     
-    public void setScale( Vector2fc scale ) { this.scale.set( scale ); }
+    public void setPositionX( float x ) {
+        position.set( x, position.y );
+    }
     
-    public void setPosition( float x, float y ) { position.set( x, y ); }
+    public void setPositionY( float y ) {
+        position.set( position.x, y );
+    }
     
-    public void setPositionX( float x ) { position.set( x, position.y ); }
+    public void setScale( float x, float y ) {
+        scale.set( x, y );
+    }
     
-    public void setPositionY( float y ) { position.set( position.x, y ); }
+    public void setScaleX( float x ) {
+        scale.set( x, scale.y );
+    }
     
-    public void setScale( float x, float y ) { scale.set( x, y ); }
-    
-    public void setScaleX( float x ) { scale.set( x, scale.y ); }
-    
-    public void setScaleY( float y ) { scale.set( scale.x, y ); }
+    public void setScaleY( float y ) {
+        scale.set( scale.x, y );
+    }
 }

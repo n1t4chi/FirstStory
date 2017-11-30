@@ -9,33 +9,39 @@ import java.util.Arrays;
  * @author n1t4chi
  */
 public abstract class Vertices< BoundingBox > extends VertexAttributes {
-
+    
     private final BoundingBox boundingBox;
     private float[][] verticesByFrame;
-
+    
     public Vertices( float[][] verticesByFrame, BoundingBox boundingBox ) {
         setVertices( verticesByFrame );
         this.boundingBox = boundingBox;
     }
-
-    public BoundingBox getBoundingBox() { return boundingBox; }
-
+    
     public void setVertices( float[][] verticesByFrame ) {
         close();
         this.verticesByFrame = verticesByFrame;
     }
-
-    public int bind( int frame ) { return bindBufferAndGetSize( frame ); }
-
-    @Override
-    protected float[] getArray( long key ) {
-        return verticesByFrame[( int ) key];
+    
+    public BoundingBox getBoundingBox() {
+        return boundingBox;
     }
-
-    protected int getIndex() { return 0; }
-
+    
+    public int bind( int frame ) {
+        return bindBufferAndGetSize( frame );
+    }
+    
     @Override
     public String toString() {
-        return "Vertices: "+Arrays.deepToString( verticesByFrame );
+        return "Vertices: " + Arrays.deepToString( verticesByFrame );
+    }
+    
+    @Override
+    protected float[] getArray( long key ) {
+        return verticesByFrame[ ( int ) key ];
+    }
+    
+    protected int getIndex() {
+        return 0;
     }
 }

@@ -14,34 +14,40 @@ import org.joml.Vector3fc;
 public class IdentityCamera3D extends Camera3D {
     
     private static final IdentityCamera3D CAMERA = new IdentityCamera3D();
-
-    public static IdentityCamera3D getCamera() {
-        return CAMERA;
-    }
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
     private static final Vector3f POINT = new Vector3f( 0, 0, 0 );
     
+    public static IdentityCamera3D getCamera() {
+        return CAMERA;
+    }
+    
     @Override
-    public Vector3fc getCenterPoint() { return POINT; }
-
+    public Vector3fc getCenterPoint() {
+        return POINT;
+    }
+    
     @Override
     public void forceUpdate() {
     }
-
-    @Override
-    public float getAboveMaxYAlphaChannel() { return 0; }
     
     @Override
-    public Matrix4fc getMatrixRepresentation() { return IDENTITY_MATRIX; }
+    public float getAboveMaxYAlphaChannel() {
+        return 0;
+    }
+    
+    @Override
+    public Matrix4fc getMatrixRepresentation() {
+        return IDENTITY_MATRIX;
+    }
     
     @Override
     public boolean contains(
-                               float minX,
-                               float maxX,
-                               float minY,
-                               float maxY,
-                               float minZ,
-                               float maxZ
+        float minX,
+        float maxX,
+        float minY,
+        float maxY,
+        float minZ,
+        float maxZ
     ) {
         return minX <= 1 && maxX >= -1 && minY <= 1 && maxY >= -1;
     }

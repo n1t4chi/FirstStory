@@ -11,23 +11,23 @@ import org.joml.Vector4fc;
  * @author n1t4chi
  */
 public interface Object2DRenderer {
-
+    
+    default void render(
+        Object2D object,
+        Vector4fc objectOverlayColour,
+        float maxAlphaChannel
+    ) {
+        render( object,
+            object.getTransformations().getPosition(),
+            objectOverlayColour,
+            maxAlphaChannel );
+    }
+    
     default void render(
         Object2D object,
         Vector2fc objectPosition,
         Vector4fc objectOverlayColour,
         float maxAlphaChannel
-    ){}
-
-    default void render(
-        Object2D object,
-        Vector4fc objectOverlayColour,
-        float maxAlphaChannel
-    )
-    {
-        render( object,
-            object.getTransformations().getPosition(),
-            objectOverlayColour,
-            maxAlphaChannel );
+    ) {
     }
 }

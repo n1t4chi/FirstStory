@@ -13,35 +13,36 @@ public class CubeUvMap extends UvMap {
     private static final HashMap< Long, CubeUvMap > instances = new HashMap<>( 5 );
 
     public static CubeUvMap getCubeUvMap() {
-        return getCubeUvMap( 1,1 );
+        return getCubeUvMap( 1, 1 );
     }
+
     /**
      * Returns UV map specifically designed for cube objects
      *
      * @param frames How many frames will be in texture
      * @param rows   How many rows for frames will be in texture
+     *
      * @return UV map instance
      */
     public static CubeUvMap getCubeUvMap( int frames, int rows ) {
         long hash = hash( frames, rows );
-        CubeUvMap instance = instances.computeIfAbsent( hash, k -> new CubeUvMap( frames, rows ) );
-        return instance;
+        return instances.computeIfAbsent( hash, k -> new CubeUvMap( frames, rows ) );
     }
 
     private static long hash( int frames, int rows ) {
-        return ((long)rows << 32) + frames;
+        return ( ( long ) rows << 32 ) + frames;
     }
 
     private static float[][][] getUvMap( int frames, int rows ) {
-        float[][][] map = new float[1][frames][];
+        float[][][] map = new float[ 1 ][ frames ][];
 
         for ( int frame = 0; frame < frames; frame++ ) {
-            map[0][frame] = createUvMapCube( frame, frames, rows );
+            map[ 0 ][ frame ] = createUvMapCube( frame, frames, rows );
         }
         return map;
     }
-
-    private static float[] createUvMapCube(int frame, int frames, int rows ) {
+    
+    private static float[] createUvMapCube( int frame, int frames, int rows ) {
         if ( frame < 0 || frame >= frames || frames > rows ) {
             throw new IllegalArgumentException(
                 "Illegal frame:" + frame + " for frames:" + frames + ", rows:" + rows + "." );

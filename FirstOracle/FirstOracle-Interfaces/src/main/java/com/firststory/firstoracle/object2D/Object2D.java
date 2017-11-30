@@ -9,9 +9,9 @@ import com.firststory.firstoracle.object.GraphicObject;
  * @author n1t4chi
  */
 public interface Object2D extends GraphicObject< ObjectTransformations2D, BoundingBox2D, Vertices2D > {
-
+    
     @Override
-    default BoundingBox2D getBBO(){
+    default BoundingBox2D getBBO() {
         return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations() );
     }
 }

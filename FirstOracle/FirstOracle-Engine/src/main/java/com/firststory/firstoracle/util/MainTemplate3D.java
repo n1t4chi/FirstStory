@@ -47,7 +47,9 @@ public class MainTemplate3D {
     private static ShaderProgram2D shaderProgram2D;
     private static ShaderProgram3D shaderProgram3D;
     private static WindowSettings settings;
-
+    private static Grid2DRenderer grid2DRenderer;
+    private static WindowApplication application;
+    
     //necessary main, you must run it like that or nothing works.
     //Every instance created before launchMain() will not be compatibile with any object made after
     //Even same classes will be seen as different
@@ -59,14 +61,11 @@ public class MainTemplate3D {
         JFXGLLauncher.launchMain( MainTemplate3D.class, args );
     }
 
-    private static Grid2DRenderer grid2DRenderer;
-    private static WindowApplication application;
-
     //it's called by main above though some hack magicks called reflection
     public static void jfxglmain( String[] args ) {
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
-        settings = new WindowSettings.WindowSettingsBuilder().setDrawBorder(true)
+        settings = new WindowSettings.WindowSettingsBuilder().setDrawBorder( true )
             .setVerticalSync( false )
             .setResizeable( true )
             .setWidth( 1000 )
@@ -76,13 +75,13 @@ public class MainTemplate3D {
         shaderProgram3D = new ShaderProgram3D();
         shaderProgram2D = new ShaderProgram2D();
         //GridRenderer will be changed so it works as either 2D or 3D. For now leave it as it is so you can see whether the rendering still works.
-        grid3DRenderer = new BoundedGrid3DRenderer(shaderProgram3D, 100, 25, 5);
+        grid3DRenderer = new BoundedGrid3DRenderer( shaderProgram3D, 100, 25, 5 );
         grid2DRenderer = new DummyGrid2DRenderer();
         //Rendered scene is what is displayed via OpenGL rendering, it should be most likely moved to SceneProvider
         //Which will provide next scenes to render when something changes.
-        renderedScene = new RenderedSceneMutable(settings);
-        renderedScene.setIsometricCamera3D(new IsometricCamera3D(settings, 0.5f, 40, 0, 0, 0, 0, 1));
-        renderedScene.setCamera2D(new MovableCamera2D(settings, 1, 1, 0, 0));
+        renderedScene = new RenderedSceneMutable( settings );
+        renderedScene.setIsometricCamera3D( new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 ) );
+        renderedScene.setCamera2D( new MovableCamera2D( settings, 1, 1, 0, 0 ) );
         renderedScene.setBackgroundColour( new Vector4f( 0, 1, 0, 1 ) );
 
         //it's used for rendering, not necessary here
@@ -108,11 +107,13 @@ public class MainTemplate3D {
             //Example initialisation of map
             CubeGrid terrain1 = new CubeGrid( new Texture( "resources/First Oracle/texture3D.png" ) );
 
-            CubeGrid[][][] array = new CubeGrid[10][20][20];
-
+            CubeGrid[][][] array = new CubeGrid[ 10 ][ 20 ][ 20 ];
+            
             for ( int y = 0; y < 10; y++ ) {
                 for ( int x = 0; x < 20; x++ ) {
-                    for ( int z = 0; z < 20; z++ ) { array[y][x][z] = terrain1; }
+                    for ( int z = 0; z < 20; z++ ) {
+                        array[ y ][ x ][ z ] = terrain1;
+                    }
                 }
             }
             //setScene2D is very similar but you are providing Objects2D instead of 3D
@@ -124,8 +125,8 @@ public class MainTemplate3D {
                     for ( int y = 0; y < 10; y++ ) {
                         for ( int x = 0; x < 20; x++ ) {
                             for ( int z = 0; z < 20; z++ ) {
-                                renderer.render( array[y][x][z],
-                                    array[y][x][z].computePosition( x, y, z, arrayShift ),
+                                renderer.render( array[ y ][ x ][ z ],
+                                        array[ y ][ x ][ z ].computePosition( x, y, z, arrayShift ),
                                     colour,
                                     maxFloat
                                 );
@@ -137,7 +138,7 @@ public class MainTemplate3D {
             //SceneProvider is object which provides all next scenes for renderer below
             //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
             //Most likely you would want to create your own SceneProvider that implements this interface
-            cameraController = new CameraController(CameraKeyMap.getFunctionalKeyLayout(),
+            cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(),
                 10, 15
             );
             sceneProvider = () -> {
@@ -146,7 +147,7 @@ public class MainTemplate3D {
                 return renderedScene;
             };
             //Renderer renders all openGL content in Window, nothing to add much here
-            renderer = new SceneRenderer(shaderProgram2D,
+            renderer = new SceneRenderer( shaderProgram2D,
                     shaderProgram3D, grid2DRenderer, grid3DRenderer,
                 sceneProvider,
                 settings.isUseTexture(),
@@ -189,12 +190,12 @@ public class MainTemplate3D {
             };
 
             //WindowApplication is JavaFX application that
-            application = new WindowApplication(contentManager);
+            application = new WindowApplication( contentManager );
             renderer.addFpsObserver( application );
             //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
             //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
             //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
-            window = Window.getInstance(settings, application,
+            window = Window.getInstance( settings, application,
                 shaderProgram2D,
                 shaderProgram3D,
                 renderer
@@ -204,11 +205,11 @@ public class MainTemplate3D {
             window.addQuitObserver( cameraController );
             window.addKeyCallbackController( cameraController.getKeyCallback() );
             window.addMouseScrollCallbackController( cameraController.getScrollCallback() );
-            window.addSizeObserver((newWidth, newHeight, source) -> {
+            window.addSizeObserver( ( newWidth, newHeight, source ) -> {
                 renderedScene.getCamera2D().forceUpdate();
                 renderedScene.getCamera3D().forceUpdate();
-            });
-
+            } );
+            
             //Now it's place to spawn all other threads like game thread or controller thread.
             Thread cameraControllerThread = new Thread( cameraController );
             cameraControllerThread.start();

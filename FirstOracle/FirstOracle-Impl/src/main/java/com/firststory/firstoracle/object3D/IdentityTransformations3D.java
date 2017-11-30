@@ -9,6 +9,8 @@ package com.firststory.firstoracle.object3D;
 public class IdentityTransformations3D implements ObjectTransformations3D {
 
     private static final IdentityTransformations3D IDENTITY_TRANSFORMATION = new IdentityTransformations3D();
-
-    public static IdentityTransformations3D getIdentity() {return IDENTITY_TRANSFORMATION;}
+    
+    public static IdentityTransformations3D getIdentity() {
+        return IDENTITY_TRANSFORMATION;
+    }
 }

@@ -7,6 +7,6 @@ package com.firststory.firstoracle.window.notifying;
  * @author n1t4chi
  */
 public interface QuitListener {
-
+    
     void notify( QuitEvent event, QuitNotifier source );
 }

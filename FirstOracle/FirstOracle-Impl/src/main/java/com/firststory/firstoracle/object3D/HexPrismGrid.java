@@ -23,10 +23,11 @@ public class HexPrismGrid extends HexPrism {
     /**
      * Retruns position in space based on position in array
      *
-     * @param x x position in array
-     * @param y y position in array
-     * @param z z position in array
+     * @param x          x position in array
+     * @param y          y position in array
+     * @param z          z position in array
      * @param arrayShift shift of array
+     *
      * @return same vector with updated positions for current rendering
      */
     public Vector3fc computePosition( int x, int y, int z, Vector3ic arrayShift ) {

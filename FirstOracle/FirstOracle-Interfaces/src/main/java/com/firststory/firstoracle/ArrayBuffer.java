@@ -13,37 +13,42 @@ import java.io.Closeable;
 public class ArrayBuffer implements Closeable {
     
     private static int lastBoundBuffer = 0;
-    
+
     private static int createBuffer() throws CannotCreateBufferException {
         int bufferID = GL15.glGenBuffers();
-        if ( bufferID == 0 ) { throw new CannotCreateBufferException(); }
+        if ( bufferID == 0 ) {
+            throw new CannotCreateBufferException();
+        }
         return bufferID;
     }
-    
-    private static void deleteBuffer( int bufferID, boolean checkBuffer ) throws
-        BufferNotCreatedException
-    {
-        if ( checkBuffer && bufferID == 0 ) { throw new BufferNotCreatedException(); }
-        GL15.glDeleteBuffers( bufferID );
-    }
-    
+
     private static void bindBuffer( int bufferID ) {
         if ( lastBoundBuffer != bufferID ) {
             GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, bufferID );
             lastBoundBuffer = bufferID;
         }
     }
-    
+
     private static void loadArrayBuffer( int bufferID, float[] bufferData ) {
         bindBuffer( bufferID );
         //GL15.glBufferData(GL15.GL_ARRAY_BUFFER, bufferData, GL15.GL_STATIC_DRAW);
         GL15.glBufferData( GL15.GL_ARRAY_BUFFER, bufferData, GL15.GL_DYNAMIC_DRAW );
     }
+    
+    private static void deleteBuffer( int bufferID, boolean checkBuffer ) throws
+        BufferNotCreatedException {
+        if ( checkBuffer && bufferID == 0 ) {
+            throw new BufferNotCreatedException();
+        }
+        GL15.glDeleteBuffers( bufferID );
+    }
     private int bufferID = 0;
     private boolean loaded = false;
     private int length;
-
-    public int getLength() { return length; }
+    
+    public int getLength() {
+        return length;
+    }
 
     public int getBufferID() {
         return bufferID;
@@ -88,11 +93,15 @@ public class ArrayBuffer implements Closeable {
     }
     
     private void assertCreated() {
-        if ( bufferID < 1 ) { throw new BufferNotCreatedException(); }
+        if ( bufferID < 1 ) {
+            throw new BufferNotCreatedException();
+        }
     }
     
     private void assertLoaded() {
-        if ( !loaded ) { throw new BufferNotLoadedException(); }
+        if ( !loaded ) {
+            throw new BufferNotLoadedException();
+        }
     }
     
     private void cleanUpFields() {
@@ -101,11 +110,15 @@ public class ArrayBuffer implements Closeable {
         loaded = false;
     }
     
-    public static class BufferException extends RuntimeException {}
+    public static class BufferException extends RuntimeException {
+    }
     
-    public static class BufferNotCreatedException extends BufferException {}
+    public static class BufferNotCreatedException extends BufferException {
+    }
     
-    public static class BufferNotLoadedException extends BufferException {}
+    public static class BufferNotLoadedException extends BufferException {
+    }
     
-    public static class CannotCreateBufferException extends BufferException {}
+    public static class CannotCreateBufferException extends BufferException {
+    }
 }
