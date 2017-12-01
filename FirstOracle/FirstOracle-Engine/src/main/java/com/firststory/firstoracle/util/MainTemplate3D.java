@@ -185,13 +185,12 @@ public class MainTemplate3D {
                 @Override
                 public void update( double currentTime, int currentFps ) {
                     fpsLabel.setText( "FPS:" + currentFps );
-                    timeLabel.setText( "Time:" + currentTime );
+                    timeLabel.setText( String.format( "current time: %.1fs", currentTime ) );
                 }
             };
 
             //WindowApplication is JavaFX application that
             application = new WindowApplication( contentManager );
-            renderer.addFpsObserver( application );
             //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
             //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
             //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
@@ -200,12 +199,14 @@ public class MainTemplate3D {
                 shaderProgram3D,
                 renderer
             );
+            renderer.addFpsListeners( application );
+            window.addTimeListener( application );
             window.init();
             //OpenGL is initialised now. You can use all classes that use it.
-            window.addQuitObserver( cameraController );
+            window.addQuitListener( cameraController );
             window.addKeyCallbackController( cameraController.getKeyCallback() );
             window.addMouseScrollCallbackController( cameraController.getScrollCallback() );
-            window.addSizeObserver( ( newWidth, newHeight, source ) -> {
+            window.addSizeListener( ( newWidth, newHeight, source ) -> {
                 renderedScene.getCamera2D().forceUpdate();
                 renderedScene.getCamera3D().forceUpdate();
             } );

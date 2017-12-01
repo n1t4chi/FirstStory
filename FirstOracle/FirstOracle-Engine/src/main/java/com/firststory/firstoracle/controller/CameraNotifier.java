@@ -7,23 +7,23 @@ import java.util.Collection;
 
 public interface CameraNotifier {
     
-    default void addCameraObserver( CameraListener observer ) {
-        getCameraObservers().add( observer );
+    default void addCameraListener( CameraListener listener ) {
+        getCameraListeners().add( listener );
     }
     
-    Collection< CameraListener > getCameraObservers();
+    Collection< CameraListener > getCameraListeners();
     
-    default void removeCameraObserver( CameraListener observer ) {
-        getCameraObservers().remove( observer );
+    default void removeCameraListener( CameraListener listener ) {
+        getCameraListeners().remove( listener );
     }
     
-    default void removeAllCameraObservers() {
-        getCameraObservers().clear();
+    default void removeAllCameraListeners() {
+        getCameraListeners().clear();
     }
     
     default void notifyCameraListeners( CameraEvent event ) {
-        for ( CameraListener observer : getCameraObservers() ) {
-            observer.notify( event, this );
+        for ( CameraListener listener : getCameraListeners() ) {
+            listener.notify( event, this );
         }
     }
 }

@@ -43,7 +43,7 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
             }
         }
     };
-    private final Collection< CameraListener > cameraObservers = new ArrayList<>( 3 );
+    private final Collection< CameraListener > cameraListeners = new ArrayList<>( 3 );
     private final Vector2f direction2D = new Vector2f( 1, 1 );
     private final Vector2f perpendicularDirection2D = new Vector2f( 1, 1 );
     private final Vector2f direction3D = new Vector2f( 1, 1 );
@@ -223,8 +223,8 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
 
     @Override
-    public Collection< CameraListener > getCameraObservers() {
-        return cameraObservers;
+    public Collection< CameraListener > getCameraListeners() {
+        return cameraListeners;
     }
 
     @Override

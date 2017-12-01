@@ -7,10 +7,33 @@ import com.firststory.firstoracle.object2D.Object2D;
 import org.joml.Vector2fc;
 import org.joml.Vector4fc;
 
+import java.util.Collection;
+
 /**
  * @author n1t4chi
  */
 public interface Object2DRenderer {
+    
+    default void renderAll2D(
+        Collection< Object2D > objects,
+        Vector4fc objectOverlayColour,
+        float maxAlphaChannel
+    ) {
+        for ( Object2D object : objects ) {
+            render( object, objectOverlayColour, maxAlphaChannel );
+        }
+    }
+    
+    default void renderAll2D(
+        Collection< Object2D > objects,
+        Vector2fc objectPosition,
+        Vector4fc objectOverlayColour,
+        float maxAlphaChannel
+    ) {
+        for ( Object2D object : objects ) {
+            render( object, objectPosition, objectOverlayColour, maxAlphaChannel );
+        }
+    }
     
     default void render(
         Object2D object,

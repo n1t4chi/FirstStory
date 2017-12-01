@@ -15,19 +15,19 @@ public interface QuitNotifier {
     }
     
     default void notifyQuitListeners( QuitEvent event ) {
-        for ( QuitListener observer : getQuitListeners() ) {
-            observer.notify( event, this );
+        for ( QuitListener listener : getQuitListeners() ) {
+            listener.notify( event, this );
         }
     }
     
     Collection< QuitListener > getQuitListeners();
     
-    default void addQuitObserver( QuitListener observer ) {
-        getQuitListeners().add( observer );
+    default void addQuitListener( QuitListener listener ) {
+        getQuitListeners().add( listener );
     }
     
-    default void removeQuitObserver( QuitListener observer ) {
-        getQuitListeners().remove( observer );
+    default void removeQuitListener( QuitListener listener ) {
+        getQuitListeners().remove( listener );
     }
     
     default void removeAllQuitListeners() {

@@ -11,22 +11,21 @@ import java.util.Collection;
 public interface WindowResizedNotifier {
     
     default void notifySizeListeners( int newWidth, int newHeight ) {
-        for ( WindowResizedListener observer : getSizeObservers() ) {
-            observer.notify( newWidth, newHeight, this );
-        }
+        NotyfyingEngine.notify(
+            getSizeListeners(), ( listener ) -> listener.notify( newWidth, newHeight, this ) );
     }
     
-    Collection< WindowResizedListener > getSizeObservers();
+    Collection< WindowResizedListener > getSizeListeners();
     
-    default void addSizeObserver( WindowResizedListener observer ) {
-        getSizeObservers().add( observer );
+    default void addSizeListener( WindowResizedListener listener ) {
+        getSizeListeners().add( listener );
     }
     
-    default void removeSizeObserver( WindowResizedListener observer ) {
-        getSizeObservers().remove( observer );
+    default void removeSizeListener( WindowResizedListener listener ) {
+        getSizeListeners().remove( listener );
     }
     
-    default void removeAllSizeObservers() {
-        getSizeObservers().clear();
+    default void removeAllSizeListeners() {
+        getSizeListeners().clear();
     }
 }

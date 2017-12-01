@@ -13,6 +13,7 @@ import com.firststory.firstoracle.object3D.ObjectTransformations3D;
 import com.firststory.firstoracle.scene.RenderedScene;
 import com.firststory.firstoracle.window.notifying.FpsListener;
 import com.firststory.firstoracle.window.notifying.FpsNotifier;
+import com.firststory.firstoracle.window.notifying.TimeListener;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import org.joml.Vector2fc;
@@ -32,9 +33,7 @@ import java.util.Collection;
 /**
  * @author n1t4chi
  */
-public class SceneRenderer implements GraphicRenderer,
-    Object2DRenderer,
-    Object3DRenderer, FpsNotifier {
+public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3DRenderer, FpsNotifier {
     
     private static final Vector4f BORDER_COLOUR = new Vector4f( 1f, 0f, 0f, 0.75f );
     private final boolean useTexture;
@@ -44,8 +43,9 @@ public class SceneRenderer implements GraphicRenderer,
     private final Grid2DRenderer grid2DRenderer;
     private final Grid3DRenderer grid3DRenderer;
     private final SceneProvider sceneProvider;
-    private final ArrayList< FpsListener > observers = new ArrayList<>( 5 );
-    UvMap emptyUvMap;
+    private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
+    private final ArrayList< TimeListener > timeNotifiers = new ArrayList<>( 5 );
+    private UvMap emptyUvMap;
     private Texture emptyTexture;
     private int frameCount;
     private double lastFrameUpdate;
@@ -70,10 +70,6 @@ public class SceneRenderer implements GraphicRenderer,
         this.drawBorder = drawBorder;
     }
     
-    public int getFpsCount() {
-        return lastFps;
-    }
-    
     public ShaderProgram2D getShaderProgram2D() {
         return shaderProgram2D;
     }
@@ -82,19 +78,11 @@ public class SceneRenderer implements GraphicRenderer,
         return shaderProgram3D;
     }
     
-    public int getFrameCount() {
-        return frameCount;
-    }
-    
-    public double getLastFrameUpdate() {
+    public double getLastUpdateTime() {
         return lastFrameUpdate;
     }
     
-    public double getLastFpsUpdate() {
-        return lastFpsUpdate;
-    }
-    
-    public int getLastFps() {
+    public int getCurrentFps() {
         return lastFps;
     }
     
@@ -157,8 +145,8 @@ public class SceneRenderer implements GraphicRenderer,
     }
     
     @Override
-    public Collection< FpsListener > getFpsObservers() {
-        return observers;
+    public Collection< FpsListener > getFpsListeners() {
+        return fpsListeners;
     }
     
     @Override

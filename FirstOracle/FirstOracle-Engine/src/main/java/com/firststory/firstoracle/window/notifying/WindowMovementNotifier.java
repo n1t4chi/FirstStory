@@ -10,23 +10,22 @@ import java.util.Collection;
  */
 public interface WindowMovementNotifier {
     
-    default void notifyMovementObservers( int newX, int newY ) {
-        for ( WindowMovementListener observer : getMovementObservers() ) {
-            observer.notify( newX, newY, this );
-        }
+    default void notifyMovementListeners( int newX, int newY ) {
+        NotyfyingEngine.notify(
+            getMovementListeners(), ( listener ) -> listener.notify( newX, newY, this ) );
     }
     
-    Collection< WindowMovementListener > getMovementObservers();
+    Collection< WindowMovementListener > getMovementListeners();
     
-    default void addMovementObserver( WindowMovementListener observer ) {
-        getMovementObservers().add( observer );
+    default void addMovementListener( WindowMovementListener listener ) {
+        getMovementListeners().add( listener );
     }
     
-    default void removeMovementObserver( WindowMovementListener observer ) {
-        getMovementObservers().remove( observer );
+    default void removeMovementListener( WindowMovementListener listener ) {
+        getMovementListeners().remove( listener );
     }
     
-    default void removeAllMovementObservers() {
-        getMovementObservers().clear();
+    default void removeAllMovementListeners() {
+        getMovementListeners().clear();
     }
 }

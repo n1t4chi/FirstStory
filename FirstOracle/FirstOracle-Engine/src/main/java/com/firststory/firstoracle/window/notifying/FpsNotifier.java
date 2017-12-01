@@ -7,23 +7,22 @@ import java.util.Collection;
 
 public interface FpsNotifier {
     
-    default void addFpsObserver( FpsListener observer ) {
-        getFpsObservers().add( observer );
+    default void addFpsListeners( FpsListener listener ) {
+        getFpsListeners().add( listener );
     }
     
-    Collection< FpsListener > getFpsObservers();
+    Collection< FpsListener > getFpsListeners();
     
-    default void removeFpsObserver( FpsListener observer ) {
-        getFpsObservers().remove( observer );
+    default void removeFpsListeners( FpsListener listener ) {
+        getFpsListeners().remove( listener );
     }
     
-    default void removeAllFpsObservers() {
-        getFpsObservers().clear();
+    default void removeAllFpsListeners() {
+        getFpsListeners().clear();
     }
     
     default void notifyFpsListeners( int newFps ) {
-        for ( FpsListener observer : getFpsObservers() ) {
-            observer.notify( newFps, this );
-        }
+        NotyfyingEngine.notify(
+            getFpsListeners(), ( listener ) -> listener.notify( newFps, this ) );
     }
 }

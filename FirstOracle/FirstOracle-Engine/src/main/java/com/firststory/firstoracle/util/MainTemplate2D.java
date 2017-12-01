@@ -22,8 +22,10 @@ import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import cuchaz.jfxgl.JFXGLLauncher;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.joml.Vector2fc;
@@ -118,7 +120,7 @@ public class MainTemplate2D {
                 1f
             );
             cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-            cameraController.addCameraObserver( ( event, source ) -> cameraController.updateMovableCamera2D(
+            cameraController.addCameraListener( ( event, source ) -> cameraController.updateMovableCamera2D(
                 ( MovableCamera2D ) renderedScene.getCamera2D() ) );
     
             sceneProvider = () -> renderedScene;
@@ -131,30 +133,38 @@ public class MainTemplate2D {
                 settings.isDrawBorder()
             );
             contentManager = new OverlayContentManager() {
-                boolean update;
                 float x = 0;
                 float y = 0;
-                private Pane pane;
+                Label fpsLabel;
+                Label timeLabel;
+                Label mouseLabel;
+                BorderPane pane;
     
                 @Override
                 public Pane createOverlayPanel() {
-                    return pane = new Pane();
+                    return pane = new BorderPane();
                 }
     
                 @Override
                 public void init( Stage stage, Scene scene ) {
-                    pane.addEventFilter( MouseEvent.MOUSE_CLICKED, event -> window.resize() );
+                    fpsLabel = new Label();
+                    timeLabel = new Label();
+                    mouseLabel = new Label();
+                    pane.setTop( fpsLabel );
+                    pane.setBottom( timeLabel );
+                    pane.setLeft( mouseLabel );
                     
                     pane.addEventFilter( MouseEvent.MOUSE_MOVED, event -> {
                         Vector2fc translated = renderedScene.getCamera2D()
                             .translatePointOnScreen( ( float ) event.getX(),
                                 ( float ) event.getY(),
-                                width,
-                                height
+                                settings.getWidth(),
+                                settings.getHeight()
                             );
                         x = translated.x();
                         y = translated.y();
                         transformations.setPosition( x, y );
+                        mouseLabel.setText( "mouse: (" + x + ", " + y + ")" );
                     } );
                     scene.addEventFilter( KeyEvent.KEY_TYPED, event -> {
                         System.err.println( "typed:" + event.getCharacter() );
@@ -186,24 +196,26 @@ public class MainTemplate2D {
                 }
     
                 @Override
-                public void update( double v, int i ) {
-        
+                public void update( double currentTime, int currentFps ) {
+                    fpsLabel.setText( "FPS:" + currentFps );
+                    timeLabel.setText( String.format( "current time: %.1fs", currentTime ) );
                 }
             };
             application = new WindowApplication( contentManager );
-            renderer.addFpsObserver( application );
             window = Window.getInstance( settings, application,
                 shaderProgram2D,
                 shaderProgram3D,
                 renderer
             );
             window.init();
+            renderer.addFpsListeners( application );
+            window.addTimeListener( application );
             renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
     
-            window.addQuitObserver( cameraController );
+            window.addQuitListener( cameraController );
             window.addKeyCallbackController( cameraController.getKeyCallback() );
             window.addMouseScrollCallbackController( cameraController.getScrollCallback() );
-            window.addSizeObserver( ( newWidth, newHeight, source ) -> {
+            window.addSizeListener( ( newWidth, newHeight, source ) -> {
                 renderedScene.getCamera2D().forceUpdate();
                 renderedScene.getCamera3D().forceUpdate();
             } );

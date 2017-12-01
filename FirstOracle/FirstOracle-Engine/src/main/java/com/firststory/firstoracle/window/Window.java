@@ -171,7 +171,7 @@ public class Window implements Runnable,
     }
     
     @Override
-    public Collection< TimeListener > getTimeObservers() {
+    public Collection< TimeListener > getTimeListeners() {
         return timeListeners;
     }
     
@@ -181,12 +181,12 @@ public class Window implements Runnable,
     }
     
     @Override
-    public Collection< WindowMovementListener > getMovementObservers() {
+    public Collection< WindowMovementListener > getMovementListeners() {
         return movementListeners;
     }
     
     @Override
-    public Collection< WindowResizedListener > getSizeObservers() {
+    public Collection< WindowResizedListener > getSizeListeners() {
         return sizeListeners;
     }
     
@@ -204,10 +204,6 @@ public class Window implements Runnable,
     
     public void addMousePositionCallbackController( GLFWCursorPosCallback controller ) {
         GLFW.glfwSetCursorPosCallback( windowID, controller );
-    }
-    
-    public void resize() {
-        GLFW.glfwSetWindowSize( windowID, settings.getWidth() + 50, settings.getHeight() + 150 );
     }
     
     private void setUpErrorCallback() {
@@ -323,7 +319,7 @@ public class Window implements Runnable,
             settings.setHeight( height );
             notifySizeListeners( width, height );
         } );
-        GLFW.glfwSetWindowPosCallback( windowID, ( window, xpos, ypos ) -> notifyMovementObservers( xpos, ypos ) );
+        GLFW.glfwSetWindowPosCallback( windowID, ( window, xpos, ypos ) -> notifyMovementListeners( xpos, ypos ) );
     }
     
     private void close() {
@@ -360,7 +356,7 @@ public class Window implements Runnable,
     private void loop() {
         while ( shouldWindowClose() ) {
             GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
-            notifyTimeObservers( GLFW.glfwGetTime() );
+            notifyTimeListener( GLFW.glfwGetTime() );
             renderer.render();
             JFXGL.render();
             GLFW.glfwSwapBuffers( windowID );
