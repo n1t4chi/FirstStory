@@ -9,7 +9,7 @@ package com.firststory.firstoracle.object;
  */
 public class DefaultDirectionController implements DirectionController {
     
-    private int directions;
+    private final int directions;
     
     public DefaultDirectionController( int directions ) {
         this.directions = directions;

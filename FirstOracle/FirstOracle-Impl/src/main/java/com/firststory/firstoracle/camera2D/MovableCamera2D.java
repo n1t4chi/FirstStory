@@ -16,7 +16,7 @@ public class MovableCamera2D extends Camera2D {
     private final Matrix4f inverseCamera;
     private float width;
     private float rotation;
-    private WindowSettings settings;
+    private final WindowSettings settings;
     
     public MovableCamera2D(
         WindowSettings settings, float width, float X, float Y, float rotation

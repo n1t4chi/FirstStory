@@ -22,6 +22,7 @@ public interface Terrain2D< Vertices extends Vertices2D > extends Object2D< Iden
      * @param x          x position in array
      * @param y          y position in array
      * @param arrayShift shift of array in space
+     * @return position in space
      */
     Vector2fc computePosition( int x, int y, Vector2ic arrayShift );
 }

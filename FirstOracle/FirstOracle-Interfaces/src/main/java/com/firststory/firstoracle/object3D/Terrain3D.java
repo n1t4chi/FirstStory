@@ -23,6 +23,7 @@ public interface Terrain3D< Vertices extends Vertices3D > extends Object3D< Iden
      * @param y          y position in array
      * @param z          z position in array
      * @param arrayShift shift of array in space
+     * @return position in space
      */
     Vector3fc computePosition( int x, int y, int z, Vector3ic arrayShift );
 }

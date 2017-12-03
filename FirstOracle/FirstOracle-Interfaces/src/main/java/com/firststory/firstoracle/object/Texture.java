@@ -50,9 +50,9 @@ public final class Texture implements Closeable {
     private static final String FRAME_KEYWORD = "#frame#";
     private static final String DIRECITON_KEYWORD = "#direction#";
     
-    private static String replayKeywords( String filePathMask, int frame, int direciton ) {
+    private static String replayKeywords( String filePathMask, int frame, int direction ) {
         String frameString = "" + frame;
-        String directionString = "" + direciton;
+        String directionString = "" + direction;
         return filePathMask.replace( FRAME_KEYWORD, frameString ).replace( DIRECITON_KEYWORD, directionString );
     }
     

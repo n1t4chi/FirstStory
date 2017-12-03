@@ -22,11 +22,6 @@ public class Plane2DVertices extends FramelessVertices2D {
         return Plane2DVertices;
     }
     
-    /**
-     * Returns instance of Plane2DVertices.
-     *
-     * @return Plane2DVertices instance
-     */
     public static Plane2DVertices getPlane2DVertices( float minX, float maxX, float minY, float maxY ) {
         Touple touple = new Touple( minX, maxX, minY, maxY );
         if ( instances.containsKey( touple ) ) {
@@ -72,8 +67,11 @@ public class Plane2DVertices extends FramelessVertices2D {
     }
     
     private static class Touple {
-        
-        private float minX, maxX, minY, maxY;
+    
+        private final float minX;
+        private final float maxX;
+        private final float minY;
+        private final float maxY;
         
         private Touple( float minX, float maxX, float minY, float maxY ) {
             this.minX = minX;

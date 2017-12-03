@@ -11,10 +11,6 @@ import org.lwjgl.opengl.GL11;
 
 public class BoundedGrid3DRenderer implements Grid3DRenderer {
     
-    private final float[] interAxesArray;
-    private final float[] smallPositiveAxesArray;
-    private final float[] smallNegativeAxesArray;
-    private final float[] mainAxesArray;
     private final ShaderProgram3D shaderProgram;
     private final Vertices3D mainAxes;
     private final Vertices3D interAxes;
@@ -39,15 +35,16 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         //X
         //Y
         //Z
-        mainAxesArray = new float[]{ -gridSize, 0, 0, gridSize, 0, 0,//X
-    
+        float[] mainAxesArray = new float[]{
+            -gridSize, 0, 0, gridSize, 0, 0,//X
+        
             0, -gridSize, 0, 0, gridSize, 0,//Y
-    
+        
             0, 0, -gridSize, 0, 0, gridSize//Z
         };
-        interAxesArray = new float[ interAxesSize ];
-        smallPositiveAxesArray = new float[ smallPositiveAxesSize ];
-        smallNegativeAxesArray = new float[ smallNegativeAxesSize ];
+        float[] interAxesArray = new float[interAxesSize];
+        float[] smallPositiveAxesArray = new float[smallPositiveAxesSize];
+        float[] smallNegativeAxesArray = new float[smallNegativeAxesSize];
         int interAxesArrayIt = 0;
         int smallPositiveAxesArrayIt = 0;
         int smallNegativeAxesArrayIt = 0;

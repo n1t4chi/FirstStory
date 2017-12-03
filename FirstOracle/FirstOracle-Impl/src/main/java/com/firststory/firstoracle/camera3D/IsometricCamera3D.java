@@ -17,7 +17,7 @@ public class IsometricCamera3D extends Camera3D {
     private final float aboveYAlphaOverride;
     private final Vector3f position;
     private final Matrix4f camera;
-    private WindowSettings settings;
+    private final WindowSettings settings;
     private float initialHalfXSize;
     private float rotationX;
     private float rotationY;

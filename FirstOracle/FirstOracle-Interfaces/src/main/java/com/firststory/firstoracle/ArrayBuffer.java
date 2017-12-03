@@ -62,9 +62,8 @@ public class ArrayBuffer implements Closeable {
         return loaded;
     }
     
-    public ArrayBuffer create() throws CannotCreateBufferException {
+    public void create() throws CannotCreateBufferException {
         bufferID = ArrayBuffer.createBuffer();
-        return this;
     }
     
     public void bind() throws BufferNotCreatedException, BufferNotLoadedException {

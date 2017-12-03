@@ -11,10 +11,6 @@ import org.lwjgl.opengl.GL11;
 
 public class BoundedGrid2DRenderer implements Grid2DRenderer {
     
-    private final float[] interAxesArray;
-    private final float[] smallPositiveAxesArray;
-    private final float[] smallNegativeAxesArray;
-    private final float[] mainAxesArray;
     private final ShaderProgram2D shaderProgram;
     private final Vertices2D mainAxes;
     private final Vertices2D interAxes;
@@ -39,14 +35,13 @@ public class BoundedGrid2DRenderer implements Grid2DRenderer {
         //X
         //Y
         //Z
-        mainAxesArray = new float[]{ -gridSize, 0,
-            gridSize, 0,//X
-            0, -gridSize,
-            0, gridSize,//Y
+        float[] mainAxesArray = new float[]{
+            -gridSize, 0, gridSize, 0,//X
+            0, -gridSize, 0, gridSize,//Y
         };
-        interAxesArray = new float[ interAxesSize ];
-        smallPositiveAxesArray = new float[ smallPositiveAxesSize ];
-        smallNegativeAxesArray = new float[ smallNegativeAxesSize ];
+        float[] interAxesArray = new float[interAxesSize];
+        float[] smallPositiveAxesArray = new float[smallPositiveAxesSize];
+        float[] smallNegativeAxesArray = new float[smallNegativeAxesSize];
         int interAxesArrayIt = 0;
         int smallPositiveAxesArrayIt = 0;
         int smallNegativeAxesArrayIt = 0;
