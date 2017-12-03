@@ -8,8 +8,7 @@ import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
-import com.firststory.firstoracle.object.PlaneUvMap;
-import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
@@ -80,29 +79,32 @@ public class MainTemplate2D {
             Texture texture1 = new Texture( "resources/First Oracle/texture2D.png" );
             Texture texture2 = new Texture( "resources/First Oracle/obj.png" );
             Texture compundTexture = Texture.createCompoundTexture( "resources/First Oracle/compound/tex_#frame#_#direction#.png",
-                3,
+                4,
                 6
             );
             RectangleGrid terrain = new RectangleGrid();
             terrain.setTexture( texture1 );
+    
             Rectangle< Mutable2DTransformations > object = new Rectangle<>();
             object.setTransformations( new Mutable2DTransformations() );
-    
-            AnimatedMutableObject2D< Mutable2DTransformations, Plane2DVertices > compund = new AnimatedMutableObject2D<>();
-    
-            compund.setVertices( Plane2DVertices.getPlane2DVertices( -2, 2, -2, 2 ) );
-            compund.setUvMap( new PlaneUvMap( compundTexture.getFrames(),
-                compundTexture.getDirections(),
-                compundTexture.getRows(),
-                compundTexture.getColumns()
-            ) );
-            compund.setTexture( compundTexture );
-            compund.setTransformations( new Mutable2DTransformations() );
-            compund.getTransformations().setPosition( -4, -4 );
-            compund.getTransformations().setScale( 2, 2 );
-    
             object.setTexture( texture2 );
     
+            DirectionController directionController = new DefaultDirectionController( compundTexture.getDirections() );
+            LoopedFrameController frameController = new LoopedFrameController();
+            AnimatedMutableObject2D< Mutable2DTransformations, Plane2DVertices > compound = new AnimatedMutableObject2D<>();
+            frameController.setCurrentState( compundTexture.getFrames(), 0, 1 );
+    
+            compound.setDirectionController( directionController );
+            compound.setFrameController( frameController );
+    
+            compound.setVertices( Plane2DVertices.getPlane2DVertices( -2, 2, -2, 2 ) );
+            compound.setUvMap( new PlaneUvMap( compundTexture ) );
+            compound.setTexture( compundTexture );
+            compound.setTransformations( new Mutable2DTransformations() );
+            compound.getTransformations().setPosition( -4, -4 );
+            compound.getTransformations().setScale( 2, 2 );
+            
+            
             RectangleGrid[][] array = new RectangleGrid[20][20];
             
             for ( int x = 0; x < array.length; x++ ) {
@@ -113,7 +115,7 @@ public class MainTemplate2D {
             renderedScene.setScene2D( ( objectRenderer, terrainRenderer ) -> {
                 terrainRenderer.renderAll( array );
                 objectRenderer.render( object );
-                objectRenderer.render( compund );
+                objectRenderer.render( compound );
             } );
             cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
             cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
@@ -218,4 +220,5 @@ public class MainTemplate2D {
             e.printStackTrace();
         }
     }
+    
 }

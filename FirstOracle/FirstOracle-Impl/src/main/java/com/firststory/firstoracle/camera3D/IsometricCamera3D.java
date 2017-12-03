@@ -118,4 +118,8 @@ public class IsometricCamera3D extends Camera3D {
         }
     }
     
+    @Override
+    public float getGeneralRotation() {
+        return rotationY;
+    }
 }

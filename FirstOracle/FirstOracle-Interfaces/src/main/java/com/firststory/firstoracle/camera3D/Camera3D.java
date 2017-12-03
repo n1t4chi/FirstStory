@@ -55,4 +55,11 @@ public abstract class Camera3D {
     protected void updated() {
         update = false;
     }
+    
+    /**
+     * Returns general rotation of this camera for objects to determine facing position
+     *
+     * @return rotation
+     */
+    public abstract float getGeneralRotation();
 }

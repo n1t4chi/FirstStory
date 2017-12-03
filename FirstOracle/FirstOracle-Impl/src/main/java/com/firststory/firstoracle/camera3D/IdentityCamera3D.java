@@ -52,4 +52,8 @@ public class IdentityCamera3D extends Camera3D {
         return minX <= 1 && maxX >= -1 && minY <= 1 && maxY >= -1;
     }
     
+    @Override
+    public float getGeneralRotation() {
+        return 0;
+    }
 }

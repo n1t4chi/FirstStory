@@ -13,17 +13,17 @@ public class StaticMutableObject2D< Transformations extends Object2DTransformati
 {
     
     @Override
-    public int getCurrentUvMapDirection() {
+    public int getCurrentUvMapDirection( double currentCameraRotation ) {
         return 0;
     }
     
     @Override
-    public int getCurrentUvMapFrame() {
+    public int getCurrentUvMapFrame( double currentTimeSnapshot ) {
         return 0;
     }
     
     @Override
-    public int getCurrentVertexFrame() {
+    public int getCurrentVertexFrame( double currentTimeSnapshot ) {
         return 0;
     }
 }

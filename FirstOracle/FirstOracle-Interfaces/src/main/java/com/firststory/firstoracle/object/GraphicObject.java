@@ -16,23 +16,25 @@ public interface GraphicObject< TransformationsType extends ObjectTransformation
     
     TransformationsType getTransformations();
     
-    default void bindCurrentUvMap() {
-        getUvMap().bind( getCurrentUvMapDirection(), getCurrentUvMapFrame() );
+    default void bindCurrentUvMap( double currentTimeSnapshot, double currentCameraRotation ) {
+        getUvMap().bind( getCurrentUvMapDirection( currentCameraRotation ),
+            getCurrentUvMapFrame( currentTimeSnapshot )
+        );
     }
+    
+    int getCurrentUvMapDirection( double currentCameraRotation );
     
     UvMap getUvMap();
     
-    int getCurrentUvMapDirection();
+    int getCurrentUvMapFrame( double currentTimeSnapshot );
     
-    int getCurrentUvMapFrame();
-    
-    default int bindCurrentVerticesAndGetSize() {
-        return getVertices().bind( getCurrentVertexFrame() );
+    default int bindCurrentVerticesAndGetSize( double currentTimeSnapshot ) {
+        return getVertices().bind( getCurrentVertexFrame( currentTimeSnapshot ) );
     }
     
     VerticesType getVertices();
     
-    int getCurrentVertexFrame();
+    int getCurrentVertexFrame( double currentTimeSnapshot );
     
     void render( Renderer renderer );
 }

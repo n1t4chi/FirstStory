@@ -13,17 +13,17 @@ public class StaticMutableObject3D< Transformations extends Object3DTransformati
 {
 
     @Override
-    public int getCurrentVertexFrame() {
+    public int getCurrentUvMapDirection( double currentCameraRotation ) {
         return 0;
     }
 
     @Override
-    public int getCurrentUvMapFrame() {
+    public int getCurrentUvMapFrame( double currentTimeSnapshot ) {
         return 0;
     }
 
     @Override
-    public int getCurrentUvMapDirection() {
+    public int getCurrentVertexFrame( double currentTimeSnapshot ) {
         return 0;
     }
 }

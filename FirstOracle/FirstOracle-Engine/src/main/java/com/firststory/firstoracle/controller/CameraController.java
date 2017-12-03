@@ -287,26 +287,36 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     
     private void rotateUp( float timeDelta ) {
         rotationX += 5 * timeDelta;
-        rotationX %= 360;
+        modRotationX();
         rotateVectors();
     }
     
     private void rotateDown( float timeDelta ) {
         rotationX -= 5 * timeDelta;
-        rotationX %= 360;
+        modRotationX();
         rotateVectors();
     }
     
     private void rotateLeft( float timeDelta ) {
         rotationY += 5 * timeDelta;
-        rotationY %= 360;
+        modRotationY();
         rotateVectors();
     }
     
     private void rotateRight( float timeDelta ) {
         rotationY -= 5 * timeDelta;
-        rotationY %= 360;
+        modRotationY();
         rotateVectors();
+    }
+    
+    private void modRotationX() {
+        rotationX %= 360;
+        if ( rotationX < 0 ) { rotationX += 360; }
+    }
+    
+    private void modRotationY() {
+        rotationY %= 360;
+        if ( rotationY < 0 ) { rotationY += 360; }
     }
     
     private void moveForward( float timeDelta ) {

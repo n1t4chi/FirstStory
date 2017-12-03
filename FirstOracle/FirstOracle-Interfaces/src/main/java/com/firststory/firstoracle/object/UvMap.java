@@ -18,16 +18,16 @@ public class UvMap extends VertexAttributes {
         bindBufferAndGetSize( ( ( long ) direction << 32 ) + frame );
     }
     
-    @Override
-    protected float[] getArray( long key ) {
-        return uvMapByDirectionAndFrame[ ( int ) ( key >> 32 ) ][ ( int ) key ];
+    protected int getIndex() {
+        return 1;
     }
     
     protected int getVertexSize() {
         return 2;
     }
     
-    protected int getIndex() {
-        return 1;
+    @Override
+    protected float[] getArray( long key ) {
+        return uvMapByDirectionAndFrame[( int ) ( key >> 32 )][( int ) ( key )];
     }
 }

@@ -54,6 +54,8 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     private double lastFrameUpdate;
     private double lastFpsUpdate;
     private int lastFps;
+    private double cameraRotation2D;
+    private double cameraRotation3D;
     
     public WindowRenderingContext(
         ShaderProgram2D shaderProgram2D,
@@ -136,8 +138,10 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
             notifyFpsListeners( lastFps );
         }
         frameCount++;
-        
+    
         RenderedScene scene = sceneProvider.getNextScene();
+        cameraRotation2D = scene.getCamera2D().getGeneralRotation();
+        cameraRotation3D = scene.getCamera3D().getGeneralRotation();
         
         setBackground( scene );
         renderBackgroundAnd2dScene( scene );
@@ -165,9 +169,9 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         Object2DTransformations transformations = object.getTransformations();
         shaderProgram2D.bindRotation( transformations.getRotation() );
         shaderProgram2D.bindScale( transformations.getScale() );
-        
-        int bufferSize = object.bindCurrentVerticesAndGetSize();
-        object.bindCurrentUvMap();
+    
+        int bufferSize = object.bindCurrentVerticesAndGetSize( lastFrameUpdate );
+        object.bindCurrentUvMap( lastFrameUpdate, cameraRotation2D );
         
         if ( useTexture ) {
             object.getTexture().bind();
@@ -196,9 +200,9 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         Object3DTransformations transformations = object.getTransformations();
         shaderProgram3D.bindRotation( transformations.getRotation() );
         shaderProgram3D.bindScale( transformations.getScale() );
-        
-        int bufferSize = object.bindCurrentVerticesAndGetSize();
-        object.bindCurrentUvMap();
+    
+        int bufferSize = object.bindCurrentVerticesAndGetSize( lastFrameUpdate );
+        object.bindCurrentUvMap( lastFrameUpdate, cameraRotation3D );
         
         if ( useTexture ) {
             object.getTexture().bind();

@@ -100,9 +100,9 @@ public class MovableCamera2D extends Camera2D {
             updated();
         }
     }
-
-//    private void translate() {
-//        camera.m20 = position.x;
-//        camera.m21 = position.y;
-//    }
+    
+    @Override
+    public float getGeneralRotation() {
+        return rotation;
+    }
 }

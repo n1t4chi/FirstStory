@@ -41,4 +41,8 @@ public class IdentityCamera2D extends Camera2D {
         return new Vector2f( 2f * x / width - 1f, -( 2f * y / height - 1f ) );
     }
     
+    @Override
+    public float getGeneralRotation() {
+        return 0;
+    }
 }
