@@ -11,11 +11,14 @@ import com.firststory.firstoracle.object.UvMap;
  *
  * @author n1t4chi
  */
-public abstract class MutableObject3D implements Object3D {
-    Texture texture;
-    UvMap uvMap;
-    Vertices3D vertices;
-    ObjectTransformations3D objectTransformations3D;
+public abstract class MutableObject3D< Transformations extends Object3DTransformations, Vertices extends Vertices3D >
+    implements Object3D< Transformations, Vertices >
+{
+    
+    private Texture texture;
+    private UvMap uvMap;
+    private Vertices vertices;
+    private Transformations transformations;
     
     @Override
     public Texture getTexture() {
@@ -36,20 +39,20 @@ public abstract class MutableObject3D implements Object3D {
     }
     
     @Override
-    public Vertices3D getVertices() {
-        return vertices;
-    }
-    
-    public void setVertices( Vertices3D vertices ) {
-        this.vertices = vertices;
+    public Transformations getTransformations() {
+        return transformations;
     }
     
     @Override
-    public ObjectTransformations3D getTransformations() {
-        return objectTransformations3D;
+    public Vertices getVertices() {
+        return vertices;
     }
-
-    public void setObjectTransformations3D( ObjectTransformations3D objectTransformations3D ) {
-        this.objectTransformations3D = objectTransformations3D;
+    
+    public void setVertices( Vertices vertices ) {
+        this.vertices = vertices;
+    }
+    
+    public void setTransformations( Transformations transformations ) {
+        this.transformations = transformations;
     }
 }

@@ -10,7 +10,7 @@ import org.joml.Vector3fc;
 /**
  * @author n1t4chi
  */
-public interface ObjectTransformations3D extends ObjectTransformations< Vector3fc, Vector3fc, Vector3fc > {
+public interface Object3DTransformations extends ObjectTransformations< Vector3fc, Vector3fc, Vector3fc > {
     Vector3fc ZERO = new Vector3f( 0, 0, 0 );
     Vector3fc ONE = new Vector3f( 1, 1, 1 );
     

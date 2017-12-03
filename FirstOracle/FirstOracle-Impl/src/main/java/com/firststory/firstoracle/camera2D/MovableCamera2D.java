@@ -12,8 +12,8 @@ import org.joml.*;
 public class MovableCamera2D extends Camera2D {
     
     private final Vector2f position;
-    private final Matrix3f camera;
-    private final Matrix3f inverseCamera;
+    private final Matrix4f camera;
+    private final Matrix4f inverseCamera;
     private float width;
     private float rotation;
     private WindowSettings settings;
@@ -24,8 +24,8 @@ public class MovableCamera2D extends Camera2D {
         this.settings = settings;
         this.position = new Vector2f( X, Y );
         this.rotation = rotation;
-        camera = new Matrix3f();
-        inverseCamera = new Matrix3f();
+        camera = new Matrix4f();
+        inverseCamera = new Matrix4f();
         this.width = width;
     }
     
@@ -51,14 +51,14 @@ public class MovableCamera2D extends Camera2D {
     }
     
     @Override
-    public Matrix3fc getMatrixRepresentation() {
+    public Matrix4fc getMatrixRepresentation() {
         updateMatrix();
         return camera;
     }
     
     @Override
     public Vector2fc getCenterPoint() {
-        Vector3f vector = new Vector3f( 0, 0, 1 );
+        Vector4f vector = new Vector4f( 0, 0, 0, 1 );
         inverseCamera.transform( vector );
         return new Vector2f( vector.x, vector.y );
     }
@@ -73,7 +73,7 @@ public class MovableCamera2D extends Camera2D {
         if ( camera.determinant() != 0 ) {
             float cameraX = 2f * x / width - 1f;
             float cameraY = -( 2f * y / height - 1f );
-            Vector3f vector = new Vector3f( cameraX, cameraY, 1 );
+            Vector4f vector = new Vector4f( cameraX, cameraY, 0, 1 );
             inverseCamera.transform( vector );
             return new Vector2f( vector.x, vector.y );
         } else {
@@ -89,7 +89,7 @@ public class MovableCamera2D extends Camera2D {
             camera.identity();
             camera.scale( 1 / width, 1 / ( width * settings.getHeightByWidthRatio() ), 1 );
             camera.rotateZ( ( float ) java.lang.Math.toRadians( rotation ) );
-            translate();
+            camera.translate( position.x, position.y, 0 );
             if ( camera.determinant() != 0 ) {
                 camera.invert( inverseCamera );
             } else {
@@ -100,9 +100,9 @@ public class MovableCamera2D extends Camera2D {
             updated();
         }
     }
-    
-    private void translate() {
-        camera.m20 = position.x;
-        camera.m21 = position.y;
-    }
+
+//    private void translate() {
+//        camera.m20 = position.x;
+//        camera.m21 = position.y;
+//    }
 }

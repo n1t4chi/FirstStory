@@ -5,7 +5,7 @@ layout (location = 1) in vec2 vertexUV;
 
 out vec2 UV;
 
-uniform mat3 camera;
+uniform mat4 camera;
 uniform vec2 translation;
 uniform vec2 scale;
 uniform float rotation;
@@ -30,13 +30,13 @@ void main(){
         posX = (x*cosZ) - (y*sinZ);
         posY = (x*sinZ) + (y*cosZ);
     }
-    vec3 v =
+    vec4 v =
         camera *
-        vec3(
+        vec4(
             translation.x+posX,
             translation.y+posY,
-            1
+            0,1
         );
-    gl_Position = vec4(v.x,v.y,1,1);
+    gl_Position = vec4(v.x,v.y,0,1);
 
 }

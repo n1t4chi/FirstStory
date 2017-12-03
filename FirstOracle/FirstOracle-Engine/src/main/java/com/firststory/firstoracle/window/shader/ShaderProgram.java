@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL32;
 import java.io.IOException;
 import java.util.HashMap;
 
-import static com.firststory.firstoracle.util.IOUtilities.readTextResource;
+import static com.firststory.firstoracle.templates.IOUtilities.readTextResource;
 
 /**
  * ShaderProgram utility class, new instance creates ready to use program with loaded shaders.

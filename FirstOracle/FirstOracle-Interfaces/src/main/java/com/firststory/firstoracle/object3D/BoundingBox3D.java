@@ -9,7 +9,7 @@ import org.joml.Vector3fc;
 /**
  * @author n1t4chi
  */
-public class BoundingBox3D implements BoundingBox< BoundingBox3D, ObjectTransformations3D > {
+public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransformations > {
     
     public static BoundingBox3D getBoundingBox3D( float[] vertices ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
@@ -135,7 +135,7 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, ObjectTransfor
         return minZ;
     }
     
-    public BoundingBox3D getTransformedBoundingBox( ObjectTransformations3D transformations ) {
+    public BoundingBox3D getTransformedBoundingBox( Object3DTransformations transformations ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
         minX = this.minX;
         maxX = this.maxX;

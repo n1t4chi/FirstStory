@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
  */
-package com.firststory.firstoracle.util;
+package com.firststory.firstoracle.templates;
 
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
@@ -12,8 +12,6 @@ import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object2D.RectangleGrid;
 import com.firststory.firstoracle.object3D.CubeGrid;
 import com.firststory.firstoracle.rendering.*;
-import com.firststory.firstoracle.scene.RenderedObjects2D;
-import com.firststory.firstoracle.scene.RenderedObjects3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
@@ -26,7 +24,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.joml.Vector3i;
 import org.joml.Vector4f;
 
 /**
@@ -36,10 +33,10 @@ import org.joml.Vector4f;
  * @author n1t4chi
  */
 public class MainTemplate3D {
-
+    
     private static Window window;
     private static OverlayContentManager contentManager;
-    private static SceneRenderer renderer;
+    private static WindowRenderingContext renderer;
     private static SceneProvider sceneProvider;
     private static CameraController cameraController;
     private static RenderedSceneMutable renderedScene;
@@ -60,7 +57,7 @@ public class MainTemplate3D {
         JFXGLLauncher.showFilterWarnings = false;
         JFXGLLauncher.launchMain( MainTemplate3D.class, args );
     }
-
+    
     //it's called by main above though some hack magicks called reflection
     public static void jfxglmain( String[] args ) {
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
@@ -83,58 +80,40 @@ public class MainTemplate3D {
         renderedScene.setIsometricCamera3D( new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 ) );
         renderedScene.setCamera2D( new MovableCamera2D( settings, 1, 1, 0, 0 ) );
         renderedScene.setBackgroundColour( new Vector4f( 0, 1, 0, 1 ) );
-
+    
         //it's used for rendering, not necessary here
         Vector4f colour = new Vector4f( 0, 0, 0, 0 );
         float maxFloat = 1;
-
+    
         //try is for Texture loading.
         try {
             //Does not work ATM but graphic objects can be created like that,
             //Here mostlikely we will only use Rectangle for objects like bullets and characters and RectangleGrid for terrain
             //RectangleGrid provides nice method for translating array position into rendered space position so they can be shared for same terrains
             //path can be either file in filesystem or within jar
-            RectangleGrid overlay = new RectangleGrid( new Texture(
-                "resources/First Oracle/grid.png" ) );
+            Texture texture1 = new Texture( "resources/First Oracle/grid.png" );
+            Texture texture2 = new Texture( "resources/First Oracle/texture3D.png" );
+            RectangleGrid overlay = new RectangleGrid();
+            overlay.setTexture( texture1 );
             //overlay is rendered last, good for UI
-            renderedScene.setOverlay( new RenderedObjects2D() {
-                @Override
-                public void render( Object2DRenderer renderer ) {
-                    renderer.render( overlay, colour, maxFloat );
-                }
-            } );
-
-            //Example initialisation of map
-            CubeGrid terrain1 = new CubeGrid( new Texture( "resources/First Oracle/texture3D.png" ) );
-
-            CubeGrid[][][] array = new CubeGrid[ 10 ][ 20 ][ 20 ];
+            renderedScene.setOverlay( ( objectRenderer, terrainRenderer ) -> objectRenderer.render( overlay ) );
             
-            for ( int y = 0; y < 10; y++ ) {
-                for ( int x = 0; x < 20; x++ ) {
+            //Example initialisation of map
+            CubeGrid terrain = new CubeGrid();
+            terrain.setTexture( texture2 );
+    
+            CubeGrid[][][] array = new CubeGrid[20][10][20];
+    
+            for ( int x = 0; x < 20; x++ ) {
+                for ( int y = 0; y < 10; y++ ) {
                     for ( int z = 0; z < 20; z++ ) {
-                        array[ y ][ x ][ z ] = terrain1;
+                        array[x][y][z] = terrain;
                     }
                 }
             }
             //setScene2D is very similar but you are providing Objects2D instead of 3D
             //here it's best place to render all game objects
-            renderedScene.setScene3D( new RenderedObjects3D() {
-                @Override
-                public void render( Object3DRenderer renderer ) {
-                    Vector3i arrayShift = new Vector3i( 0, 0, 0 );
-                    for ( int y = 0; y < 10; y++ ) {
-                        for ( int x = 0; x < 20; x++ ) {
-                            for ( int z = 0; z < 20; z++ ) {
-                                renderer.render( array[ y ][ x ][ z ],
-                                        array[ y ][ x ][ z ].computePosition( x, y, z, arrayShift ),
-                                    colour,
-                                    maxFloat
-                                );
-                            }
-                        }
-                    }
-                }
-            } );
+            renderedScene.setScene3D( ( objectRenderer, terrainRenderer ) -> terrainRenderer.renderAll( array ) );
             //SceneProvider is object which provides all next scenes for renderer below
             //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
             //Most likely you would want to create your own SceneProvider that implements this interface
@@ -147,8 +126,7 @@ public class MainTemplate3D {
                 return renderedScene;
             };
             //Renderer renders all openGL content in Window, nothing to add much here
-            renderer = new SceneRenderer( shaderProgram2D,
-                    shaderProgram3D, grid2DRenderer, grid3DRenderer,
+            renderer = new WindowRenderingContext( shaderProgram2D, shaderProgram3D, grid2DRenderer, grid3DRenderer,
                 sceneProvider,
                 settings.isUseTexture(),
                 settings.isDrawBorder()
@@ -168,12 +146,12 @@ public class MainTemplate3D {
                 Label fpsLabel;
                 Label timeLabel;
                 BorderPane overlayPanel;
-
+    
                 @Override
                 public Pane createOverlayPanel() {
                     return overlayPanel = new BorderPane();
                 }
-
+    
                 @Override
                 public void init( Stage stage, Scene scene ) {
                     fpsLabel = new Label();
@@ -181,14 +159,14 @@ public class MainTemplate3D {
                     overlayPanel.setTop( fpsLabel );
                     overlayPanel.setBottom( timeLabel );
                 }
-
+    
                 @Override
                 public void update( double currentTime, int currentFps ) {
                     fpsLabel.setText( "FPS:" + currentFps );
                     timeLabel.setText( String.format( "current time: %.1fs", currentTime ) );
                 }
             };
-
+    
             //WindowApplication is JavaFX application that
             application = new WindowApplication( contentManager );
             //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
@@ -214,7 +192,7 @@ public class MainTemplate3D {
             //Now it's place to spawn all other threads like game thread or controller thread.
             Thread cameraControllerThread = new Thread( cameraController );
             cameraControllerThread.start();
-
+    
             //At last the window loop is run in this thread..
             window.run();
         } catch ( Exception e ) {

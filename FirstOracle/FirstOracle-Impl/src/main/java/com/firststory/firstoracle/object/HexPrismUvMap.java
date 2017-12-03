@@ -6,6 +6,7 @@ package com.firststory.firstoracle.object;
 import java.util.HashMap;
 
 import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
+import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
 
 /**
  * @author n1t4chi
@@ -52,54 +53,53 @@ public class HexPrismUvMap extends UvMap {
         }
         float hor = 1 / 8f;
         //lower a bit UV map so pixels from other face will not be taken into consideration.
-        float del = 0.01f;
-        float vertUp = ( frame ) / ( float ) rows + del;
-        float vertDown = ( frame + 1 ) / ( float ) rows - del;
+        float vertUp = ( frame ) / ( float ) rows + UV_DELTA;
+        float vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
 
         float vertMiddle = ( frame + 0.5f ) / ( float ) rows;
-        float vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + del;
-        float vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - del;
+        float vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + UV_DELTA;
+        float vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - UV_DELTA;
 
         return new float[]{
             //face 0
-            0 * hor + del, vertDown, 1 * hor - del, vertDown, 1 * hor - del, vertUp,
-            0 * hor + del, vertDown, 1 * hor - del, vertUp, 0 * hor + del, vertUp,
-
+            0 * hor + UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertUp, 0 * hor + UV_DELTA,
+            vertDown, 1 * hor - UV_DELTA, vertUp, 0 * hor + UV_DELTA, vertUp,
+    
             //face 1
-            1 * hor + del, vertDown, 2 * hor - del, vertDown, 2 * hor - del, vertUp,
-            1 * hor + del, vertDown, 2 * hor - del, vertUp, 1 * hor + del, vertUp,
-
+            1 * hor + UV_DELTA, vertDown, 2 * hor - UV_DELTA, vertDown, 2 * hor - UV_DELTA, vertUp, 1 * hor + UV_DELTA,
+            vertDown, 2 * hor - UV_DELTA, vertUp, 1 * hor + UV_DELTA, vertUp,
+    
             //face 2
-            2 * hor + del, vertDown, 3 * hor - del, vertDown, 3 * hor - del, vertUp,
-            2 * hor + del, vertDown, 3 * hor - del, vertUp, 2 * hor + del, vertUp,
-
+            2 * hor + UV_DELTA, vertDown, 3 * hor - UV_DELTA, vertDown, 3 * hor - UV_DELTA, vertUp, 2 * hor + UV_DELTA,
+            vertDown, 3 * hor - UV_DELTA, vertUp, 2 * hor + UV_DELTA, vertUp,
+    
             //face 3
-            3 * hor + del, vertDown, 4 * hor - del, vertDown, 4 * hor - del, vertUp,
-            3 * hor + del, vertDown, 4 * hor - del, vertUp, 3 * hor + del, vertUp,
-
+            3 * hor + UV_DELTA, vertDown, 4 * hor - UV_DELTA, vertDown, 4 * hor - UV_DELTA, vertUp, 3 * hor + UV_DELTA,
+            vertDown, 4 * hor - UV_DELTA, vertUp, 3 * hor + UV_DELTA, vertUp,
+    
             //face 4
-            4 * hor + del, vertDown, 5 * hor - del, vertDown, 5 * hor - del, vertUp,
-            4 * hor + del, vertDown, 5 * hor - del, vertUp, 4 * hor + del, vertUp,
-
+            4 * hor + UV_DELTA, vertDown, 5 * hor - UV_DELTA, vertDown, 5 * hor - UV_DELTA, vertUp, 4 * hor + UV_DELTA,
+            vertDown, 5 * hor - UV_DELTA, vertUp, 4 * hor + UV_DELTA, vertUp,
+    
             //face 5
-            5 * hor + del, vertDown, 6 * hor - del, vertDown, 6 * hor - del, vertUp,
-            5 * hor + del, vertDown, 6 * hor - del, vertUp, 5 * hor + del, vertUp,
-
+            5 * hor + UV_DELTA, vertDown, 6 * hor - UV_DELTA, vertDown, 6 * hor - UV_DELTA, vertUp, 5 * hor + UV_DELTA,
+            vertDown, 6 * hor - UV_DELTA, vertUp, 5 * hor + UV_DELTA, vertUp,
+    
             //face 6
-            6.5f * hor, vertMiddle, 6.75f * hor - del, vertUp, 6.25f * hor + del, vertUp,
-            6.5f * hor, vertMiddle, 6.25f * hor + del, vertUp, 6 * hor + del, vertMiddle,
-            6.5f * hor, vertMiddle, 6 * hor + del, vertMiddle, 6.25f * hor + del, vertDown,
-            6.5f * hor, vertMiddle, 6.25f * hor + del, vertDown, 6.75f * hor - del, vertDown,
-            6.5f * hor, vertMiddle, 6.75f * hor - del, vertDown, 7 * hor - del, vertMiddle,
-            6.5f * hor, vertMiddle, 7 * hor - del, vertMiddle, 6.75f * hor - del, vertUp,
-
+            6.5f * hor, vertMiddle, 6.75f * hor - UV_DELTA, vertUp, 6.25f * hor + UV_DELTA, vertUp, 6.5f * hor,
+            vertMiddle, 6.25f * hor + UV_DELTA, vertUp, 6 * hor + UV_DELTA, vertMiddle, 6.5f * hor, vertMiddle,
+            6 * hor + UV_DELTA, vertMiddle, 6.25f * hor + UV_DELTA, vertDown, 6.5f * hor, vertMiddle,
+            6.25f * hor + UV_DELTA, vertDown, 6.75f * hor - UV_DELTA, vertDown, 6.5f * hor, vertMiddle,
+            6.75f * hor - UV_DELTA, vertDown, 7 * hor - UV_DELTA, vertMiddle, 6.5f * hor, vertMiddle,
+            7 * hor - UV_DELTA, vertMiddle, 6.75f * hor - UV_DELTA, vertUp,
+    
             //face 7
-            7.5f * hor, vertMiddle, 7.75f * hor - del, vertUp, 7.25f * hor + del, vertUp,
-            7.5f * hor, vertMiddle, 7.25f * hor + del, vertUp, 7 * hor + del, vertMiddle,
-            7.5f * hor, vertMiddle, 7 * hor + del, vertMiddle, 7.25f * hor + del, vertDown,
-            7.5f * hor, vertMiddle, 7.25f * hor + del, vertDown, 7.75f * hor - del, vertDown,
-            7.5f * hor, vertMiddle, 7.75f * hor - del, vertDown, 8 * hor - del, vertMiddle,
-            7.5f * hor, vertMiddle, 8 * hor - del, vertMiddle, 7.75f * hor - del, vertUp
+            7.5f * hor, vertMiddle, 7.75f * hor - UV_DELTA, vertUp, 7.25f * hor + UV_DELTA, vertUp, 7.5f * hor,
+            vertMiddle, 7.25f * hor + UV_DELTA, vertUp, 7 * hor + UV_DELTA, vertMiddle, 7.5f * hor, vertMiddle,
+            7 * hor + UV_DELTA, vertMiddle, 7.25f * hor + UV_DELTA, vertDown, 7.5f * hor, vertMiddle,
+            7.25f * hor + UV_DELTA, vertDown, 7.75f * hor - UV_DELTA, vertDown, 7.5f * hor, vertMiddle,
+            7.75f * hor - UV_DELTA, vertDown, 8 * hor - UV_DELTA, vertMiddle, 7.5f * hor, vertMiddle,
+            8 * hor - UV_DELTA, vertMiddle, 7.75f * hor - UV_DELTA, vertUp
         };
     }
     

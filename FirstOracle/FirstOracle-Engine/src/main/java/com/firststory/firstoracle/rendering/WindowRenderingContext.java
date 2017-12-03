@@ -7,13 +7,14 @@ import com.firststory.firstoracle.camera2D.IdentityCamera2D;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object2D.Object2D;
-import com.firststory.firstoracle.object2D.ObjectTransformations2D;
+import com.firststory.firstoracle.object2D.Object2DTransformations;
+import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.object3D.Object3D;
-import com.firststory.firstoracle.object3D.ObjectTransformations3D;
+import com.firststory.firstoracle.object3D.Object3DTransformations;
+import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.scene.RenderedScene;
 import com.firststory.firstoracle.window.notifying.FpsListener;
 import com.firststory.firstoracle.window.notifying.FpsNotifier;
-import com.firststory.firstoracle.window.notifying.TimeListener;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import org.joml.Vector2fc;
@@ -33,8 +34,7 @@ import java.util.Collection;
 /**
  * @author n1t4chi
  */
-public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3DRenderer, FpsNotifier {
-    
+public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     private static final Vector4f BORDER_COLOUR = new Vector4f( 1f, 0f, 0f, 0.75f );
     private final boolean useTexture;
     private final boolean drawBorder;
@@ -44,7 +44,10 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
     private final Grid3DRenderer grid3DRenderer;
     private final SceneProvider sceneProvider;
     private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
-    private final ArrayList< TimeListener > timeNotifiers = new ArrayList<>( 5 );
+    private final Object2DRenderer object2DRenderer = new Object2DRendererImpl();
+    private final Object3DRenderer object3DRenderer = new Object3DRendererImpl();
+    private final Terrain2DRenderer terrain2DRenderer = new Terrain2DRendererImpl();
+    private final Terrain3DRenderer terrain3DRenderer = new Terrain3DRendererImpl();
     private UvMap emptyUvMap;
     private Texture emptyTexture;
     private int frameCount;
@@ -52,7 +55,7 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
     private double lastFpsUpdate;
     private int lastFps;
     
-    public SceneRenderer(
+    public WindowRenderingContext(
         ShaderProgram2D shaderProgram2D,
         ShaderProgram3D shaderProgram3D,
         Grid2DRenderer grid2DRenderer,
@@ -69,15 +72,15 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
         this.useTexture = useTexture;
         this.drawBorder = drawBorder;
     }
-    
+
     public ShaderProgram2D getShaderProgram2D() {
         return shaderProgram2D;
     }
-    
+
     public ShaderProgram3D getShaderProgram3D() {
         return shaderProgram3D;
     }
-    
+
     public double getLastUpdateTime() {
         return lastFrameUpdate;
     }
@@ -149,8 +152,7 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
         return fpsListeners;
     }
     
-    @Override
-    public void render(
+    private void render2DObject(
         Object2D object,
         Vector2fc objectPosition,
         Vector4fc objectOverlayColour,
@@ -160,7 +162,7 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
         shaderProgram2D.bindMaxAlphaChannel( maxAlphaChannel );
         shaderProgram2D.bindOverlayColour( objectOverlayColour );
         
-        ObjectTransformations2D transformations = object.getTransformations();
+        Object2DTransformations transformations = object.getTransformations();
         shaderProgram2D.bindRotation( transformations.getRotation() );
         shaderProgram2D.bindScale( transformations.getScale() );
         
@@ -181,8 +183,7 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
         }
     }
     
-    @Override
-    public void render(
+    private void render3DObject(
         Object3D object,
         Vector3fc objectPosition,
         Vector4fc objectOverlayColour,
@@ -192,7 +193,7 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
         shaderProgram3D.bindOverlayColour( objectOverlayColour );
         
         shaderProgram3D.bindPosition( objectPosition );
-        ObjectTransformations3D transformations = object.getTransformations();
+        Object3DTransformations transformations = object.getTransformations();
         shaderProgram3D.bindRotation( transformations.getRotation() );
         shaderProgram3D.bindScale( transformations.getScale() );
         
@@ -232,8 +233,12 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
         disableDepth();
         shaderProgram2D.useProgram();
         shaderProgram2D.bindCamera( scene.getCamera2D() );
-        scene.renderBackground( this );
-        scene.renderScene2D( this );
+        scene.renderBackground( object2DRenderer, terrain2DRenderer );
+        renderGrid2D();
+        scene.renderScene2D( object2DRenderer, terrain2DRenderer );
+    }
+    
+    private void renderGrid2D() {
         emptyTexture.bind();
         emptyUvMap.bind( 0, 0 );
         grid2DRenderer.render();
@@ -243,8 +248,11 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
         enableDepth();
         shaderProgram3D.useProgram();
         shaderProgram3D.bindCamera( scene.getCamera3D() );
-        
-        scene.renderScene3D( this );
+        renderGrid3D();
+        scene.renderScene3D( object3DRenderer, terrain3DRenderer );
+    }
+    
+    private void renderGrid3D() {
         emptyTexture.bind();
         emptyUvMap.bind( 0, 0 );
         grid3DRenderer.render();
@@ -254,7 +262,7 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
         disableDepth();
         shaderProgram2D.useProgram();
         shaderProgram2D.bindCamera( IdentityCamera2D.getCamera() );
-        scene.renderOverlay( this );
+        scene.renderOverlay( object2DRenderer, terrain2DRenderer );
     }
     
     private void disableAttributes() {
@@ -273,5 +281,43 @@ public class SceneRenderer implements GraphicRenderer, Object2DRenderer, Object3
         GL11.glDepthMask( false );
         GL11.glDisable( GL11.GL_DEPTH_TEST );
         GL11.glClear( GL11.GL_DEPTH_BUFFER_BIT );
+    }
+    
+    private class Object2DRendererImpl implements Object2DRenderer {
+        
+        @Override
+        public void render( Object2D object, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
+            render2DObject( object, object.getTransformations().getPosition(), objectOverlayColour, maxAlphaChannel );
+        }
+    }
+    
+    private class Object3DRendererImpl implements Object3DRenderer {
+        
+        @Override
+        public void render( Object3D object, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
+            render3DObject( object, object.getTransformations().getPosition(), objectOverlayColour, maxAlphaChannel );
+        }
+    }
+    
+    private class Terrain2DRendererImpl implements Terrain2DRenderer {
+        
+        @Override
+        public void render(
+            Terrain2D terrain, Vector2fc terrainPosition, Vector4fc terrainOverlayColour, float maxAlphaChannel
+        )
+        {
+            render2DObject( terrain, terrainPosition, terrainOverlayColour, maxAlphaChannel );
+        }
+    }
+    
+    private class Terrain3DRendererImpl implements Terrain3DRenderer {
+        
+        @Override
+        public void render(
+            Terrain3D terrain, Vector3fc terrainPosition, Vector4fc terrainOverlayColour, float maxAlphaChannel
+        )
+        {
+            render3DObject( terrain, terrainPosition, terrainOverlayColour, maxAlphaChannel );
+        }
     }
 }

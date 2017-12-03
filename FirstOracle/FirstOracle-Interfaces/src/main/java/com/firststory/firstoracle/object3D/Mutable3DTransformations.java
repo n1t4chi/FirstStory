@@ -9,13 +9,13 @@ import org.joml.Vector3fc;
 /**
  * @author n1t4chi
  */
-public class ObjectTransformations3DMutable implements ObjectTransformations3D {
+public class Mutable3DTransformations implements Object3DTransformations {
     
     private final Vector3f position;
     private final Vector3f scale;
     private final Vector3f rotation;
     
-    public ObjectTransformations3DMutable() {
+    public Mutable3DTransformations() {
         scale = new Vector3f( 1, 1, 1 );
         rotation = new Vector3f( 0, 0, 0 );
         position = new Vector3f( 0, 0, 0 );

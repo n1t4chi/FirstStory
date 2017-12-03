@@ -6,12 +6,11 @@ package com.firststory.firstoracle.rendering;
 /**
  * @author n1t4chi
  */
-public interface GraphicRenderer {
+public interface RenderingContext {
     
     void init();
     
     void dispose();
     
     void render();
-    
 }

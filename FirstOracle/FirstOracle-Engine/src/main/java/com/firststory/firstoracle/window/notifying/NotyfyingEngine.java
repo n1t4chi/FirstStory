@@ -18,7 +18,10 @@ public class NotyfyingEngine {
     private static final Queue< Runnable > commands = new ConcurrentLinkedQueue<>();
     private static Thread thread = null;
     
-    public static < Listener, Action extends NotifyAction< Listener > > void notify( Collection< Listener > listeners, Action action ) {
+    public static < Listener, Action extends NotifyAction< Listener > > void notify(
+        Collection< Listener > listeners, Action action
+    )
+    {
         executor.execute( () -> {
             for ( Listener listener : listeners ) {
                 action.notify( listener );
@@ -53,7 +56,13 @@ public class NotyfyingEngine {
         thread = new Thread( () -> {
             do {
                 while ( !commands.isEmpty() ) {
-                    commands.poll().run();
+                    try {
+                        commands.poll().run();
+                    } catch ( Exception ex ) {
+                        System.err.println(
+                            "Exception in notification engine.\nCaused by:" + ex.getLocalizedMessage() );
+                        ex.printStackTrace();
+                    }
                 }
             } while ( !removeThread() );
         } );

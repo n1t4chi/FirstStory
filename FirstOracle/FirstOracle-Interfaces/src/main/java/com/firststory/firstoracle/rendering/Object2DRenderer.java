@@ -3,8 +3,8 @@
  */
 package com.firststory.firstoracle.rendering;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object2D.Object2D;
-import org.joml.Vector2fc;
 import org.joml.Vector4fc;
 
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.Collection;
 /**
  * @author n1t4chi
  */
-public interface Object2DRenderer {
+public interface Object2DRenderer extends GraphicObjectRenderer< Object2D > {
     
     default void renderAll2D(
         Collection< Object2D > objects,
@@ -24,33 +24,15 @@ public interface Object2DRenderer {
         }
     }
     
-    default void renderAll2D(
-        Collection< Object2D > objects,
-        Vector2fc objectPosition,
-        Vector4fc objectOverlayColour,
-        float maxAlphaChannel
-    ) {
-        for ( Object2D object : objects ) {
-            render( object, objectPosition, objectOverlayColour, maxAlphaChannel );
-        }
+    @Override
+    default void render( Object2D object ) {
+        render( object, FirstOracleConstants.VECTOR_ZERO_4F, 1f );
     }
     
-    default void render(
+    void render(
         Object2D object,
         Vector4fc objectOverlayColour,
         float maxAlphaChannel
-    ) {
-        render( object,
-            object.getTransformations().getPosition(),
-            objectOverlayColour,
-            maxAlphaChannel );
-    }
+    );
     
-    default void render(
-        Object2D object,
-        Vector2fc objectPosition,
-        Vector4fc objectOverlayColour,
-        float maxAlphaChannel
-    ) {
-    }
 }

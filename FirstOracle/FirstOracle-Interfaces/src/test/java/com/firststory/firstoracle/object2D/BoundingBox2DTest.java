@@ -41,7 +41,7 @@ public class BoundingBox2DTest {
     ) {
         Vector2fc scale = new Vector2f( sx, sy );
         Vector2fc pos = new Vector2f( x, y );
-        BoundingBox2D assertBB = bb.getTransformedBoundingBox( new ObjectTransformations2D() {
+        BoundingBox2D assertBB = bb.getTransformedBoundingBox( new Object2DTransformations() {
             @Override
             public Vector2fc getScale() {
                 return scale;

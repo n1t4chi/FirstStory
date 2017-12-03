@@ -3,8 +3,8 @@
  */
 package com.firststory.firstoracle.camera2D;
 
-import org.joml.Matrix3f;
-import org.joml.Matrix3fc;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
@@ -14,7 +14,7 @@ import org.joml.Vector2fc;
 public class IdentityCamera2D extends Camera2D {
     
     private static final IdentityCamera2D CAMERA = new IdentityCamera2D();
-    private static final Matrix3f IDENTITY_MATRIX = new Matrix3f();
+    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
     private static final Vector2f POINT = new Vector2f();
     
     public static IdentityCamera2D getCamera() {
@@ -22,7 +22,7 @@ public class IdentityCamera2D extends Camera2D {
     }
     
     @Override
-    public Matrix3fc getMatrixRepresentation() {
+    public Matrix4fc getMatrixRepresentation() {
         return IDENTITY_MATRIX;
     }
     

@@ -11,11 +11,14 @@ import com.firststory.firstoracle.object.UvMap;
  *
  * @author n1t4chi
  */
-public abstract class MutableObject2D implements Object2D {
-    Texture texture;
-    UvMap uvMap;
-    Vertices2D vertices;
-    ObjectTransformations2D objectTransformations2D;
+public abstract class MutableObject2D< Transformations extends Object2DTransformations, Vertices extends Vertices2D >
+    implements Object2D< Transformations, Vertices >
+{
+    
+    private Texture texture;
+    private UvMap uvMap;
+    private Vertices vertices;
+    private Transformations transformations;
     
     @Override
     public Texture getTexture() {
@@ -36,20 +39,20 @@ public abstract class MutableObject2D implements Object2D {
     }
     
     @Override
-    public Vertices2D getVertices() {
-        return vertices;
-    }
-    
-    public void setVertices( Vertices2D vertices ) {
-        this.vertices = vertices;
+    public Transformations getTransformations() {
+        return transformations;
     }
     
     @Override
-    public ObjectTransformations2D getTransformations() {
-        return objectTransformations2D;
+    public Vertices getVertices() {
+        return vertices;
     }
     
-    public void setObjectTransformations2D( ObjectTransformations2D objectTransformations2D ) {
-        this.objectTransformations2D = objectTransformations2D;
+    public void setVertices( Vertices vertices ) {
+        this.vertices = vertices;
+    }
+    
+    public void setTransformations( Transformations transformations ) {
+        this.transformations = transformations;
     }
 }

@@ -6,6 +6,7 @@ package com.firststory.firstoracle.object;
 import java.util.HashMap;
 
 import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
+import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
 
 /**
  * @author n1t4chi
@@ -50,22 +51,21 @@ public class Hex2DUvMap extends UvMap {
         }
         float hor = 1 / 8f;
         //lower a bit UV map so pixels from other face will not be taken into consideration.
-        float del = 0.01f;
-        float vertUp = ( frame ) / ( float ) rows + del;
-        float vertDown = ( frame + 1 ) / ( float ) rows - del;
+        float vertUp = ( frame ) / ( float ) rows + UV_DELTA;
+        float vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
         
         float vertMiddle = ( frame + 0.5f ) / ( float ) rows;
-        float vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + del;
-        float vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - del;
+        float vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + UV_DELTA;
+        float vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - UV_DELTA;
         
         return new float[]{
-            0.5f * hor, vertMiddle, 0.75f * hor - del, vertUp, 0.25f * hor + del, vertUp,
-            0.5f * hor, vertMiddle, 0.25f * hor + del, vertUp, 0 * hor + del, vertMiddle,
-            0.5f * hor, vertMiddle, 0 * hor + del, vertMiddle, 0.25f * hor + del, vertDown,
-            0.5f * hor, vertMiddle, 0.25f * hor + del, vertDown, 0.75f * hor - del, vertDown,
-            0.5f * hor, vertMiddle, 0.75f * hor - del, vertDown, 1 * hor - del, vertMiddle,
-            0.5f * hor, vertMiddle, 1 * hor - del, vertMiddle, 0.75f * hor - del, vertUp,
-        };
+            0.5f * hor, vertMiddle, 0.75f * hor - UV_DELTA, vertUp, 0.25f * hor + UV_DELTA, vertUp, 0.5f * hor,
+            vertMiddle, 0.25f * hor + UV_DELTA, vertUp, 0 * hor + UV_DELTA, vertMiddle, 0.5f * hor, vertMiddle,
+            0 * hor + UV_DELTA, vertMiddle, 0.25f * hor + UV_DELTA, vertDown, 0.5f * hor, vertMiddle,
+            0.25f * hor + UV_DELTA, vertDown, 0.75f * hor - UV_DELTA, vertDown, 0.5f * hor, vertMiddle,
+            0.75f * hor - UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertMiddle, 0.5f * hor, vertMiddle,
+            1 * hor - UV_DELTA, vertMiddle, 0.75f * hor - UV_DELTA, vertUp,
+            };
     }
     
     private Hex2DUvMap( int frames, int rows ) {

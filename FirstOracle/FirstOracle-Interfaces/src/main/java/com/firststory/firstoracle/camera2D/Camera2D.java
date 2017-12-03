@@ -5,7 +5,7 @@ package com.firststory.firstoracle.camera2D;
 
 import com.firststory.firstoracle.object2D.BoundingBox2D;
 import com.firststory.firstoracle.object2D.Object2D;
-import org.joml.Matrix3fc;
+import org.joml.Matrix4fc;
 import org.joml.Vector2fc;
 
 /**
@@ -15,7 +15,7 @@ public abstract class Camera2D {
     
     private boolean update = true;
     
-    public abstract Matrix3fc getMatrixRepresentation();
+    public abstract Matrix4fc getMatrixRepresentation();
     
     public abstract Vector2fc getCenterPoint();
     

@@ -9,13 +9,13 @@ import org.joml.Vector2fc;
 /**
  * @author n1t4chi
  */
-public class ObjectTransformations2DMutable implements ObjectTransformations2D {
+public class Mutable2DTransformations implements Object2DTransformations {
     
     private final Vector2f position;
     private final Vector2f scale;
     private float rotation;
     
-    public ObjectTransformations2DMutable() {
+    public Mutable2DTransformations() {
         scale = new Vector2f( 1, 1 );
         rotation = 0;
         position = new Vector2f( 0, 0 );

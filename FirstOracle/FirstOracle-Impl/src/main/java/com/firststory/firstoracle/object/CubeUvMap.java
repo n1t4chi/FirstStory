@@ -5,6 +5,8 @@ package com.firststory.firstoracle.object;
 
 import java.util.HashMap;
 
+import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
+
 /**
  * @author n1t4chi
  */
@@ -48,46 +50,33 @@ public class CubeUvMap extends UvMap {
                 "Illegal frame:" + frame + " for frames:" + frames + ", rows:" + rows + "." );
         }
         float hor = 1 / 8f;
-        float del = 0.01f;
-        float vertUp = ( frame ) / ( float ) rows + del;
-        float vertDown = ( frame + 1 ) / ( float ) rows - del;
+        float vertUp = ( frame ) / ( float ) rows + UV_DELTA;
+        float vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
 
         return new float[]{
             //face 0
-            0 * hor + del, vertDown,
-            1 * hor - del, vertDown,
-            1 * hor - del, vertUp,
-            0 * hor + del, vertDown, 1 * hor - del, vertUp, 0 * hor + del, vertUp,
-
+            0 * hor + UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertUp, 0 * hor + UV_DELTA,
+            vertDown, 1 * hor - UV_DELTA, vertUp, 0 * hor + UV_DELTA, vertUp,
+    
             //face 1
-            1 * hor + del, vertDown,
-            2 * hor - del, vertDown,
-            2 * hor - del, vertUp,
-            1 * hor + del, vertDown, 2 * hor - del, vertUp, 1 * hor + del, vertUp,
-
+            1 * hor + UV_DELTA, vertDown, 2 * hor - UV_DELTA, vertDown, 2 * hor - UV_DELTA, vertUp, 1 * hor + UV_DELTA,
+            vertDown, 2 * hor - UV_DELTA, vertUp, 1 * hor + UV_DELTA, vertUp,
+    
             //face 2
-            2 * hor + del, vertDown,
-            3 * hor - del, vertDown,
-            3 * hor - del, vertUp,
-            2 * hor + del, vertDown, 3 * hor - del, vertUp, 2 * hor + del, vertUp,
-
+            2 * hor + UV_DELTA, vertDown, 3 * hor - UV_DELTA, vertDown, 3 * hor - UV_DELTA, vertUp, 2 * hor + UV_DELTA,
+            vertDown, 3 * hor - UV_DELTA, vertUp, 2 * hor + UV_DELTA, vertUp,
+    
             //face 3
-            3 * hor + del, vertDown,
-            4 * hor - del, vertDown,
-            4 * hor - del, vertUp,
-            3 * hor + del, vertDown, 4 * hor - del, vertUp, 3 * hor + del, vertUp,
-
+            3 * hor + UV_DELTA, vertDown, 4 * hor - UV_DELTA, vertDown, 4 * hor - UV_DELTA, vertUp, 3 * hor + UV_DELTA,
+            vertDown, 4 * hor - UV_DELTA, vertUp, 3 * hor + UV_DELTA, vertUp,
+    
             //face 4
-            4 * hor + del, vertDown,
-            5 * hor - del, vertDown,
-            5 * hor - del, vertUp,
-            4 * hor + del, vertDown, 5 * hor - del, vertUp, 4 * hor + del, vertUp,
-
+            4 * hor + UV_DELTA, vertDown, 5 * hor - UV_DELTA, vertDown, 5 * hor - UV_DELTA, vertUp, 4 * hor + UV_DELTA,
+            vertDown, 5 * hor - UV_DELTA, vertUp, 4 * hor + UV_DELTA, vertUp,
+    
             //face 5
-            5 * hor + del, vertDown,
-            6 * hor - del, vertDown,
-            6 * hor - del, vertUp,
-            5 * hor + del, vertDown, 6 * hor - del, vertUp, 5 * hor + del, vertUp
+            5 * hor + UV_DELTA, vertDown, 6 * hor - UV_DELTA, vertDown, 6 * hor - UV_DELTA, vertUp, 5 * hor + UV_DELTA,
+            vertDown, 6 * hor - UV_DELTA, vertUp, 5 * hor + UV_DELTA, vertUp
         };
     }
 

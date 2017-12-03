@@ -5,6 +5,8 @@ package com.firststory.firstoracle.object;
 
 import java.util.HashMap;
 
+import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
+
 /**
  * @author n1t4chi
  */
@@ -20,15 +22,14 @@ public class PlaneUvMap extends UvMap {
      *
      * @param directions How many directions will be in texture
      * @param frames     How many frames will be in texture
-     * @param rows       How many rows for frames will be in texture
      * @param columns    How many columns for directions will be in texture
      *
+     * @param rows       How many rows for frames will be in texture
      * @return UV map instance
      */
-    public static PlaneUvMap getPlaneUvMap( int directions, int frames, int rows, int columns ) {
+    public static PlaneUvMap getPlaneUvMap( int directions, int frames, int columns, int rows ) {
         long hash = hash( directions, frames, rows, columns );
-        return map.computeIfAbsent( hash,
-            k -> new PlaneUvMap( directions, frames, rows, columns )
+        return map.computeIfAbsent( hash, k -> new PlaneUvMap( directions, frames, columns, rows )
         );
     }
 
@@ -44,13 +45,7 @@ public class PlaneUvMap extends UvMap {
 
         for ( int direction = 0; direction < directions; direction++ ) {
             for ( int frame = 0; frame < frames; frame++ ) {
-                map[ direction ][ frame ] = createUvMapPlane( direction,
-                    frame,
-                    directions,
-                    frames,
-                    columns,
-                    rows
-                );
+                map[direction][frame] = createUvMapPlane( direction, frame, directions, frames, columns, rows );
             }
         }
         return map;
@@ -65,20 +60,19 @@ public class PlaneUvMap extends UvMap {
                     " for parameters: " + "directions:" + directions + ", " + "frames:" + frames +
                     ", " + "columns:" + columns + ", " + "rows:" + rows + "." );
         }
-        float del = 0.01f;
-        float vertUp = ( frame ) / ( float ) rows + del;
-        float vertDown = ( frame + 1 ) / ( float ) rows - del;
-
-        float horLeft = ( direction ) / ( float ) columns + del;
-        float horRight = ( direction + 1 ) / ( float ) columns - del;
+        float vertUp = ( frame ) / ( float ) rows + UV_DELTA;
+        float vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
+    
+        float horLeft = ( direction ) / ( float ) columns + UV_DELTA;
+        float horRight = ( direction + 1 ) / ( float ) columns - UV_DELTA;
 
         return new float[]{
             horLeft, vertDown, horRight, vertDown, horRight, vertUp, horLeft, vertDown, horRight,
             vertUp, horLeft, vertUp
         };
     }
-
-    public PlaneUvMap( int directions, int frames, int rows, int columns ) {
+    
+    public PlaneUvMap( int directions, int frames, int columns, int rows ) {
         super( getUvMap( directions, frames, rows, columns ) );
     }
 }

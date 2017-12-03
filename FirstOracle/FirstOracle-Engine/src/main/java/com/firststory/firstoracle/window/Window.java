@@ -5,8 +5,8 @@ package com.firststory.firstoracle.window;
 
 import com.firststory.firstoracle.CheckSupport;
 import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.rendering.GraphicRenderer;
-import com.firststory.firstoracle.rendering.SceneRenderer;
+import com.firststory.firstoracle.rendering.RenderingContext;
+import com.firststory.firstoracle.rendering.WindowRenderingContext;
 import com.firststory.firstoracle.window.notifying.*;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
@@ -28,7 +28,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
  * Class window that creates JavaFX with possible OpenGL rendering in background provided using
- * {@link SceneRenderer} and {@link com.firststory.firstoracle.rendering.SceneProvider}
+ * {@link WindowRenderingContext} and {@link com.firststory.firstoracle.rendering.SceneProvider}
  * <p>
  * Window creates {@link Application} internally and provides overlay panel {@link Pane}
  * on which all overlay components can be placed onto.
@@ -66,7 +66,7 @@ public class Window implements Runnable,
         Application application,
         ShaderProgram2D shaderProgram2D,
         ShaderProgram3D shaderProgram3D,
-        GraphicRenderer renderer
+        RenderingContext renderer
     ) {
         if ( instance == null ) {
             instance = new Window( windowSettings,
@@ -87,7 +87,7 @@ public class Window implements Runnable,
     private final Application application;
     private final ShaderProgram2D shaderProgram2D;
     private final ShaderProgram3D shaderProgram3D;
-    private final GraphicRenderer renderer;
+    private final RenderingContext renderer;
     private long windowID = -1;
     private GLFWErrorCallback errorCallback;
     
@@ -96,7 +96,7 @@ public class Window implements Runnable,
         Application application,
         ShaderProgram2D shaderProgram2D,
         ShaderProgram3D shaderProgram3D,
-        GraphicRenderer renderer
+        RenderingContext renderer
     ) {
         this.settings = windowSettings;
         this.application = application;

@@ -6,5 +6,5 @@ package com.firststory.firstoracle.rendering;
 /**
  * @author n1t4chi
  */
-public interface Grid2DRenderer extends GraphicRenderer {
+public interface Grid2DRenderer extends RenderingContext {
 }
