@@ -5,14 +5,18 @@ package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.object.GraphicObject;
 import com.firststory.firstoracle.rendering.Object2DRenderer;
-import org.joml.Vector4fc;
 
 /**
  * @author n1t4chi
  */
-public interface Object2D< Transformations extends Object2DTransformations, Vertices extends Vertices2D >
-    extends GraphicObject< Transformations, BoundingBox2D, Vertices, Object2DRenderer >
+public interface Object2D< Transformations extends Object2DTransformations, Vertices extends Vertices2D, Renderer extends Object2DRenderer >
+    extends GraphicObject< Transformations, BoundingBox2D, Vertices, Renderer >
 {
+    
+    @Override
+    default BoundingBox2D getBBO() {
+        return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations() );
+    }
     
     @Override
     Transformations getTransformations();
@@ -21,16 +25,7 @@ public interface Object2D< Transformations extends Object2DTransformations, Vert
     Vertices getVertices();
     
     @Override
-    default BoundingBox2D getBBO() {
-        return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations() );
-    }
-    
-    @Override
-    default void render( Object2DRenderer renderer ) {
+    default void render( Renderer renderer ) {
         renderer.render( this );
-    }
-    
-    default void render( Object2DRenderer renderer, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
-        renderer.render( this, objectOverlayColour, maxAlphaChannel );
     }
 }

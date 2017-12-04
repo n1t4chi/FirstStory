@@ -12,7 +12,7 @@ import org.joml.Vector4fc;
 /**
  * @author n1t4chi
  */
-public interface Terrain2DRenderer extends GraphicObjectRenderer< Terrain2D > {
+public interface Terrain2DRenderer< Terrain extends Terrain2D > extends Object2DRenderer< Terrain > {
     
     default void renderAll(
         Terrain2D[][] terrains, Vector2ic terrainShift, Vector4fc terrainOverlayColour, float maxAlphaChannel
@@ -21,7 +21,11 @@ public interface Terrain2DRenderer extends GraphicObjectRenderer< Terrain2D > {
         for ( int x = 0; x < terrains.length; x++ ) {
             for ( int y = 0; y < terrains[x].length; y++ ) {
                 Terrain2D terrain = terrains[x][y];
-                render( terrain, terrain.computePosition( x, y, terrainShift ), terrainOverlayColour, maxAlphaChannel );
+                renderTerrain( terrain,
+                    terrain.computePosition( x, y, terrainShift ),
+                    terrainOverlayColour,
+                    maxAlphaChannel
+                );
             }
         }
     }
@@ -30,12 +34,16 @@ public interface Terrain2DRenderer extends GraphicObjectRenderer< Terrain2D > {
         renderAll( terrains, FirstOracleConstants.VECTOR_ZERO_2I, FirstOracleConstants.VECTOR_ZERO_4F, 1f );
     }
     
-    @Override
-    default void render( Terrain2D terrain ) {
-        render( terrain, FirstOracleConstants.VECTOR_ZERO_2F, FirstOracleConstants.VECTOR_ZERO_4F, 1f );
+    default void renderAll( Terrain2D[][] terrains, Vector4fc terrainOverlayColour, float maxAlphaChannel ) {
+        renderAll( terrains, FirstOracleConstants.VECTOR_ZERO_2I, terrainOverlayColour, maxAlphaChannel );
     }
     
-    void render(
+    @Override
+    default void render( Terrain2D terrain ) {
+        renderTerrain( terrain, FirstOracleConstants.VECTOR_ZERO_2F, FirstOracleConstants.VECTOR_ZERO_4F, 1f );
+    }
+    
+    void renderTerrain(
         Terrain2D terrain, Vector2fc terrainPosition, Vector4fc terrainOverlayColour, float maxAlphaChannel
     );
     

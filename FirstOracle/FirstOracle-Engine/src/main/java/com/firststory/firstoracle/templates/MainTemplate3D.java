@@ -9,8 +9,9 @@ import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object2D.RectangleGrid;
+import com.firststory.firstoracle.object2D.NonAnimatedRectangle;
 import com.firststory.firstoracle.object3D.CubeGrid;
+import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
@@ -75,7 +76,7 @@ public class MainTemplate3D {
         grid3DRenderer = new BoundedGrid3DRenderer( shaderProgram3D, 100, 25, 5 );
         grid2DRenderer = new DummyGrid2DRenderer();
         //Rendered scene is what is displayed via OpenGL rendering, it should be most likely moved to SceneProvider
-        //Which will provide next scenes to render when something changes.
+        //Which will provide next scenes to renderObject when something changes.
         renderedScene = new RenderedSceneMutable( settings );
         renderedScene.setIsometricCamera3D( new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 ) );
         renderedScene.setCamera2D( new MovableCamera2D( settings, 1, 1, 0, 0 ) );
@@ -93,13 +94,13 @@ public class MainTemplate3D {
             //path can be either file in filesystem or within jar
             Texture texture1 = new Texture( "resources/First Oracle/grid.png" );
             Texture texture2 = new Texture( "resources/First Oracle/texture3D.png" );
-            RectangleGrid overlay = new RectangleGrid();
+            NonAnimatedRectangle overlay = new NonAnimatedRectangle();
             overlay.setTexture( texture1 );
             //overlay is rendered last, good for UI
-            renderedScene.setOverlay( ( objectRenderer, terrainRenderer ) -> objectRenderer.render( overlay ) );
+            renderedScene.setOverlay( renderer1 -> overlay.render( renderer1 ) );
             
             //Example initialisation of map
-            CubeGrid terrain = new CubeGrid();
+            NonAnimatedCubeGrid terrain = new NonAnimatedCubeGrid();
             terrain.setTexture( texture2 );
     
             CubeGrid[][][] array = new CubeGrid[20][10][20];
@@ -112,8 +113,8 @@ public class MainTemplate3D {
                 }
             }
             //setScene2D is very similar but you are providing Objects2D instead of 3D
-            //here it's best place to render all game objects
-            renderedScene.setScene3D( ( objectRenderer, terrainRenderer ) -> terrainRenderer.renderAll( array ) );
+            //here it's best place to renderObject all game objects
+            renderedScene.setScene3D( ( Multi3DRenderer renderer ) -> renderer.renderAll( array ) );
             //SceneProvider is object which provides all next scenes for renderer below
             //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
             //Most likely you would want to create your own SceneProvider that implements this interface

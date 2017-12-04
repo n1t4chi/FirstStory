@@ -82,27 +82,25 @@ public class MainTemplate2D {
                 4,
                 6
             );
-            RectangleGrid terrain = new RectangleGrid();
+            NonAnimatedRectangleGrid terrain = new NonAnimatedRectangleGrid();
             terrain.setTexture( texture1 );
     
-            Rectangle< Mutable2DTransformations > object = new Rectangle<>();
+            NonAnimatedRectangle object = new NonAnimatedRectangle();
             object.setTransformations( new Mutable2DTransformations() );
             object.setTexture( texture2 );
     
             DirectionController directionController = new DefaultDirectionController( compundTexture.getDirections() );
             LoopedFrameController frameController = new LoopedFrameController();
-            AnimatedMutableObject2D< Mutable2DTransformations, Plane2DVertices > compound = new AnimatedMutableObject2D<>();
+            AnimatedRectangle compound = new AnimatedRectangle();
             frameController.setCurrentState( compundTexture.getFrames(), 0, 1 );
     
             compound.setDirectionController( directionController );
             compound.setFrameController( frameController );
-    
-            compound.setVertices( Plane2DVertices.getPlane2DVertices( -2, 2, -2, 2 ) );
             compound.setUvMap( new PlaneUvMap( compundTexture ) );
             compound.setTexture( compundTexture );
             compound.setTransformations( new Mutable2DTransformations() );
             compound.getTransformations().setPosition( -4, -4 );
-            compound.getTransformations().setScale( 2, 2 );
+            compound.getTransformations().setScale( 4, 4 );
             
             
             RectangleGrid[][] array = new RectangleGrid[20][20];
@@ -112,10 +110,10 @@ public class MainTemplate2D {
                     array[x][y] = terrain;
                 }
             }
-            renderedScene.setScene2D( ( objectRenderer, terrainRenderer ) -> {
-                terrainRenderer.renderAll( array );
-                objectRenderer.render( object );
-                objectRenderer.render( compound );
+            renderedScene.setScene2D( ( renderer ) -> {
+                renderer.renderAll( array );
+                renderer.render( object );
+                renderer.render( compound );
             } );
             cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
             cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );

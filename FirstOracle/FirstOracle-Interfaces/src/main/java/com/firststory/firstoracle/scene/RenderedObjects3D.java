@@ -3,13 +3,12 @@
  */
 package com.firststory.firstoracle.scene;
 
-import com.firststory.firstoracle.rendering.Object3DRenderer;
-import com.firststory.firstoracle.rendering.Terrain3DRenderer;
+import com.firststory.firstoracle.rendering.Multi3DRenderer;
 
 /**
  * @author n1t4chi
  */
 public interface RenderedObjects3D {
     
-    void render( Object3DRenderer objectRenderer, Terrain3DRenderer terrainRenderer );
+    void render( Multi3DRenderer renderer );
 }

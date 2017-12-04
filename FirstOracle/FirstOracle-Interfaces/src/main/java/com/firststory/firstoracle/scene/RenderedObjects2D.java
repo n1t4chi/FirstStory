@@ -3,13 +3,12 @@
  */
 package com.firststory.firstoracle.scene;
 
-import com.firststory.firstoracle.rendering.Object2DRenderer;
-import com.firststory.firstoracle.rendering.Terrain2DRenderer;
+import com.firststory.firstoracle.rendering.Multi2DRenderer;
 
 /**
  * @author n1t4chi
  */
 public interface RenderedObjects2D {
     
-    void render( Object2DRenderer objectRenderer, Terrain2DRenderer terrainRenderer );
+    void render( Multi2DRenderer object );
 }

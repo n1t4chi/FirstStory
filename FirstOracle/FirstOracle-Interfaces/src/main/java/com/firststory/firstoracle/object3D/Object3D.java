@@ -5,13 +5,12 @@ package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.object.GraphicObject;
 import com.firststory.firstoracle.rendering.Object3DRenderer;
-import org.joml.Vector4fc;
 
 /**
  * @author n1t4chi
  */
-public interface Object3D< Transformations extends Object3DTransformations, Vertices extends Vertices3D >
-    extends GraphicObject< Transformations, BoundingBox3D, Vertices, Object3DRenderer >
+public interface Object3D< Transformations extends Object3DTransformations, Vertices extends Vertices3D, Renderer extends Object3DRenderer >
+    extends GraphicObject< Transformations, BoundingBox3D, Vertices, Renderer >
 {
     
     @Override
@@ -26,11 +25,7 @@ public interface Object3D< Transformations extends Object3DTransformations, Vert
     }
     
     @Override
-    default void render( Object3DRenderer renderer ) {
+    default void render( Renderer renderer ) {
         renderer.render( this );
-    }
-    
-    default void render( Object3DRenderer renderer, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
-        renderer.render( this, objectOverlayColour, maxAlphaChannel );
     }
 }

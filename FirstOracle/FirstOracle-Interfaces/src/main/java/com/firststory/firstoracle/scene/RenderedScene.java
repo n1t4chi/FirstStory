@@ -5,10 +5,8 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.rendering.Object2DRenderer;
-import com.firststory.firstoracle.rendering.Object3DRenderer;
-import com.firststory.firstoracle.rendering.Terrain2DRenderer;
-import com.firststory.firstoracle.rendering.Terrain3DRenderer;
+import com.firststory.firstoracle.rendering.Multi2DRenderer;
+import com.firststory.firstoracle.rendering.Multi3DRenderer;
 import org.joml.Vector4fc;
 
 /**
@@ -16,26 +14,26 @@ import org.joml.Vector4fc;
  */
 public interface RenderedScene {
     
-    default void renderScene2D( Object2DRenderer objectRenderer, Terrain2DRenderer terrainRenderer ) {
-        getScene2D().render( objectRenderer, terrainRenderer );
+    default void renderScene2D( Multi2DRenderer renderer ) {
+        getScene2D().render( renderer );
     }
     
     RenderedObjects2D getScene2D();
     
-    default void renderScene3D( Object3DRenderer objectRenderer, Terrain3DRenderer terrainRenderer ) {
-        getScene3D().render( objectRenderer, terrainRenderer );
+    default void renderScene3D( Multi3DRenderer renderer ) {
+        getScene3D().render( renderer );
     }
     
     RenderedObjects3D getScene3D();
     
-    default void renderBackground( Object2DRenderer objectRenderer, Terrain2DRenderer terrainRenderer ) {
-        getBackground().render( objectRenderer, terrainRenderer );
+    default void renderBackground( Multi2DRenderer renderer ) {
+        getBackground().render( renderer );
     }
     
     RenderedObjects2D getBackground();
     
-    default void renderOverlay( Object2DRenderer objectRenderer, Terrain2DRenderer terrainRenderer ) {
-        getOverlay().render( objectRenderer, terrainRenderer );
+    default void renderOverlay( Multi2DRenderer renderer ) {
+        getOverlay().render( renderer );
     }
     
     RenderedObjects2D getOverlay();

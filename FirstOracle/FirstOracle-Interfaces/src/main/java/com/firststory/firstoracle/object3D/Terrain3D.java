@@ -3,13 +3,16 @@
  */
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.rendering.Terrain3DRenderer;
 import org.joml.Vector3fc;
 import org.joml.Vector3ic;
 
 /**
  * @author n1t4chi
  */
-public interface Terrain3D< Vertices extends Vertices3D > extends Object3D< Identity3DTransformations, Vertices > {
+public interface Terrain3D< Vertices extends Vertices3D >
+    extends Object3D< Identity3DTransformations, Vertices, Terrain3DRenderer >
+{
     
     @Override
     default Identity3DTransformations getTransformations() {

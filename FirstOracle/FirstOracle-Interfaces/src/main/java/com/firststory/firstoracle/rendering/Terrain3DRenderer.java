@@ -12,17 +12,17 @@ import org.joml.Vector4fc;
 /**
  * @author n1t4chi
  */
-public interface Terrain3DRenderer extends GraphicObjectRenderer< Terrain3D > {
+public interface Terrain3DRenderer< Terrain extends Terrain3D > extends Object3DRenderer< Terrain > {
     
     default void renderAll(
-        Terrain3D[][][] terrains, Vector3ic terrainShift, Vector4fc terrainOverlayColour, float maxAlphaChannel
+        Terrain[][][] terrains, Vector3ic terrainShift, Vector4fc terrainOverlayColour, float maxAlphaChannel
     )
     {
         for ( int x = 0; x < terrains.length; x++ ) {
             for ( int y = 0; y < terrains[x].length; y++ ) {
                 for ( int z = 0; z < terrains[x][y].length; z++ ) {
-                    Terrain3D terrain = terrains[x][y][z];
-                    render(
+                    Terrain terrain = terrains[x][y][z];
+                    renderTerrain(
                         terrain,
                         terrain.computePosition( x, y, z, terrainShift ),
                         terrainOverlayColour,
@@ -33,16 +33,16 @@ public interface Terrain3DRenderer extends GraphicObjectRenderer< Terrain3D > {
         }
     }
     
-    default void renderAll( Terrain3D[][][] terrains ) {
+    default void renderAll( Terrain[][][] terrains ) {
         renderAll( terrains, FirstOracleConstants.VECTOR_ZERO_3I, FirstOracleConstants.VECTOR_ZERO_4F, 1f );
     }
     
     @Override
-    default void render( Terrain3D object ) {
-        render( object, FirstOracleConstants.VECTOR_ZERO_3F, FirstOracleConstants.VECTOR_ZERO_4F, 1f );
+    default void render( Terrain object ) {
+        renderTerrain( object, FirstOracleConstants.VECTOR_ZERO_3F, FirstOracleConstants.VECTOR_ZERO_4F, 1f );
     }
     
-    void render(
-        Terrain3D terrain, Vector3fc terrainPosition, Vector4fc terrainOverlayColour, float maxAlphaChannel
+    void renderTerrain(
+        Terrain terrain, Vector3fc terrainPosition, Vector4fc terrainOverlayColour, float maxAlphaChannel
     );
 }

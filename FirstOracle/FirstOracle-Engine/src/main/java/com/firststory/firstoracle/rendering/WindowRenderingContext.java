@@ -44,10 +44,8 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     private final Grid3DRenderer grid3DRenderer;
     private final SceneProvider sceneProvider;
     private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
-    private final Object2DRenderer object2DRenderer = new Object2DRendererImpl();
-    private final Object3DRenderer object3DRenderer = new Object3DRendererImpl();
-    private final Terrain2DRenderer terrain2DRenderer = new Terrain2DRendererImpl();
-    private final Terrain3DRenderer terrain3DRenderer = new Terrain3DRendererImpl();
+    private final Multi2DRenderer object2DRenderer = new Object2DRendererImpl();
+    private final Multi3DRenderer object3DRenderer = new Object3DRendererImpl();
     private UvMap emptyUvMap;
     private Texture emptyTexture;
     private int frameCount;
@@ -237,9 +235,9 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         disableDepth();
         shaderProgram2D.useProgram();
         shaderProgram2D.bindCamera( scene.getCamera2D() );
-        scene.renderBackground( object2DRenderer, terrain2DRenderer );
+        scene.renderBackground( object2DRenderer );
         renderGrid2D();
-        scene.renderScene2D( object2DRenderer, terrain2DRenderer );
+        scene.renderScene2D( object2DRenderer );
     }
     
     private void renderGrid2D() {
@@ -253,7 +251,7 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         shaderProgram3D.useProgram();
         shaderProgram3D.bindCamera( scene.getCamera3D() );
         renderGrid3D();
-        scene.renderScene3D( object3DRenderer, terrain3DRenderer );
+        scene.renderScene3D( object3DRenderer );
     }
     
     private void renderGrid3D() {
@@ -266,7 +264,7 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         disableDepth();
         shaderProgram2D.useProgram();
         shaderProgram2D.bindCamera( IdentityCamera2D.getCamera() );
-        scene.renderOverlay( object2DRenderer, terrain2DRenderer );
+        scene.renderOverlay( object2DRenderer );
     }
     
     private void disableAttributes() {
@@ -287,26 +285,15 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         GL11.glClear( GL11.GL_DEPTH_BUFFER_BIT );
     }
     
-    private class Object2DRendererImpl implements Object2DRenderer {
+    private class Object2DRendererImpl implements Multi2DRenderer {
         
         @Override
-        public void render( Object2D object, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
+        public void renderObject( Object2D object, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
             render2DObject( object, object.getTransformations().getPosition(), objectOverlayColour, maxAlphaChannel );
         }
-    }
     
-    private class Object3DRendererImpl implements Object3DRenderer {
-        
         @Override
-        public void render( Object3D object, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
-            render3DObject( object, object.getTransformations().getPosition(), objectOverlayColour, maxAlphaChannel );
-        }
-    }
-    
-    private class Terrain2DRendererImpl implements Terrain2DRenderer {
-        
-        @Override
-        public void render(
+        public void renderTerrain(
             Terrain2D terrain, Vector2fc terrainPosition, Vector4fc terrainOverlayColour, float maxAlphaChannel
         )
         {
@@ -314,10 +301,15 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         }
     }
     
-    private class Terrain3DRendererImpl implements Terrain3DRenderer {
+    private class Object3DRendererImpl implements Multi3DRenderer {
         
         @Override
-        public void render(
+        public void renderObject( Object3D object, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
+            render3DObject( object, object.getTransformations().getPosition(), objectOverlayColour, maxAlphaChannel );
+        }
+        
+        @Override
+        public void renderTerrain(
             Terrain3D terrain, Vector3fc terrainPosition, Vector4fc terrainOverlayColour, float maxAlphaChannel
         )
         {

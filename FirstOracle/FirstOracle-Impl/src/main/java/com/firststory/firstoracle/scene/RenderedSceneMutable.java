@@ -31,8 +31,8 @@ public class RenderedSceneMutable implements RenderedScene {
         camera2D = new MovableCamera2D( settings, 10, 0, 0, 0 );
         isometricCamera3D = new IsometricCamera3D( settings, 10, 0, 0, 0, 0, 0, 1 );
         backgroundColour = new Vector4f( 1, 1, 1, 1 );
-        background = scene2D = overlay = ( objectRenderer, terrainRenderer ) -> {};
-        scene3D = ( objectRenderer1, terrainRenderer1 ) -> {};
+        background = scene2D = overlay = ( renderer ) -> {};
+        scene3D = ( renderer ) -> {};
     }
 
     public RenderedSceneMutable(
