@@ -10,7 +10,7 @@ import org.joml.*;
  * @author n1t4chi
  */
 public class MovableCamera2D extends Camera2D {
-    
+    private final Vector2f centerPoint;
     private final Vector2f position;
     private final Matrix4f camera;
     private final Matrix4f inverseCamera;
@@ -23,6 +23,7 @@ public class MovableCamera2D extends Camera2D {
     ) {
         this.settings = settings;
         this.position = new Vector2f( X, Y );
+        this.centerPoint = new Vector2f( -X, -Y );
         this.rotation = rotation;
         camera = new Matrix4f();
         inverseCamera = new Matrix4f();
@@ -58,9 +59,11 @@ public class MovableCamera2D extends Camera2D {
     
     @Override
     public Vector2fc getCenterPoint() {
-        Vector4f vector = new Vector4f( 0, 0, 0, 1 );
-        inverseCamera.transform( vector );
-        return new Vector2f( vector.x, vector.y );
+        return centerPoint;
+    }
+    
+    private void updateCenterPoint() {
+        centerPoint.set( -position.x,-position.y );
     }
     
     @Override
