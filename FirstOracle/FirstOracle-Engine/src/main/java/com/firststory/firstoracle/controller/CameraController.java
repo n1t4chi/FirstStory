@@ -125,6 +125,12 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     public void setPos2D( Vector2f pos2D ) {
         this.pos2D = pos2D;
     }
+    public void setInPos2DX( float X ) {
+        this.pos2D.set( X,pos2D.y );
+    }
+    public void setInPos2DY( float Y ) {
+        this.pos2D.set( pos2D.x,Y );
+    }
 
     public float getCameraSize() {
         return cameraSize;
