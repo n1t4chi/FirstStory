@@ -178,7 +178,7 @@ public class MainTemplate3D {
                 shaderProgram3D,
                 renderer
             );
-            renderer.addFpsListeners( application );
+            renderer.addFpsListener( application );
             window.addTimeListener( application );
             window.init();
             //OpenGL is initialised now. You can use all classes that use it.

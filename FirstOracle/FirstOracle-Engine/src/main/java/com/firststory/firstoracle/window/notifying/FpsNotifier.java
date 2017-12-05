@@ -7,13 +7,13 @@ import java.util.Collection;
 
 public interface FpsNotifier {
     
-    default void addFpsListeners( FpsListener listener ) {
+    default void addFpsListener( FpsListener listener ) {
         getFpsListeners().add( listener );
     }
     
     Collection< FpsListener > getFpsListeners();
     
-    default void removeFpsListeners( FpsListener listener ) {
+    default void removeFpsListener( FpsListener listener ) {
         getFpsListeners().remove( listener );
     }
     

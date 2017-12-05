@@ -198,7 +198,7 @@ public class MainTemplate2D {
             application = new WindowApplication( contentManager );
             window = Window.getInstance( settings, application, shaderProgram2D, shaderProgram3D, renderer );
             window.init();
-            renderer.addFpsListeners( application );
+            renderer.addFpsListener( application );
             window.addTimeListener( application );
             renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
     
