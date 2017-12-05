@@ -47,6 +47,7 @@ public class MovableCamera2D extends Camera2D {
     public final void setTranslation( float X, float Y ) {
         if ( position.x != X || position.y != Y ) {
             this.position.set( X, Y );
+            updateCenterPoint();
             forceUpdate();
         }
     }
