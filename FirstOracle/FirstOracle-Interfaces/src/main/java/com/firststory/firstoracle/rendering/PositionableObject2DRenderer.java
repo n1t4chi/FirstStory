@@ -5,6 +5,7 @@ package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object2D.Object2D;
+import org.joml.Vector2fc;
 import org.joml.Vector4fc;
 
 import java.util.Collection;
@@ -29,6 +30,10 @@ public interface PositionableObject2DRenderer< Object extends Object2D > extends
         renderObject( object, FirstOracleConstants.VECTOR_ZERO_4F, 1f );
     }
     
-    void renderObject( Object object, Vector4fc objectOverlayColour, float maxAlphaChannel );
+    default void renderObject( Object object, Vector4fc objectOverlayColour, float maxAlphaChannel ){
+        renderObject( object,object.getTransformations().getPosition(),objectOverlayColour,maxAlphaChannel );
+    }
+    
+    void renderObject( Object object, Vector2fc objectPosition,Vector4fc objectOverlayColour, float maxAlphaChannel );
     
 }

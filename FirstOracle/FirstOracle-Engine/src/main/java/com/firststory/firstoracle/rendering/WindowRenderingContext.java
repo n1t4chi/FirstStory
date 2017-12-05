@@ -35,6 +35,7 @@ import java.util.Collection;
  * @author n1t4chi
  */
 public class WindowRenderingContext implements RenderingContext, FpsNotifier {
+    
     private static final Vector4f BORDER_COLOUR = new Vector4f( 1f, 0f, 0f, 0.75f );
     private final boolean useTexture;
     private final boolean drawBorder;
@@ -63,7 +64,8 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         SceneProvider sceneProvider,
         boolean useTexture,
         boolean drawBorder
-    ) {
+    )
+    {
         this.shaderProgram2D = shaderProgram2D;
         this.shaderProgram3D = shaderProgram3D;
         this.grid2DRenderer = grid2DRenderer;
@@ -72,15 +74,15 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         this.useTexture = useTexture;
         this.drawBorder = drawBorder;
     }
-
+    
     public ShaderProgram2D getShaderProgram2D() {
         return shaderProgram2D;
     }
-
+    
     public ShaderProgram3D getShaderProgram3D() {
         return shaderProgram3D;
     }
-
+    
     public double getLastUpdateTime() {
         return lastFrameUpdate;
     }
@@ -103,7 +105,7 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
             graphics.dispose();
             emptyTexture = new Texture( image );
             emptyTexture.load();
-            emptyUvMap = new UvMap( new float[ 1 ][ 1 ][ 3 ] );
+            emptyUvMap = new UvMap( new float[1][1][3] );
             grid3DRenderer.init();
             grid2DRenderer.init();
         } catch ( IOException ex ) {
@@ -136,7 +138,7 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
             notifyFpsListeners( lastFps );
         }
         frameCount++;
-    
+        
         RenderedScene scene = sceneProvider.getNextScene();
         cameraRotation2D = scene.getCamera2D().getGeneralRotation();
         cameraRotation3D = scene.getCamera3D().getGeneralRotation();
@@ -155,11 +157,9 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     }
     
     private void render2DObject(
-        Object2D object,
-        Vector2fc objectPosition,
-        Vector4fc objectOverlayColour,
-        float maxAlphaChannel
-    ) {
+        Object2D object, Vector2fc objectPosition, Vector4fc objectOverlayColour, float maxAlphaChannel
+    )
+    {
         shaderProgram2D.bindPosition( objectPosition );
         shaderProgram2D.bindMaxAlphaChannel( maxAlphaChannel );
         shaderProgram2D.bindOverlayColour( objectOverlayColour );
@@ -167,7 +167,7 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         Object2DTransformations transformations = object.getTransformations();
         shaderProgram2D.bindRotation( transformations.getRotation() );
         shaderProgram2D.bindScale( transformations.getScale() );
-    
+        
         int bufferSize = object.bindCurrentVerticesAndGetSize( lastFrameUpdate );
         object.bindCurrentUvMap( lastFrameUpdate, cameraRotation2D );
         
@@ -186,11 +186,9 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     }
     
     private void render3DObject(
-        Object3D object,
-        Vector3fc objectPosition,
-        Vector4fc objectOverlayColour,
-        float maxAlphaChannel
-    ) {
+        Object3D object, Vector3fc objectPosition, Vector4fc objectOverlayColour, float maxAlphaChannel
+    )
+    {
         shaderProgram3D.bindMaxAlphaChannel( maxAlphaChannel );
         shaderProgram3D.bindOverlayColour( objectOverlayColour );
         
@@ -198,7 +196,7 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         Object3DTransformations transformations = object.getTransformations();
         shaderProgram3D.bindRotation( transformations.getRotation() );
         shaderProgram3D.bindScale( transformations.getScale() );
-    
+        
         int bufferSize = object.bindCurrentVerticesAndGetSize( lastFrameUpdate );
         object.bindCurrentUvMap( lastFrameUpdate, cameraRotation3D );
         
@@ -223,12 +221,7 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     
     private void setBackground( RenderedScene scene ) {
         Vector4fc backgroundColour = scene.getBackgroundColour();
-        GL11.glClearColor(
-            backgroundColour.x(),
-            backgroundColour.y(),
-            backgroundColour.z(),
-            backgroundColour.w()
-        );
+        GL11.glClearColor( backgroundColour.x(), backgroundColour.y(), backgroundColour.z(), backgroundColour.w() );
     }
     
     private void renderBackgroundAnd2dScene( RenderedScene scene ) {
@@ -286,15 +279,24 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     }
     
     private class Object2DRendererImpl implements Multi2DRenderer {
-        
+    
         @Override
-        public void renderObject( Object2D object, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
-            render2DObject( object, object.getTransformations().getPosition(), objectOverlayColour, maxAlphaChannel );
+        public void renderObject(
+            Object2D object,
+            Vector2fc objectPosition,
+            Vector4fc objectOverlayColour,
+            float maxAlphaChannel
+        )
+        {
+            render2DObject( object, objectPosition, objectOverlayColour, maxAlphaChannel );
         }
     
         @Override
         public void renderTerrain(
-            Terrain2D terrain, Vector2fc terrainPosition, Vector4fc terrainOverlayColour, float maxAlphaChannel
+            Terrain2D terrain,
+            Vector2fc terrainPosition,
+            Vector4fc terrainOverlayColour,
+            float maxAlphaChannel
         )
         {
             render2DObject( terrain, terrainPosition, terrainOverlayColour, maxAlphaChannel );
@@ -304,13 +306,22 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     private class Object3DRendererImpl implements Multi3DRenderer {
         
         @Override
-        public void renderObject( Object3D object, Vector4fc objectOverlayColour, float maxAlphaChannel ) {
+        public void renderObject(
+            Object3D object,
+            Vector3fc objectPosition,
+            Vector4fc objectOverlayColour,
+            float maxAlphaChannel
+        )
+        {
             render3DObject( object, object.getTransformations().getPosition(), objectOverlayColour, maxAlphaChannel );
         }
         
         @Override
         public void renderTerrain(
-            Terrain3D terrain, Vector3fc terrainPosition, Vector4fc terrainOverlayColour, float maxAlphaChannel
+            Terrain3D terrain,
+            Vector3fc terrainPosition,
+            Vector4fc terrainOverlayColour,
+            float maxAlphaChannel
         )
         {
             render3DObject( terrain, terrainPosition, terrainOverlayColour, maxAlphaChannel );
