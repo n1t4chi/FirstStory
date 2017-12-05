@@ -22,6 +22,7 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     private Vertices2D mainAxes;
     private Vertices2D interAxes;
     private Vertices2D smallAxes;
+    private boolean render;
     
     public BoundedPositiveGrid2DRenderer(
         ShaderProgram2D shaderProgram, int gridWidth, int gridHeight, int intermediateAxesStep
@@ -38,7 +39,7 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     }
     
     public void setGridWidth( int gridWidth ) {
-        if ( gridWidth > 0 && this.gridWidth != gridWidth ) {
+        if ( gridWidth >= 0 && this.gridWidth != gridWidth ) {
             reload = true;
             this.gridWidth = gridWidth;
         }
@@ -49,7 +50,7 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     }
     
     public void setGridHeight( int gridHeight ) {
-        if ( gridHeight > 0 && this.gridHeight != gridHeight ) {
+        if ( gridHeight >= 0 && this.gridHeight != gridHeight ) {
             reload = true;
             this.gridHeight = gridHeight;
         }
@@ -98,12 +99,18 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     @Override
     public void render() {
         init();
-        renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );
-        renderGridArray( interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
-        renderGridArray( smallAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
+        if( render ) {
+            renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );
+            renderGridArray( interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
+            renderGridArray( smallAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
+        }
     }
     
     private void createGrid() {
+        if ( gridHeight == 0 || gridWidth == 0 ) {
+            render = false;
+        }
+        render= true;
         float[] mainAxesArray = new float[]{
             0, 0, gridWidth, 0, 0, 0, 0, gridHeight, 0, gridHeight, gridWidth, gridHeight,
             gridWidth, 0, gridWidth, gridHeight
