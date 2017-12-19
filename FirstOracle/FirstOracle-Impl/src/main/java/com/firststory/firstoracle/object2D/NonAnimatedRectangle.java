@@ -17,7 +17,9 @@ public class NonAnimatedRectangle implements Rectangle< Mutable2DTransformations
     MutableTextureObject2D< Mutable2DTransformations, Plane2DVertices, PositionableObject2DRenderer >,
     PositionableObject2D< Mutable2DTransformations, Plane2DVertices, PositionableObject2DRenderer >
 {
-    
+    {
+        setTransformations( new Mutable2DTransformations() );
+    }
     Texture texture;
     Mutable2DTransformations transformations;
     

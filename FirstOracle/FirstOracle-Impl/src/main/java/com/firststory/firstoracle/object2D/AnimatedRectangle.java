@@ -24,7 +24,9 @@ public class AnimatedRectangle implements Rectangle< Mutable2DTransformations, P
     Texture texture;
     Mutable2DTransformations transformations;
     UvMap uvMap;
-    
+    {
+        setTransformations( new Mutable2DTransformations() );
+    }
     @Override
     public DirectionController getDirectionController() {
         return directionController;
