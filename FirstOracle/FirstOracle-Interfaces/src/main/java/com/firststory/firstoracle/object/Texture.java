@@ -12,10 +12,7 @@ import org.lwjgl.stb.STBImage;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -171,6 +168,9 @@ public final class Texture implements Closeable {
         bf.position( 0 );
         return bf;
     }
+    private static BufferedImage byteBufferToImage( ByteBuffer bf ) throws IOException {
+        return ImageIO.read( new ByteArrayInputStream( bf.array() )  );
+    }
     
     private final int width;
     private final int height;
@@ -181,6 +181,11 @@ public final class Texture implements Closeable {
     private final int rows;
     private final int columns;
     private int textureID = 0;
+    private final BufferedImage image;
+    
+    public BufferedImage getImage() {
+        return image;
+    }
     
     /**
      * Creates object containing texture data from given image.<br>
@@ -205,27 +210,28 @@ public final class Texture implements Closeable {
      */
     public Texture( BufferedImage image, int directions, int frames, int columns, int rows ) throws IOException
     {
-        this( imageToByteBuffer( image ), image.toString(), directions, frames, columns, rows );
+        this( image, imageToByteBuffer( image ), image.toString(), directions, frames, columns, rows );
     }
     
     /**
-     * Creates texture out of given buffer.
-     *  @param bf         ArrayBuffer where texture data is stored.
+     * Creates object containing texture data from given image.
+     * @param image      image
      * @param name       Name of texture.
      * @param directions How many directions this texture can represent.
      * @param frames     How many frames this texture represent
      * @param columns    How many columns for directions are in this texture.
      * @param rows       How many rows for frames are in this texture.
      */
-    public Texture( ByteBuffer bf, String name, int directions, int frames, int columns, int rows ) {
+    public Texture( BufferedImage image, ByteBuffer bf, String name, int directions, int frames, int columns, int rows ) {
         if ( name == null || name.isEmpty() || frames < 1 || rows < 1 || frames > rows || directions < 1 ||
              directions > columns )
         {
             throw new IllegalArgumentException(
-                "Illegal arguments for Texture.\n" + "Name:" + name + ", Frames:" + frames + ", Rows:" + rows +
+                "Illegal arguments for Texture.\n" + "Image:" + image + ", Frames:" + frames + ", Rows:" + rows +
                 ", Directions:" + directions + ", Columns:" + columns + "." );
         }
-        this.name = name;
+        this.name = image.toString();
+        this.image = image;
         IntBuffer w = BufferUtils.createIntBuffer( 1 );
         IntBuffer h = BufferUtils.createIntBuffer( 1 );
         IntBuffer c = BufferUtils.createIntBuffer( 1 );
@@ -266,6 +272,9 @@ public final class Texture implements Closeable {
     public Texture( String path, int directions, int frames, int columns, int rows ) throws IOException
     {
         this( IOUtilities.readBinaryResource( path ), path, directions, frames, columns, rows );
+    }
+    public Texture( ByteBuffer bf, String name, int directions, int frames, int columns, int rows ) throws IOException {
+        this( byteBufferToImage( bf ),bf,name,directions,frames,columns,rows );
     }
     
     public int getFrames() {
