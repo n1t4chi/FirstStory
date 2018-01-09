@@ -85,7 +85,19 @@ public class IOUtilities {
                 return vertexSB.toString();
             }
         }
+    }
     
+    public static InputStream readResource( String resource ) throws IOException {
+        File f = new File( resource );
+        if( f.canRead() ){
+            return new FileInputStream(f);
+        }else{
+            InputStream io = Texture.class.getClassLoader().getResourceAsStream( resource );
+            if ( io == null ) {
+                throw new IOException( "Cannot find file: " + resource );
+            }
+            return io;
+        }
     }
     
     public static ByteBuffer readBinaryResource( String resource ) throws IOException {

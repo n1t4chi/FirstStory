@@ -4,6 +4,7 @@
 package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.templates.IOUtilities;
+import javafx.embed.swing.SwingFXUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -12,7 +13,10 @@ import org.lwjgl.stb.STBImage;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -168,9 +172,6 @@ public final class Texture implements Closeable {
         bf.position( 0 );
         return bf;
     }
-    private static BufferedImage byteBufferToImage( ByteBuffer bf ) throws IOException {
-        return ImageIO.read( new ByteArrayInputStream( bf.array() )  );
-    }
     
     private final int width;
     private final int height;
@@ -182,11 +183,19 @@ public final class Texture implements Closeable {
     private final int columns;
     private int textureID = 0;
     private final BufferedImage image;
-    
+    private javafx.scene.image.Image jfxImage = null;
     public BufferedImage getImage() {
         return image;
     }
     
+    
+    
+    public synchronized javafx.scene.image.Image getJfxImage(){
+        if(jfxImage == null){
+            jfxImage = SwingFXUtils.toFXImage(image, null);
+        }
+        return jfxImage;
+    }
     /**
      * Creates object containing texture data from given image.<br>
      * Uses single frame and line count.
@@ -208,9 +217,11 @@ public final class Texture implements Closeable {
      * @param rows       How many rows for frames are in this texture.
      * @throws IOException on problems with loading the image
      */
-    public Texture( BufferedImage image, int directions, int frames, int columns, int rows ) throws IOException
-    {
+    public Texture( BufferedImage image, int directions, int frames, int columns, int rows ) throws IOException {
         this( image, imageToByteBuffer( image ), image.toString(), directions, frames, columns, rows );
+    }
+    public Texture( BufferedImage image, String name, int directions, int frames, int columns, int rows ) throws IOException {
+        this( image, imageToByteBuffer( image ), name, directions, frames, columns, rows );
     }
     
     /**
@@ -269,13 +280,15 @@ public final class Texture implements Closeable {
      * @param rows       How many rows for frames are in this texture.
      * @throws IOException on problems with loading the image
      */
-    public Texture( String path, int directions, int frames, int columns, int rows ) throws IOException
-    {
-        this( IOUtilities.readBinaryResource( path ), path, directions, frames, columns, rows );
+    public Texture( String path, int directions, int frames, int columns, int rows ) throws IOException {
+        this( ImageIO.read( IOUtilities.readResource(path) ) , path,  directions, frames, columns, rows );
     }
-    public Texture( ByteBuffer bf, String name, int directions, int frames, int columns, int rows ) throws IOException {
-        this( byteBufferToImage( bf ),bf,name,directions,frames,columns,rows );
-    }
+    
+    
+    
+//    public Texture( ByteBuffer bf, String name, int directions, int frames, int columns, int rows ) throws IOException {
+//        this( byteBufferToImage( bf ),bf,name,directions,frames,columns,rows );
+//    }
     
     public int getFrames() {
         return frames;
