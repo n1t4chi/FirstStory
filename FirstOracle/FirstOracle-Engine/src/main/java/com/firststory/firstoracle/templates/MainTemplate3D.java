@@ -65,7 +65,6 @@ public class MainTemplate3D {
     
     //it's called by main above though some hack magicks called reflection
     public static void jfxglmain( String[] args ) {
-        new Thread(() -> MainTemplate2D.jfxglmain( args ) ).start();
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
         settings = new WindowSettings.WindowSettingsBuilder()
@@ -75,7 +74,7 @@ public class MainTemplate3D {
             .setMonitorIndex( 1 )
             .setDrawBorder( true )
             .setResizeable( true )
-            .setPositionX( -1920 )
+//            .setPositionX( -1920 )
 //            .setWidth( -1 )
 //            .setHeight( -1 )
             .build();
