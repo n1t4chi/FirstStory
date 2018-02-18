@@ -12,6 +12,8 @@ import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
+import com.firststory.firstoracle.window.GLFW.GlfwContext;
+import com.firststory.firstoracle.window.JFXGL.JfxglContext;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.WindowApplication;
@@ -58,7 +60,8 @@ public class MainTemplate2D {
         try {
             int width = 300;
             int height = 300;
-            settings = new WindowSettings.WindowSettingsBuilder().setVerticalSync( false )
+            settings = new WindowSettings.WindowSettingsBuilder()
+                .setVerticalSync( false )
                 .setResizeable( true )
                 .setWindowMode( WindowMode.WINDOWED )
                 .setWidth( width )
@@ -209,11 +212,13 @@ public class MainTemplate2D {
                 renderedScene.getCamera2D().forceUpdate();
                 renderedScene.getCamera3D().forceUpdate();
             } );
-            
-            Thread cameraControllerThread = new Thread( cameraController );
+    
+            Thread cameraControllerThread = new Thread( cameraController, "Camera Controller" );
             cameraControllerThread.start();
     
             window.run();
+            JfxglContext.terminate();
+            GlfwContext.terminate();
         } catch ( Exception e ) {
             e.printStackTrace();
         }

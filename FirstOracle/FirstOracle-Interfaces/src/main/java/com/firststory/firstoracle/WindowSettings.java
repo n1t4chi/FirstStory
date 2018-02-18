@@ -9,6 +9,7 @@ package com.firststory.firstoracle;
 public class WindowSettings {
     
     private final WindowMode windowMode;
+    private final int monitorIndex;
     private final String title;
     private final int antiAliasing;
     private final boolean verticalSync;
@@ -16,13 +17,14 @@ public class WindowSettings {
     private int height;
     private int positionX;
     private int positionY;
-    private boolean drawGrid = false;
-    private boolean drawBorder = false;
-    private boolean useTexture = true;
-    private boolean resizeable = false;
+    private boolean drawGrid;
+    private boolean drawBorder;
+    private boolean useTexture;
+    private boolean resizeable;
     
     public WindowSettings(
         WindowMode windowMode,
+        int monitorIndex,
         String title,
         int width,
         int height,
@@ -36,6 +38,7 @@ public class WindowSettings {
         boolean useTexture
     ) {
         this.windowMode = windowMode;
+        this.monitorIndex = monitorIndex;
         this.title = title;
         this.positionX = positionX;
         this.positionY = positionY;
@@ -47,6 +50,10 @@ public class WindowSettings {
         this.drawGrid = drawGrid;
         this.drawBorder = drawBorder;
         this.useTexture = useTexture;
+    }
+    
+    public int getMonitorIndex() {
+        return monitorIndex;
     }
     
     public boolean isResizeable() {
@@ -147,10 +154,12 @@ public class WindowSettings {
         private boolean drawBorder = false;
         private boolean useTexture = true;
         private boolean resizeable = false;
-        
+        private int monitorIndex;
+    
         public WindowSettings build() {
             return new WindowSettings(
                 windowMode,
+                monitorIndex,
                 title,
                 width,
                 height,
@@ -165,7 +174,12 @@ public class WindowSettings {
             );
             
         }
-        
+    
+        public WindowSettingsBuilder setMonitorIndex( int monitorIndex ) {
+            this.monitorIndex = monitorIndex;
+            return this;
+        }
+    
         public WindowSettingsBuilder setWindowMode( WindowMode windowMode ) {
             this.windowMode = windowMode;
             return this;

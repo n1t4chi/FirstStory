@@ -9,6 +9,5 @@ package com.firststory.firstoracle;
 public enum WindowMode {
     WINDOWED,
     FULLSCREEN,
-    WINDOWED_FULLSCREEN,
     BORDERLESS
 }

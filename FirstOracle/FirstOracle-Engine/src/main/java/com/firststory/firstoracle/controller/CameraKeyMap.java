@@ -127,10 +127,12 @@ public class CameraKeyMap {
     }
     
     private boolean correctMovementMods( int mods ) {
-        return ( movementUnlockKeyMods & mods ) == movementUnlockKeyMods;
+        //return ( movementUnlockKeyMods & mods ) == movementUnlockKeyMods;
+        return mods == movementUnlockKeyMods;
     }
     
     private boolean correctRotationMods( int mods ) {
-        return ( rotationUnlockKeyMods & mods ) == rotationUnlockKeyMods;
+        //return ( rotationUnlockKeyMods & mods ) == rotationUnlockKeyMods;
+        return mods == rotationUnlockKeyMods;
     }
 }

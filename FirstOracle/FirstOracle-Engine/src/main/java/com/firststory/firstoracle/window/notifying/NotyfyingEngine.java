@@ -29,16 +29,16 @@ public class NotyfyingEngine {
         } );
     }
     
-    private static synchronized boolean removeThread() {
+    private static synchronized boolean keepThread() {
         try {
-            NotyfyingEngine.class.wait( 10000 );
+            NotyfyingEngine.class.wait( 1000 );
             if ( commands.isEmpty() ) {
                 thread = null;
-                return true;
+                return false;
             }
         } catch ( InterruptedException ignored ) {
         }
-        return false;
+        return true;
     }
     
     private static synchronized void updateThread() {
@@ -64,8 +64,8 @@ public class NotyfyingEngine {
                         ex.printStackTrace();
                     }
                 }
-            } while ( !removeThread() );
-        } );
+            } while ( keepThread() );
+        }, "Notyfying Engine" );
         thread.start();
     }
     

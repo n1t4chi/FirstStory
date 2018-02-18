@@ -25,9 +25,7 @@ import static java.lang.Thread.sleep;
  * @author n1t4chi
  */
 public class CameraController implements Runnable, CameraNotifier, QuitListener {
-
-    private static final int DIRECTION_BASE_ROTATION = 135;
-
+    
     private final CameraKeyMap cameraKeyMap;
     private final long refreshLatency;
     private final ConcurrentHashMap< Integer, Integer > keyMap = new ConcurrentHashMap<>( 10 );
@@ -234,24 +232,23 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
 
     @Override
-    public void notify(
-            QuitEvent event, QuitNotifier source
-    ) {
+    public void notify( QuitEvent event, QuitNotifier source ) {
         keepWorking = false;
     }
 
     private void rotateVectors() {
-        double radians3D = Math.toRadians( DIRECTION_BASE_ROTATION + rotationY );
+        float angle = -(45 + rotationY);
+        double radians3D = Math.toRadians( angle );
         direction3D.set( ( float ) Math.cos( radians3D ), ( float ) Math.sin( radians3D ) );
-        radians3D = Math.toRadians( DIRECTION_BASE_ROTATION + rotationY + 90 );
+        radians3D = Math.toRadians( angle - 90 );
         perpendicularDirection3D.set(
             ( float ) Math.cos( radians3D ),
             ( float ) Math.sin( radians3D )
         );
     
-        double radians2D = Math.toRadians( rotationX - 90 );
+        double radians2D = Math.toRadians( -(rotationY+90) );
         direction2D.set( ( float ) Math.cos( radians2D ), ( float ) Math.sin( radians2D ) );
-        radians2D = Math.toRadians( rotationX );
+        radians2D = Math.toRadians( -rotationY );
         perpendicularDirection2D.set(
             ( float ) Math.cos( radians2D ),
             ( float ) Math.sin( radians2D )
@@ -354,7 +351,7 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
     
     private void addDirectionToVector( float timeDelta, Vector2f direction, Vector3f vector ) {
-        vector.add( timeDelta * direction.x, timeDelta * direction.y, 0 );
+        vector.add( timeDelta * direction.x, 0, timeDelta * direction.y );
     }
     
     private void addDirectionToVector( float timeDelta, Vector2f direction, Vector2f vector ) {
@@ -362,7 +359,7 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
     
     private void subDirectionToVector( float timeDelta, Vector2f direction, Vector3f vector ) {
-        vector.sub( timeDelta * direction.x, timeDelta * direction.y, 0 );
+        vector.sub( timeDelta * direction.x, 0, timeDelta * direction.y );
     }
     
     private void subDirectionToVector( float timeDelta, Vector2f direction, Vector2f vector ) {

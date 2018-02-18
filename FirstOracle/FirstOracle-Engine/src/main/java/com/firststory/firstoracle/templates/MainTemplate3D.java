@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.templates;
 
+import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
@@ -14,6 +15,8 @@ import com.firststory.firstoracle.object3D.CubeGrid;
 import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
+import com.firststory.firstoracle.window.GLFW.GlfwContext;
+import com.firststory.firstoracle.window.JFXGL.JfxglContext;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.WindowApplication;
@@ -25,6 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.joml.Vector3fc;
 import org.joml.Vector4f;
 
 /**
@@ -36,7 +40,7 @@ import org.joml.Vector4f;
 public class MainTemplate3D {
     
     private static Window window;
-    private static OverlayContentManager contentManager;
+    private static MyOverlayContentManager contentManager;
     private static WindowRenderingContext renderer;
     private static SceneProvider sceneProvider;
     private static CameraController cameraController;
@@ -61,13 +65,19 @@ public class MainTemplate3D {
     
     //it's called by main above though some hack magicks called reflection
     public static void jfxglmain( String[] args ) {
+        new Thread(() -> MainTemplate2D.jfxglmain( args ) ).start();
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
-        settings = new WindowSettings.WindowSettingsBuilder().setDrawBorder( true )
-            .setVerticalSync( false )
+        settings = new WindowSettings.WindowSettingsBuilder()
+//            .setWindowMode( WindowMode.FULLSCREEN )
+//            .setWindowMode( WindowMode.BORDERLESS )
+            .setWindowMode( WindowMode.WINDOWED )
+            .setMonitorIndex( 1 )
+            .setDrawBorder( true )
             .setResizeable( true )
-            .setWidth( 1000 )
-            .setHeight( 800 )
+            .setPositionX( -1920 )
+//            .setWidth( -1 )
+//            .setHeight( -1 )
             .build();
         //Those shader programs are necessary. For now I didn't remove anything with 3D so it will need to be left as it is.
         shaderProgram3D = new ShaderProgram3D();
@@ -80,7 +90,7 @@ public class MainTemplate3D {
         renderedScene = new RenderedSceneMutable( settings );
         renderedScene.setIsometricCamera3D( new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 ) );
         renderedScene.setCamera2D( new MovableCamera2D( settings, 1, 1, 0, 0 ) );
-        renderedScene.setBackgroundColour( new Vector4f( 0, 1, 0, 1 ) );
+        renderedScene.setBackgroundColour( new Vector4f( 1f, 1f, 1f, 1 ) );
     
         //it's used for rendering, not necessary here
         Vector4f colour = new Vector4f( 0, 0, 0, 0 );
@@ -124,6 +134,7 @@ public class MainTemplate3D {
             sceneProvider = () -> {
                 cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
                 cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
+                contentManager.updatePositionLabel( cameraController.getPos3D() );
                 return renderedScene;
             };
             //Renderer renders all openGL content in Window, nothing to add much here
@@ -141,32 +152,9 @@ public class MainTemplate3D {
             //should be done when time or fps changes, not every time
             //update() should contain all dynamic changes to javaFX components on runtime.
             //side note for JavaFX modifications:
-            //You could use JFXGL.runOnEventsThread( () -> {}) to create and modify JavaFX content but
+            //You could use JfxglContext.runOnEventsThread( () -> {}) to create and modify JavaFX content but
             //it does not look so good but I'm not stopping you from creating another thread for example
-            contentManager = new OverlayContentManager() {
-                Label fpsLabel;
-                Label timeLabel;
-                BorderPane overlayPanel;
-    
-                @Override
-                public Pane createOverlayPanel() {
-                    return overlayPanel = new BorderPane();
-                }
-    
-                @Override
-                public void init( Stage stage, Scene scene ) {
-                    fpsLabel = new Label();
-                    timeLabel = new Label();
-                    overlayPanel.setTop( fpsLabel );
-                    overlayPanel.setBottom( timeLabel );
-                }
-    
-                @Override
-                public void update( double currentTime, int currentFps ) {
-                    fpsLabel.setText( "FPS:" + currentFps );
-                    timeLabel.setText( String.format( "current time: %.1fs", currentTime ) );
-                }
-            };
+            contentManager = new MyOverlayContentManager();
     
             //WindowApplication is JavaFX application that
             application = new WindowApplication( contentManager );
@@ -191,13 +179,56 @@ public class MainTemplate3D {
             } );
             
             //Now it's place to spawn all other threads like game thread or controller thread.
-            Thread cameraControllerThread = new Thread( cameraController );
+            Thread cameraControllerThread = new Thread( cameraController, "Camera Controller" );
             cameraControllerThread.start();
     
             //At last the window loop is run in this thread..
             window.run();
+            JfxglContext.terminate();
+            GlfwContext.terminate();
         } catch ( Exception e ) {
             e.printStackTrace();
+        }
+    }
+    
+    private static class MyOverlayContentManager implements OverlayContentManager {
+        
+        Label fpsLabel;
+        Label timeLabel;
+        Label positionLabel;
+        BorderPane overlayPanel;
+        
+        @Override
+        public Pane createOverlayPanel() {
+            return overlayPanel = new BorderPane();
+        }
+        
+        @Override
+        public void init( Stage stage, Scene scene ) {
+            fpsLabel = new Label();
+            timeLabel = new Label();
+            positionLabel = new Label();
+            overlayPanel.setTop( fpsLabel );
+            overlayPanel.setBottom( timeLabel );
+            overlayPanel.setLeft( positionLabel );
+        }
+    
+        @Override
+        public void update( double currentTime, int currentFps ) {
+            fpsLabel.setText( "FPS:" + currentFps );
+            timeLabel.setText( String.format( "current time: %.1fs", currentTime ) );
+            if ( update ) {
+                update = false;
+                positionLabel.setText( positionText );
+            }
+        }
+        
+        private String positionText = "";
+        private volatile boolean update = false;
+        
+        public synchronized void updatePositionLabel(Vector3fc position){
+            positionText = "Position: ("+position.x()+","+position.y()+","+position.z()+")";
+            update=true;
         }
     }
 }
