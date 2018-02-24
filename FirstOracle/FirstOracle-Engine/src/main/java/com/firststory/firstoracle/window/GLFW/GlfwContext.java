@@ -73,7 +73,7 @@ public class GlfwContext {
         height = ( height > 0 ) ? height : mode.height();
         settings.setWidth( width );
         settings.setHeight( height );
-        long window;
+        long windowId;
         switch ( settings.getWindowMode() ) {
             case FULLSCREEN:
                 GLFW.glfwWindowHint( GLFW.GLFW_RED_BITS, mode.redBits() );
@@ -89,30 +89,32 @@ public class GlfwContext {
                 break;
         }
         
-        window = GLFW.glfwCreateWindow(
+        windowId = GLFW.glfwCreateWindow(
             width,
             height,
             settings.getTitle(),
             monitor,
             NULL
         );
-        if ( window == NULL ) {
+        if ( windowId == NULL ) {
             throw new CannotCreateWindowException();
         }
-        long windowId = window;
         int[] left = new int[ 1 ];
         int[] top = new int[ 1 ];
         int[] right = new int[ 1 ];
         int[] bottom = new int[ 1 ];
     
-        GLFW.glfwGetWindowFrameSize( window, left, top, right, bottom );
+        GLFW.glfwGetWindowFrameSize( windowId, left, top, right, bottom );
         if ( settings.getPositionX() != 0 || settings.getPositionY() != 0 ) {
-            GLFW.glfwSetWindowPos( window,
+            GLFW.glfwSetWindowPos( windowId,
                 settings.getPositionX() + left[ 0 ],
                 settings.getPositionY() + top[ 0 ]
             );
         }
-        return new GlfwWindow(windowId);
+        GlfwWindow window = new GlfwWindow( windowId );
+        window.setWindowToCurrentThread();
+        window.setupVerticalSync( settings.isVerticalSync() );
+        return window;
     }
     
     private void setWindowHints(WindowSettings settings) {

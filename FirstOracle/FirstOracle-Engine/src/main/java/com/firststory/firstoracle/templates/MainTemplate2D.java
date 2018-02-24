@@ -204,9 +204,8 @@ public class MainTemplate2D {
             renderedScene.getCamera3D().forceUpdate();
         } );
 
-        Thread cameraControllerThread = new Thread( cameraController, "Camera Controller" );
-        cameraControllerThread.start();
-
+        cameraController.start();
+    
         window.run();
     }
     

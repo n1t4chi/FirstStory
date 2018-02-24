@@ -16,16 +16,17 @@ import org.lwjgl.glfw.GLFWScrollCallback;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static java.lang.Thread.sleep;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author n1t4chi
  */
-public class CameraController implements Runnable, CameraNotifier, QuitListener {
+public class CameraController  extends Thread implements CameraNotifier, QuitListener {
     
+    private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final CameraKeyMap cameraKeyMap;
     private final long refreshLatency;
     private final ConcurrentHashMap< Integer, Integer > keyMap = new ConcurrentHashMap<>( 10 );
@@ -66,6 +67,7 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     private volatile boolean keepWorking = true;
     
     public CameraController( CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
+        super("Camera Controller " + instanceCounter.getAndIncrement() );
         this.cameraKeyMap = cameraKeyMap;
         this.refreshLatency = refreshLatency;
         this.speed = speed;
@@ -232,8 +234,9 @@ public class CameraController implements Runnable, CameraNotifier, QuitListener 
     }
 
     @Override
-    public void notify( QuitEvent event, QuitNotifier source ) {
+    public Collection< Thread > notify( QuitEvent event, QuitNotifier source ) {
         keepWorking = false;
+        return Collections.singleton( this );
     }
 
     private void rotateVectors() {

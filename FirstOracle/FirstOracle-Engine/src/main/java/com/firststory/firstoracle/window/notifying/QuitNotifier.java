@@ -15,9 +15,11 @@ public interface QuitNotifier {
     }
     
     default void notifyQuitListeners( QuitEvent event ) {
-        for ( QuitListener listener : getQuitListeners() ) {
-            listener.notify( event, this );
-        }
+        getQuitListeners().parallelStream()
+            .map(listener -> listener.notify( event, this ))
+            .forEach( threads -> threads.forEach( t -> {
+                try{ t.wait(); } catch(Exception ignored ){}
+            } ) );
     }
     
     Collection< QuitListener > getQuitListeners();

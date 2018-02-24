@@ -4,48 +4,20 @@
 
 package com.firststory.firstoracle.window.OpenGL;
 
-import org.lwjgl.opengl.ARBVertexArrayObject;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.lwjgl.opengl.KHRDebug.GL_DEBUG_OUTPUT;
-
+/**
+ * This class is used to create {@link OpenGlInstance} in safe manner and possibly other methods that do not require
+ * context aquiring and releasing between threads.
+ */
 public class OpenGlContext {
-    private static OpenGlContext instance = new OpenGlContext();
-
-    public static OpenGlContext getInstance() {
-        GL.createCapabilities();
-        enableFunctionality();
-        if ( !OpenGlSupportChecker.isSupportEnough() ) {
-            throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
-        }
-        return instance;
-    }
+    private final static Map<Thread,OpenGlInstance> instances = new HashMap<>();
     
-    private static void enableFunctionality() {
-        if(Boolean.getBoolean( System.getProperty( "debugMode" ) ) ){
-            GL11.glEnable( GL_DEBUG_OUTPUT );
-        }
-        GL11.glEnable( GL11.GL_CULL_FACE );
-        GL11.glCullFace( GL11.GL_BACK );
-        GL11.glEnable( GL11.GL_BLEND );
-        GL11.glEnable( GL11.GL_TEXTURE_2D );
-        GL11.glBlendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-        GL11.glFrontFace( GL11.GL_CCW );
-        ARBVertexArrayObject.glBindVertexArray( ARBVertexArrayObject.glGenVertexArrays() );
+    public synchronized static OpenGlInstance createInstance() {
+        return instances.computeIfAbsent( Thread.currentThread(), thread -> new OpenGlInstance() );
     }
+    public static void terminate() {}
     
-    private OpenGlContext(){}
-    
-    public static void terminate() {
-        instance = null;
-    }
-    
-    public static void clearScreen() {
-        GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
-    }
-    
-    public static void updateViewPort( int x, int y, int width, int height ) {
-        GL11.glViewport( x, y, width, height );
-    }
+    private OpenGlContext() {}
 }

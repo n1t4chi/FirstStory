@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static org.lwjgl.opengl.GL.getCapabilities;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
@@ -70,8 +69,7 @@ public class OpenGlSupportChecker {
         tests.add( testFunction( c -> c.glGenerateMipmap, "glGenerateMipmap" ) );
     }
     
-    public static boolean isSupportEnough() throws OpenGlNotSupported{
-        GLCapabilities capabilities = getCapabilities();
+    public static boolean isSupportEnough( GLCapabilities capabilities ) throws OpenGlNotSupported{
         tests.forEach( capabilityTester -> capabilityTester.checkSupport( capabilities ) );
         return true;
     }

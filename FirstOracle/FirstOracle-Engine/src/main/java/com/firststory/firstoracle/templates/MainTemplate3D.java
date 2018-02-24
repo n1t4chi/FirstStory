@@ -50,7 +50,7 @@ public class MainTemplate3D {
     private static WindowApplication application;
     
     public static void main( String[] args ) throws Exception {
-        //new Thread(() -> MainTemplate2D.jfxglmain( args )).start();
+        //new Thread(() -> { try { MainTemplate2D.main( args ); } catch ( Exception e ) {} } ).start();
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
         settings = new WindowSettings.WindowSettingsBuilder()
@@ -163,8 +163,7 @@ public class MainTemplate3D {
         } );
         
         //Now it's place to spawn all other threads like game thread or controller thread.
-        Thread cameraControllerThread = new Thread( cameraController, "Camera Controller" );
-        cameraControllerThread.start();
+        cameraController.start();
 
         //At last the window loop is run in this thread..
         window.run();

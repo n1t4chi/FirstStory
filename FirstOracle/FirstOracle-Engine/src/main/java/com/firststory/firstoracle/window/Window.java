@@ -9,6 +9,7 @@ import com.firststory.firstoracle.rendering.WindowRenderingContext;
 import com.firststory.firstoracle.window.GLFW.GlfwContext;
 import com.firststory.firstoracle.window.GLFW.GlfwWindow;
 import com.firststory.firstoracle.window.OpenGL.OpenGlContext;
+import com.firststory.firstoracle.window.OpenGL.OpenGlInstance;
 import com.firststory.firstoracle.window.notifying.*;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
@@ -24,8 +25,7 @@ import org.lwjgl.system.Callback;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static java.lang.Thread.sleep;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class window that creates JavaFX with possible OpenGL rendering in background provided using
@@ -61,6 +61,7 @@ public class Window implements Runnable,
     QuitNotifier
 {
     
+    private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final WindowSettings settings;
     private final ArrayList< TimeListener > timeListeners = new ArrayList<>( 3 );
     private final ArrayList< WindowResizedListener > sizeListeners = new ArrayList<>( 3 );
@@ -72,7 +73,7 @@ public class Window implements Runnable,
     private final RenderingContext renderer;
     private GlfwWindow window;
     private GlfwContext glfw;
-    private OpenGlContext openGl;
+    private OpenGlInstance openGl;
     
     public Window(
         WindowSettings windowSettings,
@@ -94,31 +95,29 @@ public class Window implements Runnable,
         try {
             glfw = GlfwContext.getInstance();
             window = glfw.createWindow( settings );
-            
-            window.setWindowToCurrentThread();
-            window.setupVerticalSync( settings.isVerticalSync() );
-            
-            OpenGlContext.getInstance();
-            setupCallbacks();
-            shaderProgram2D.compile();
-            shaderProgram3D.compile();
-            renderer.init();
+            openGl = OpenGlContext.createInstance();
+            openGl.invoke( () -> {
+                setupCallbacks();
+                shaderProgram2D.compile();
+                shaderProgram3D.compile();
+                renderer.init();
+            });
         } catch ( Exception ex ) {
-            close();
+            close(); //do not place in finally!
             throw new RuntimeException( ex );
         }
     }
     
     @Override
     public void run() {
-        Thread.currentThread().setName( "Window" );
+        Thread.currentThread().setName( "Window" + instanceCounter.getAndIncrement()  );
         window.show();
         Callback debugProc = LWJGLDebug.enableDebugging();
         JFXGL.start( window.getID(), new String[]{}, application );
         try {
             loop();
             notifyQuitListeners();
-            sleep( 10 );
+            
         } catch ( Exception ex ) {
             throw new RuntimeException( ex );
         } finally {
@@ -187,7 +186,7 @@ public class Window implements Runnable,
     
     private void setupCallbacks() {
         window.setSizeCallback( ( window, width, height ) -> {
-            OpenGlContext.updateViewPort( 0, 0, width, height );
+            openGl.updateViewPort( 0, 0, width, height );
             settings.setWidth( width );
             settings.setHeight( height );
             notifySizeListeners( width, height );
@@ -199,14 +198,17 @@ public class Window implements Runnable,
         window.destroy();
     }
     
-    private void loop() {
+    private void loop() throws Exception {
         while ( !shouldWindowClose() ) {
-            window.setUpRenderLoop();
-            OpenGlContext.clearScreen();
-            notifyTimeListener( glfw.getTime() );
-            renderer.render();
-            JFXGL.render();
-            window.cleanAfterLoop();
+            //try { sleep( 1 ); } catch ( InterruptedException e ) {}
+            openGl.invoke( () -> {
+                window.setUpRenderLoop();
+                openGl.clearScreen();
+                notifyTimeListener( glfw.getTime() );
+                renderer.render();
+                JFXGL.render();
+                window.cleanAfterLoop();
+            } );
         }
     }
 }
