@@ -23,17 +23,35 @@ public class GlfwContext {
         init();
     }
     
+    public static GlfwContext getInstance() {
+        return instance;
+    }
+    
+    public static void terminate() {
+        GLFW.glfwTerminate();
+        freeErrorCallback();
+        instance = null;
+    }
+    
     private static void init() {
         if ( !GLFW.glfwInit() ) {
             throw new IllegalStateException( "Unable to initialize GLFW!" );
         }
     }
     
-    public static GlfwContext getInstance() {
-        return instance;
+    private static void setUpErrorCallback() {
+        errorCallback = GLFWErrorCallback.createPrint( System.err ).set();
     }
     
-    public long createWindow(WindowSettings settings){
+    private static void freeErrorCallback() {
+        if ( errorCallback != null ) {
+            errorCallback.free();
+        }
+    }
+    
+    private GlfwContext(){}
+
+    public GlfwWindow createWindow(WindowSettings settings){
         setWindowHints(settings);
     
         long monitor;
@@ -95,7 +113,7 @@ public class GlfwContext {
                 settings.getPositionY() + top[ 0 ]
             );
         }
-        return windowId;
+        return new GlfwWindow(windowId);
     }
     
     public void setWindowHints(WindowSettings settings) {
@@ -112,20 +130,7 @@ public class GlfwContext {
         GLFW.glfwWindowHint( GLFW.GLFW_SAMPLES, settings.getAntiAliasing() );
     }
     
-    private static void setUpErrorCallback() {
-        errorCallback = GLFWErrorCallback.createPrint( System.err ).set();
-    }
-    
-    private static void freeErrorCallback() {
-        if ( errorCallback != null ) {
-            errorCallback.free();
-        }
-    }
-    private GlfwContext(){}
-    
-    public static void terminate() {
-        GLFW.glfwTerminate();
-        freeErrorCallback();
-        instance = null;
+    public double getTime() {
+        return GLFW.glfwGetTime();
     }
 }

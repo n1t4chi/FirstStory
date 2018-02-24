@@ -199,7 +199,7 @@ public class MainTemplate2D {
                 }
             };
             application = new WindowApplication( contentManager );
-            window = Window.getInstance( settings, application, shaderProgram2D, shaderProgram3D, renderer );
+            window = new Window( settings, application, shaderProgram2D, shaderProgram3D, renderer );
             window.init();
             renderer.addFpsListener( application );
             window.addTimeListener( application );

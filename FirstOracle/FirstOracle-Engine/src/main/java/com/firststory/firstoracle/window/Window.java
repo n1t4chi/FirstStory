@@ -3,11 +3,12 @@
  */
 package com.firststory.firstoracle.window;
 
-import com.firststory.firstoracle.CheckSupport;
+import com.firststory.firstoracle.OpenGlSupportChecker;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.rendering.WindowRenderingContext;
 import com.firststory.firstoracle.window.GLFW.GlfwContext;
+import com.firststory.firstoracle.window.GLFW.GlfwWindow;
 import com.firststory.firstoracle.window.notifying.*;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
@@ -15,9 +16,11 @@ import cuchaz.jfxgl.JFXGL;
 import cuchaz.jfxgl.LWJGLDebug;
 import javafx.application.Application;
 import javafx.scene.layout.Pane;
-import org.lwjgl.glfw.*;
+import org.lwjgl.glfw.GLFWCursorPosCallback;
+import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
+import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.opengl.ARBVertexArrayObject;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.Callback;
 
@@ -57,27 +60,8 @@ public class Window implements Runnable,
     TimeNotifier,
     WindowResizedNotifier,
     WindowMovementNotifier,
-    QuitNotifier {
-    
-    private static Window instance = null;
-    
-    public static synchronized Window getInstance(
-        WindowSettings windowSettings,
-        Application application,
-        ShaderProgram2D shaderProgram2D,
-        ShaderProgram3D shaderProgram3D,
-        RenderingContext renderer
-    ) {
-        if ( instance == null ) {
-            instance = new Window( windowSettings,
-                application,
-                shaderProgram2D,
-                shaderProgram3D,
-                renderer
-            );
-        }
-        return instance;
-    }
+    QuitNotifier
+{
     
     private final WindowSettings settings;
     private final ArrayList< TimeListener > timeListeners = new ArrayList<>( 3 );
@@ -88,7 +72,8 @@ public class Window implements Runnable,
     private final ShaderProgram2D shaderProgram2D;
     private final ShaderProgram3D shaderProgram3D;
     private final RenderingContext renderer;
-    private long windowID = -1;
+    private GlfwWindow window;
+    private GlfwContext glfw;
     
     public Window(
         WindowSettings windowSettings,
@@ -109,10 +94,10 @@ public class Window implements Runnable,
     public void init() {
         
         try {
-            GlfwContext glfw = GlfwContext.getInstance();
-            this.windowID = glfw.createWindow(settings);
+            glfw = GlfwContext.getInstance();
+            window = glfw.createWindow(settings);
             
-            setOpenGlContectToCurrentThread();
+            window.setOpenGlContextToCurrentThread();
             if ( !openGLSupportedEnough() ) {
                 throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
             }
@@ -122,8 +107,6 @@ public class Window implements Runnable,
             shaderProgram3D.compile();
             renderer.init();
         } catch ( Exception ex ) {
-            System.err.println( "Exception:\n" + ex );
-            ex.printStackTrace();
             close();
             throw new RuntimeException( ex );
         }
@@ -132,16 +115,14 @@ public class Window implements Runnable,
     @Override
     public void run() {
         Thread.currentThread().setName( "Window" );
-        setVisible();
+        window.show();
         Callback debugProc = LWJGLDebug.enableDebugging();
-        JFXGL.start( windowID, new String[]{}, application );
+        JFXGL.start( window.getID(), new String[]{}, application );
         try {
             loop();
             notifyQuitListeners();
             sleep( 10 );
         } catch ( Exception ex ) {
-            System.err.println( "Exception:\n" + ex );
-            ex.printStackTrace();
             throw new RuntimeException( ex );
         } finally {
             debugProc.free();
@@ -158,7 +139,7 @@ public class Window implements Runnable,
      * @return true when window should close
      */
     public boolean shouldWindowClose() {
-        return !GLFW.glfwWindowShouldClose( windowID );
+        return window.shouldClose();
     }
     
     /**
@@ -168,7 +149,7 @@ public class Window implements Runnable,
      * or there will be inconsistencies.
      */
     public void quit() {
-        GLFW.glfwSetWindowShouldClose( windowID, true );
+        window.quit();
     }
     
     @Override
@@ -192,37 +173,27 @@ public class Window implements Runnable,
     }
     
     public void addKeyCallbackController( GLFWKeyCallback controller ) {
-        GLFW.glfwSetKeyCallback( windowID, controller );
+        window.setKeyCallback( controller );
     }
     
     public void addMouseScrollCallbackController( GLFWScrollCallback controller ) {
-        GLFW.glfwSetScrollCallback( windowID, controller );
+        window.setMouseScrollCallback( controller );
     }
     
     public void addMouseButtonCallbackController( GLFWMouseButtonCallback controller ) {
-        GLFW.glfwSetMouseButtonCallback( windowID, controller );
+        window.setMouseButtonCallback( controller );
     }
     
     public void addMousePositionCallbackController( GLFWCursorPosCallback controller ) {
-        GLFW.glfwSetCursorPosCallback( windowID, controller );
-    }
-    
-    private void setOpenGlContectToCurrentThread() {
-        GLFW.glfwMakeContextCurrent( windowID );
-        GL.createCapabilities();
-        
+        window.setMousePositionCallback( controller );
     }
     
     private boolean openGLSupportedEnough() {
-        return CheckSupport.checkSupport();
+        return OpenGlSupportChecker.validate();
     }
     
     private void enableFunctionality() {
-        if ( settings.isVerticalSync() ) {
-            GLFW.glfwSwapInterval( 1 );
-        } else {
-            GLFW.glfwSwapInterval( 0 );
-        }
+        window.setupVerticalSync( settings.isVerticalSync() );
         GL11.glEnable( GL11.GL_CULL_FACE );
         GL11.glCullFace( GL11.GL_BACK );
         GL11.glEnable( GL11.GL_BLEND );
@@ -233,38 +204,26 @@ public class Window implements Runnable,
     }
     
     private void setupCallbacks() {
-        GLFW.glfwSetWindowSizeCallback( windowID, ( window, width, height ) -> {
+        window.setSizeCallback( ( window2, width, height ) -> {
             GL11.glViewport( 0, 0, width, height );
             settings.setWidth( width );
             settings.setHeight( height );
             notifySizeListeners( width, height );
         } );
-        GLFW.glfwSetWindowPosCallback( windowID, ( window, xpos, ypos ) -> notifyMovementListeners( xpos, ypos ) );
+        window.setPositionCallback( ( window1, xpos, ypos ) -> notifyMovementListeners( xpos, ypos ) );
     }
     
     private void close() {
-        destroyWindow();
-    }
-    
-    private void destroyWindow() {
-        if ( windowID > 0 ) {
-            Callbacks.glfwFreeCallbacks( windowID );
-            GLFW.glfwDestroyWindow( windowID );
-        }
-    }
-    
-    private void setVisible() {
-        GLFW.glfwShowWindow( windowID );
+        window.destroy();
     }
     
     private void loop() {
-        while ( shouldWindowClose() ) {
-            GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
-            notifyTimeListener( GLFW.glfwGetTime() );
+        while ( !shouldWindowClose() ) {
+            window.setUpRenderLoop();
+            notifyTimeListener( glfw.getTime() );
             renderer.render();
             JFXGL.render();
-            GLFW.glfwSwapBuffers( windowID );
-            GLFW.glfwPollEvents();
+            window.cleanAfterLoop();
         }
     }
 }
