@@ -5,8 +5,6 @@
 package com.firststory.firstoracle.window.GLFW;
 
 import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
 
 public class GlfwWindow {
     private final long windowID;
@@ -67,17 +65,11 @@ public class GlfwWindow {
     }
     
     public void setUpRenderLoop() {
-        GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
     }
     
     public void cleanAfterLoop() {
         GLFW.glfwSwapBuffers( windowID );
         GLFW.glfwPollEvents();
-    }
-    
-    public void setOpenGlContextToCurrentThread() {
-        GLFW.glfwMakeContextCurrent( windowID );
-        GL.createCapabilities();
     }
     
     public void setupVerticalSync( boolean verticalSync ) {
@@ -86,5 +78,9 @@ public class GlfwWindow {
         } else {
             GLFW.glfwSwapInterval( 0 );
         }
+    }
+    
+    public void setWindowToCurrentThread() {
+        GLFW.glfwMakeContextCurrent( windowID );
     }
 }

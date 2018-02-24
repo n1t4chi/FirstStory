@@ -8,7 +8,7 @@ import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.rendering.WindowRenderingContext;
 import com.firststory.firstoracle.window.GLFW.GlfwContext;
 import com.firststory.firstoracle.window.GLFW.GlfwWindow;
-import com.firststory.firstoracle.window.OpenGL.OpenGlSupportChecker;
+import com.firststory.firstoracle.window.OpenGL.OpenGlContext;
 import com.firststory.firstoracle.window.notifying.*;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
@@ -20,8 +20,6 @@ import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
-import org.lwjgl.opengl.ARBVertexArrayObject;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.Callback;
 
 import java.util.ArrayList;
@@ -74,6 +72,7 @@ public class Window implements Runnable,
     private final RenderingContext renderer;
     private GlfwWindow window;
     private GlfwContext glfw;
+    private OpenGlContext openGl;
     
     public Window(
         WindowSettings windowSettings,
@@ -92,16 +91,14 @@ public class Window implements Runnable,
     
     
     public void init() {
-        
         try {
             glfw = GlfwContext.getInstance();
-            window = glfw.createWindow(settings);
+            window = glfw.createWindow( settings );
             
-            window.setOpenGlContextToCurrentThread();
-            if ( !openGLSupportedEnough() ) {
-                throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
-            }
-            enableFunctionality();
+            window.setWindowToCurrentThread();
+            window.setupVerticalSync( settings.isVerticalSync() );
+            
+            OpenGlContext.getInstance();
             setupCallbacks();
             shaderProgram2D.compile();
             shaderProgram3D.compile();
@@ -172,15 +169,15 @@ public class Window implements Runnable,
         return sizeListeners;
     }
     
-    public void addKeyCallbackController( GLFWKeyCallback controller ) {
+    public void addKeyListener( GLFWKeyCallback controller ) {
         window.setKeyCallback( controller );
     }
     
-    public void addMouseScrollCallbackController( GLFWScrollCallback controller ) {
+    public void addMouseScrollListener( GLFWScrollCallback controller ) {
         window.setMouseScrollCallback( controller );
     }
     
-    public void addMouseButtonCallbackController( GLFWMouseButtonCallback controller ) {
+    public void addMouseButtonListener( GLFWMouseButtonCallback controller ) {
         window.setMouseButtonCallback( controller );
     }
     
@@ -188,29 +185,14 @@ public class Window implements Runnable,
         window.setMousePositionCallback( controller );
     }
     
-    private boolean openGLSupportedEnough() {
-        return OpenGlSupportChecker.validate();
-    }
-    
-    private void enableFunctionality() {
-        window.setupVerticalSync( settings.isVerticalSync() );
-        GL11.glEnable( GL11.GL_CULL_FACE );
-        GL11.glCullFace( GL11.GL_BACK );
-        GL11.glEnable( GL11.GL_BLEND );
-        GL11.glEnable( GL11.GL_TEXTURE_2D );
-        GL11.glBlendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-        GL11.glFrontFace( GL11.GL_CCW );
-        ARBVertexArrayObject.glBindVertexArray( ARBVertexArrayObject.glGenVertexArrays() );
-    }
-    
     private void setupCallbacks() {
-        window.setSizeCallback( ( window2, width, height ) -> {
-            GL11.glViewport( 0, 0, width, height );
+        window.setSizeCallback( ( window, width, height ) -> {
+            OpenGlContext.updateViewPort( 0, 0, width, height );
             settings.setWidth( width );
             settings.setHeight( height );
             notifySizeListeners( width, height );
         } );
-        window.setPositionCallback( ( window1, xpos, ypos ) -> notifyMovementListeners( xpos, ypos ) );
+        window.setPositionCallback( ( window, xpos, ypos ) -> notifyMovementListeners( xpos, ypos ) );
     }
     
     private void close() {
@@ -220,6 +202,7 @@ public class Window implements Runnable,
     private void loop() {
         while ( !shouldWindowClose() ) {
             window.setUpRenderLoop();
+            OpenGlContext.clearScreen();
             notifyTimeListener( glfw.getTime() );
             renderer.render();
             JFXGL.render();

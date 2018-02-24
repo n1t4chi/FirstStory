@@ -15,14 +15,11 @@ import com.firststory.firstoracle.object3D.CubeGrid;
 import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
-import com.firststory.firstoracle.window.GLFW.GlfwContext;
-import com.firststory.firstoracle.window.JFXGL.JfxglContext;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.WindowApplication;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
-import cuchaz.jfxgl.JFXGLLauncher;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -52,19 +49,7 @@ public class MainTemplate3D {
     private static Grid2DRenderer grid2DRenderer;
     private static WindowApplication application;
     
-    //necessary main, you must run it like that or nothing works.
-    //Every instance created before launchMain() will not be compatibile with any object made after
-    //Even same classes will be seen as different
-    //All JavaFX content must be created in OverlayContentManager due to JavaFX thread being spawned via jfxgl
-    //All openGL bindings must be done after creating Window object and calling it's init() function
-    //Also ALL THREADS must be created AFTER calling launchMain, Preferably after running Window thread
-    public static void main( String[] args ) {
-        JFXGLLauncher.showFilterWarnings = false;
-        JFXGLLauncher.launchMain( MainTemplate3D.class, args );
-    }
-    
-    //it's called by main above though some hack magicks called reflection
-    public static void jfxglmain( String[] args ) {
+    public static void main( String[] args ) throws Exception {
         //new Thread(() -> MainTemplate2D.jfxglmain( args )).start();
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
@@ -97,98 +82,92 @@ public class MainTemplate3D {
         float maxFloat = 1;
     
         //try is for Texture loading.
-        try {
-            //Does not work ATM but graphic objects can be created like that,
-            //Here mostlikely we will only use Rectangle for objects like bullets and characters and RectangleGrid for terrain
-            //RectangleGrid provides nice method for translating array position into rendered space position so they can be shared for same terrains
-            //path can be either file in filesystem or within jar
-            Texture texture1 = new Texture( "resources/First Oracle/grid.png" );
-            Texture texture2 = new Texture( "resources/First Oracle/texture3D.png" );
-            NonAnimatedRectangle overlay = new NonAnimatedRectangle();
-            overlay.setTexture( texture1 );
-            //overlay is rendered last, good for UI
-            renderedScene.setOverlay( overlay::render );
-            
-            //Example initialisation of map
-            NonAnimatedCubeGrid terrain = new NonAnimatedCubeGrid();
-            terrain.setTexture( texture2 );
-    
-            CubeGrid[][][] array = new CubeGrid[20][10][20];
-    
-            for ( int x = 0; x < 20; x++ ) {
-                for ( int y = 0; y < 10; y++ ) {
-                    for ( int z = 0; z < 20; z++ ) {
-                        array[x][y][z] = terrain;
-                    }
+        //Does not work ATM but graphic objects can be created like that,
+        //Here mostlikely we will only use Rectangle for objects like bullets and characters and RectangleGrid for terrain
+        //RectangleGrid provides nice method for translating array position into rendered space position so they can be shared for same terrains
+        //path can be either file in filesystem or within jar
+        Texture texture1 = new Texture( "resources/First Oracle/grid.png" );
+        Texture texture2 = new Texture( "resources/First Oracle/texture3D.png" );
+        NonAnimatedRectangle overlay = new NonAnimatedRectangle();
+        overlay.setTexture( texture1 );
+        //overlay is rendered last, good for UI
+        renderedScene.setOverlay( overlay::render );
+        
+        //Example initialisation of map
+        NonAnimatedCubeGrid terrain = new NonAnimatedCubeGrid();
+        terrain.setTexture( texture2 );
+
+        CubeGrid[][][] array = new CubeGrid[20][10][20];
+
+        for ( int x = 0; x < 20; x++ ) {
+            for ( int y = 0; y < 10; y++ ) {
+                for ( int z = 0; z < 20; z++ ) {
+                    array[x][y][z] = terrain;
                 }
             }
-            //setScene2D is very similar but you are providing Objects2D instead of 3D
-            //here it's best place to renderObject all game objects
-            renderedScene.setScene3D( ( Multi3DRenderer renderer ) -> renderer.renderAll( array ) );
-            //SceneProvider is object which provides all next scenes for renderer below
-            //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
-            //Most likely you would want to create your own SceneProvider that implements this interface
-            cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(),
-                10, 15
-            );
-            sceneProvider = () -> {
-                cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
-                cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-                contentManager.updatePositionLabel( cameraController.getPos3D() );
-                return renderedScene;
-            };
-            //Renderer renders all openGL content in Window, nothing to add much here
-            renderer = new WindowRenderingContext( shaderProgram2D, shaderProgram3D, grid2DRenderer, grid3DRenderer,
-                sceneProvider,
-                settings.isUseTexture(),
-                settings.isDrawBorder()
-            );
-            //ContentManager is where everything related to GUI should be made
-            //any JavaFX object creation and even access to statics of JavaFX classes should be from within those methods
-            //With createOverlayPanel you provide your panel which will be displayed over openGL content,
-            //Also save it's declaration so you can use it later in update or init methods
-            //Init() is called once soon after createOverlayPanel, here you should initialise most of the initial content and probably most of the object creation.
-            //update() is called at each frame update so changes there should be made as few as possible, probably setText in example below
-            //should be done when time or fps changes, not every time
-            //update() should contain all dynamic changes to javaFX components on runtime.
-            //side note for JavaFX modifications:
-            //You could use JfxglContext.runOnEventsThread( () -> {}) to create and modify JavaFX content but
-            //it does not look so good but I'm not stopping you from creating another thread for example
-            contentManager = new MyOverlayContentManager();
-    
-            //WindowApplication is JavaFX application that
-            application = new WindowApplication( contentManager );
-            //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
-            //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
-            //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
-            window = new Window( settings, application,
-                shaderProgram2D,
-                shaderProgram3D,
-                renderer
-            );
-            renderer.addFpsListener( application );
-            window.addTimeListener( application );
-            window.init();
-            //OpenGL is initialised now. You can use all classes that use it.
-            window.addQuitListener( cameraController );
-            window.addKeyCallbackController( cameraController.getKeyCallback() );
-            window.addMouseScrollCallbackController( cameraController.getScrollCallback() );
-            window.addSizeListener( ( newWidth, newHeight, source ) -> {
-                renderedScene.getCamera2D().forceUpdate();
-                renderedScene.getCamera3D().forceUpdate();
-            } );
-            
-            //Now it's place to spawn all other threads like game thread or controller thread.
-            Thread cameraControllerThread = new Thread( cameraController, "Camera Controller" );
-            cameraControllerThread.start();
-    
-            //At last the window loop is run in this thread..
-            window.run();
-            JfxglContext.terminate();
-            GlfwContext.terminate();
-        } catch ( Exception e ) {
-            e.printStackTrace();
         }
+        //setScene2D is very similar but you are providing Objects2D instead of 3D
+        //here it's best place to renderObject all game objects
+        renderedScene.setScene3D( ( Multi3DRenderer renderer ) -> renderer.renderAll( array ) );
+        //SceneProvider is object which provides all next scenes for renderer below
+        //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
+        //Most likely you would want to create your own SceneProvider that implements this interface
+        cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(),
+            10, 15
+        );
+        sceneProvider = () -> {
+            cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
+            cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
+            contentManager.updatePositionLabel( cameraController.getPos3D() );
+            return renderedScene;
+        };
+        //Renderer renders all openGL content in Window, nothing to add much here
+        renderer = new WindowRenderingContext( shaderProgram2D, shaderProgram3D, grid2DRenderer, grid3DRenderer,
+            sceneProvider,
+            settings.isUseTexture(),
+            settings.isDrawBorder()
+        );
+        //ContentManager is where everything related to GUI should be made
+        //any JavaFX object creation and even access to statics of JavaFX classes should be from within those methods
+        //With createOverlayPanel you provide your panel which will be displayed over openGL content,
+        //Also save it's declaration so you can use it later in update or init methods
+        //Init() is called once soon after createOverlayPanel, here you should initialise most of the initial content and probably most of the object creation.
+        //update() is called at each frame update so changes there should be made as few as possible, probably setText in example below
+        //should be done when time or fps changes, not every time
+        //update() should contain all dynamic changes to javaFX components on runtime.
+        //side note for JavaFX modifications:
+        //You could use JfxglContext.runOnEventsThread( () -> {}) to create and modify JavaFX content but
+        //it does not look so good but I'm not stopping you from creating another thread for example
+        contentManager = new MyOverlayContentManager();
+
+        //WindowApplication is JavaFX application that
+        application = new WindowApplication( contentManager );
+        //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
+        //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
+        //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
+        window = new Window( settings, application,
+            shaderProgram2D,
+            shaderProgram3D,
+            renderer
+        );
+        renderer.addFpsListener( application );
+        window.addTimeListener( application );
+        window.init();
+        //OpenGL is initialised now. You can use all classes that use it.
+        window.addQuitListener( cameraController );
+        window.addKeyListener( cameraController.getKeyCallback() );
+        window.addMouseScrollListener( cameraController.getScrollCallback() );
+        window.addSizeListener( ( newWidth, newHeight, source ) -> {
+            renderedScene.getCamera2D().forceUpdate();
+            renderedScene.getCamera3D().forceUpdate();
+        } );
+        
+        //Now it's place to spawn all other threads like game thread or controller thread.
+        Thread cameraControllerThread = new Thread( cameraController, "Camera Controller" );
+        cameraControllerThread.start();
+
+        //At last the window loop is run in this thread..
+        window.run();
     }
     
     private static class MyOverlayContentManager implements OverlayContentManager {

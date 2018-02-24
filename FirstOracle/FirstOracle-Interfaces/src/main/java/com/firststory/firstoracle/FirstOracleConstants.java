@@ -10,6 +10,8 @@ import org.joml.*;
  */
 public class FirstOracleConstants {
     
+    public static final String APPLICATION_CLASS_NAME_PROPERTY = "ApplicationClassName";
+    
     public static final float UV_DELTA = 0.00001f;
     public static final Vector2fc VECTOR_ZERO_2F = new Vector2f( 0, 0 );
     public static final Vector2ic VECTOR_ZERO_2I = new Vector2i( 0, 0 );

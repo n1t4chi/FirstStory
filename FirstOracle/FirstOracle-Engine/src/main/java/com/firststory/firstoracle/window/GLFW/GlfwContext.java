@@ -9,25 +9,24 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.opengl.GL11;
 
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class GlfwContext {
     
-    private static GlfwContext instance = new GlfwContext();
+    private static GlfwContext instance;
     private static GLFWErrorCallback errorCallback;
     
-    static {
-        setUpErrorCallback();
-        init();
-    }
-    
-    public static GlfwContext getInstance() {
+    public synchronized static GlfwContext getInstance() {
+        if(instance == null){
+            setUpErrorCallback();
+            init();
+            instance = new GlfwContext();
+        }
         return instance;
     }
     
-    public static void terminate() {
+    public synchronized static void terminate() {
         GLFW.glfwTerminate();
         freeErrorCallback();
         instance = null;
@@ -51,7 +50,7 @@ public class GlfwContext {
     
     private GlfwContext(){}
 
-    public GlfwWindow createWindow(WindowSettings settings){
+    public synchronized GlfwWindow createWindow(WindowSettings settings){
         setWindowHints(settings);
     
         long monitor;
@@ -83,7 +82,7 @@ public class GlfwContext {
                 GLFW.glfwWindowHint( GLFW.GLFW_REFRESH_RATE, mode.refreshRate() );
                 break;
             case BORDERLESS:
-                GLFW.glfwWindowHint( GLFW.GLFW_DECORATED, GL11.GL_FALSE );
+                GLFW.glfwWindowHint( GLFW.GLFW_DECORATED, GLFW.GLFW_FALSE );
             case WINDOWED:
             default:
                 monitor = NULL;
@@ -116,7 +115,7 @@ public class GlfwContext {
         return new GlfwWindow(windowId);
     }
     
-    public void setWindowHints(WindowSettings settings) {
+    private void setWindowHints(WindowSettings settings) {
         GLFW.glfwDefaultWindowHints();
         GLFW.glfwWindowHint( GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3 );
         GLFW.glfwWindowHint( GLFW.GLFW_CONTEXT_VERSION_MINOR, 2 );
