@@ -3,12 +3,12 @@
  */
 package com.firststory.firstoracle.window;
 
-import com.firststory.firstoracle.OpenGlSupportChecker;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.rendering.WindowRenderingContext;
 import com.firststory.firstoracle.window.GLFW.GlfwContext;
 import com.firststory.firstoracle.window.GLFW.GlfwWindow;
+import com.firststory.firstoracle.window.OpenGL.OpenGlSupportChecker;
 import com.firststory.firstoracle.window.notifying.*;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
