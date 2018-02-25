@@ -3,13 +3,28 @@
  */
 
 package com.firststory.firstoracle.window.JFXGL;
-
 import cuchaz.jfxgl.JFXGL;
+import cuchaz.jfxgl.LWJGLDebug;
+import javafx.application.Application;
+import org.lwjgl.system.Callback;
 
+/**
+ * Class used to create JFXGL context.
+ * For now it can only create one instance for one window as there is no support in JFXGL.
+ */
 public class JfxglContext {
-    private static JfxglContext instance = new JfxglContext();
-
-    public static JfxglContext getInstance() {
+    private static JfxglContext instance = null;
+    
+    
+    public static Callback getDebugCallback() {
+        return LWJGLDebug.enableDebugging();
+    }
+    
+    public static JfxglContext createInstance(long hwnd, String[] args, Application app) {
+        if(instance != null)
+            throw new RuntimeException( "Multiple JFXGL instances not supported." );
+        instance = new JfxglContext();
+        JFXGL.start( hwnd, new String[]{}, app );
         return instance;
     }
     
@@ -17,6 +32,9 @@ public class JfxglContext {
     
     public static void terminate() {
         JFXGL.terminate();
-        instance = null;
+    }
+    
+    public void render() {
+        JFXGL.render();
     }
 }

@@ -56,7 +56,9 @@ public class OpenGlInstance implements AutoCloseable{
      * @return this instance
      */
     public OpenGlInstance aquiteLock(){
+        //System.err.println("trying to aquire lock by"+Thread.currentThread());
         contextLock.lock();
+        //System.err.println("lock aquired by"+Thread.currentThread());
         return this;
     }
     
@@ -66,6 +68,7 @@ public class OpenGlInstance implements AutoCloseable{
      */
     public void releaseLock(){
         contextLock.unlock();
+        //System.err.println("lock released by"+Thread.currentThread());
     }
     
     /**

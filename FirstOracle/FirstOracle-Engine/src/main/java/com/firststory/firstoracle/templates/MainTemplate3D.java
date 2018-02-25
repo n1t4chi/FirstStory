@@ -50,7 +50,6 @@ public class MainTemplate3D {
     private static WindowApplication application;
     
     public static void main( String[] args ) throws Exception {
-        //new Thread(() -> { try { MainTemplate2D.main( args ); } catch ( Exception e ) {} } ).start();
         //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
         settings = new WindowSettings.WindowSettingsBuilder()

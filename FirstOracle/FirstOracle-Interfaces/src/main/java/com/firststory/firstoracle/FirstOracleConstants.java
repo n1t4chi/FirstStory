@@ -9,8 +9,12 @@ import org.joml.*;
  * @author n1t4chi
  */
 public class FirstOracleConstants {
-    
+    public static final String DEBUG_PROPERTY = "debugMode";
     public static final String APPLICATION_CLASS_NAME_PROPERTY = "ApplicationClassName";
+    
+    public static boolean isDebugMode(){
+        return Boolean.getBoolean( System.getProperty( DEBUG_PROPERTY ) );
+    }
     
     public static final float UV_DELTA = 0.00001f;
     public static final Vector2fc VECTOR_ZERO_2F = new Vector2f( 0, 0 );

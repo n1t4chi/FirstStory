@@ -8,13 +8,12 @@ import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.rendering.WindowRenderingContext;
 import com.firststory.firstoracle.window.GLFW.GlfwContext;
 import com.firststory.firstoracle.window.GLFW.GlfwWindow;
+import com.firststory.firstoracle.window.JFXGL.JfxglContext;
 import com.firststory.firstoracle.window.OpenGL.OpenGlContext;
 import com.firststory.firstoracle.window.OpenGL.OpenGlInstance;
 import com.firststory.firstoracle.window.notifying.*;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
-import cuchaz.jfxgl.JFXGL;
-import cuchaz.jfxgl.LWJGLDebug;
 import javafx.application.Application;
 import javafx.scene.layout.Pane;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
@@ -26,6 +25,8 @@ import org.lwjgl.system.Callback;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.firststory.firstoracle.FirstOracleConstants.isDebugMode;
 
 /**
  * Class window that creates JavaFX with possible OpenGL rendering in background provided using
@@ -74,6 +75,8 @@ public class Window implements Runnable,
     private GlfwWindow window;
     private GlfwContext glfw;
     private OpenGlInstance openGl;
+    private Callback debugCallback;
+    private JfxglContext jfxgl;
     
     public Window(
         WindowSettings windowSettings,
@@ -111,17 +114,19 @@ public class Window implements Runnable,
     @Override
     public void run() {
         Thread.currentThread().setName( "Window" + instanceCounter.getAndIncrement()  );
-        window.show();
-        Callback debugProc = LWJGLDebug.enableDebugging();
-        JFXGL.start( window.getID(), new String[]{}, application );
         try {
+            openGl.invoke( () -> {
+                window.show();
+                if( isDebugMode() )
+                    debugCallback = JfxglContext.getDebugCallback();
+                jfxgl = JfxglContext.createInstance( window.getID(), new String[]{}, this.application );
+            });
             loop();
             notifyQuitListeners();
-            
         } catch ( Exception ex ) {
+            ex.printStackTrace();
             throw new RuntimeException( ex );
         } finally {
-            debugProc.free();
             close();
         }
     }
@@ -195,6 +200,8 @@ public class Window implements Runnable,
     }
     
     private void close() {
+        if( debugCallback != null)
+            debugCallback.free();
         window.destroy();
     }
     
@@ -202,11 +209,12 @@ public class Window implements Runnable,
         while ( !shouldWindowClose() ) {
             //try { sleep( 1 ); } catch ( InterruptedException e ) {}
             openGl.invoke( () -> {
+                //System.err.println(Thread.currentThread()+"loop invoke");
                 window.setUpRenderLoop();
                 openGl.clearScreen();
                 notifyTimeListener( glfw.getTime() );
                 renderer.render();
-                JFXGL.render();
+                jfxgl.render();
                 window.cleanAfterLoop();
             } );
         }
