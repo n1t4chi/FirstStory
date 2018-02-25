@@ -17,15 +17,11 @@ import java.util.Map;
 public abstract class VertexAttributes implements Closeable {
     
     private static final Map< Integer, Integer > lastBinds = new HashMap<>( 2 );
-
-    static void bindAttributePointer( ArrayBuffer buffer, int index, int vertexSize ) {
-        Integer integer = lastBinds.get( index );
-        if ( integer == null || integer != buffer.getBufferID() ) {
-            buffer.bind();
-            GL20.glVertexAttribPointer( index, vertexSize, GL11.GL_FLOAT, false, 0, 0 );
-            lastBinds.put( index, buffer.getBufferID() );
-        }
+    
+    public static void cleanBinds(){
+        lastBinds.clear();
     }
+    
     private final HashMap< Long, ArrayBuffer > buffers = new HashMap<>();
     
     @Override
@@ -38,7 +34,13 @@ public abstract class VertexAttributes implements Closeable {
     
     protected int bindBufferAndGetSize( long key ) {
         ArrayBuffer buffer = getBuffer( key );
-        bindAttributePointer( buffer, getIndex(), getVertexSize() );
+        int index = getIndex();
+        Integer integer = lastBinds.get( index );
+        if ( integer == null || integer != buffer.getBufferID() ) {
+            buffer.bind();
+            GL20.glVertexAttribPointer( index, getVertexSize(), GL11.GL_FLOAT, false, 0, 0 );
+            lastBinds.put( index, buffer.getBufferID() );
+        }
         return getVertexLength( buffer );
     }
     

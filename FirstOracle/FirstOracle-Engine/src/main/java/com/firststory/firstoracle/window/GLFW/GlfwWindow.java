@@ -6,6 +6,8 @@ package com.firststory.firstoracle.window.GLFW;
 
 import org.lwjgl.glfw.*;
 
+import static com.firststory.firstoracle.window.GLFW.GlfwContext.deregisterWindow;
+
 public class GlfwWindow {
     private final long windowID;
     
@@ -28,6 +30,7 @@ public class GlfwWindow {
     }
     
     public void destroy(){
+        deregisterWindow(this);
         Callbacks.glfwFreeCallbacks( windowID );
         GLFW.glfwDestroyWindow( windowID );
     }
@@ -65,6 +68,8 @@ public class GlfwWindow {
     }
     
     public void setUpRenderLoop() {
+//        VertexAttributes.cleanBinds();
+//        setWindowToCurrentThread();
     }
     
     public void cleanAfterLoop() {

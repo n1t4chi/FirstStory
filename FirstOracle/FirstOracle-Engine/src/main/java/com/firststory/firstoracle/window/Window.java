@@ -79,7 +79,26 @@ public class Window implements Runnable,
     private Callback debugCallback;
     private JfxglContext jfxgl;
     
-    public Window(
+    public static Window getOpenGlWithJavaFxInstance(
+        WindowSettings windowSettings,
+        Application application,
+        ShaderProgram2D shaderProgram2D,
+        ShaderProgram3D shaderProgram3D,
+        RenderingContext renderer
+    ){
+        return new Window( windowSettings, application, shaderProgram2D, shaderProgram3D,renderer );
+    }
+    
+    public static Window getOpenGlInstance(
+        WindowSettings windowSettings,
+        ShaderProgram2D shaderProgram2D,
+        ShaderProgram3D shaderProgram3D,
+        RenderingContext renderer
+    ){
+        return new Window( windowSettings, null, shaderProgram2D, shaderProgram3D,renderer );
+    }
+    
+    private Window(
         WindowSettings windowSettings,
         Application application,
         ShaderProgram2D shaderProgram2D,
@@ -120,7 +139,8 @@ public class Window implements Runnable,
                 window.show();
                 if( isDebugMode() )
                     debugCallback = JfxglContext.getDebugCallback();
-                jfxgl = JfxglContext.createInstance( window.getID(), new String[]{}, this.application );
+                
+                jfxgl = JfxglContext.createInstance( window.getID(), new String[]{}, application );
             });
             loop();
             notifyQuitListeners();

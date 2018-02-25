@@ -10,10 +10,13 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class GlfwContext {
-    
+    private static Set<GlfwWindow> instances = new HashSet<>();
     private static GlfwContext instance;
     private static GLFWErrorCallback errorCallback;
     
@@ -27,9 +30,20 @@ public class GlfwContext {
     }
     
     public synchronized static void terminate() {
+        for ( GlfwWindow window : instances ) {
+            window.destroy();
+        }
         GLFW.glfwTerminate();
         freeErrorCallback();
         instance = null;
+    }
+    
+    private static void registerWindow( GlfwWindow window ) {
+        instances.add( window );
+    }
+    
+    static void deregisterWindow( GlfwWindow window ) {
+        instances.remove( window );
     }
     
     private static void init() {
@@ -114,6 +128,7 @@ public class GlfwContext {
         GlfwWindow window = new GlfwWindow( windowId );
         window.setWindowToCurrentThread();
         window.setupVerticalSync( settings.isVerticalSync() );
+        registerWindow(window);
         return window;
     }
     

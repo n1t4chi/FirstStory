@@ -33,7 +33,7 @@ import org.joml.Vector4f;
  *
  * @author n1t4chi
  */
-public class MainTemplate2D {
+public class FullApplication2D {
     
     private static Window window;
     private static OverlayContentManager contentManager;
@@ -190,7 +190,7 @@ public class MainTemplate2D {
             }
         };
         application = new WindowApplication( contentManager );
-        window = new Window( settings, application, shaderProgram2D, shaderProgram3D, renderer );
+        window = Window.getOpenGlWithJavaFxInstance( settings, application, shaderProgram2D, shaderProgram3D, renderer );
         window.init();
         renderer.addFpsListener( application );
         window.addTimeListener( application );

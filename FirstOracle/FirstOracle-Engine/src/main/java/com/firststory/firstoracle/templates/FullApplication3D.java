@@ -34,7 +34,7 @@ import org.joml.Vector4f;
  *
  * @author n1t4chi
  */
-public class MainTemplate3D {
+public class FullApplication3D {
     
     private static Window window;
     private static MyOverlayContentManager contentManager;
@@ -144,7 +144,7 @@ public class MainTemplate3D {
         //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
         //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
         //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
-        window = new Window( settings, application,
+        window = Window.getOpenGlWithJavaFxInstance( settings, application,
             shaderProgram2D,
             shaderProgram3D,
             renderer

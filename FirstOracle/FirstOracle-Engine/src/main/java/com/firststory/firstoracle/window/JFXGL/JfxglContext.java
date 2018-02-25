@@ -15,12 +15,20 @@ import org.lwjgl.system.Callback;
 public class JfxglContext {
     private static JfxglContext instance = null;
     
+    private static class DummyContext extends JfxglContext{
+        private DummyContext() {}
+        @Override
+        public void render() {}
+    }
     
     public static Callback getDebugCallback() {
         return LWJGLDebug.enableDebugging();
     }
     
     public static JfxglContext createInstance(long hwnd, String[] args, Application app) {
+        if(app == null){
+            return new DummyContext();
+        }
         if(instance != null)
             throw new RuntimeException( "Multiple JFXGL instances not supported." );
         instance = new JfxglContext();

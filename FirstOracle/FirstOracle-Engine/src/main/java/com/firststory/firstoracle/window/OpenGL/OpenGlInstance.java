@@ -17,10 +17,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * <code>instance.invoke{ ()-> {//method calls on instance\\} }</code>
  * or {@link #invoke(CommandsWithReference)} which provides back reference to instance
  * <code>instance.invoke{ (instanceLambda)-> {//method calls on instance\\} }</code>
- * or try with resources where {@link #aquiteLock()} provides reference back to this instace:
- * <code>try(OpenGlInstance instanceTry = instance.aquiteLock()){ //method calls on instance\\ }</code>
- * or simple try:
- * <code>try{ instance.aquiteLock() //method calls on instance\\ }finally{instance.releaseLock()}</code>
  */
 public class OpenGlInstance implements AutoCloseable{
     
@@ -33,10 +29,6 @@ public class OpenGlInstance implements AutoCloseable{
         if ( !OpenGlSupportChecker.isSupportEnough(capabilities) ) {
             throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
         }
-    }
-    
-    public void safeInvoke(){
-    
     }
 
     public void clearScreen() {
@@ -55,10 +47,10 @@ public class OpenGlInstance implements AutoCloseable{
      * Aquires lock across all OpenGlInstances, will block thread until lock is aquired.
      * @return this instance
      */
-    public OpenGlInstance aquiteLock(){
-        //System.err.println("trying to aquire lock by"+Thread.currentThread());
-        contextLock.lock();
-        //System.err.println("lock aquired by"+Thread.currentThread());
+    private OpenGlInstance aquiteLock(){
+//        System.err.println("trying to aquire lock by"+Thread.currentThread());
+//        contextLock.lock();
+//        System.err.println("lock aquired by"+Thread.currentThread());
         return this;
     }
     
@@ -66,9 +58,9 @@ public class OpenGlInstance implements AutoCloseable{
      * Releases lock to other OpenGlInstances
      * releasing lock without prior lock aquisition will fail and exception will be thrown
      */
-    public void releaseLock(){
-        contextLock.unlock();
-        //System.err.println("lock released by"+Thread.currentThread());
+    private void releaseLock(){
+//        contextLock.unlock();
+//        System.err.println("lock released by"+Thread.currentThread());
     }
     
     /**
@@ -81,15 +73,15 @@ public class OpenGlInstance implements AutoCloseable{
     }
 
     public void invoke( CommandsWithReference commands) throws Exception{
-        try(OpenGlInstance instance = aquiteLock()){
-            commands.execute( instance );
-        }
+//        try(OpenGlInstance instance = aquiteLock()){
+        commands.execute( this );
+//        }
     }
 
     public void invoke(Commands commands) throws Exception{
-        try(OpenGlInstance instance = aquiteLock()){
-            commands.execute();
-        }
+//        try(OpenGlInstance instance = aquiteLock()){
+        commands.execute();
+//        }
     }
     
     private void enableFunctionality() {
