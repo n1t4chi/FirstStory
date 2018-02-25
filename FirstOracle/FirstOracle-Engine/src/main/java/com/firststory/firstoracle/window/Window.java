@@ -51,7 +51,8 @@ import static com.firststory.firstoracle.FirstOracleConstants.isDebugMode;
  * Also Window needs to be initialised in this order:
  * init();
  * //any OpenGL context can be used after
- * run(); &gt;- starts rendering loop so it's advised to put it into new thread
+ * run(); &gt;
+ * The window needs to be run in same thread as it was created in.
  *
  * @author n1t4chi
  */
