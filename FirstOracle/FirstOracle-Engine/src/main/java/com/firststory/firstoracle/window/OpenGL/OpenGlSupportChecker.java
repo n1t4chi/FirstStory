@@ -24,6 +24,7 @@ public class OpenGlSupportChecker {
         tests.add( test( c -> c.OpenGL15, "opengl 1.5" ) );
         tests.add( test( c -> c.OpenGL20, "opengl 2.0" ) );
         tests.add( test( c -> c.OpenGL30, "opengl 3.0" ) );
+//        tests.add( test( c -> c.OpenGL33, "opengl 3.3" ) );
         tests.add( test( c -> c.GL_ARB_shader_objects, "Shader objects" ) );
         tests.add( test( c -> c.GL_ARB_vertex_shader, "Vertex shader" ) );
         tests.add( test( c -> c.GL_ARB_fragment_shader, "Fragment shader" ) );
