@@ -8,6 +8,8 @@ package com.firststory.firstoracle;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL11;
@@ -90,13 +92,13 @@ public class ShaderProgram{
 
 	// Read the Vertex Shader code from the file
         String VertexContent;
-        try (BufferedReader br = new BufferedReader(new FileReader(vertex_file_path))){
+        try (BufferedReader br = new BufferedReader( new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream( vertex_file_path )) )){
             StringBuilder vertexSB = new StringBuilder();
             br.lines().forEach((s)->vertexSB.append(s).append('\n'));
             VertexContent = vertexSB.toString();
         }
         String FragmentContent;
-        try (BufferedReader br = new BufferedReader(new FileReader(fragment_file_path))){
+        try (BufferedReader br = new BufferedReader( new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream( fragment_file_path )) )){
             StringBuilder fragmentSB = new StringBuilder();
             br.lines().forEach((s)->fragmentSB.append(s).append('\n'));
             FragmentContent = fragmentSB.toString();

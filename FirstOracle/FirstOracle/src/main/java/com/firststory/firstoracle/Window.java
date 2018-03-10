@@ -243,15 +243,6 @@ public class Window implements Runnable {
     /**
      * Initialises window
      *
-     * @param windowMode window mode
-     * @param title title of window
-     * @param width -1 for default width
-     * @param height -1 for default height
-     * @param pos_x position of a window, does not count window border!. -1 for
-     * default.
-     * @param pos_y position of a window, does not count window border!. -1 for
-     * default.
-     * @param antiAliasing antialiasing
      * @return true (width,height)
      */
     private void initOpenGL(WindowTouple windowTouple) {
@@ -604,7 +595,7 @@ public class Window implements Runnable {
         ShaderProgram shaderTexture;
         Texture emptyTexture;
         try {
-            shaderTexture = new ShaderProgram("./EXT/shader.vert", "./EXT/shader.frag");
+            shaderTexture = new ShaderProgram("EXT/shader.vert", "EXT/shader.frag");
         } catch (Exception ex) {
             System.err.println("Error on shader loading: " + ex);
             return;
@@ -667,7 +658,7 @@ public class Window implements Runnable {
                             //float z2 = (z+terrainVecMin.x); z2*=z2;
                             //float d = (float)java.lang.Math.sqrt(y2+x2+z2) / max;
                             //new Vector4f(0,0,0,d) swa
-                            //renderObject(0,0,ter,ter.convertArrayToSpacePosition(x, y, z,terrainVecMin),idVec4 , uniformObjectDataID);
+                            renderObject(0,0,ter,ter.convertArrayToSpacePosition(x, y, z,terrainVecMin),idVec4 , uniformObjectDataID);
                             //idVec4
                         }
                     }
