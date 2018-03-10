@@ -106,24 +106,6 @@
 		<version>${joml.version}</version>
 	</dependency>
     </dependencies>
-    <!--<build>-->
-        <!--<resources>-->
-            <!--&lt;!&ndash;<resource>&ndash;&gt;-->
-                <!--&lt;!&ndash;<directory>src/resources</directory>&ndash;&gt;-->
-                <!--&lt;!&ndash;<excludes>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<exclude>EXT</exclude>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<exclude>EXT/*</exclude>&ndash;&gt;-->
-                <!--&lt;!&ndash;</excludes>&ndash;&gt;-->
-            <!--&lt;!&ndash;</resource>&ndash;&gt;-->
-            <!--<resource>-->
-                <!--<directory>src/resources</directory>-->
-                <!--<includes>-->
-                    <!--<include>EXT</include>-->
-                    <!--<include>EXT/*</include>-->
-                <!--</includes>-->
-            <!--</resource>-->
-        <!--</resources>-->
-    <!--</build>-->
 
     <profiles>
         <profile>
