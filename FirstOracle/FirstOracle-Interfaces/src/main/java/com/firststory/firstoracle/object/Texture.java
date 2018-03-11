@@ -13,10 +13,7 @@ import org.lwjgl.stb.STBImage;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -110,31 +107,35 @@ public final class Texture implements Closeable {
         int rows = getTwoPowerGreaterThan( frames );
         int columns = getTwoPowerGreaterThan( directions );
         
-        File[][] files = new File[frames][directions];
+        InputStream[][] imageStreams = new InputStream[frames][directions];
         for ( int frame = 0; frame < frames; frame++ ) {
             for ( int direction = 0; direction < directions; direction++ ) {
-                File file = new File( replayKeywords( filePathMask, frame, direction ) );
-                if ( !file.canRead() ) {
-                    throw new IOException( "File:" + file.getPath() + " does not exists!" );
+                String path = replayKeywords( filePathMask, frame, direction );
+                File file = new File( path );
+                if ( file.canRead() ) {
+                    imageStreams[frame][direction] = file.toURI().toURL().openStream();
+                }else{
+                    imageStreams[frame][direction] = Texture.class.getClassLoader().getResourceAsStream( path );
+                    if(imageStreams[frame][direction] == null){
+                        throw new IOException( "Image:" + path + " does not exists!" );
+                    }
                 }
-                files[frame][direction] = file;
             }
         }
-        
         int width = -1;
         int height = -1;
         
         BufferedImage[][] images = new BufferedImage[frames][directions];
         for ( int frame = 0; frame < frames; frame++ ) {
             for ( int direction = 0; direction < directions; direction++ ) {
-                BufferedImage image = ImageIO.read( files[frame][direction] );
+                BufferedImage image = ImageIO.read( imageStreams[frame][direction] );
                 if ( width == -1 && height == -1 ) {
                     height = image.getHeight();
                     width = image.getWidth();
                 } else {
                     if ( width != image.getWidth() && height != image.getHeight() ) {
                         throw new RuntimeException(
-                            "Image:" + files[frame][direction].getPath() + " has different height/width than others!" );
+                            "Image:" + replayKeywords( filePathMask, frame, direction ) + " has different height/width than others!" );
                     }
                 }
                 images[frame][direction] = image;
