@@ -224,4 +224,10 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <modules>
+        <module>
+            FirstOracle
+        </module>
+    </modules>
 </project>
