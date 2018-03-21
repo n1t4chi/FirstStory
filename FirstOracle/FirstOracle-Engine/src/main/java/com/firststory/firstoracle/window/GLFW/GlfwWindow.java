@@ -4,16 +4,34 @@
 
 package com.firststory.firstoracle.window.GLFW;
 
+import com.firststory.firstoracle.window.notifying.*;
 import org.lwjgl.glfw.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.firststory.firstoracle.window.GLFW.GlfwContext.deregisterWindow;
 
+
 public class GlfwWindow {
-    private final long windowID;
-    
-    public long getID() {
-        return windowID;
+    private static final GeneralJoystickCallback JOYSTICK_CALLBACK;
+    static {
+        JOYSTICK_CALLBACK = new GeneralJoystickCallback();
+        GLFW.glfwSetJoystickCallback( JOYSTICK_CALLBACK );
     }
+    private final long windowID;
+    private final KeyCallback keyCallback = new KeyCallback();
+    private final MouseButtonCallback mouseButtonCallback = new MouseButtonCallback();
+    private final MouserPositionCallback mousePositionCallback = new MouserPositionCallback();
+    private final MouserScrollCallback mouseScrollCallback = new MouserScrollCallback();
+    private final WindowPositionCallback windowPositionCallback = new WindowPositionCallback();
+    private final WindowSizeCallback windowSizeCallback = new WindowSizeCallback();
+    private final List<KeyListener > keyListeners = new ArrayList<>();
+    private final List<JoystickListener > joystickListeners = new ArrayList<>();
+    private final List<MouseListener> mouseListeners = new ArrayList<>();
+    private final List<WindowListener> windowListeners = new ArrayList<>();
+    private final WindowFocusCallback windowFocusCallback = new WindowFocusCallback();
+    private final WindowCloseCallback windowCloseCallback = new WindowCloseCallback();
     
     /**
      * Constructor for glfw window wrapper.
@@ -23,6 +41,11 @@ public class GlfwWindow {
         if(windowID <= 0)
             throw new IllegalArgumentException("WindowID cannot be 0 or less.");
         this.windowID = windowID;
+        setupCallbacks();
+    }
+    
+    public long getID() {
+        return windowID;
     }
     
     public void show() {
@@ -30,6 +53,7 @@ public class GlfwWindow {
     }
     
     public void destroy(){
+        JOYSTICK_CALLBACK.removeWindow( this );
         deregisterWindow(this);
         Callbacks.glfwFreeCallbacks( windowID );
         GLFW.glfwDestroyWindow( windowID );
@@ -38,45 +62,37 @@ public class GlfwWindow {
     public boolean shouldClose() {
         return GLFW.glfwWindowShouldClose( windowID );
     }
-    
+
     public void quit() {
         GLFW.glfwSetWindowShouldClose( windowID, true );
     }
-    
-    public void setKeyCallback( GLFWKeyCallback callback ) {
-        GLFW.glfwSetKeyCallback( windowID, callback );
+
+    public void addKeyListener( KeyListener listener ) {
+        keyListeners.add( listener );
     }
-    
-    public void setMouseScrollCallback( GLFWScrollCallback callback ) {
-        GLFW.glfwSetScrollCallback( windowID, callback );
+
+    public void addMouseListener( MouseListener listener ) {
+        mouseListeners.add( listener );
     }
-    
-    public void setMouseButtonCallback( GLFWMouseButtonCallback callback ) {
-        GLFW.glfwSetMouseButtonCallback( windowID, callback );
+
+    public void addWindowListener( WindowListener listener ) {
+        windowListeners.add( listener );
     }
-    
-    public void setMousePositionCallback( GLFWCursorPosCallback callback ) {
-        GLFW.glfwSetCursorPosCallback( windowID, callback );
-    }
-    
-    public void setPositionCallback( GLFWWindowPosCallbackI callback ) {
-        GLFW.glfwSetWindowPosCallback( windowID, callback );
-    }
-    
-    public void setSizeCallback( GLFWWindowSizeCallbackI callback ) {
-        GLFW.glfwSetWindowSizeCallback( windowID, callback );
+
+    public void addJoystickListener( JoystickListener listener ) {
+        joystickListeners.add( listener );
     }
     
     public void setUpRenderLoop() {
 //        VertexAttributes.cleanBinds();
 //        setWindowToCurrentThread();
     }
-    
+
     public void cleanAfterLoop() {
         GLFW.glfwSwapBuffers( windowID );
         GLFW.glfwPollEvents();
     }
-    
+
     public void setupVerticalSync( boolean verticalSync ) {
         if ( verticalSync ) {
             GLFW.glfwSwapInterval( 1 );
@@ -88,4 +104,86 @@ public class GlfwWindow {
     public void setWindowToCurrentThread() {
         GLFW.glfwMakeContextCurrent( windowID );
     }
+    
+    void notifyJoystickListeners( int jid, int event ) {
+        JoystickEvent joystickEvent = new JoystickEvent(GlfwWindow.this, jid, event );
+        joystickListeners.forEach( listener -> listener.notify( joystickEvent ) );
+    }
+    
+    private void setupCallbacks(){
+        GLFW.glfwSetKeyCallback( windowID, keyCallback );
+        GLFW.glfwSetMouseButtonCallback( windowID, mouseButtonCallback );
+        GLFW.glfwSetScrollCallback( windowID, mouseScrollCallback );
+        GLFW.glfwSetCursorPosCallback( windowID, mousePositionCallback );
+        GLFW.glfwSetWindowPosCallback( windowID, windowPositionCallback );
+        GLFW.glfwSetWindowSizeCallback( windowID, windowSizeCallback );
+        GLFW.glfwSetWindowFocusCallback( windowID, windowFocusCallback );
+        GLFW.glfwSetWindowCloseCallback( windowID, windowCloseCallback );
+        JOYSTICK_CALLBACK.addWindow( this );
+    }
+    
+    private class MouserScrollCallback implements GLFWScrollCallbackI {
+        @Override
+        public void invoke( long window, double xoffset, double yoffset ) {
+            MouseScrollEvent event = new MouseScrollEvent( GlfwWindow.this,xoffset, yoffset );
+            mouseListeners.forEach( listener -> listener.notify( event ) );
+        }
+    }
+    
+    private class MouseButtonCallback implements GLFWMouseButtonCallbackI {
+        @Override
+        public void invoke( long window, int button, int action, int mods ) {
+            MouseButtonEvent event = new MouseButtonEvent( GlfwWindow.this, button, action, mods );
+            mouseListeners.forEach( listener -> listener.notify( event ) );
+        }
+    }
+
+    private class MouserPositionCallback implements GLFWCursorPosCallbackI {
+        @Override
+        public void invoke( long window, double xpos, double ypos ) {
+            MousePositionEvent event = new MousePositionEvent( GlfwWindow.this, xpos, ypos );
+            mouseListeners.forEach( listener -> listener.notify( event ) );
+        }
+    }
+    
+    private class KeyCallback implements GLFWKeyCallbackI {
+        @Override
+        public void invoke( long window, int key, int scancode, int action, int mods ) {
+            KeyEvent event = new KeyEvent( GlfwWindow.this, key, scancode, action, mods );
+            keyListeners.forEach( listener -> listener.notify( event ) );
+        }
+    }
+    
+    private class WindowSizeCallback implements GLFWWindowSizeCallbackI {
+        @Override
+        public void invoke( long window, int width, int height ) {
+            WindowSizeEvent event = new WindowSizeEvent( GlfwWindow.this, width, height );
+            windowListeners.forEach( listener -> listener.notify( event ) );
+        }
+    }
+    
+    private class WindowPositionCallback implements GLFWWindowPosCallbackI {
+        @Override
+        public void invoke( long window, int xpos, int ypos ) {
+            WindowPositionEvent event = new WindowPositionEvent( GlfwWindow.this, xpos, ypos );
+            windowListeners.forEach( listener -> listener.notify( event ) );
+        }
+    }
+    
+    private class WindowCloseCallback implements GLFWWindowCloseCallbackI {
+        @Override
+        public void invoke( long window ) {
+            WindowCloseEvent event = new WindowCloseEvent( GlfwWindow.this );
+            windowListeners.forEach( listener -> listener.notify( event ) );
+        }
+    }
+    
+    private class WindowFocusCallback implements GLFWWindowFocusCallbackI {
+        @Override
+        public void invoke( long window, boolean focused ) {
+            WindowFocusedEvent event = new WindowFocusedEvent( GlfwWindow.this, focused );
+            windowListeners.forEach( listener -> listener.notify( event ) );
+        }
+    }
 }
+

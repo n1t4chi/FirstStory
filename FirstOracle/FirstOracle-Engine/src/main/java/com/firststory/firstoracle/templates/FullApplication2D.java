@@ -15,6 +15,8 @@ import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.WindowApplication;
+import com.firststory.firstoracle.window.notifying.WindowListener;
+import com.firststory.firstoracle.window.notifying.WindowSizeEvent;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import javafx.scene.Scene;
@@ -197,11 +199,14 @@ public class FullApplication2D {
         renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
 
         window.addQuitListener( cameraController );
-        window.addKeyListener( cameraController.getKeyCallback() );
-        window.addMouseScrollListener( cameraController.getScrollCallback() );
-        window.addSizeListener( ( newWidth, newHeight, source ) -> {
-            renderedScene.getCamera2D().forceUpdate();
-            renderedScene.getCamera3D().forceUpdate();
+        window.addKeyListener( cameraController );
+        window.addMouseListener( cameraController );
+        window.addWindowListener( new WindowListener() {
+            @Override
+            public void notify( WindowSizeEvent event ) {
+                renderedScene.getCamera2D().forceUpdate();
+                renderedScene.getCamera3D().forceUpdate();
+            }
         } );
 
         cameraController.start();

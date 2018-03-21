@@ -8,41 +8,43 @@ import cuchaz.jfxgl.LWJGLDebug;
 import javafx.application.Application;
 import org.lwjgl.system.Callback;
 
+import static com.firststory.firstoracle.FirstOracleConstants.isDebugMode;
+
 /**
  * Class used to create JFXGL context.
  * For now it can only create one instance for one window as there is no support in JFXGL.
  */
 public class JfxglContext {
-    private static JfxglContext instance = null;
-    
-    private static class DummyContext extends JfxglContext{
-        private DummyContext() {}
-        @Override
-        public void render() {}
-    }
-    
-    public static Callback getDebugCallback() {
-        return LWJGLDebug.enableDebugging();
-    }
+    private static JfxglContext instance;
+    private static Callback debugCallback;
     
     public static JfxglContext createInstance(long hwnd, String[] args, Application app) {
-        if(app == null){
+        if(app == null)
             return new DummyContext();
-        }
         if(instance != null)
             throw new RuntimeException( "Multiple JFXGL instances not supported." );
+        if( isDebugMode() )
+            debugCallback = LWJGLDebug.enableDebugging();
         instance = new JfxglContext();
         JFXGL.start( hwnd, new String[]{}, app );
         return instance;
     }
     
-    private JfxglContext(){}
-    
     public static void terminate() {
+        if( debugCallback != null)
+            debugCallback.free();
         JFXGL.terminate();
     }
     
+    private JfxglContext(){}
+    
     public void render() {
         JFXGL.render();
+    }
+    
+    private static class DummyContext extends JfxglContext{
+        private DummyContext() {}
+        @Override
+        public void render() {}
     }
 }

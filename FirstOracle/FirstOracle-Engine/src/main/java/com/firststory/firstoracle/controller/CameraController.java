@@ -5,9 +5,7 @@ package com.firststory.firstoracle.controller;
 
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
-import com.firststory.firstoracle.window.notifying.QuitEvent;
-import com.firststory.firstoracle.window.notifying.QuitListener;
-import com.firststory.firstoracle.window.notifying.QuitNotifier;
+import com.firststory.firstoracle.window.notifying.*;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
@@ -24,40 +22,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author n1t4chi
  */
-public class CameraController  extends Thread implements CameraNotifier, QuitListener {
+public class CameraController  extends Thread
+    implements
+    CameraNotifier,
+    QuitListener,
+    KeyListener,
+    MouseListener
+{
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final CameraKeyMap cameraKeyMap;
     private final long refreshLatency;
     private final ConcurrentHashMap< Integer, Integer > keyMap = new ConcurrentHashMap<>( 10 );
-    private final GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
-        @Override
-        public void invoke( long window, int key, int scancode, int action, int mods ) {
-            //        System.err.println(
-            //            "w:" + window + ", k:" + key + ", sc" + scancode + ", a:" + action + ", m:" + mods );
-            if ( action == GLFW.GLFW_PRESS ) {
-                keyMap.put( key, mods );
-            } else if ( action == GLFW.GLFW_RELEASE ) {
-                keyMap.remove( key );
-            }
-        }
-    };
     private final Collection< CameraListener > cameraListeners = new ArrayList<>( 3 );
     private final Vector2f direction2D = new Vector2f( 1, 1 );
     private final Vector2f perpendicularDirection2D = new Vector2f( 1, 1 );
     private final Vector2f direction3D = new Vector2f( 1, 1 );
     private final Vector2f perpendicularDirection3D = new Vector2f( 1, 1 );
-    private final GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
-        @Override
-        public void invoke( long l, double deltaX, double deltaY ) {
-            cameraSize -= deltaY;
-            if ( cameraSize < 1 ) {
-                cameraSize = 1;
-            } else {
-                notifyCameraListeners( new CameraEvent( pos2D, pos3D, rotationY, rotationX ) );
-            }
-        }
-    };
     private float speed;
     private float rotationY = 0;
     private float rotationX = 0;
@@ -65,13 +46,32 @@ public class CameraController  extends Thread implements CameraNotifier, QuitLis
     private Vector2f pos2D = new Vector2f( 0, 0 );
     private float cameraSize = 25;
     private volatile boolean keepWorking = true;
-    
     public CameraController( CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
         super("Camera Controller " + instanceCounter.getAndIncrement() );
         this.cameraKeyMap = cameraKeyMap;
         this.refreshLatency = refreshLatency;
         this.speed = speed;
         rotateVectors();
+    }
+
+    @Override
+    public void notify( MouseScrollEvent event ) {
+        cameraSize -= event.xoffset;
+        if ( cameraSize < 1 ) {
+            cameraSize = 1;
+        } else {
+            notifyCameraListeners( new CameraEvent( pos2D, pos3D, rotationY, rotationX ) );
+        }
+        
+    }
+    
+    @Override
+    public void notify( KeyEvent event ) {
+        if ( event.action == GLFW.GLFW_PRESS ) {
+            keyMap.put( event.key, event.mods );
+        } else if ( event.action == GLFW.GLFW_RELEASE ) {
+            keyMap.remove( event.key );
+        }
     }
     
     public void setSpeed( float speed ) {
@@ -138,14 +138,6 @@ public class CameraController  extends Thread implements CameraNotifier, QuitLis
     
     public void setCameraSize( float cameraSize ) {
         this.cameraSize = cameraSize;
-    }
-
-    public GLFWKeyCallback getKeyCallback() {
-        return keyCallback;
-    }
-
-    public GLFWScrollCallback getScrollCallback() {
-        return scrollCallback;
     }
     
     public void updateIsometricCamera3D( IsometricCamera3D camera ) {

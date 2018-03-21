@@ -13,6 +13,8 @@ import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.Window;
+import com.firststory.firstoracle.window.notifying.WindowListener;
+import com.firststory.firstoracle.window.notifying.WindowSizeEvent;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import org.joml.Vector4f;
@@ -25,6 +27,9 @@ import org.joml.Vector4f;
  */
 public class OpenGlAndGlfwApplication2D {
     
+    public static void main( String[] args ) throws Exception{
+        new OpenGlAndGlfwApplication2D().run( args );
+    }
     private Window window;
     private WindowRenderingContext renderer;
     private SceneProvider sceneProvider;
@@ -35,10 +40,6 @@ public class OpenGlAndGlfwApplication2D {
     private ShaderProgram2D shaderProgram2D;
     private ShaderProgram3D shaderProgram3D;
     private WindowSettings settings;
-    
-    public static void main( String[] args ) throws Exception{
-        new OpenGlAndGlfwApplication2D().run( args );
-    }
     
     public void run( String[] args ) throws Exception{
         int width = 300;
@@ -122,13 +123,15 @@ public class OpenGlAndGlfwApplication2D {
         renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
 
         window.addQuitListener( cameraController );
-        window.addKeyListener( cameraController.getKeyCallback() );
-        window.addMouseScrollListener( cameraController.getScrollCallback() );
-        window.addSizeListener( ( newWidth, newHeight, source ) -> {
-            renderedScene.getCamera2D().forceUpdate();
-            renderedScene.getCamera3D().forceUpdate();
+        window.addKeyListener( cameraController );
+        window.addMouseListener( cameraController );
+        window.addWindowListener( new WindowListener() {
+            @Override
+            public void notify( WindowSizeEvent event ) {
+                renderedScene.getCamera2D().forceUpdate();
+                renderedScene.getCamera3D().forceUpdate();
+            }
         } );
-
         cameraController.start();
     
         window.run();

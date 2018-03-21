@@ -5,9 +5,7 @@ package com.firststory.firstoracle.window;
 
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.rendering.RenderingContext;
-import com.firststory.firstoracle.rendering.WindowRenderingContext;
-import com.firststory.firstoracle.window.GLFW.GlfwContext;
-import com.firststory.firstoracle.window.GLFW.GlfwWindow;
+import com.firststory.firstoracle.window.GLFW.*;
 import com.firststory.firstoracle.window.JFXGL.JfxglContext;
 import com.firststory.firstoracle.window.OpenGL.OpenGlContext;
 import com.firststory.firstoracle.window.OpenGL.OpenGlInstance;
@@ -15,59 +13,23 @@ import com.firststory.firstoracle.window.notifying.*;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import javafx.application.Application;
-import javafx.scene.layout.Pane;
-import org.lwjgl.glfw.GLFWCursorPosCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
-import org.lwjgl.glfw.GLFWScrollCallback;
-import org.lwjgl.system.Callback;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.firststory.firstoracle.FirstOracleConstants.isDebugMode;
-
 /**
- * Class window that creates JavaFX with possible OpenGL rendering in background provided using
- * {@link WindowRenderingContext} and {@link com.firststory.firstoracle.rendering.SceneProvider}
- * <p>
- * Window creates {@link Application} internally and provides overlay panel {@link Pane}
- * on which all overlay components can be placed onto.
- * <p>
- * For Window to work the application needs to run main method with code below:
- * <code>
- * public static void main(String[] args) {
- * JFXGLLauncher.launchMain(&lt;class with jfxlmain&gt;.class, args);
- * }
- * </code>
- * Also there needs to be method jfxglmain(String[] args) (whose class is referenced in main above)
- * and only from there you can create any objects or threads, Window included.
- * <code>
- * public static void jfxglmain(String[] args) {
- * &lt;create all threads and windows here&gt;
- * };
- * </code>
- * Also Window needs to be initialised in this order:
- * init();
- * //any OpenGL context can be used after
- * run(); &gt;
- * The window needs to be run in same thread as it was created in.
- *
  * @author n1t4chi
  */
 public class Window implements Runnable,
     TimeNotifier,
-    WindowResizedNotifier,
-    WindowMovementNotifier,
+    WindowListener,
     QuitNotifier
 {
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final WindowSettings settings;
     private final ArrayList< TimeListener > timeListeners = new ArrayList<>( 3 );
-    private final ArrayList< WindowResizedListener > sizeListeners = new ArrayList<>( 3 );
-    private final ArrayList< WindowMovementListener > movementListeners = new ArrayList<>( 3 );
     private final ArrayList< QuitListener > quitListeners = new ArrayList<>( 3 );
     private final Application application;
     private final ShaderProgram2D shaderProgram2D;
@@ -76,7 +38,6 @@ public class Window implements Runnable,
     private GlfwWindow window;
     private GlfwContext glfw;
     private OpenGlInstance openGl;
-    private Callback debugCallback;
     private JfxglContext jfxgl;
     
     public static Window getOpenGlWithJavaFxInstance(
@@ -116,7 +77,7 @@ public class Window implements Runnable,
     
     public void init() {
         try {
-            glfw = GlfwContext.getInstance();
+            glfw = GlfwContext.createInstance();
             window = glfw.createWindow( settings );
             openGl = OpenGlContext.createInstance();
             openGl.invoke( () -> {
@@ -137,9 +98,6 @@ public class Window implements Runnable,
         try {
             openGl.invoke( () -> {
                 window.show();
-                if( isDebugMode() )
-                    debugCallback = JfxglContext.getDebugCallback();
-                
                 jfxgl = JfxglContext.createInstance( window.getID(), new String[]{}, application );
             });
             loop();
@@ -184,53 +142,45 @@ public class Window implements Runnable,
         return quitListeners;
     }
     
-    @Override
-    public Collection< WindowMovementListener > getMovementListeners() {
-        return movementListeners;
+    public void addKeyListener( KeyListener listener ) {
+        window.addKeyListener( listener );
     }
     
-    @Override
-    public Collection< WindowResizedListener > getSizeListeners() {
-        return sizeListeners;
+    public void addMouseListener( MouseListener listener ) {
+        window.addMouseListener( listener );
     }
     
-    public void addKeyListener( GLFWKeyCallback controller ) {
-        window.setKeyCallback( controller );
+    public void addWindowListener( WindowListener listener ) {
+        window.addWindowListener( listener );
     }
     
-    public void addMouseScrollListener( GLFWScrollCallback controller ) {
-        window.setMouseScrollCallback( controller );
-    }
-    
-    public void addMouseButtonListener( GLFWMouseButtonCallback controller ) {
-        window.setMouseButtonCallback( controller );
-    }
-    
-    public void addMousePositionCallbackController( GLFWCursorPosCallback controller ) {
-        window.setMousePositionCallback( controller );
+    public void addJoystickListener( JoystickListener listener ) {
+        window.addJoystickListener( listener );
     }
     
     private void setupCallbacks() {
-        window.setSizeCallback( ( window, width, height ) -> {
-            openGl.updateViewPort( 0, 0, width, height );
-            settings.setWidth( width );
-            settings.setHeight( height );
-            notifySizeListeners( width, height );
-        } );
-        window.setPositionCallback( ( window, xpos, ypos ) -> notifyMovementListeners( xpos, ypos ) );
+        window.addWindowListener( this );
+    }
+    
+    @Override
+    public void notify( WindowSizeEvent event ) {
+        openGl.updateViewPort( 0, 0, event.getWidth(), event.getHeight() );
+        settings.setWidth( event.getWidth() );
+        settings.setHeight( event.getHeight() );
+    }
+    
+    @Override
+    public void notify( WindowCloseEvent event ) {
+    
     }
     
     private void close() {
-        if( debugCallback != null)
-            debugCallback.free();
         window.destroy();
     }
     
     private void loop() throws Exception {
         while ( !shouldWindowClose() ) {
-            //try { sleep( 1 ); } catch ( InterruptedException e ) {}
             openGl.invoke( () -> {
-                //System.err.println(Thread.currentThread()+"loop invoke");
                 window.setUpRenderLoop();
                 openGl.clearScreen();
                 notifyTimeListener( glfw.getTime() );

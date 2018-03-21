@@ -15,12 +15,12 @@ import java.util.Set;
 
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class GlfwContext {
+public class GlfwContext{
     private static Set<GlfwWindow> instances = new HashSet<>();
     private static GlfwContext instance;
     private static GLFWErrorCallback errorCallback;
     
-    public synchronized static GlfwContext getInstance() {
+    public synchronized static GlfwContext createInstance() {
         if(instance == null){
             setUpErrorCallback();
             init();
