@@ -3,14 +3,13 @@
  */
 package com.firststory.firstoracle.controller;
 
+import com.firststory.firstoracle.Key;
+import com.firststory.firstoracle.KeyCode;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.window.notifying.*;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWScrollCallback;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,18 +21,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author n1t4chi
  */
-public class CameraController  extends Thread
+public class CameraController extends Thread
     implements
     CameraNotifier,
     QuitListener,
     KeyListener,
-    MouseListener
+    MouseListener,
+    TimeListener
 {
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final CameraKeyMap cameraKeyMap;
     private final long refreshLatency;
-    private final ConcurrentHashMap< Integer, Integer > keyMap = new ConcurrentHashMap<>( 10 );
+    private final ConcurrentHashMap< KeyCode, Key > keyMap = new ConcurrentHashMap<>( 10 );
     private final Collection< CameraListener > cameraListeners = new ArrayList<>( 3 );
     private final Vector2f direction2D = new Vector2f( 1, 1 );
     private final Vector2f perpendicularDirection2D = new Vector2f( 1, 1 );
@@ -46,6 +46,8 @@ public class CameraController  extends Thread
     private Vector2f pos2D = new Vector2f( 0, 0 );
     private float cameraSize = 25;
     private volatile boolean keepWorking = true;
+    private double currentTimeUpdate;
+    
     public CameraController( CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
         super("Camera Controller " + instanceCounter.getAndIncrement() );
         this.cameraKeyMap = cameraKeyMap;
@@ -56,7 +58,7 @@ public class CameraController  extends Thread
 
     @Override
     public void notify( MouseScrollEvent event ) {
-        cameraSize -= event.xoffset;
+        cameraSize -= event.yoffset;
         if ( cameraSize < 1 ) {
             cameraSize = 1;
         } else {
@@ -67,10 +69,13 @@ public class CameraController  extends Thread
     
     @Override
     public void notify( KeyEvent event ) {
-        if ( event.action == GLFW.GLFW_PRESS ) {
-            keyMap.put( event.key, event.mods );
-        } else if ( event.action == GLFW.GLFW_RELEASE ) {
-            keyMap.remove( event.key );
+        switch(event.getAction()){
+            case PRESS:
+                keyMap.put( event.getKeyCode(), event.getKey() );
+                break;
+            case RELEASE:
+                keyMap.remove( event.getKeyCode() );
+                break;
         }
     }
     
@@ -125,9 +130,11 @@ public class CameraController  extends Thread
     public void setPos2D( Vector2f pos2D ) {
         this.pos2D = pos2D;
     }
+    
     public void setPos2DX( float X ) {
         this.pos2D.set( X,pos2D.y );
     }
+    
     public void setPos2DY( float Y ) {
         this.pos2D.set( pos2D.x,Y );
     }
@@ -187,20 +194,20 @@ public class CameraController  extends Thread
 
     @Override
     public void run() {
-        double lastTime = GLFW.glfwGetTime();
-        try {
-            sleep( refreshLatency );
-        } catch ( InterruptedException ex ) {
-            System.err.println( "Controller sleep interrupted:" + ex );
-            Thread.currentThread().interrupt();
-        }
+        double previousTimeUpdate = currentTimeUpdate;
         while ( keepWorking ) {
-            double currentTime = GLFW.glfwGetTime();
+            try {
+                sleep( refreshLatency );
+            } catch ( InterruptedException ex ) {
+                System.err.println( "Controller sleep interrupted:" + ex );
+                Thread.currentThread().interrupt();
+            }
+            
             boolean updated = false;
             if ( !keyMap.isEmpty() ) {
-                float timeDelta = ( float ) ( ( currentTime - lastTime ) * speed );
-                for ( Map.Entry< Integer, Integer > e : keyMap.entrySet() ) {
-                    if ( key( e.getKey(), e.getValue(), timeDelta ) ) {
+                float timeDelta = ( float ) ( ( currentTimeUpdate - previousTimeUpdate ) * speed );
+                for ( Map.Entry< KeyCode, Key > e : keyMap.entrySet() ) {
+                    if ( key( e.getValue(), timeDelta ) ) {
                         keyMap.remove( e.getKey() );
                     } else {
                         updated = true;
@@ -210,13 +217,7 @@ public class CameraController  extends Thread
             if ( updated ) {
                 notifyCameraListeners( new CameraEvent( pos2D, pos3D, rotationY, rotationX ) );
             }
-            lastTime = currentTime;
-            try {
-                sleep( refreshLatency );
-            } catch ( InterruptedException ex ) {
-                System.err.println( "Controller sleep interrupted:" + ex );
-                Thread.currentThread().interrupt();
-            }
+            previousTimeUpdate = currentTimeUpdate;
         }
     }
 
@@ -230,9 +231,14 @@ public class CameraController  extends Thread
         keepWorking = false;
         return Collections.singleton( this );
     }
-
+    
+    @Override
+    public void notify( double newTimeSnapshot, TimeNotifier source ) {
+        currentTimeUpdate = newTimeSnapshot;
+    }
+    
     private void rotateVectors() {
-        float angle = -(45 + rotationY);
+        float angle = rotationY - 45;
         double radians3D = Math.toRadians( angle );
         direction3D.set( ( float ) Math.cos( radians3D ), ( float ) Math.sin( radians3D ) );
         radians3D = Math.toRadians( angle - 90 );
@@ -251,31 +257,31 @@ public class CameraController  extends Thread
     }
 
     /**
-     * @param key       GLFW key code
+     * @param key       key
      * @param timeDelta repeat action differentiation
      *
-     * @return whether to remove key or not.
+     * @return whether to remove keyCode or not.
      */
-    private boolean key( int key, int mods, float timeDelta ) {
-        if ( cameraKeyMap.shouldRotateUp( key, mods ) ) {
+    private boolean key( Key key, float timeDelta ) {
+        if ( cameraKeyMap.shouldRotateUp( key ) ) {
             rotateUp( timeDelta );
-        } else if ( cameraKeyMap.shouldRotateDown( key, mods ) ) {
+        } else if ( cameraKeyMap.shouldRotateDown( key ) ) {
             rotateDown( timeDelta );
-        } else if ( cameraKeyMap.shouldRotateLeft( key, mods ) ) {
+        } else if ( cameraKeyMap.shouldRotateLeft( key ) ) {
             rotateLeft( timeDelta );
-        } else if ( cameraKeyMap.shouldRotateRight( key, mods ) ) {
+        } else if ( cameraKeyMap.shouldRotateRight( key ) ) {
             rotateRight( timeDelta );
-        } else if ( cameraKeyMap.shouldMoveForward( key, mods ) ) {
+        } else if ( cameraKeyMap.shouldMoveForward( key ) ) {
             moveForward( timeDelta );
-        } else if ( cameraKeyMap.shouldMoveBackwards( key, mods ) ) {
+        } else if ( cameraKeyMap.shouldMoveBackwards( key ) ) {
             moveBackwards( timeDelta );
-        } else if ( cameraKeyMap.shouldMoveRight( key, mods ) ) {
+        } else if ( cameraKeyMap.shouldMoveRight( key ) ) {
             moveRight( timeDelta );
-        } else if ( cameraKeyMap.shouldMoveLeft( key, mods ) ) {
+        } else if ( cameraKeyMap.shouldMoveLeft( key ) ) {
             moveLeft( timeDelta );
-        } else if ( cameraKeyMap.shouldMoveUp( key, mods ) ) {
+        } else if ( cameraKeyMap.shouldMoveUp( key ) ) {
             moveUp( timeDelta );
-        } else if ( cameraKeyMap.shouldMoveDown( key, mods ) ) {
+        } else if ( cameraKeyMap.shouldMoveDown( key ) ) {
             moveDown( timeDelta );
         } else {
             return true;

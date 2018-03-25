@@ -12,5 +12,5 @@ public interface RenderingContext {
     
     void dispose();
     
-    void render();
+    void render( double currentRenderTime );
 }

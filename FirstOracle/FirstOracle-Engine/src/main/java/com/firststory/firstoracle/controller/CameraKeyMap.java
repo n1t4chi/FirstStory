@@ -4,37 +4,35 @@
 
 package com.firststory.firstoracle.controller;
 
-import org.lwjgl.glfw.GLFW;
+import com.firststory.firstoracle.Key;
+import com.firststory.firstoracle.KeyCode;
+import com.firststory.firstoracle.KeyModificator;
 
 public class CameraKeyMap {
     
     private static final CameraKeyMap alpabeticalLayout = new CameraKeyMap(
-        GLFW.GLFW_KEY_W,
-        GLFW.GLFW_KEY_S,
-        GLFW.GLFW_KEY_A,
-        GLFW.GLFW_KEY_D,
-        GLFW.GLFW_KEY_SPACE,
-        GLFW.GLFW_KEY_LEFT_CONTROL,
-        GLFW.GLFW_KEY_Q,
-        GLFW.GLFW_KEY_E,
-        GLFW.GLFW_KEY_R,
-        GLFW.GLFW_KEY_F,
-        GLFW.GLFW_MOD_CONTROL,
-        GLFW.GLFW_MOD_CONTROL
+        Key.prepare( KeyCode.KEY_W ).build(),
+        Key.prepare( KeyCode.KEY_S ).build(),
+        Key.prepare( KeyCode.KEY_A ).build(),
+        Key.prepare( KeyCode.KEY_D ).build(),
+        Key.prepare( KeyCode.KEY_SPACE ).build(),
+        Key.prepare( KeyCode.KEY_LEFT_CONTROL ).build(),
+        Key.prepare( KeyCode.KEY_Q ).build(),
+        Key.prepare( KeyCode.KEY_E ).build(),
+        Key.prepare( KeyCode.KEY_R ).build(),
+        Key.prepare( KeyCode.KEY_F ).build()
     );
     private static final CameraKeyMap functionKeyLayout = new CameraKeyMap(
-        GLFW.GLFW_KEY_UP,
-        GLFW.GLFW_KEY_DOWN,
-        GLFW.GLFW_KEY_LEFT,
-        GLFW.GLFW_KEY_RIGHT,
-        GLFW.GLFW_KEY_PAGE_UP,
-        GLFW.GLFW_KEY_PAGE_DOWN,
-        GLFW.GLFW_KEY_LEFT,
-        GLFW.GLFW_KEY_RIGHT,
-        GLFW.GLFW_KEY_UP,
-        GLFW.GLFW_KEY_DOWN,
-        0,
-        GLFW.GLFW_MOD_CONTROL
+        Key.prepare( KeyCode.KEY_UP ).build(),
+        Key.prepare( KeyCode.KEY_DOWN ).build(),
+        Key.prepare( KeyCode.KEY_LEFT ).build(),
+        Key.prepare( KeyCode.KEY_RIGHT ).build(),
+        Key.prepare( KeyCode.KEY_PAGE_UP ).build(),
+        Key.prepare( KeyCode.KEY_PAGE_DOWN ).build(),
+        Key.prepare( KeyCode.KEY_LEFT ).setModificators( KeyModificator.CONTROL ).build(),
+        Key.prepare( KeyCode.KEY_RIGHT ).setModificators( KeyModificator.CONTROL ).build(),
+        Key.prepare( KeyCode.KEY_UP ).setModificators( KeyModificator.CONTROL ).build(),
+        Key.prepare( KeyCode.KEY_DOWN ).setModificators( KeyModificator.CONTROL ).build()
     );
     
     public static CameraKeyMap getAlphabetKeyLayout() {
@@ -45,32 +43,28 @@ public class CameraKeyMap {
         return functionKeyLayout;
     }
     
-    private final int moveForwardKey;
-    private final int moveBackwardsKey;
-    private final int moveLeftKey;
-    private final int moveRightKey;
-    private final int moveUpKey;
-    private final int moveDownKey;
-    private final int rotateLeftKey;
-    private final int rotateRightKey;
-    private final int rotateUpKey;
-    private final int rotateDownKey;
-    private final int movementUnlockKeyMods;
-    private final int rotationUnlockKeyMods;
+    private final Key moveForwardKey;
+    private final Key moveBackwardsKey;
+    private final Key moveLeftKey;
+    private final Key moveRightKey;
+    private final Key moveUpKey;
+    private final Key moveDownKey;
+    private final Key rotateLeftKey;
+    private final Key rotateRightKey;
+    private final Key rotateUpKey;
+    private final Key rotateDownKey;
     
     public CameraKeyMap(
-        int moveForwardKey,
-        int moveBackwardsKey,
-        int moveLeftKey,
-        int moveRightKey,
-        int moveUpKey,
-        int moveDownKey,
-        int rotateLeftKey,
-        int rotateRightKey,
-        int rotateUpKey,
-        int rotateDownKey,
-        int movementUnlockKeyMods,
-        int rotationUnlockKeyMods
+        Key moveForwardKey,
+        Key moveBackwardsKey,
+        Key moveLeftKey,
+        Key moveRightKey,
+        Key moveUpKey,
+        Key moveDownKey,
+        Key rotateLeftKey,
+        Key rotateRightKey,
+        Key rotateUpKey,
+        Key rotateDownKey
     ) {
         this.moveForwardKey = moveForwardKey;
         this.moveBackwardsKey = moveBackwardsKey;
@@ -82,57 +76,45 @@ public class CameraKeyMap {
         this.rotateDownKey = rotateDownKey;
         this.rotateUpKey = rotateUpKey;
         this.moveRightKey = moveRightKey;
-        this.movementUnlockKeyMods = movementUnlockKeyMods;
-        this.rotationUnlockKeyMods = rotationUnlockKeyMods;
     }
     
-    boolean shouldMoveDown( int key, int mods ) {
-        return correctMovementMods( mods ) && key == moveDownKey;
+    boolean shouldMoveDown( Key key ) {
+        return moveDownKey.equals( key );
     }
     
-    boolean shouldMoveUp( int key, int mods ) {
-        return correctMovementMods( mods ) && key == moveUpKey;
+    boolean shouldMoveUp( Key key ) {
+        return moveUpKey.equals( key );
     }
     
-    boolean shouldMoveLeft( int key, int mods ) {
-        return correctMovementMods( mods ) && key == moveLeftKey;
+    boolean shouldMoveLeft( Key key ) {
+        return moveLeftKey.equals( key );
     }
     
-    boolean shouldMoveRight( int key, int mods ) {
-        return correctMovementMods( mods ) && key == moveRightKey;
+    boolean shouldMoveRight( Key key ) {
+        return moveRightKey.equals( key );
     }
     
-    boolean shouldMoveBackwards( int key, int mods ) {
-        return correctMovementMods( mods ) && key == moveBackwardsKey;
+    boolean shouldMoveBackwards( Key key ) {
+        return moveBackwardsKey.equals( key );
     }
     
-    boolean shouldMoveForward( int key, int mods ) {
-        return correctMovementMods( mods ) && key == moveForwardKey;
+    boolean shouldMoveForward( Key key ) {
+        return moveForwardKey.equals( key );
     }
     
-    boolean shouldRotateRight( int key, int mods ) {
-        return correctRotationMods( mods ) && key == rotateRightKey;
+    boolean shouldRotateRight( Key key ) {
+        return rotateRightKey.equals( key );
     }
     
-    boolean shouldRotateLeft( int key, int mods ) {
-        return correctRotationMods( mods ) && key == rotateLeftKey;
+    boolean shouldRotateLeft( Key key ) {
+        return rotateLeftKey.equals( key );
     }
     
-    boolean shouldRotateDown( int key, int mods ) {
-        return correctRotationMods( mods ) && key == rotateDownKey;
+    boolean shouldRotateDown( Key key ) {
+        return rotateDownKey.equals( key );
     }
     
-    boolean shouldRotateUp( int key, int mods ) {
-        return correctRotationMods( mods ) && key == rotateUpKey;
-    }
-    
-    private boolean correctMovementMods( int mods ) {
-        //return ( movementUnlockKeyMods & mods ) == movementUnlockKeyMods;
-        return mods == movementUnlockKeyMods;
-    }
-    
-    private boolean correctRotationMods( int mods ) {
-        //return ( rotationUnlockKeyMods & mods ) == rotationUnlockKeyMods;
-        return mods == rotationUnlockKeyMods;
+    boolean shouldRotateUp( Key key ) {
+        return rotateUpKey.equals( key );
     }
 }

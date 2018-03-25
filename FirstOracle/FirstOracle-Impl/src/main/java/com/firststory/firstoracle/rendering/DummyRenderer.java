@@ -19,6 +19,6 @@ public class DummyRenderer implements RenderingContext {
     }
     
     @Override
-    public void render() {
+    public void render( double currentRenderTime ) {
     }
 }

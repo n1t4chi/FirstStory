@@ -1,19 +1,65 @@
 package com.firststory.firstoracle.window.notifying;
 
+import com.firststory.firstoracle.Key;
+import com.firststory.firstoracle.KeyAction;
+import com.firststory.firstoracle.KeyCode;
+import com.firststory.firstoracle.KeyModificators;
 import com.firststory.firstoracle.window.GLFW.GlfwWindow;
 
 public class KeyEvent {
-    
-    public final GlfwWindow source;
-    public final int key;
-    public final int scancode;
-    public final int action;
-    public final int mods;
-    public KeyEvent( GlfwWindow source, int key, int scancode, int action, int mods ) {
+    private final GlfwWindow source;
+    private Key key;
+    public KeyEvent( GlfwWindow source, Key key ) {
         this.source = source;
         this.key = key;
-        this.scancode = scancode;
-        this.action = action;
-        this.mods = mods;
     }
+    
+    public GlfwWindow getSource() {
+        return source;
+    }
+    
+    public Key getKey() {
+        return key;
+    }
+    
+    public KeyModificators getModificators() {
+        return key.getModificators();
+    }
+    
+    public KeyCode getKeyCode() {
+        return key.getKeyCode();
+    }
+    
+    public KeyAction getAction() {
+        return key.getAction();
+    }
+    
+    public boolean isReleaseAction() {
+        return key.isReleaseAction();
+    }
+    
+    private boolean isPressAction() {
+        return key.isPressAction();
+    }
+    
+    private boolean isRepeatedAction() {
+        return key.isRepeatedAction();
+    }
+    
+    public boolean isShiftDown() {
+        return key.isShiftDown();
+    }
+    
+    public boolean isControlDown() {
+        return key.isControlDown();
+    }
+    
+    public boolean isAltDown() {
+        return key.isAltDown();
+    }
+    
+    public boolean isSuperDown() {
+        return key.isSuperDown();
+    }
+    
 }

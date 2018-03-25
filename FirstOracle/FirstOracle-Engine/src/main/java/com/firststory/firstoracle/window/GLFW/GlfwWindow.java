@@ -149,7 +149,9 @@ public class GlfwWindow {
     private class KeyCallback implements GLFWKeyCallbackI {
         @Override
         public void invoke( long window, int key, int scancode, int action, int mods ) {
-            KeyEvent event = new KeyEvent( GlfwWindow.this, key, scancode, action, mods );
+            KeyEvent event = new KeyEvent(
+                GlfwWindow.this, GlfwKeyMap.parseKeyCode( key, scancode, action, mods )
+            );
             keyListeners.forEach( listener -> listener.notify( event ) );
         }
     }

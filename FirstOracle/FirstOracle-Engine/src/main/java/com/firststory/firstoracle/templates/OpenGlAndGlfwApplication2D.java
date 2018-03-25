@@ -121,7 +121,9 @@ public class OpenGlAndGlfwApplication2D {
         window = Window.getOpenGlInstance( settings, shaderProgram2D, shaderProgram3D, renderer );
         window.init();
         renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
-
+    
+        window.addTimeListener( cameraController );
+        
         window.addQuitListener( cameraController );
         window.addKeyListener( cameraController );
         window.addMouseListener( cameraController );

@@ -16,6 +16,6 @@ public class DummyGrid3DRenderer implements Grid3DRenderer {
     }
     
     @Override
-    public void render() {
+    public void render( double currentRenderTime ) {
     }
 }

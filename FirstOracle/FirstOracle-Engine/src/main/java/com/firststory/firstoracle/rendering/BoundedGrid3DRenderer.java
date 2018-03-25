@@ -94,7 +94,7 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     }
     
     @Override
-    public void render() {
+    public void render( double currentRenderTime ) {
         renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );
         renderGridArray( interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
         renderGridArray( smallPositiveAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );

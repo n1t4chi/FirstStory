@@ -97,7 +97,7 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     }
     
     @Override
-    public void render() {
+    public void render( double currentRenderTime ) {
         init();
         if( render ) {
             renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );

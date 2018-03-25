@@ -5,7 +5,8 @@ package com.firststory.firstoracle.window;
 
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.rendering.RenderingContext;
-import com.firststory.firstoracle.window.GLFW.*;
+import com.firststory.firstoracle.window.GLFW.GlfwContext;
+import com.firststory.firstoracle.window.GLFW.GlfwWindow;
 import com.firststory.firstoracle.window.JFXGL.JfxglContext;
 import com.firststory.firstoracle.window.OpenGL.OpenGlContext;
 import com.firststory.firstoracle.window.OpenGL.OpenGlInstance;
@@ -24,13 +25,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Window implements Runnable,
     TimeNotifier,
     WindowListener,
-    QuitNotifier
+    QuitNotifier,
+    FpsNotifier
 {
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final WindowSettings settings;
     private final ArrayList< TimeListener > timeListeners = new ArrayList<>( 3 );
     private final ArrayList< QuitListener > quitListeners = new ArrayList<>( 3 );
+    private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
     private final Application application;
     private final ShaderProgram2D shaderProgram2D;
     private final ShaderProgram3D shaderProgram3D;
@@ -39,6 +42,10 @@ public class Window implements Runnable,
     private GlfwContext glfw;
     private OpenGlInstance openGl;
     private JfxglContext jfxgl;
+    private int frameCount;
+    private double lastFrameUpdate;
+    private double lastFpsUpdate;
+    private int lastFps;
     
     public static Window getOpenGlWithJavaFxInstance(
         WindowSettings windowSettings,
@@ -73,8 +80,6 @@ public class Window implements Runnable,
         this.renderer = renderer;
     }
     
-    
-    
     public void init() {
         try {
             glfw = GlfwContext.createInstance();
@@ -86,6 +91,11 @@ public class Window implements Runnable,
                 shaderProgram3D.compile();
                 renderer.init();
             });
+    
+            frameCount = 0;
+            lastFps = 0;
+            lastFrameUpdate = glfw.getTime();
+            lastFpsUpdate = lastFrameUpdate;
         } catch ( Exception ex ) {
             close(); //do not place in finally!
             throw new RuntimeException( ex );
@@ -130,6 +140,11 @@ public class Window implements Runnable,
      */
     public void quit() {
         window.quit();
+    }
+    
+    @Override
+    public Collection< FpsListener > getFpsListeners() {
+        return fpsListeners;
     }
     
     @Override
@@ -180,14 +195,25 @@ public class Window implements Runnable,
     
     private void loop() throws Exception {
         while ( !shouldWindowClose() ) {
+    
+            lastFrameUpdate = glfw.getTime();
+            if ( frameCount % 100 == 0 ) {
+                lastFps = ( int ) ( ( float ) frameCount / ( lastFrameUpdate - lastFpsUpdate ) );
+                lastFpsUpdate = lastFrameUpdate;
+                frameCount = 0;
+                notifyFpsListeners( lastFps );
+            }
+            frameCount++;
+            
             openGl.invoke( () -> {
                 window.setUpRenderLoop();
                 openGl.clearScreen();
                 notifyTimeListener( glfw.getTime() );
-                renderer.render();
+                renderer.render( lastFrameUpdate );
                 jfxgl.render();
                 window.cleanAfterLoop();
             } );
+            
         }
     }
 }

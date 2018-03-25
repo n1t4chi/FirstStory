@@ -13,28 +13,23 @@ import com.firststory.firstoracle.object3D.Object3D;
 import com.firststory.firstoracle.object3D.Object3DTransformations;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.scene.RenderedScene;
-import com.firststory.firstoracle.window.notifying.FpsListener;
-import com.firststory.firstoracle.window.notifying.FpsNotifier;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import org.joml.Vector2fc;
 import org.joml.Vector3fc;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * @author n1t4chi
  */
-public class WindowRenderingContext implements RenderingContext, FpsNotifier {
+public class WindowRenderingContext implements RenderingContext {
     
     private static final Vector4f BORDER_COLOUR = new Vector4f( 1f, 0f, 0f, 0.75f );
     private final boolean useTexture;
@@ -44,17 +39,13 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     private final Grid2DRenderer grid2DRenderer;
     private final Grid3DRenderer grid3DRenderer;
     private final SceneProvider sceneProvider;
-    private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
     private final Multi2DRenderer object2DRenderer = new Object2DRendererImpl();
     private final Multi3DRenderer object3DRenderer = new Object3DRendererImpl();
     private UvMap emptyUvMap;
     private Texture emptyTexture;
-    private int frameCount;
-    private double lastFrameUpdate;
-    private double lastFpsUpdate;
-    private int lastFps;
     private double cameraRotation2D;
     private double cameraRotation3D;
+    private double currentRenderTime;
     
     public WindowRenderingContext(
         ShaderProgram2D shaderProgram2D,
@@ -83,14 +74,6 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         return shaderProgram3D;
     }
     
-    public double getLastUpdateTime() {
-        return lastFrameUpdate;
-    }
-    
-    public int getCurrentFps() {
-        return lastFps;
-    }
-    
     public void bindEmptyTexture() {
         emptyTexture.bind();
     }
@@ -111,11 +94,6 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         } catch ( IOException ex ) {
             throw new RuntimeException( "Can't load texture:", ex );
         }
-        
-        frameCount = 0;
-        lastFps = 0;
-        lastFrameUpdate = GLFW.glfwGetTime();
-        lastFpsUpdate = lastFrameUpdate;
         disableDepth();
     }
     
@@ -128,16 +106,9 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     }
     
     @Override
-    public void render() {
+    public void render( double currentRenderTime ) {
+        this.currentRenderTime = currentRenderTime;
         enableAttributes();
-        lastFrameUpdate = GLFW.glfwGetTime();
-        if ( frameCount % 100 == 0 ) {
-            lastFps = ( int ) ( ( float ) frameCount / ( lastFrameUpdate - lastFpsUpdate ) );
-            lastFpsUpdate = lastFrameUpdate;
-            frameCount = 0;
-            notifyFpsListeners( lastFps );
-        }
-        frameCount++;
         
         RenderedScene scene = sceneProvider.getNextScene();
         cameraRotation2D = scene.getCamera2D().getGeneralRotation();
@@ -149,11 +120,6 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         renderOverlay( scene );
         
         disableAttributes();
-    }
-    
-    @Override
-    public Collection< FpsListener > getFpsListeners() {
-        return fpsListeners;
     }
     
     private void render2DObject(
@@ -168,8 +134,8 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         shaderProgram2D.bindRotation( transformations.getRotation() );
         shaderProgram2D.bindScale( transformations.getScale() );
         
-        int bufferSize = object.bindCurrentVerticesAndGetSize( lastFrameUpdate );
-        object.bindCurrentUvMap( lastFrameUpdate, cameraRotation2D );
+        int bufferSize = object.bindCurrentVerticesAndGetSize( currentRenderTime );
+        object.bindCurrentUvMap( currentRenderTime, cameraRotation2D );
         
         if ( useTexture ) {
             object.getTexture().bind();
@@ -197,8 +163,8 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
         shaderProgram3D.bindRotation( transformations.getRotation() );
         shaderProgram3D.bindScale( transformations.getScale() );
         
-        int bufferSize = object.bindCurrentVerticesAndGetSize( lastFrameUpdate );
-        object.bindCurrentUvMap( lastFrameUpdate, cameraRotation3D );
+        int bufferSize = object.bindCurrentVerticesAndGetSize( currentRenderTime );
+        object.bindCurrentUvMap( currentRenderTime, cameraRotation3D );
         
         if ( useTexture ) {
             object.getTexture().bind();
@@ -236,7 +202,7 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     private void renderGrid2D() {
         emptyTexture.bind();
         emptyUvMap.bind( 0, 0 );
-        grid2DRenderer.render();
+        grid2DRenderer.render( currentRenderTime );
     }
     
     private void render3dScene( RenderedScene scene ) {
@@ -250,7 +216,7 @@ public class WindowRenderingContext implements RenderingContext, FpsNotifier {
     private void renderGrid3D() {
         emptyTexture.bind();
         emptyUvMap.bind( 0, 0 );
-        grid3DRenderer.render();
+        grid3DRenderer.render( currentRenderTime );
     }
     
     private void renderOverlay( RenderedScene scene ) {

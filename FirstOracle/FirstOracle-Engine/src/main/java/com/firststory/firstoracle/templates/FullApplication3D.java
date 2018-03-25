@@ -151,8 +151,9 @@ public class FullApplication3D {
             shaderProgram3D,
             renderer
         );
-        renderer.addFpsListener( application );
+        window.addFpsListener( application );
         window.addTimeListener( application );
+        window.addTimeListener( cameraController );
         window.init();
         //OpenGL is initialised now. You can use all classes that use it.
         window.addQuitListener( cameraController );

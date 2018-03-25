@@ -194,8 +194,9 @@ public class FullApplication2D {
         application = new WindowApplication( contentManager );
         window = Window.getOpenGlWithJavaFxInstance( settings, application, shaderProgram2D, shaderProgram3D, renderer );
         window.init();
-        renderer.addFpsListener( application );
+        window.addFpsListener( application );
         window.addTimeListener( application );
+        window.addTimeListener( cameraController );
         renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
 
         window.addQuitListener( cameraController );

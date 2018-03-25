@@ -16,6 +16,6 @@ public class DummyGrid2DRenderer implements Grid2DRenderer {
     }
     
     @Override
-    public void render() {
+    public void render( double currentRenderTime ) {
     }
 }
