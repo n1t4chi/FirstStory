@@ -1,4 +1,4 @@
-package com.firststory.firstoracle;
+package com.firststory.firstoracle.key;
 
 import java.util.Arrays;
 import java.util.HashMap;

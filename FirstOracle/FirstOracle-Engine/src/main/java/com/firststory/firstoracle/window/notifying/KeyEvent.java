@@ -1,9 +1,9 @@
 package com.firststory.firstoracle.window.notifying;
 
-import com.firststory.firstoracle.Key;
-import com.firststory.firstoracle.KeyAction;
-import com.firststory.firstoracle.KeyCode;
-import com.firststory.firstoracle.KeyModificators;
+import com.firststory.firstoracle.key.Key;
+import com.firststory.firstoracle.key.KeyAction;
+import com.firststory.firstoracle.key.KeyCode;
+import com.firststory.firstoracle.key.KeyModificators;
 import com.firststory.firstoracle.window.GLFW.GlfwWindow;
 
 public class KeyEvent {

@@ -1,4 +1,4 @@
-package com.firststory.firstoracle;
+package com.firststory.firstoracle.key;
 
 public enum KeyCode {
     KEY_SPACE,

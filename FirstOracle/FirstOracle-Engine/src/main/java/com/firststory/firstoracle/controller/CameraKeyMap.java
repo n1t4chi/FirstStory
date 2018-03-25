@@ -4,9 +4,9 @@
 
 package com.firststory.firstoracle.controller;
 
-import com.firststory.firstoracle.Key;
-import com.firststory.firstoracle.KeyCode;
-import com.firststory.firstoracle.KeyModificator;
+import com.firststory.firstoracle.key.Key;
+import com.firststory.firstoracle.key.KeyCode;
+import com.firststory.firstoracle.key.KeyModificator;
 
 public class CameraKeyMap {
     

@@ -3,10 +3,10 @@
  */
 package com.firststory.firstoracle.controller;
 
-import com.firststory.firstoracle.Key;
-import com.firststory.firstoracle.KeyCode;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
+import com.firststory.firstoracle.key.Key;
+import com.firststory.firstoracle.key.KeyCode;
 import com.firststory.firstoracle.window.notifying.*;
 import org.joml.Vector2f;
 import org.joml.Vector3f;

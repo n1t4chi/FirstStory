@@ -1,14 +1,8 @@
-package com.firststory.firstoracle;
+package com.firststory.firstoracle.key;
 
-public enum KeyAction implements Compatible {
-    PRESS, REPEAT, UNKNOWN, RELEASE, ANY
-}
-
-interface Compatible {
+interface KeyCompatibility {
     
     default boolean isCompatible( KeyAction action ) {
         return this == KeyAction.ANY || action == KeyAction.ANY || this == action;
     }
 }
-
-
