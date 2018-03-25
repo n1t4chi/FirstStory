@@ -13,6 +13,9 @@ import java.util.List;
 import static com.firststory.firstoracle.window.GLFW.GlfwContext.deregisterWindow;
 
 
+/**
+ * @author n1t4chi
+ */
 public class GlfwWindow {
     private static final GeneralJoystickCallback JOYSTICK_CALLBACK;
     static {
@@ -84,7 +87,7 @@ public class GlfwWindow {
     }
     
     public void setUpRenderLoop() {
-//        VertexAttributes.cleanBinds();
+//        VertexAttributeLoader.cleanBinds();
 //        setWindowToCurrentThread();
     }
 

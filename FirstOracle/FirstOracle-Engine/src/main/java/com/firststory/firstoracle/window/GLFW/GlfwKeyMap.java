@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
+ */
+
 package com.firststory.firstoracle.window.GLFW;
 
 import com.firststory.firstoracle.key.Key;
@@ -6,6 +10,9 @@ import com.firststory.firstoracle.key.KeyCode;
 import com.firststory.firstoracle.key.KeyModificators;
 import org.lwjgl.glfw.GLFW;
 
+/**
+ * @author n1t4chi
+ */
 public class GlfwKeyMap {
     
     public static Key parseKeyCode( int keyCode, int scancode, int action, int mods ) {

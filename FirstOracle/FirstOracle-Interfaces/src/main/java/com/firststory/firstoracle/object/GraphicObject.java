@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.object;
 
@@ -16,10 +16,9 @@ public interface GraphicObject< TransformationsType extends ObjectTransformation
     
     TransformationsType getTransformations();
     
-    default void bindCurrentUvMap( double currentTimeSnapshot, double currentCameraRotation ) {
-        getUvMap().bind( getCurrentUvMapDirection( currentCameraRotation ),
-            getCurrentUvMapFrame( currentTimeSnapshot )
-        );
+    default void bindCurrentUvMap( VertexAttributeLoader loader, double currentTimeSnapshot, double currentCameraRotation ) {
+        getUvMap().bind( loader, getCurrentUvMapFrame( currentTimeSnapshot ),
+            getCurrentUvMapDirection( currentCameraRotation ) );
     }
     
     int getCurrentUvMapDirection( double currentCameraRotation );
@@ -28,8 +27,8 @@ public interface GraphicObject< TransformationsType extends ObjectTransformation
     
     int getCurrentUvMapFrame( double currentTimeSnapshot );
     
-    default int bindCurrentVerticesAndGetSize( double currentTimeSnapshot ) {
-        return getVertices().bind( getCurrentVertexFrame( currentTimeSnapshot ) );
+    default int bindCurrentVerticesAndGetSize( VertexAttributeLoader loader, double currentTimeSnapshot ) {
+        return getVertices().bind( loader, getCurrentVertexFrame( currentTimeSnapshot ) );
     }
     
     VerticesType getVertices();

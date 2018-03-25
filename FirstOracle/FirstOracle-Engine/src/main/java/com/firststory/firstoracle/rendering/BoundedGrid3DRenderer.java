@@ -1,14 +1,18 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.rendering;
 
+import com.firststory.firstoracle.object.VertexAttributeLoader;
 import com.firststory.firstoracle.object3D.Vertices3D;
 import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * @author n1t4chi
+ */
 public class BoundedGrid3DRenderer implements Grid3DRenderer {
     
     private final ShaderProgram3D shaderProgram;
@@ -94,11 +98,11 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     }
     
     @Override
-    public void render( double currentRenderTime ) {
-        renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );
-        renderGridArray( interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
-        renderGridArray( smallPositiveAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
-        renderGridArray( smallNegativeAxes, 0.1f, 1f, 0.25f, 0.25f, 0.5f );
+    public void render( VertexAttributeLoader loader, double currentRenderTime ) {
+        renderGridArray( loader, mainAxes, 1f, 1, 0f, 0f, 1f );
+        renderGridArray( loader, interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
+        renderGridArray( loader, smallPositiveAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
+        renderGridArray( loader, smallNegativeAxes, 0.1f, 1f, 0.25f, 0.25f, 0.5f );
     }
     
     private float[] createAxes( int gridSize, int i ) {
@@ -120,12 +124,12 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         };
     }
     
-    private void renderGridArray(
+    private void renderGridArray( VertexAttributeLoader loader,
         Vertices3D buffer, float width, float red, float green, float blue, float alpha
     ) {
         colour.set( red, green, blue, alpha );
         bindUniformData();
-        int length = buffer.bind( 0 );
+        int length = buffer.bind( loader,0 );
         GL11.glLineWidth( width );
         GL11.glDrawArrays( GL11.GL_LINES, 0, length );
     }

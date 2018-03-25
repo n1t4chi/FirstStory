@@ -1,8 +1,15 @@
+/*
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
+ */
+
 package com.firststory.firstoracle.key;
 
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * @author n1t4chi
+ */
 public class Key {
     private static HashMap<Integer, Key> keyHashMap = new HashMap<>( 100 );
     

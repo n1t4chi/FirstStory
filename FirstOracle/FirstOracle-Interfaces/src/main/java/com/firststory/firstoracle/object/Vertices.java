@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.object;
 
@@ -8,7 +8,7 @@ import java.util.Arrays;
 /**
  * @author n1t4chi
  */
-public abstract class Vertices< BoundingBox > extends VertexAttributes {
+public abstract class Vertices< BoundingBox > extends VertexAttribute {
     
     private final BoundingBox boundingBox;
     private float[][] verticesByFrame;
@@ -27,8 +27,9 @@ public abstract class Vertices< BoundingBox > extends VertexAttributes {
         return boundingBox;
     }
     
-    public int bind( int frame ) {
-        return bindBufferAndGetSize( frame );
+    public int bind( VertexAttributeLoader loader, int frame ) {
+        loader.bindBuffer( this, frame );
+        return getVertexLength( frame );
     }
     
     @Override
@@ -37,11 +38,11 @@ public abstract class Vertices< BoundingBox > extends VertexAttributes {
     }
     
     @Override
-    protected float[] getArray( long key ) {
+    public float[] getArray( long key ) {
         return verticesByFrame[ ( int ) key ];
     }
     
-    protected int getIndex() {
+    public int getIndex() {
         return 0;
     }
 }

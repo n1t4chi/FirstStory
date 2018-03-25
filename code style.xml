@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2018 Piotr "n1t4chi" Olejarz
+  -->
+
 <code_scheme name="Default">
     <JavaCodeStyleSettings>
         <option name="SPACES_WITHIN_ANGLE_BRACKETS" value="true"/>

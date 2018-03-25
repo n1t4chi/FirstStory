@@ -14,14 +14,14 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * This class is used to invoke OpenGL that (may) need synchronisation across all instances like rendering etc.
  * Code that uses methods of this instance should be via method {@link #invoke(Commands)}:
- * <code>instance.invoke{ ()-> {//method calls on instance\\} }</code>
- * or {@link #invoke(CommandsWithReference)} which provides back reference to instance
- * <code>instance.invoke{ (instanceLambda)-> {//method calls on instance\\} }</code>
+ * <code>instance.invoke{ instance-> {//method calls on instance\\} }</code>
  */
 public class OpenGlInstance implements AutoCloseable{
     
     private static final ReentrantLock contextLock = new ReentrantLock(true);
     private GLCapabilities capabilities;
+    private final OpenGlArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
+    private final OpenGLVertexAttributeLoader attributeLoader = new OpenGLVertexAttributeLoader( bufferLoader );
     
     OpenGlInstance(){
         capabilities = GL.createCapabilities();
@@ -30,7 +30,15 @@ public class OpenGlInstance implements AutoCloseable{
             throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
         }
     }
-
+    
+    public OpenGLVertexAttributeLoader getAttributeLoader() {
+        return attributeLoader;
+    }
+    
+    public OpenGlArrayBufferLoader getBufferLoader() {
+        return bufferLoader;
+    }
+    
     public void clearScreen() {
         GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
     }
@@ -47,7 +55,7 @@ public class OpenGlInstance implements AutoCloseable{
      * Aquires lock across all OpenGlInstances, will block thread until lock is aquired.
      * @return this instance
      */
-    private OpenGlInstance aquiteLock(){
+    private OpenGlInstance aquireLock(){
 //        System.err.println("trying to aquire lock by"+Thread.currentThread());
 //        contextLock.lock();
 //        System.err.println("lock aquired by"+Thread.currentThread());
@@ -72,16 +80,10 @@ public class OpenGlInstance implements AutoCloseable{
         releaseLock();
     }
 
-    public void invoke( CommandsWithReference commands) throws Exception{
-//        try(OpenGlInstance instance = aquiteLock()){
-        commands.execute( this );
-//        }
-    }
-
-    public void invoke(Commands commands) throws Exception{
-//        try(OpenGlInstance instance = aquiteLock()){
-        commands.execute();
-//        }
+    public void invoke( Commands commands) throws Exception{
+        try(OpenGlInstance instance = aquireLock()){
+            commands.execute( instance );
+        }
     }
     
     private void enableFunctionality() {
@@ -94,12 +96,9 @@ public class OpenGlInstance implements AutoCloseable{
         ARBVertexArrayObject.glBindVertexArray( ARBVertexArrayObject.glGenVertexArrays() );
     }
     
-    public interface CommandsWithReference {
+    public interface Commands {
         void execute( OpenGlInstance openGlInstance ) throws Exception;
     }
     
-    public interface Commands {
-        void execute() throws Exception;
-    }
     
 }

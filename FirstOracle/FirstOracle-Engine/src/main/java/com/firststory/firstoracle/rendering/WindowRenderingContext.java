@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.camera2D.IdentityCamera2D;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object.VertexAttributeLoader;
 import com.firststory.firstoracle.object2D.Object2D;
 import com.firststory.firstoracle.object2D.Object2DTransformations;
 import com.firststory.firstoracle.object2D.Terrain2D;
@@ -45,6 +46,7 @@ public class WindowRenderingContext implements RenderingContext {
     private Texture emptyTexture;
     private double cameraRotation2D;
     private double cameraRotation3D;
+    private VertexAttributeLoader loader;
     private double currentRenderTime;
     
     public WindowRenderingContext(
@@ -106,7 +108,8 @@ public class WindowRenderingContext implements RenderingContext {
     }
     
     @Override
-    public void render( double currentRenderTime ) {
+    public void render( VertexAttributeLoader loader, double currentRenderTime ) {
+        this.loader = loader;
         this.currentRenderTime = currentRenderTime;
         enableAttributes();
         
@@ -115,8 +118,8 @@ public class WindowRenderingContext implements RenderingContext {
         cameraRotation3D = scene.getCamera3D().getGeneralRotation();
         
         setBackground( scene );
-        renderBackgroundAnd2dScene( scene );
-        render3dScene( scene );
+        renderBackgroundAnd2dScene( loader, scene );
+        render3dScene( loader, scene );
         renderOverlay( scene );
         
         disableAttributes();
@@ -134,8 +137,8 @@ public class WindowRenderingContext implements RenderingContext {
         shaderProgram2D.bindRotation( transformations.getRotation() );
         shaderProgram2D.bindScale( transformations.getScale() );
         
-        int bufferSize = object.bindCurrentVerticesAndGetSize( currentRenderTime );
-        object.bindCurrentUvMap( currentRenderTime, cameraRotation2D );
+        int bufferSize = object.bindCurrentVerticesAndGetSize( loader, currentRenderTime );
+        object.bindCurrentUvMap( loader, currentRenderTime, cameraRotation2D );
         
         if ( useTexture ) {
             object.getTexture().bind();
@@ -163,8 +166,8 @@ public class WindowRenderingContext implements RenderingContext {
         shaderProgram3D.bindRotation( transformations.getRotation() );
         shaderProgram3D.bindScale( transformations.getScale() );
         
-        int bufferSize = object.bindCurrentVerticesAndGetSize( currentRenderTime );
-        object.bindCurrentUvMap( currentRenderTime, cameraRotation3D );
+        int bufferSize = object.bindCurrentVerticesAndGetSize( loader, currentRenderTime );
+        object.bindCurrentUvMap( loader, currentRenderTime, cameraRotation3D );
         
         if ( useTexture ) {
             object.getTexture().bind();
@@ -190,33 +193,33 @@ public class WindowRenderingContext implements RenderingContext {
         GL11.glClearColor( backgroundColour.x(), backgroundColour.y(), backgroundColour.z(), backgroundColour.w() );
     }
     
-    private void renderBackgroundAnd2dScene( RenderedScene scene ) {
+    private void renderBackgroundAnd2dScene( VertexAttributeLoader loader, RenderedScene scene ) {
         disableDepth();
         shaderProgram2D.useProgram();
         shaderProgram2D.bindCamera( scene.getCamera2D() );
         scene.renderBackground( object2DRenderer );
-        renderGrid2D();
+        renderGrid2D( loader );
         scene.renderScene2D( object2DRenderer );
     }
     
-    private void renderGrid2D() {
+    private void renderGrid2D( VertexAttributeLoader loader ) {
         emptyTexture.bind();
-        emptyUvMap.bind( 0, 0 );
-        grid2DRenderer.render( currentRenderTime );
+        emptyUvMap.bind( loader,0, 0 );
+        grid2DRenderer.render( loader, currentRenderTime );
     }
     
-    private void render3dScene( RenderedScene scene ) {
+    private void render3dScene( VertexAttributeLoader loader, RenderedScene scene ) {
         enableDepth();
         shaderProgram3D.useProgram();
         shaderProgram3D.bindCamera( scene.getCamera3D() );
-        renderGrid3D();
+        renderGrid3D( loader );
         scene.renderScene3D( object3DRenderer );
     }
     
-    private void renderGrid3D() {
+    private void renderGrid3D( VertexAttributeLoader loader ) {
         emptyTexture.bind();
-        emptyUvMap.bind( 0, 0 );
-        grid3DRenderer.render( currentRenderTime );
+        emptyUvMap.bind( loader,0, 0 );
+        grid3DRenderer.render( loader, currentRenderTime );
     }
     
     private void renderOverlay( RenderedScene scene ) {

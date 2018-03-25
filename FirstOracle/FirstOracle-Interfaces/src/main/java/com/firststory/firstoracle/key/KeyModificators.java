@@ -1,8 +1,15 @@
+/*
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
+ */
+
 package com.firststory.firstoracle.key;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
+/**
+ * @author n1t4chi
+ */
 public class KeyModificators {
     private static HashMap<Integer,KeyModificators> keyModMap = new HashMap<>( 16 );
     private static KeyModificators EMPTY = new KeyModificators( false,false,false,false );

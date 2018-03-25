@@ -1,7 +1,9 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.rendering;
+
+import com.firststory.firstoracle.object.VertexAttributeLoader;
 
 /**
  * @author n1t4chi
@@ -16,6 +18,6 @@ public class DummyGrid3DRenderer implements Grid3DRenderer {
     }
     
     @Override
-    public void render( double currentRenderTime ) {
+    public void render( VertexAttributeLoader loader, double currentRenderTime ) {
     }
 }

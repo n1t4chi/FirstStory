@@ -4,6 +4,9 @@
 
 package com.firststory.firstoracle.window.GLFW;
 
+/**
+ * @author n1t4chi
+ */
 public class CannotCreateWindowException extends RuntimeException {
     
     public CannotCreateWindowException() {

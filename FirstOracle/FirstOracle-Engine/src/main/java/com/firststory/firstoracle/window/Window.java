@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.window;
 
@@ -85,7 +85,7 @@ public class Window implements Runnable,
             glfw = GlfwContext.createInstance();
             window = glfw.createWindow( settings );
             openGl = OpenGlContext.createInstance();
-            openGl.invoke( () -> {
+            openGl.invoke( instance -> {
                 setupCallbacks();
                 shaderProgram2D.compile();
                 shaderProgram3D.compile();
@@ -106,7 +106,7 @@ public class Window implements Runnable,
     public void run() {
         Thread.currentThread().setName( "Window" + instanceCounter.getAndIncrement()  );
         try {
-            openGl.invoke( () -> {
+            openGl.invoke( instance -> {
                 window.show();
                 jfxgl = JfxglContext.createInstance( window.getID(), new String[]{}, application );
             });
@@ -205,11 +205,11 @@ public class Window implements Runnable,
             }
             frameCount++;
             
-            openGl.invoke( () -> {
+            openGl.invoke( instance -> {
                 window.setUpRenderLoop();
                 openGl.clearScreen();
                 notifyTimeListener( glfw.getTime() );
-                renderer.render( lastFrameUpdate );
+                renderer.render( instance.getAttributeLoader(), lastFrameUpdate );
                 jfxgl.render();
                 window.cleanAfterLoop();
             } );

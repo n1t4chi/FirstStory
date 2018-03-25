@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.object2D;
 
@@ -15,7 +15,7 @@ public class Vertices2D extends Vertices< BoundingBox2D > {
     }
     
     @Override
-    protected int getVertexSize() {
+    public int getVertexSize() {
         return 2;
     }
 }

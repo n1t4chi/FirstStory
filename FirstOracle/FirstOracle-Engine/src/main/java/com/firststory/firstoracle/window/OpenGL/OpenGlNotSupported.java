@@ -4,6 +4,9 @@
 
 package com.firststory.firstoracle.window.OpenGL;
 
+/**
+ * @author n1t4chi
+ */
 public class OpenGlNotSupported extends RuntimeException {
     
     public OpenGlNotSupported( String message ) {super(message);}

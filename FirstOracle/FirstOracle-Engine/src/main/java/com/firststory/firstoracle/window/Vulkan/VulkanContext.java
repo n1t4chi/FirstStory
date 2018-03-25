@@ -5,6 +5,9 @@
 package com.firststory.firstoracle.window.Vulkan;
 
 
+/**
+ * @author n1t4chi
+ */
 public class VulkanContext {
     private static VulkanContext instance = new VulkanContext();
 

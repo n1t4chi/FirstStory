@@ -1,6 +1,13 @@
+/*
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
+ */
+
 package com.firststory.firstoracle.key;
 
-public enum KeyCode {
+public /**
+ * @author n1t4chi
+ */
+enum KeyCode {
     KEY_SPACE,
     KEY_APOSTROPHE,
     KEY_COMMA,

@@ -1,8 +1,11 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.camera3D;
 
+/**
+ * @author n1t4chi
+ */
 public class CameraBoxZDimension {
     private final float minZ;
     private final float maxZ;

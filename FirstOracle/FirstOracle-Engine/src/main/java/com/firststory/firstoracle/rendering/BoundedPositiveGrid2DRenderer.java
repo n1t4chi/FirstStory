@@ -1,14 +1,18 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.rendering;
 
+import com.firststory.firstoracle.object.VertexAttributeLoader;
 import com.firststory.firstoracle.object2D.Vertices2D;
 import com.firststory.firstoracle.window.shader.ShaderProgram2D;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * @author n1t4chi
+ */
 public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     
     private final ShaderProgram2D shaderProgram;
@@ -97,12 +101,12 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     }
     
     @Override
-    public void render( double currentRenderTime ) {
+    public void render( VertexAttributeLoader loader, double currentRenderTime ) {
         init();
         if( render ) {
-            renderGridArray( mainAxes, 1f, 1, 0f, 0f, 1f );
-            renderGridArray( interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
-            renderGridArray( smallAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
+            renderGridArray( loader, mainAxes, 1f, 1, 0f, 0f, 1f );
+            renderGridArray( loader, interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
+            renderGridArray( loader, smallAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
         }
     }
     
@@ -157,12 +161,12 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
         return new float[]{ i, 0, i, gridHeight };
     }
     
-    private void renderGridArray(
+    private void renderGridArray( VertexAttributeLoader loader,
         Vertices2D buffer, float width, float red, float green, float blue, float alpha
     ) {
         colour.set( red, green, blue, alpha );
         bindUniformData();
-        int length = buffer.bind( 0 );
+        int length = buffer.bind( loader, 0 );
         GL11.glLineWidth( width );
         GL11.glDrawArrays( GL11.GL_LINES, 0, length );
     }

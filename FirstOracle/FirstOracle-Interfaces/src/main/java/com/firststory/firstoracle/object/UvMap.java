@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 package com.firststory.firstoracle.object;
 
 /**
  * @author n1t4chi
  */
-public class UvMap extends VertexAttributes {
+public class UvMap extends VertexAttribute {
     
     private final float[][][] uvMapByDirectionAndFrame;
     
@@ -14,20 +14,20 @@ public class UvMap extends VertexAttributes {
         this.uvMapByDirectionAndFrame = uvMapByDirectionAndFrame;
     }
     
-    public void bind( int direction, int frame ) {
-        bindBufferAndGetSize( ( ( long ) direction << 32 ) + frame );
+    public void bind( VertexAttributeLoader loader, int direction, int frame ) {
+        loader.bindBuffer( this, ( ( long ) direction << 32 ) + frame );
     }
     
-    protected int getIndex() {
+    public int getIndex() {
         return 1;
     }
     
-    protected int getVertexSize() {
+    public int getVertexSize() {
         return 2;
     }
     
     @Override
-    protected float[] getArray( long key ) {
+    public float[] getArray( long key ) {
         return uvMapByDirectionAndFrame[( int ) ( key >> 32 )][( int ) ( key )];
     }
 }

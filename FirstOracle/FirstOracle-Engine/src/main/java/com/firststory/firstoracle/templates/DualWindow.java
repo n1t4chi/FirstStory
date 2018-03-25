@@ -4,6 +4,9 @@
 
 package com.firststory.firstoracle.templates;
 
+/**
+ * @author n1t4chi
+ */
 public class DualWindow {
     
     //does not work for now

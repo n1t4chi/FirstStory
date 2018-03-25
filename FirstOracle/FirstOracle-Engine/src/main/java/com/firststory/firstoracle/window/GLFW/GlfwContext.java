@@ -15,6 +15,9 @@ import java.util.Set;
 
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+/**
+ * @author n1t4chi
+ */
 public class GlfwContext{
     private static Set<GlfwWindow> instances = new HashSet<>();
     private static GlfwContext instance;

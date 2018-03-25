@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Piotr "n1t4chi" Olejarz
+ * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
 package com.firststory.firstoracle.controller;
@@ -8,6 +8,9 @@ import com.firststory.firstoracle.key.Key;
 import com.firststory.firstoracle.key.KeyCode;
 import com.firststory.firstoracle.key.KeyModificator;
 
+/**
+ * @author n1t4chi
+ */
 public class CameraKeyMap {
     
     private static final CameraKeyMap alpabeticalLayout = new CameraKeyMap(
