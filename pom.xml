@@ -10,7 +10,7 @@
 
     <groupId>com.FirstStory</groupId>
     <artifactId>FirstStory</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
     <packaging>pom</packaging>
 
     <name>First Story</name>
@@ -103,12 +103,12 @@
             <dependency>
                 <groupId>com.FirstStory.FirstOracle</groupId>
                 <artifactId>FirstOracle-Interfaces</artifactId>
-                <version>0.3-SNAPSHOT</version>
+                <version>0.3</version>
             </dependency>
             <dependency>
                 <groupId>com.FirstStory.FirstOracle</groupId>
                 <artifactId>FirstOracle-Impl</artifactId>
-                <version>0.3-SNAPSHOT</version>
+                <version>0.3</version>
             </dependency>
 
             <dependency>

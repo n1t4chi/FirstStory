@@ -7,18 +7,12 @@ import com.firststory.firstoracle.object.Texture;
 
 import java.awt.*;
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 import static java.awt.Font.TRUETYPE_FONT;
 import static java.awt.Font.TYPE1_FONT;
-import static org.lwjgl.BufferUtils.createByteBuffer;
 
 /**
  * Class containing some IO utility methods for
@@ -98,37 +92,5 @@ public class IOUtilities {
             }
             return io;
         }
-    }
-    
-    public static ByteBuffer readBinaryResource( String resource ) throws IOException {
-        Path p = Paths.get( resource );
-        ByteBuffer bf;
-        if ( Files.isReadable( p ) ) {
-            try ( SeekableByteChannel sbc = Files.newByteChannel( p, StandardOpenOption.READ ) ) {
-                bf = createByteBuffer( ( int ) ( sbc.size() - 1 ) );
-                int read;
-                do {
-                    read = sbc.read( bf );
-                } while ( read != -1 && sbc.position() + 1 != sbc.size() );
-            }
-        } else {
-            InputStream io = Texture.class.getClassLoader().getResourceAsStream( resource );
-            if ( io == null ) {
-                throw new IOException( "Cannot find file: " + resource );
-            }
-            ReadableByteChannel rbc = Channels.newChannel( io );
-            bf = createByteBuffer( 16384 );
-            while ( rbc.read( bf ) != -1 ) {
-                if ( bf.remaining() == 0 ) {
-                    //  System.err.println("here8.0.1.2.2.3");
-                    ByteBuffer nbf = createByteBuffer( bf.capacity() * 2 );
-                    bf.flip();
-                    nbf.put( nbf );
-                    bf = nbf;
-                }
-            }
-        }
-        bf.flip();
-        return bf;
     }
 }

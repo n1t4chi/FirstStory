@@ -9,12 +9,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>FirstOracle-Engine</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
 
     <parent>
         <groupId>com.FirstStory.FirstOracle</groupId>
         <artifactId>FirstOracle</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.3</version>
     </parent>
     <packaging>jar</packaging>
 

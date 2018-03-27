@@ -10,11 +10,11 @@
 
     <groupId>com.FirstStory.FirstOracle</groupId>
     <artifactId>FirstOracle</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
     <parent>
         <groupId>com.FirstStory</groupId>
         <artifactId>FirstStory</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.3</version>
     </parent>
 
     <build>

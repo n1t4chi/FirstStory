@@ -13,8 +13,16 @@ public class DualWindow {
     public static void main( String[] args ) throws Exception {
         Thread t = new Thread( DualWindow::secondWindow );
         t.start();
-        secondWindow();
+        firstWindow();
         t.join();
+    }
+    
+    private static void firstWindow() {
+        try{
+            FullApplication3D.main( new String[]{} );
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
     }
     
     private static void secondWindow() {
