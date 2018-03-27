@@ -3,8 +3,6 @@
  */
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.object.VertexAttributeLoader;
-
 /**
  * @author n1t4chi
  */
@@ -18,6 +16,8 @@ public class DummyGrid2DRenderer implements Grid2DRenderer {
     }
     
     @Override
-    public void render( VertexAttributeLoader loader, double currentRenderTime ) {
+    public void render(
+        RenderingContext renderingContext, double currentRenderTime
+    ) {
     }
 }

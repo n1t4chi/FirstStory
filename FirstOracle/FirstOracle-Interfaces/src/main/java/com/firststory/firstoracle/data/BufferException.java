@@ -4,7 +4,18 @@
 
 package com.firststory.firstoracle.data;
 
-/**
+import java.io.IOException; /**
  * @author n1t4chi
  */
-public class BufferException extends RuntimeException {}
+public class BufferException extends RuntimeException {
+    
+    public BufferException() {}
+    
+    public BufferException( IOException e ) {
+        super( e );
+    }
+    
+    public BufferException( String message ) {
+        super( message );
+    }
+}

@@ -9,7 +9,7 @@ package com.firststory.firstoracle.data;
  */
 public interface DataBuffer<Data> extends AutoCloseable {
     
-    int getBufferID();
+    int getID();
     
     boolean isLoaded();
     
@@ -26,5 +26,17 @@ public interface DataBuffer<Data> extends AutoCloseable {
     @Override
     default void close() throws BufferNotCreatedException {
         delete();
+    }
+    
+    default void assertCreated() {
+        if ( !isCreated() ) {
+            throw new BufferNotCreatedException();
+        }
+    }
+    
+    default void assertLoaded() {
+        if ( !isLoaded() ) {
+            throw new BufferNotLoadedException();
+        }
     }
 }

@@ -3,12 +3,11 @@
  */
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.data.TextureBuffer;
+import com.firststory.firstoracle.data.TextureBufferLoader;
+import com.firststory.firstoracle.data.TextureData;
 import com.firststory.firstoracle.templates.IOUtilities;
 import javafx.embed.swing.SwingFXUtils;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.stb.STBImage;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -18,7 +17,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
+import java.util.HashMap;
 
 /**
  * Single texture object. Colours are stored in RGBA format. <br>
@@ -50,12 +49,6 @@ public final class Texture implements Closeable {
     
     private static final String FRAME_KEYWORD = "#frame#";
     private static final String DIRECITON_KEYWORD = "#direction#";
-    
-    private static String replayKeywords( String filePathMask, int frame, int direction ) {
-        String frameString = "" + frame;
-        String directionString = "" + direction;
-        return filePathMask.replace( FRAME_KEYWORD, frameString ).replace( DIRECITON_KEYWORD, directionString );
-    }
     
     /**
      * Constructs compound texture from multiple files each corresponding to one frame with only one direction.<br>
@@ -107,13 +100,10 @@ public final class Texture implements Closeable {
             throw new IllegalArgumentException( "File path mask does not contain direction keyword" );
         }
         
-        int rows = getTwoPowerGreaterThan( frames );
-        int columns = getTwoPowerGreaterThan( directions );
-        
         File[][] files = new File[frames][directions];
         for ( int frame = 0; frame < frames; frame++ ) {
             for ( int direction = 0; direction < directions; direction++ ) {
-                File file = new File( replayKeywords( filePathMask, frame, direction ) );
+                File file = new File( replaceKeywords( filePathMask, frame, direction ) );
                 if ( !file.canRead() ) {
                     throw new IOException( "File:" + file.getPath() + " does not exists!" );
                 }
@@ -152,12 +142,63 @@ public final class Texture implements Closeable {
         return new Texture( image, directions, frames, directions, frames );
     }
     
-    private static int getTwoPowerGreaterThan( int n ) {
-        int pow = 1;
-        while ( pow < n ) {
-            pow *= 2;
+    private static String replaceKeywords( String filePathMask, int frame, int direction ) {
+        String frameString = "" + frame;
+        String directionString = "" + direction;
+        return filePathMask.replace( FRAME_KEYWORD, frameString ).replace( DIRECITON_KEYWORD, directionString );
+    }
+    private final TextureData data;
+    private final HashMap<TextureBufferLoader, TextureBuffer > buffers = new HashMap<>(  );
+    
+    private javafx.scene.image.Image jfxImage = null;
+    /**
+     * Creates object containing texture data from given image.<br>
+     * Uses single frame and line count.
+     *
+     * @param image image to be used as texture
+     * @throws IOException on problems with loading the image
+     */
+    public Texture( BufferedImage image ) throws IOException {
+        this( image, 1, 1, 1, 1 );
+    }
+    
+    
+    
+    /**
+     * Creates object containing texture data from given image.
+     *
+     * @param image      image
+     * @param directions How many directions this texture can represent.
+     * @param frames     How many frames this texture represent
+     * @param columns    How many columns for directions are in this texture.
+     * @param rows       How many rows for frames are in this texture.
+     * @throws IOException on problems with loading the image
+     */
+    public Texture( BufferedImage image, int directions, int frames, int columns, int rows ) throws IOException {
+        this( image, image.toString(), directions, frames, columns, rows );
+    }
+    /**
+     * Creates object containing texture data from given image.
+     * @param image      image
+     * @param name       Name of texture.
+     * @param directions How many directions this texture can represent.
+     * @param frames     How many frames this texture represent
+     * @param columns    How many columns for directions are in this texture.
+     * @param rows       How many rows for frames are in this texture.
+     */
+    public Texture( BufferedImage image, String name, int directions, int frames, int columns, int rows ) {
+        if ( name == null || name.isEmpty() || frames < 1 || rows < 1 || frames > rows || directions < 1 ||
+            directions > columns )
+        {
+            throw new IllegalArgumentException(
+                "Illegal arguments for Texture.\n" + "Image:" + image + ", Frames:" + frames + ", Rows:" + rows +
+                    ", Directions:" + directions + ", Columns:" + columns + "." );
         }
-        return pow;
+        ByteBuffer bf = null;
+        try {
+            bf = imageToByteBuffer( image );
+        }catch (Exception ignore){}
+        data = new TextureData( image, bf, name, directions, frames, columns, rows );
     }
     
     private static ByteBuffer imageToByteBuffer( BufferedImage image ) throws IOException {
@@ -171,92 +212,6 @@ public final class Texture implements Closeable {
         bf.put( arr, 0, arr.length - 1 );
         bf.position( 0 );
         return bf;
-    }
-    
-    private final int width;
-    private final int height;
-    private final ByteBuffer texture;
-    private final String name;
-    private final int frames;
-    private final int directions;
-    private final int rows;
-    private final int columns;
-    private int textureID = 0;
-    private final BufferedImage image;
-    private javafx.scene.image.Image jfxImage = null;
-    public BufferedImage getImage() {
-        return image;
-    }
-    
-    
-    
-    public synchronized javafx.scene.image.Image getJfxImage(){
-        if(jfxImage == null){
-            jfxImage = SwingFXUtils.toFXImage(image, null);
-        }
-        return jfxImage;
-    }
-    /**
-     * Creates object containing texture data from given image.<br>
-     * Uses single frame and line count.
-     *
-     * @param image image to be used as texture
-     * @throws IOException on problems with loading the image
-     */
-    public Texture( BufferedImage image ) throws IOException {
-        this( image, 1, 1, 1, 1 );
-    }
-    
-    /**
-     * Creates object containing texture data from given image.
-     *
-     * @param image      image
-     * @param directions How many directions this texture can represent.
-     * @param frames     How many frames this texture represent
-     * @param columns    How many columns for directions are in this texture.
-     * @param rows       How many rows for frames are in this texture.
-     * @throws IOException on problems with loading the image
-     */
-    public Texture( BufferedImage image, int directions, int frames, int columns, int rows ) throws IOException {
-        this( image, imageToByteBuffer( image ), image.toString(), directions, frames, columns, rows );
-    }
-    public Texture( BufferedImage image, String name, int directions, int frames, int columns, int rows ) throws IOException {
-        this( image, imageToByteBuffer( image ), name, directions, frames, columns, rows );
-    }
-    
-    /**
-     * Creates object containing texture data from given image.
-     * @param image      image
-     * @param name       Name of texture.
-     * @param directions How many directions this texture can represent.
-     * @param frames     How many frames this texture represent
-     * @param columns    How many columns for directions are in this texture.
-     * @param rows       How many rows for frames are in this texture.
-     */
-    public Texture( BufferedImage image, ByteBuffer bf, String name, int directions, int frames, int columns, int rows ) {
-        if ( name == null || name.isEmpty() || frames < 1 || rows < 1 || frames > rows || directions < 1 ||
-             directions > columns )
-        {
-            throw new IllegalArgumentException(
-                "Illegal arguments for Texture.\n" + "Image:" + image + ", Frames:" + frames + ", Rows:" + rows +
-                ", Directions:" + directions + ", Columns:" + columns + "." );
-        }
-        this.name = image.toString();
-        this.image = image;
-        IntBuffer w = BufferUtils.createIntBuffer( 1 );
-        IntBuffer h = BufferUtils.createIntBuffer( 1 );
-        IntBuffer c = BufferUtils.createIntBuffer( 1 );
-    
-        texture = STBImage.stbi_load_from_memory( bf, w, h, c, 4 );
-        if ( texture == null ) {
-            throw new RuntimeException( "Cannot load image:" + name );
-        }
-        width = w.get( 0 );
-        height = h.get( 0 );
-        this.frames = frames;
-        this.rows = rows;
-        this.directions = directions;
-        this.columns = columns;
     }
     
     /**
@@ -284,115 +239,96 @@ public final class Texture implements Closeable {
         this( ImageIO.read( IOUtilities.readResource(path) ) , path,  directions, frames, columns, rows );
     }
     
+    public BufferedImage getImage() {
+        return data.getImage();
+    }
     
-    
+    public synchronized javafx.scene.image.Image getJfxImage(){
+        if(jfxImage == null){
+            jfxImage = SwingFXUtils.toFXImage( getImage(), null );
+        }
+        return jfxImage;
+    }
+
+
+
 //    public Texture( ByteBuffer bf, String name, int directions, int frames, int columns, int rows ) throws IOException {
 //        this( byteBufferToImage( bf ),bf,name,directions,frames,columns,rows );
 //    }
     
     public int getFrames() {
-        return frames;
+        return data.getFrames();
     }
     
     public int getRows() {
-        return rows;
+        return data.getRows();
     }
     
     public int getColumns() {
-        return columns;
+        return data.getColumns();
     }
     
     public int getDirections() {
-        return directions;
+        return data.getDirections();
     }
     
     public int getWidth() {
-        return width;
-    }
-    
-    public ByteBuffer getTexture() {
-        return texture;
+        return data.getWidth();
     }
     
     public int getHeight() {
-        return height;
+        return data.getHeight();
     }
     
     public String getName() {
-        return name;
+        return data.getName();
     }
     
     /**
-     * Releases texture resources associated with this object by calling {@link #release()}
+     * Releases all texture resources associated with this object by calling {@link #releaseAll()}
      */
     @Override
     public void close() {
-        release();
+        releaseAll();
     }
     
     /**
      * Releases GPU memory resources associated with this texture.
      */
-    public final void release() {
-        if ( textureID > 0 ) {
-            GL11.glDeleteTextures( textureID );
-            textureID = 0;
+    public final void release( TextureBufferLoader loader ) {
+        TextureBuffer textureBuffer = buffers.get( loader );
+        if( textureBuffer != null ){
+            textureBuffer.delete();
         }
     }
     
     /**
      * Binds texture for usage, if texture is not loaded then it will also load it.
      */
-    public final void bind() {
-        if ( textureID > 0 ) {
-            GL11.glBindTexture( GL11.GL_TEXTURE_2D, textureID );
-        } else {
-            load();
-        }
-        //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture);
+    public final void bind(TextureBufferLoader loader ) {
+        TextureBuffer textureBuffer = buffers.computeIfAbsent( loader, this::loadNewBuffer );
+        textureBuffer.bind();
     }
     
     /**
      * Loads texture data into GPU memory.<br>
      * <b>Will release previously loaded texture by this object!!!</b><br>
-     * Use {@link #bind() } for reusable texture.
+     * Use {@link #bind(TextureBufferLoader)}  } for reusable texture.
      */
-    public final void load() {
-        release();
-        textureID = GL11.glGenTextures();
-        //System.err.println("TextureID:"+textureID);
-        GL11.glBindTexture( GL11.GL_TEXTURE_2D, textureID );
-        GL11.glTexImage2D( GL11.GL_TEXTURE_2D,
-            0,
-            GL11.GL_RGBA,
-            width,
-            height,
-            0,
-            GL11.GL_RGBA,
-            GL11.GL_UNSIGNED_BYTE,
-            texture
-        );
-    
-        //repeat, could be used for giant objects.
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-    
-        GL11.glTexParameteri( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR );
-        GL11.glTexParameteri( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR );
-        GL30.glGenerateMipmap( GL11.GL_TEXTURE_2D );
+    public final void load( TextureBufferLoader loader ) {
+        release( loader );
+        loadNewBuffer( loader );
     }
-//
-//    public final boolean isTextureLoaded() {
-//        return textureID > 0;
-//    }
-//
-//    /**
-//     * Returns texture ID
-//     *
-//     * @return returns te
-//     */
-//    public final int getTextureID() {
-//        return textureID;
-//    }
-
+    
+    private TextureBuffer loadNewBuffer( TextureBufferLoader loader ) {
+        TextureBuffer buffer = new TextureBuffer( loader );
+        buffer.create();
+        buffer.load( data );
+        return buffer;
+    }
+    
+    private void releaseAll() {
+        buffers.forEach( ( loader, textureBuffer ) -> textureBuffer.delete() );
+        buffers.clear();
+    }
 }

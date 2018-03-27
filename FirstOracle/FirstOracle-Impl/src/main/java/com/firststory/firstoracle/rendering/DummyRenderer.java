@@ -3,14 +3,12 @@
  */
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.object.VertexAttributeLoader;
-
 /**
  * @author n1t4chi
  */
-public class DummyRenderer implements RenderingContext {
+public class DummyRenderer implements Renderer {
     
-    public static final RenderingContext DUMMY_RENDERER = new DummyRenderer();
+    public static final Renderer DUMMY_RENDERER = new DummyRenderer();
     
     @Override
     public void init() {
@@ -21,5 +19,7 @@ public class DummyRenderer implements RenderingContext {
     }
     
     @Override
-    public void render( VertexAttributeLoader loader, double currentRenderTime ) {}
+    public void render(
+        RenderingContext renderingContext, double currentRenderTime
+    ) {}
 }

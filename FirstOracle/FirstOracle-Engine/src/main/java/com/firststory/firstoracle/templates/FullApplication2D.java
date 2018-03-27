@@ -17,8 +17,6 @@ import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.WindowApplication;
 import com.firststory.firstoracle.window.notifying.WindowListener;
 import com.firststory.firstoracle.window.notifying.WindowSizeEvent;
-import com.firststory.firstoracle.window.shader.ShaderProgram2D;
-import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
@@ -39,14 +37,12 @@ public class FullApplication2D {
     
     private static Window window;
     private static OverlayContentManager contentManager;
-    private static WindowRenderingContext renderer;
+    private static WindowRenderer renderer;
     private static SceneProvider sceneProvider;
     private static CameraController cameraController;
     private static RenderedSceneMutable renderedScene;
     private static Grid3DRenderer grid3DRenderer;
     private static BoundedPositiveGrid2DRenderer grid2DRenderer;
-    private static ShaderProgram2D shaderProgram2D;
-    private static ShaderProgram3D shaderProgram3D;
     private static WindowSettings settings;
     private static WindowApplication application;
     
@@ -61,9 +57,7 @@ public class FullApplication2D {
             .setHeight( height )
             .setDrawBorder( true )
             .build();
-        shaderProgram3D = new ShaderProgram3D();
-        shaderProgram2D = new ShaderProgram2D();
-        grid2DRenderer = new BoundedPositiveGrid2DRenderer( shaderProgram2D, 20, 30, 10 );
+        grid2DRenderer = new BoundedPositiveGrid2DRenderer( 20, 30, 10 );
 //            Grid2DRenderer grid2DRenderer = new BoundedGrid2DRenderer( shaderProgram2D,
 //                100,
 //                10,
@@ -117,9 +111,7 @@ public class FullApplication2D {
             .getCamera2D() ) );
         
         sceneProvider = () -> renderedScene;
-        renderer = new WindowRenderingContext(
-            shaderProgram2D,
-            shaderProgram3D,
+        renderer = new WindowRenderer(
             grid2DRenderer,
             grid3DRenderer,
             sceneProvider,
@@ -192,7 +184,7 @@ public class FullApplication2D {
             }
         };
         application = new WindowApplication( contentManager );
-        window = Window.getOpenGlWithJavaFxInstance( settings, application, shaderProgram2D, shaderProgram3D, renderer );
+        window = Window.getOpenGlWithJavaFxInstance( settings, application, renderer );
         window.init();
         window.addFpsListener( application );
         window.addTimeListener( application );

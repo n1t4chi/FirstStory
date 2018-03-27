@@ -1,9 +1,11 @@
 /*
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
-package com.firststory.firstoracle.window.shader;
+package com.firststory.firstoracle.window.OpenGL;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
+import com.firststory.firstoracle.shader.ShaderProgram2D;
+import com.firststory.firstoracle.shader.UniformLocation;
 import org.joml.Matrix3fc;
 import org.joml.Vector2fc;
 import org.joml.Vector4fc;
@@ -11,7 +13,7 @@ import org.joml.Vector4fc;
 /**
  * @author n1t4chi
  */
-public class ShaderProgram2D extends ShaderProgram {
+public class OpenGlShaderProgram2D extends OpenGlShaderProgram implements ShaderProgram2D {
     
     private final static String UNIFORM_LOCATION_POSITION = "translation";
     private final static String UNIFORM_LOCATION_CAMERA = "camera";
@@ -29,38 +31,45 @@ public class ShaderProgram2D extends ShaderProgram {
     private UniformLocation overlayColourLocation;
     private UniformLocation maxAlphaChannelLocation;
     
-    public ShaderProgram2D() {
+    public OpenGlShaderProgram2D() {
         super( VERTEX_SHADER_FILE_PATH, FRAGMENT_SHADER_FILE_PATH );
     }
     
-    public ShaderProgram2D( String vertex_file_path, String fragment_file_path ) {
+    public OpenGlShaderProgram2D( String vertex_file_path, String fragment_file_path ) {
         super( vertex_file_path, fragment_file_path );
     }
     
+    @Override
     public void bindPosition( Vector2fc vector ) {
         positionLocation.bind( vector );
     }
     
+    @Override
     public void bindCamera( Camera2D camera2D ) {
         cameraLocation.bind( camera2D );
     }
     
+    @Override
     public void bindCamera( Matrix3fc camera ) {
         cameraLocation.bind( camera );
     }
     
+    @Override
     public void bindScale( Vector2fc vector ) {
         scaleLocation.bind( vector );
     }
     
+    @Override
     public void bindRotation( float rotation ) {
         rotationLocation.bind( rotation );
     }
     
+    @Override
     public void bindOverlayColour( Vector4fc vector ) {
         overlayColourLocation.bind( vector );
     }
     
+    @Override
     public void bindMaxAlphaChannel( float value ) {
         maxAlphaChannelLocation.bind( value );
     }

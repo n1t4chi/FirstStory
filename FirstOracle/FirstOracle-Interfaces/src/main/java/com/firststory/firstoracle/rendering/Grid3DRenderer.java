@@ -6,6 +6,6 @@ package com.firststory.firstoracle.rendering;
 /**
  * @author n1t4chi
  */
-public interface Grid3DRenderer extends RenderingContext {
+public interface Grid3DRenderer extends Renderer {
 
 }

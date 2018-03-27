@@ -4,11 +4,13 @@
 
 package com.firststory.firstoracle.window.OpenGL;
 
+import com.firststory.firstoracle.data.ArrayBufferLoader;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
 
+import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -19,10 +21,19 @@ import java.util.concurrent.locks.ReentrantLock;
 public class OpenGlInstance implements AutoCloseable{
     
     private static final ReentrantLock contextLock = new ReentrantLock(true);
-    private GLCapabilities capabilities;
-    private final OpenGlArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
+    private final ArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
     private final OpenGLVertexAttributeLoader attributeLoader = new OpenGLVertexAttributeLoader( bufferLoader );
-    
+    private final OpenGlTextureLoader textureLoader = new OpenGlTextureLoader();
+    private final OpenGlShaderProgram2D shader2D = new OpenGlShaderProgram2D(  );
+    private final OpenGlShaderProgram3D shader3D = new OpenGlShaderProgram3D(  );
+    private final OpenGlRenderingContext renderingContext = new OpenGlRenderingContext(
+        attributeLoader,
+        textureLoader,
+        shader2D,
+        shader3D
+    );
+    private GLCapabilities capabilities;
+
     OpenGlInstance(){
         capabilities = GL.createCapabilities();
         enableFunctionality();
@@ -30,12 +41,28 @@ public class OpenGlInstance implements AutoCloseable{
             throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
         }
     }
+
+    public OpenGlRenderingContext getRenderingContext() {
+        return renderingContext;
+    }
+
+    public OpenGlShaderProgram2D getShader2D() {
+        return shader2D;
+    }
+
+    public OpenGlShaderProgram3D getShader3D() {
+        return shader3D;
+    }
+    
+    public OpenGlTextureLoader getTextureLoader() {
+        return textureLoader;
+    }
     
     public OpenGLVertexAttributeLoader getAttributeLoader() {
         return attributeLoader;
     }
     
-    public OpenGlArrayBufferLoader getBufferLoader() {
+    public ArrayBufferLoader getBufferLoader() {
         return bufferLoader;
     }
     
@@ -52,6 +79,26 @@ public class OpenGlInstance implements AutoCloseable{
     }
     
     /**
+     * Releases lock to other OpenGlInstances
+     * @see #releaseLock()
+     */
+    @Override
+    public void close() {
+        releaseLock();
+    }
+    
+    public void invoke( Commands commands) throws Exception{
+        try(OpenGlInstance instance = aquireLock()){
+            commands.execute( instance );
+        }
+    }
+
+    public void compileShaders() throws IOException {
+        shader2D.compile();
+        shader3D.compile();
+    }
+    
+    /**
      * Aquires lock across all OpenGlInstances, will block thread until lock is aquired.
      * @return this instance
      */
@@ -61,7 +108,7 @@ public class OpenGlInstance implements AutoCloseable{
 //        System.err.println("lock aquired by"+Thread.currentThread());
         return this;
     }
-    
+
     /**
      * Releases lock to other OpenGlInstances
      * releasing lock without prior lock aquisition will fail and exception will be thrown
@@ -69,21 +116,6 @@ public class OpenGlInstance implements AutoCloseable{
     private void releaseLock(){
 //        contextLock.unlock();
 //        System.err.println("lock released by"+Thread.currentThread());
-    }
-    
-    /**
-     * Releases lock to other OpenGlInstances
-     * @see #releaseLock()
-     */
-    @Override
-    public void close() {
-        releaseLock();
-    }
-
-    public void invoke( Commands commands) throws Exception{
-        try(OpenGlInstance instance = aquireLock()){
-            commands.execute( instance );
-        }
     }
     
     private void enableFunctionality() {

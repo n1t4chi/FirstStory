@@ -4,7 +4,18 @@
 
 package com.firststory.firstoracle.data;
 
-/**
+import java.io.IOException; /**
  * @author n1t4chi
  */
-public class BufferNotCreatedException extends BufferException {}
+public class BufferNotCreatedException extends BufferException {
+    
+    public BufferNotCreatedException() {}
+    
+    public BufferNotCreatedException( IOException e ) {
+        super( e );
+    }
+    
+    public BufferNotCreatedException( String s ) {
+        super( s );
+    }
+}

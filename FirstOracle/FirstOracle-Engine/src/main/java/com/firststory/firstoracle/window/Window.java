@@ -4,15 +4,13 @@
 package com.firststory.firstoracle.window;
 
 import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.rendering.RenderingContext;
+import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.window.GLFW.GlfwContext;
 import com.firststory.firstoracle.window.GLFW.GlfwWindow;
 import com.firststory.firstoracle.window.JFXGL.JfxglContext;
 import com.firststory.firstoracle.window.OpenGL.OpenGlContext;
 import com.firststory.firstoracle.window.OpenGL.OpenGlInstance;
 import com.firststory.firstoracle.window.notifying.*;
-import com.firststory.firstoracle.window.shader.ShaderProgram2D;
-import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import javafx.application.Application;
 
 import java.util.ArrayList;
@@ -35,9 +33,7 @@ public class Window implements Runnable,
     private final ArrayList< QuitListener > quitListeners = new ArrayList<>( 3 );
     private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
     private final Application application;
-    private final ShaderProgram2D shaderProgram2D;
-    private final ShaderProgram3D shaderProgram3D;
-    private final RenderingContext renderer;
+    private final Renderer renderer;
     private GlfwWindow window;
     private GlfwContext glfw;
     private OpenGlInstance openGl;
@@ -50,33 +46,25 @@ public class Window implements Runnable,
     public static Window getOpenGlWithJavaFxInstance(
         WindowSettings windowSettings,
         Application application,
-        ShaderProgram2D shaderProgram2D,
-        ShaderProgram3D shaderProgram3D,
-        RenderingContext renderer
+        Renderer renderer
     ){
-        return new Window( windowSettings, application, shaderProgram2D, shaderProgram3D,renderer );
+        return new Window( windowSettings, application, renderer );
     }
     
     public static Window getOpenGlInstance(
         WindowSettings windowSettings,
-        ShaderProgram2D shaderProgram2D,
-        ShaderProgram3D shaderProgram3D,
-        RenderingContext renderer
+        Renderer renderer
     ){
-        return new Window( windowSettings, null, shaderProgram2D, shaderProgram3D,renderer );
+        return new Window( windowSettings, null, renderer );
     }
     
     private Window(
         WindowSettings windowSettings,
         Application application,
-        ShaderProgram2D shaderProgram2D,
-        ShaderProgram3D shaderProgram3D,
-        RenderingContext renderer
+        Renderer renderer
     ) {
         this.settings = windowSettings;
         this.application = application;
-        this.shaderProgram2D = shaderProgram2D;
-        this.shaderProgram3D = shaderProgram3D;
         this.renderer = renderer;
     }
     
@@ -87,8 +75,7 @@ public class Window implements Runnable,
             openGl = OpenGlContext.createInstance();
             openGl.invoke( instance -> {
                 setupCallbacks();
-                shaderProgram2D.compile();
-                shaderProgram3D.compile();
+                instance.compileShaders();
                 renderer.init();
             });
     
@@ -209,7 +196,7 @@ public class Window implements Runnable,
                 window.setUpRenderLoop();
                 openGl.clearScreen();
                 notifyTimeListener( glfw.getTime() );
-                renderer.render( instance.getAttributeLoader(), lastFrameUpdate );
+                renderer.render( instance.getRenderingContext(), lastFrameUpdate );
                 jfxgl.render();
                 window.cleanAfterLoop();
             } );

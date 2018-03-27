@@ -1,8 +1,11 @@
 /*
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
-package com.firststory.firstoracle.window.shader;
+package com.firststory.firstoracle.window.OpenGL;
 
+import com.firststory.firstoracle.shader.ShaderException;
+import com.firststory.firstoracle.shader.ShaderProgram;
+import com.firststory.firstoracle.shader.UniformLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
@@ -13,11 +16,11 @@ import java.util.HashMap;
 import static com.firststory.firstoracle.templates.IOUtilities.readTextResource;
 
 /**
- * ShaderProgram utility class, new instance creates ready to use program with loaded shaders.
+ * OpenGlShaderProgram utility class, new instance creates ready to use program with loaded shaders.
  *
  * @author n1t4chi
  */
-public abstract class ShaderProgram {
+public abstract class OpenGlShaderProgram implements ShaderProgram {
     
     private static String shaderTypeToString( int type ) {
         switch ( type ) {
@@ -38,15 +41,17 @@ public abstract class ShaderProgram {
     private int fragmentShader;
     private int program;
     
-    public ShaderProgram( String vertexFilePath, String fragmentFilePath ) {
+    public OpenGlShaderProgram( String vertexFilePath, String fragmentFilePath ) {
         this.vertexFilePath = vertexFilePath;
         this.fragmentFilePath = fragmentFilePath;
     }
     
+    @Override
     public void useProgram() {
         GL20.glUseProgram( program );
     }
     
+    @Override
     public void compile() throws IOException {
         
         String VertexContent = readTextResource( vertexFilePath );
@@ -62,6 +67,7 @@ public abstract class ShaderProgram {
         initUniformLocations();
     }
     
+    @Override
     public void dispose() {
         GL20.glDeleteProgram( program );
     }
@@ -70,7 +76,7 @@ public abstract class ShaderProgram {
     
     protected UniformLocation createUniformLocation( String locationName ) {
         if ( !uniformLocations.containsKey( locationName ) ) {
-            UniformLocation uniformLocation = new UniformLocation( program, locationName );
+            UniformLocation uniformLocation = new OpenGlUniformLocation( program, locationName );
             uniformLocations.put( locationName, uniformLocation );
             return uniformLocation;
         } else {
@@ -127,10 +133,4 @@ public abstract class ShaderProgram {
         }
     }
     
-    public class ShaderException extends RuntimeException {
-        
-        public ShaderException( String s ) {
-            super( s );
-        }
-    }
 }

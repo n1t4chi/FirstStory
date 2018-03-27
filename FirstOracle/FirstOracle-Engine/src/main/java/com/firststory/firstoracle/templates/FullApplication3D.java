@@ -20,8 +20,6 @@ import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.WindowApplication;
 import com.firststory.firstoracle.window.notifying.WindowListener;
 import com.firststory.firstoracle.window.notifying.WindowSizeEvent;
-import com.firststory.firstoracle.window.shader.ShaderProgram2D;
-import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -40,13 +38,11 @@ public class FullApplication3D {
     
     private static Window window;
     private static MyOverlayContentManager contentManager;
-    private static WindowRenderingContext renderer;
+    private static WindowRenderer renderer;
     private static SceneProvider sceneProvider;
     private static CameraController cameraController;
     private static RenderedSceneMutable renderedScene;
     private static Grid3DRenderer grid3DRenderer;
-    private static ShaderProgram2D shaderProgram2D;
-    private static ShaderProgram3D shaderProgram3D;
     private static WindowSettings settings;
     private static Grid2DRenderer grid2DRenderer;
     private static WindowApplication application;
@@ -65,11 +61,8 @@ public class FullApplication3D {
 //            .setWidth( -1 )
 //            .setHeight( -1 )
             .build();
-        //Those shader programs are necessary. For now I didn't remove anything with 3D so it will need to be left as it is.
-        shaderProgram3D = new ShaderProgram3D();
-        shaderProgram2D = new ShaderProgram2D();
         //GridRenderer will be changed so it works as either 2D or 3D. For now leave it as it is so you can see whether the rendering still works.
-        grid3DRenderer = new BoundedGrid3DRenderer( shaderProgram3D, 100, 25, 5 );
+        grid3DRenderer = new BoundedGrid3DRenderer( 100, 25, 5 );
         grid2DRenderer = new DummyGrid2DRenderer();
         //Rendered scene is what is displayed via OpenGL rendering, it should be most likely moved to SceneProvider
         //Which will provide next scenes to renderObject when something changes.
@@ -123,7 +116,7 @@ public class FullApplication3D {
             return renderedScene;
         };
         //Renderer renders all openGL content in Window, nothing to add much here
-        renderer = new WindowRenderingContext( shaderProgram2D, shaderProgram3D, grid2DRenderer, grid3DRenderer,
+        renderer = new WindowRenderer( grid2DRenderer, grid3DRenderer,
             sceneProvider,
             settings.isUseTexture(),
             settings.isDrawBorder()
@@ -147,8 +140,6 @@ public class FullApplication3D {
         //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
         //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
         window = Window.getOpenGlWithJavaFxInstance( settings, application,
-            shaderProgram2D,
-            shaderProgram3D,
             renderer
         );
         window.addFpsListener( application );

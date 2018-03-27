@@ -17,8 +17,7 @@ public interface GraphicObject< TransformationsType extends ObjectTransformation
     TransformationsType getTransformations();
     
     default void bindCurrentUvMap( VertexAttributeLoader loader, double currentTimeSnapshot, double currentCameraRotation ) {
-        getUvMap().bind( loader, getCurrentUvMapFrame( currentTimeSnapshot ),
-            getCurrentUvMapDirection( currentCameraRotation ) );
+        getUvMap().bind( loader, getCurrentUvMapDirection( currentCameraRotation ), getCurrentUvMapFrame( currentTimeSnapshot ) );
     }
     
     int getCurrentUvMapDirection( double currentCameraRotation );

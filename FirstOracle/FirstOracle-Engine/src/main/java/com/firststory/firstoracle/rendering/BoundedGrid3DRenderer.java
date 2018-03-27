@@ -3,19 +3,16 @@
  */
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.object.VertexAttributeLoader;
 import com.firststory.firstoracle.object3D.Vertices3D;
-import com.firststory.firstoracle.window.shader.ShaderProgram3D;
+import com.firststory.firstoracle.shader.ShaderProgram3D;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL11;
 
 /**
  * @author n1t4chi
  */
 public class BoundedGrid3DRenderer implements Grid3DRenderer {
-    
-    private final ShaderProgram3D shaderProgram;
+
     private final Vertices3D mainAxes;
     private final Vertices3D interAxes;
     private final Vertices3D smallPositiveAxes;
@@ -24,10 +21,7 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     private final Vector3f ones = new Vector3f( 1, 1, 1 );
     private final Vector4f colour = new Vector4f( 0, 0, 0, 0 );
     
-    public BoundedGrid3DRenderer(
-        ShaderProgram3D shaderProgram, int gridSize, int interAxesStep, int smallAxesStep
-    ) {
-        this.shaderProgram = shaderProgram;
+    public BoundedGrid3DRenderer( int gridSize, int interAxesStep, int smallAxesStep ) {
         int interAxesSize = gridSize / interAxesStep / 2;
         int smallPositiveAxesSize = ( gridSize - interAxesSize ) / 2 / smallAxesStep;
         int smallNegativeAxesSize = smallPositiveAxesSize;
@@ -98,11 +92,11 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     }
     
     @Override
-    public void render( VertexAttributeLoader loader, double currentRenderTime ) {
-        renderGridArray( loader, mainAxes, 1f, 1, 0f, 0f, 1f );
-        renderGridArray( loader, interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
-        renderGridArray( loader, smallPositiveAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
-        renderGridArray( loader, smallNegativeAxes, 0.1f, 1f, 0.25f, 0.25f, 0.5f );
+    public void render( RenderingContext renderingContext, double currentRenderTime ) {
+        renderGridArray( renderingContext, mainAxes, 1f, 1, 0f, 0f, 1f );
+        renderGridArray( renderingContext, interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
+        renderGridArray( renderingContext, smallPositiveAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
+        renderGridArray( renderingContext, smallNegativeAxes, 0.1f, 1f, 0.25f, 0.25f, 0.5f );
     }
     
     private float[] createAxes( int gridSize, int i ) {
@@ -124,17 +118,17 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         };
     }
     
-    private void renderGridArray( VertexAttributeLoader loader,
+    private void renderGridArray( RenderingContext renderingContext,
         Vertices3D buffer, float width, float red, float green, float blue, float alpha
     ) {
         colour.set( red, green, blue, alpha );
-        bindUniformData();
-        int length = buffer.bind( loader,0 );
-        GL11.glLineWidth( width );
-        GL11.glDrawArrays( GL11.GL_LINES, 0, length );
+        bindUniformData( renderingContext.getShaderProgram3D() );
+        int length = buffer.bind( renderingContext.getVertexAttributeLoader(),0 );
+        renderingContext.setLineWidth( width );
+        renderingContext.drawLines( length );
     }
     
-    private void bindUniformData() {
+    private void bindUniformData( ShaderProgram3D shaderProgram ) {
         shaderProgram.bindPosition( zeros );
         shaderProgram.bindScale( ones );
         shaderProgram.bindRotation( zeros );

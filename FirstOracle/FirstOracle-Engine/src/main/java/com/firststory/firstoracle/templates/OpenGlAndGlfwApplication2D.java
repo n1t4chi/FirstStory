@@ -15,8 +15,6 @@ import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.notifying.WindowListener;
 import com.firststory.firstoracle.window.notifying.WindowSizeEvent;
-import com.firststory.firstoracle.window.shader.ShaderProgram2D;
-import com.firststory.firstoracle.window.shader.ShaderProgram3D;
 import org.joml.Vector4f;
 
 /**
@@ -31,14 +29,12 @@ public class OpenGlAndGlfwApplication2D {
         new OpenGlAndGlfwApplication2D().run( args );
     }
     private Window window;
-    private WindowRenderingContext renderer;
+    private WindowRenderer renderer;
     private SceneProvider sceneProvider;
     private CameraController cameraController;
     private RenderedSceneMutable renderedScene;
     private Grid3DRenderer grid3DRenderer;
     private Grid2DRenderer grid2DRenderer;
-    private ShaderProgram2D shaderProgram2D;
-    private ShaderProgram3D shaderProgram3D;
     private WindowSettings settings;
     
     public void run( String[] args ) throws Exception{
@@ -52,10 +48,8 @@ public class OpenGlAndGlfwApplication2D {
             .setHeight( height )
             .setDrawBorder( true )
             .build();
-        shaderProgram3D = new ShaderProgram3D();
-        shaderProgram2D = new ShaderProgram2D();
 //        grid2DRenderer = new DummyGrid2DRenderer();
-        grid2DRenderer = new BoundedPositiveGrid2DRenderer( shaderProgram2D, 20, 30, 10 );
+        grid2DRenderer = new BoundedPositiveGrid2DRenderer( 20, 30, 10 );
 //            Grid2DRenderer grid2DRenderer = new BoundedGrid2DRenderer( shaderProgram2D,
 //                100,
 //                10,
@@ -109,16 +103,14 @@ public class OpenGlAndGlfwApplication2D {
             .getCamera2D() ) );
         
         sceneProvider = () -> renderedScene;
-        renderer = new WindowRenderingContext(
-            shaderProgram2D,
-            shaderProgram3D,
+        renderer = new WindowRenderer(
             grid2DRenderer,
             grid3DRenderer,
             sceneProvider,
             settings.isUseTexture(),
             settings.isDrawBorder()
         );
-        window = Window.getOpenGlInstance( settings, shaderProgram2D, shaderProgram3D, renderer );
+        window = Window.getOpenGlInstance( settings, renderer );
         window.init();
         renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
     
