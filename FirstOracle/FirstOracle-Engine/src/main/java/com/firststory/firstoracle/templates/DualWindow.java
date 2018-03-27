@@ -13,9 +13,7 @@ public class DualWindow {
     public static void main( String[] args ) throws Exception {
         Thread t = new Thread( DualWindow::secondWindow );
         t.start();
-        t.join();
         secondWindow();
-        //FullApplication3D.main( args );
         t.join();
     }
     

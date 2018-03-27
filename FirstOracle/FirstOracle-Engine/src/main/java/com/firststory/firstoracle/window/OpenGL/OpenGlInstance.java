@@ -104,7 +104,7 @@ public class OpenGlInstance implements AutoCloseable{
      */
     private OpenGlInstance aquireLock(){
 //        System.err.println("trying to aquire lock by"+Thread.currentThread());
-//        contextLock.lock();
+        contextLock.lock();
 //        System.err.println("lock aquired by"+Thread.currentThread());
         return this;
     }
@@ -114,7 +114,7 @@ public class OpenGlInstance implements AutoCloseable{
      * releasing lock without prior lock aquisition will fail and exception will be thrown
      */
     private void releaseLock(){
-//        contextLock.unlock();
+        contextLock.unlock();
 //        System.err.println("lock released by"+Thread.currentThread());
     }
     
