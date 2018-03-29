@@ -3,7 +3,10 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.rendering.Terrain3DRenderer;
+import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.rendering.CameraDataProvider;
+import com.firststory.firstoracle.rendering.RenderingContext;
+import com.firststory.firstoracle.shader.ShaderProgram3D;
 import org.joml.Vector3fc;
 import org.joml.Vector3ic;
 
@@ -11,7 +14,7 @@ import org.joml.Vector3ic;
  * @author n1t4chi
  */
 public interface Terrain3D< Vertices extends Vertices3D >
-    extends Object3D< Identity3DTransformations, Vertices, Terrain3DRenderer >
+    extends Object3D< Identity3DTransformations, Vertices >
 {
     
     @Override
@@ -29,4 +32,44 @@ public interface Terrain3D< Vertices extends Vertices3D >
      * @return position in space
      */
     Vector3fc computePosition( int x, int y, int z, Vector3ic arrayShift );
+    
+    
+    default void bindPosition(
+        RenderingContext renderingContext, int x, int y, int z, Vector3ic arrayShift
+    ) {
+        renderingContext.getShaderProgram3D().bindPosition( computePosition( x, y, z, arrayShift ) );
+    }
+    
+    @Override
+    default void render(
+        RenderingContext renderingContext,
+        double currentRenderTime,
+        CameraDataProvider cameraDataProvider
+    ){
+        ShaderProgram3D shaderProgram3D = renderingContext.getShaderProgram3D();
+        Object3DTransformations transformations = getTransformations();
+        
+        shaderProgram3D.bindMaxAlphaChannel( 1f );
+        shaderProgram3D.bindOverlayColour( FirstOracleConstants.VECTOR_ZERO_4F );
+        
+        shaderProgram3D.bindRotation( transformations.getRotation() );
+        shaderProgram3D.bindScale( transformations.getScale() );
+        
+        int bufferSize = bindCurrentVerticesAndGetSize(
+            renderingContext.getVertexAttributeLoader(), currentRenderTime );
+        bindCurrentUvMap( renderingContext.getVertexAttributeLoader(), currentRenderTime, cameraDataProvider.getCameraRotation3D() );
+        
+        if ( renderingContext.getUseTexture() ) {
+            getTexture().bind( renderingContext.getTextureLoader() );
+        }
+        
+        renderingContext.drawTriangles( bufferSize );
+        
+        if ( renderingContext.getDrawBorder() ) {
+            shaderProgram3D.bindMaxAlphaChannel( 1 );
+            shaderProgram3D.bindOverlayColour( renderingContext.getBorderColour() );
+            renderingContext.setLineWidth( 1f );
+            renderingContext.drawLineLoop( bufferSize );
+        }
+    }
 }

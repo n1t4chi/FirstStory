@@ -3,12 +3,16 @@
  */
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.rendering.GraphicObjectRenderer;
-
 /**
  * @author n1t4chi
  */
-public interface GraphicObject< TransformationsType extends ObjectTransformations, BoundingBoxType extends BoundingBox, VerticesType extends Vertices, Renderer extends GraphicObjectRenderer > {
+public interface GraphicObject<
+        TransformationsType extends ObjectTransformations,
+        BoundingBoxType extends BoundingBox,
+        VerticesType extends Vertices
+    >
+    extends Renderable
+{
     
     Texture getTexture();
     
@@ -33,6 +37,4 @@ public interface GraphicObject< TransformationsType extends ObjectTransformation
     VerticesType getVertices();
     
     int getCurrentVertexFrame( double currentTimeSnapshot );
-    
-    void render( Renderer renderer );
 }

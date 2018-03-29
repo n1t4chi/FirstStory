@@ -4,7 +4,6 @@
 package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.rendering.Terrain2DRenderer;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 import org.joml.Vector2ic;
@@ -13,7 +12,7 @@ import org.joml.Vector2ic;
  * @author n1t4chi
  */
 public interface Hex2DGrid
-    extends Terrain2D< Hex2DVertices >, Hexagon2D< Identity2DTransformations, Terrain2DRenderer >
+    extends Terrain2D< Hex2DVertices >, Hexagon2D< Identity2DTransformations >
 {
     
     Vector2f position = new Vector2f();

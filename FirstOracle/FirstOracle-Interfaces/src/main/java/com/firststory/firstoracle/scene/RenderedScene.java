@@ -5,8 +5,9 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.rendering.Multi2DRenderer;
-import com.firststory.firstoracle.rendering.Multi3DRenderer;
+import com.firststory.firstoracle.object.Renderable;
+import com.firststory.firstoracle.rendering.CameraDataProvider;
+import com.firststory.firstoracle.rendering.RenderingContext;
 import org.joml.Vector4fc;
 
 /**
@@ -14,29 +15,45 @@ import org.joml.Vector4fc;
  */
 public interface RenderedScene {
     
-    default void renderScene2D( Multi2DRenderer renderer ) {
-        getScene2D().render( renderer );
+    default void renderScene2D(
+        RenderingContext renderingContext,
+        double currentRenderTime,
+        CameraDataProvider cameraDataProvider
+    ) {
+        getScene2D().render( renderingContext, currentRenderTime, cameraDataProvider );
     }
     
-    RenderedObjects2D getScene2D();
+    Renderable getScene2D();
     
-    default void renderScene3D( Multi3DRenderer renderer ) {
-        getScene3D().render( renderer );
+    default void renderScene3D(
+        RenderingContext renderingContext,
+        double currentRenderTime,
+        CameraDataProvider cameraDataProvider
+    ) {
+        getScene3D().render( renderingContext, currentRenderTime, cameraDataProvider );
     }
     
-    RenderedObjects3D getScene3D();
+    Renderable getScene3D();
     
-    default void renderBackground( Multi2DRenderer renderer ) {
-        getBackground().render( renderer );
+    default void renderBackground(
+        RenderingContext renderingContext,
+        double currentRenderTime,
+        CameraDataProvider cameraDataProvider
+    ) {
+        getBackground().render( renderingContext, currentRenderTime, cameraDataProvider );
     }
     
-    RenderedObjects2D getBackground();
+    Renderable getBackground();
     
-    default void renderOverlay( Multi2DRenderer renderer ) {
-        getOverlay().render( renderer );
+    default void renderOverlay(
+        RenderingContext renderingContext,
+        double currentRenderTime,
+        CameraDataProvider cameraDataProvider
+    ) {
+        getOverlay().render( renderingContext, currentRenderTime, cameraDataProvider );
     }
     
-    RenderedObjects2D getOverlay();
+    Renderable getOverlay();
     
     Camera3D getCamera3D();
     

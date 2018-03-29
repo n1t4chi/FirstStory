@@ -8,15 +8,14 @@ import com.firststory.firstoracle.object.DirectionController;
 import com.firststory.firstoracle.object.FrameController;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.rendering.PositionableObject2DRenderer;
 
 /**
  * @author n1t4chi
  */
-public class AnimatedRectangle implements Rectangle< Mutable2DTransformations, PositionableObject2DRenderer >,
-    AnimatedObject2D< Mutable2DTransformations, Plane2DVertices, PositionableObject2DRenderer >,
-    MutableTextureObject2D< Mutable2DTransformations, Plane2DVertices, PositionableObject2DRenderer >,
-    PositionableObject2D< Mutable2DTransformations, Plane2DVertices, PositionableObject2DRenderer >
+public class AnimatedRectangle implements Rectangle< Mutable2DTransformations >,
+    AnimatedObject2D< Mutable2DTransformations, Plane2DVertices >,
+    MutableTextureObject2D< Mutable2DTransformations, Plane2DVertices >,
+    PositionableObject2D< Mutable2DTransformations, Plane2DVertices >
 {
     
     DirectionController directionController;

@@ -9,6 +9,7 @@ import com.firststory.firstoracle.object.VertexAttributeLoader;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.shader.ShaderProgram2D;
 import com.firststory.firstoracle.shader.ShaderProgram3D;
+import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -22,18 +23,27 @@ public class OpenGlRenderingContext implements RenderingContext {
     private final TextureBufferLoader textureLoader;
     private final ShaderProgram2D shaderProgram2D;
     private final ShaderProgram3D shaderProgram3D;
+    
+    private final Vector4f borderColour;
+    private final boolean useTexture;
+    private final boolean drawBorder;
 
     public OpenGlRenderingContext(
         VertexAttributeLoader attributeLoader,
         TextureBufferLoader textureLoader,
         ShaderProgram2D shaderProgram2D,
-        ShaderProgram3D shaderProgram3D
+        ShaderProgram3D shaderProgram3D,
+    
+        boolean useTexture, boolean drawBorder, Vector4f borderColour
     )
     {
         this.attributeLoader = attributeLoader;
         this.textureLoader = textureLoader;
         this.shaderProgram2D = shaderProgram2D;
         this.shaderProgram3D = shaderProgram3D;
+        this.useTexture = useTexture;
+        this.drawBorder = drawBorder;
+        this.borderColour = borderColour;
     }
 
     @Override
@@ -106,6 +116,21 @@ public class OpenGlRenderingContext implements RenderingContext {
         GL11.glEnable( GL11.GL_DEPTH_TEST );
         GL11.glDepthFunc( GL11.GL_LEQUAL );
         GL11.glClear( GL11.GL_DEPTH_BUFFER_BIT );
+    }
+    
+    @Override
+    public boolean getUseTexture() {
+        return useTexture;
+    }
+    
+    @Override
+    public boolean getDrawBorder() {
+        return drawBorder;
+    }
+    
+    @Override
+    public Vector4fc getBorderColour() {
+        return borderColour;
     }
     
     private void drawObjects( int objectType, int bufferSize ) {

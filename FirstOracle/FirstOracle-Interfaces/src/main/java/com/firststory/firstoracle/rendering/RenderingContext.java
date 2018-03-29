@@ -40,4 +40,8 @@ public interface RenderingContext {
     void disableDepth();
     
     void enableDepth();
+
+    boolean getUseTexture();
+    boolean getDrawBorder();
+    Vector4fc getBorderColour();
 }

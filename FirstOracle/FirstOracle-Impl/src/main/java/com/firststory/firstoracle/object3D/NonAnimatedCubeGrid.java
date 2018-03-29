@@ -7,14 +7,13 @@ package com.firststory.firstoracle.object3D;
 import com.firststory.firstoracle.object.CubeUvMap;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.rendering.Terrain3DRenderer;
 
 /**
  * @author n1t4chi
  */
 public class NonAnimatedCubeGrid implements CubeGrid,
-    NonAnimatedObject3D< Identity3DTransformations, CubeVertices, Terrain3DRenderer >,
-    MutableTextureObject3D< Identity3DTransformations, CubeVertices, Terrain3DRenderer >
+    NonAnimatedObject3D< Identity3DTransformations, CubeVertices >,
+    MutableTextureObject3D< Identity3DTransformations, CubeVertices >
 {
     
     Texture texture;

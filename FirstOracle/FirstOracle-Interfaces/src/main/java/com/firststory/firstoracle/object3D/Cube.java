@@ -3,13 +3,11 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.rendering.Object3DRenderer;
-
 /**
  * @author n1t4chi
  */
-public interface Cube< Transformations extends Object3DTransformations, Renderer extends Object3DRenderer >
-    extends Object3D< Transformations, CubeVertices, Renderer >
+public interface Cube< Transformations extends Object3DTransformations >
+    extends Object3D< Transformations, CubeVertices >
 {
     
     CubeVertices VERTICES = CubeVertices.getCubeVertices();

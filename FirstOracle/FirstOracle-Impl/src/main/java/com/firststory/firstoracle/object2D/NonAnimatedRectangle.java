@@ -7,15 +7,14 @@ package com.firststory.firstoracle.object2D;
 import com.firststory.firstoracle.object.PlaneUvMap;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.rendering.PositionableObject2DRenderer;
 
 /**
  * @author n1t4chi
  */
-public class NonAnimatedRectangle implements Rectangle< Mutable2DTransformations, PositionableObject2DRenderer >,
-    NonAnimatedObject2D< Mutable2DTransformations, Plane2DVertices, PositionableObject2DRenderer >,
-    MutableTextureObject2D< Mutable2DTransformations, Plane2DVertices, PositionableObject2DRenderer >,
-    PositionableObject2D< Mutable2DTransformations, Plane2DVertices, PositionableObject2DRenderer >
+public class NonAnimatedRectangle implements Rectangle< Mutable2DTransformations >,
+    NonAnimatedObject2D< Mutable2DTransformations, Plane2DVertices >,
+    MutableTextureObject2D< Mutable2DTransformations, Plane2DVertices >,
+    PositionableObject2D< Mutable2DTransformations, Plane2DVertices >
 {
     {
         setTransformations( new Mutable2DTransformations() );

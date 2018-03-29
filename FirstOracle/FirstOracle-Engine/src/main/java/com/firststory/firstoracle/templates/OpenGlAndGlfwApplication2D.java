@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.templates;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
@@ -11,11 +12,17 @@ import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.rendering.*;
+import com.firststory.firstoracle.scene.RenderedObjects2D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.notifying.WindowListener;
 import com.firststory.firstoracle.window.notifying.WindowSizeEvent;
+import org.joml.Vector2ic;
 import org.joml.Vector4f;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Main class that initialises whole test application.
@@ -92,11 +99,25 @@ public class OpenGlAndGlfwApplication2D {
                 array[x][y] = terrain;
             }
         }
-        renderedScene.setScene2D( ( renderer ) -> {
-            renderer.renderAll( array );
-            renderer.render( object );
-            renderer.render( compound );
+        List<Renderable> renderables = Arrays.<Renderable>asList( compound, object );
+        
+        renderedScene.setScene2D( new RenderedObjects2D() {
+            @Override
+            public Terrain2D[][] getTerrains() {
+                return array;
+            }
+    
+            @Override
+            public Collection< Renderable > getObjects() {
+                return renderables;
+            }
+    
+            @Override
+            public Vector2ic getTerrainShift() {
+                return FirstOracleConstants.VECTOR_ZERO_2I;
+            }
         } );
+        
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
         cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
         cameraController.addCameraListener( ( event, source ) -> cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene

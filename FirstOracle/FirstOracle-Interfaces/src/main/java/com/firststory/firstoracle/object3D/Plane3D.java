@@ -3,13 +3,11 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.rendering.Object3DRenderer;
-
 /**
  * @author n1t4chi
  */
-public interface Plane3D< Transformations extends Object3DTransformations, Renderer extends Object3DRenderer >
-    extends Object3D< Transformations, Plane3DVertices, Renderer >
+public interface Plane3D< Transformations extends Object3DTransformations >
+    extends Object3D< Transformations, Plane3DVertices >
 {
     
     Plane3DVertices VERTICES = Plane3DVertices.getPlane3DVertices();

@@ -3,17 +3,21 @@
  */
 package com.firststory.firstoracle.templates;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
+import com.firststory.firstoracle.object.Renderable;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object2D.NonAnimatedRectangle;
 import com.firststory.firstoracle.object3D.CubeGrid;
 import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
+import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.*;
+import com.firststory.firstoracle.scene.RenderedObjects3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
@@ -26,7 +30,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.joml.Vector3fc;
+import org.joml.Vector3ic;
 import org.joml.Vector4f;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Main class that initialises whole test application.
@@ -85,7 +93,7 @@ public class FullApplication3D {
         NonAnimatedRectangle overlay = new NonAnimatedRectangle();
         overlay.setTexture( texture1 );
         //overlay is rendered last, good for UI
-        renderedScene.setOverlay( overlay::render );
+        renderedScene.setOverlay( overlay );
         
         //Example initialisation of map
         NonAnimatedCubeGrid terrain = new NonAnimatedCubeGrid();
@@ -102,7 +110,23 @@ public class FullApplication3D {
         }
         //setScene2D is very similar but you are providing Objects2D instead of 3D
         //here it's best place to renderObject all game objects
-        renderedScene.setScene3D( ( Multi3DRenderer renderer ) -> renderer.renderAll( array ) );
+    
+        renderedScene.setScene3D( new RenderedObjects3D() {
+            @Override
+            public Terrain3D[][][] getTerrains() {
+                return array;
+            }
+        
+            @Override
+            public Collection< Renderable > getObjects() {
+                return Collections.emptyList();
+            }
+        
+            @Override
+            public Vector3ic getTerrainShift() {
+                return FirstOracleConstants.VECTOR_ZERO_3I;
+            }
+        } );
         //SceneProvider is object which provides all next scenes for renderer below
         //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
         //Most likely you would want to create your own SceneProvider that implements this interface

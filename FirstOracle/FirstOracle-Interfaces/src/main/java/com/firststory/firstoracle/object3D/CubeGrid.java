@@ -4,7 +4,6 @@
 package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.rendering.Terrain3DRenderer;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector3ic;
@@ -12,7 +11,7 @@ import org.joml.Vector3ic;
 /**
  * @author n1t4chi
  */
-public interface CubeGrid extends Terrain3D< CubeVertices >, Cube< Identity3DTransformations, Terrain3DRenderer > {
+public interface CubeGrid extends Terrain3D< CubeVertices >, Cube< Identity3DTransformations > {
     
     Vector3f position = new Vector3f();
     

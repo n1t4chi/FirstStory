@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.window.OpenGL;
 
 import com.firststory.firstoracle.data.ArrayBufferLoader;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -26,12 +27,7 @@ public class OpenGlInstance implements AutoCloseable{
     private final OpenGlTextureLoader textureLoader = new OpenGlTextureLoader();
     private final OpenGlShaderProgram2D shader2D = new OpenGlShaderProgram2D(  );
     private final OpenGlShaderProgram3D shader3D = new OpenGlShaderProgram3D(  );
-    private final OpenGlRenderingContext renderingContext = new OpenGlRenderingContext(
-        attributeLoader,
-        textureLoader,
-        shader2D,
-        shader3D
-    );
+    private final OpenGlRenderingContext renderingContext;
     private GLCapabilities capabilities;
 
     OpenGlInstance(){
@@ -40,6 +36,16 @@ public class OpenGlInstance implements AutoCloseable{
         if ( !OpenGlSupportChecker.isSupportEnough(capabilities) ) {
             throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
         }
+        boolean drawBorder = "true".equals( System.getProperty( "DrawBorder", "false" ) );
+        renderingContext = new OpenGlRenderingContext(
+            attributeLoader,
+            textureLoader,
+            shader2D,
+            shader3D,
+            "true".equals( System.getProperty( "UseTexture", "true" ) ),
+            drawBorder,
+            new Vector4f( 1,0,0,1 )
+        );
     }
 
     public OpenGlRenderingContext getRenderingContext() {

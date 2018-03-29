@@ -5,13 +5,12 @@ package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.object.HexPrismUvMap;
 import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.rendering.Object3DRenderer;
 
 /**
  * @author n1t4chi
  */
-public interface HexPrism< Transformations extends Object3DTransformations, Renderer extends Object3DRenderer >
-    extends Object3D< Transformations, HexPrismVertices, Renderer >
+public interface HexPrism< Transformations extends Object3DTransformations >
+    extends Object3D< Transformations, HexPrismVertices >
 {
     
     HexPrismVertices VERTICES = HexPrismVertices.getHexPrismVertices();

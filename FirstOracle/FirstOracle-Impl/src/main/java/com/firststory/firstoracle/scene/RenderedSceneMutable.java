@@ -7,6 +7,7 @@ import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
+import com.firststory.firstoracle.object.Renderable;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 
@@ -19,10 +20,10 @@ public class RenderedSceneMutable implements RenderedScene {
     private IsometricCamera3D isometricCamera3D;
     private Vector4fc backgroundColour;
 
-    private RenderedObjects2D background;
-    private RenderedObjects2D scene2D;
-    private RenderedObjects3D scene3D;
-    private RenderedObjects2D overlay;
+    private Renderable background;
+    private Renderable scene2D;
+    private Renderable scene3D;
+    private Renderable overlay;
 
     private WindowSettings settings;
     
@@ -31,8 +32,7 @@ public class RenderedSceneMutable implements RenderedScene {
         camera2D = new MovableCamera2D( settings, 10, 0, 0, 0 );
         isometricCamera3D = new IsometricCamera3D( settings, 10, 0, 0, 0, 0, 0, 1 );
         backgroundColour = new Vector4f( 1, 1, 1, 1 );
-        background = scene2D = overlay = ( renderer ) -> {};
-        scene3D = ( renderer ) -> {};
+        scene3D = background = scene2D = overlay = ( renderingContext, currentRenderTime, cameraDataProvider ) -> {};
     }
 
     public RenderedSceneMutable(
@@ -40,10 +40,10 @@ public class RenderedSceneMutable implements RenderedScene {
         Camera2D camera2D,
         IsometricCamera3D isometricCamera3D,
         Vector4fc backgroundColour,
-        RenderedObjects2D background,
-        RenderedObjects2D scene2D,
-        RenderedObjects3D scene3D,
-        RenderedObjects2D overlay
+        Renderable background,
+        Renderable scene2D,
+        Renderable scene3D,
+        Renderable overlay
     ) {
         this.settings = settings;
         this.camera2D = camera2D;
@@ -83,38 +83,38 @@ public class RenderedSceneMutable implements RenderedScene {
     }
 
     @Override
-    public RenderedObjects2D getBackground() {
+    public Renderable getBackground() {
         return background;
     }
 
-    public void setBackground( RenderedObjects2D background ) {
+    public void setBackground( Renderable background ) {
         this.background = background;
     }
 
     @Override
-    public RenderedObjects2D getScene2D() {
+    public Renderable getScene2D() {
         return scene2D;
     }
 
-    public void setScene2D( RenderedObjects2D scene2D ) {
+    public void setScene2D( Renderable scene2D ) {
         this.scene2D = scene2D;
     }
 
     @Override
-    public RenderedObjects3D getScene3D() {
+    public Renderable getScene3D() {
         return scene3D;
     }
 
-    public void setScene3D( RenderedObjects3D scene3D ) {
+    public void setScene3D( Renderable scene3D ) {
         this.scene3D = scene3D;
     }
 
     @Override
-    public RenderedObjects2D getOverlay() {
+    public Renderable getOverlay() {
         return overlay;
     }
 
-    public void setOverlay( RenderedObjects2D overlay ) {
+    public void setOverlay( Renderable overlay ) {
         this.overlay = overlay;
     }
 

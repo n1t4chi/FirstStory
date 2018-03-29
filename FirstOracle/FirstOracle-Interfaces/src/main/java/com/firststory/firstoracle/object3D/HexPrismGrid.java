@@ -4,7 +4,6 @@
 package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.rendering.Terrain3DRenderer;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector3ic;
@@ -13,7 +12,7 @@ import org.joml.Vector3ic;
  * @author n1t4chi
  */
 public interface HexPrismGrid
-    extends Terrain3D< HexPrismVertices >, HexPrism< Identity3DTransformations, Terrain3DRenderer >
+    extends Terrain3D< HexPrismVertices >, HexPrism< Identity3DTransformations >
 {
     
     Vector3f position = new Vector3f();

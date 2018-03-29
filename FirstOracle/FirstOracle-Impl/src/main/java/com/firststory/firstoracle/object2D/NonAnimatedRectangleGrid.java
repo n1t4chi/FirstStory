@@ -7,14 +7,13 @@ package com.firststory.firstoracle.object2D;
 import com.firststory.firstoracle.object.PlaneUvMap;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.rendering.Terrain2DRenderer;
 
 /**
  * @author n1t4chi
  */
 public class NonAnimatedRectangleGrid implements RectangleGrid,
-    NonAnimatedObject2D< Identity2DTransformations, Plane2DVertices, Terrain2DRenderer >,
-    MutableTextureObject2D< Identity2DTransformations, Plane2DVertices, Terrain2DRenderer >
+    NonAnimatedObject2D< Identity2DTransformations, Plane2DVertices >,
+    MutableTextureObject2D< Identity2DTransformations, Plane2DVertices >
 {
     
     Texture texture;
