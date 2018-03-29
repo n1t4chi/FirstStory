@@ -8,7 +8,7 @@ import cuchaz.jfxgl.JFXGLLauncher;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashSet;
+import java.util.ArrayList;
 
 import static com.firststory.firstoracle.FirstOracleConstants.APPLICATION_CLASS_NAME_PROPERTY;
 
@@ -24,7 +24,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.APPLICATION_CLASS_
  */
 public class Runner {
     
-    private static final HashSet<FrameworkProvider > FRAMEWORK_PROVIDERS = new HashSet<>();
+    private static final ArrayList<FrameworkProvider > FRAMEWORK_PROVIDERS = new ArrayList<>();
     public static void registerFramework( FrameworkProvider frameworkProvider ) {
         FRAMEWORK_PROVIDERS.add( frameworkProvider );
     }
@@ -42,7 +42,10 @@ public class Runner {
         } catch ( Exception e ) {
             e.printStackTrace();
         } finally {
-            FRAMEWORK_PROVIDERS.forEach( FrameworkProvider::terminate );
+            for ( int i = FRAMEWORK_PROVIDERS.size() -1 ; i >= 0 ; i-- ) {
+                FRAMEWORK_PROVIDERS.get( i ).terminate();
+            }
+            FRAMEWORK_PROVIDERS.clear();
         }
     }
     
