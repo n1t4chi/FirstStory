@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle.window.GLFW;
 
+import com.firststory.firstoracle.FrameworkProvider;
+import com.firststory.firstoracle.Runner;
 import com.firststory.firstoracle.WindowSettings;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
@@ -18,12 +20,13 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 /**
  * @author n1t4chi
  */
-public class GlfwContext{
+public class GlfwContext  implements FrameworkProvider {
     private static Set<GlfwWindow> instances = new HashSet<>();
     private static GlfwContext instance;
     private static GLFWErrorCallback errorCallback;
     
     public synchronized static GlfwContext createInstance() {
+        Runner.registerFramework( new GlfwContext() );
         if(instance == null){
             setUpErrorCallback();
             init();
@@ -32,7 +35,8 @@ public class GlfwContext{
         return instance;
     }
     
-    public synchronized static void terminate() {
+    @Override
+    public synchronized void terminate() {
         for ( GlfwWindow window : instances ) {
             window.destroy();
         }
@@ -67,8 +71,11 @@ public class GlfwContext{
     
     private GlfwContext(){}
 
-    public synchronized GlfwWindow createWindow(WindowSettings settings){
+    public synchronized GlfwWindow createWindow( WindowSettings settings, boolean isOpenGLWindow ){
         setWindowHints(settings);
+        if( !isOpenGLWindow ) {
+            setNonOpenGlWindowHints();
+        }
     
         long monitor;
         if(settings.getMonitorIndex() <= 0 ){
@@ -133,6 +140,10 @@ public class GlfwContext{
         window.setupVerticalSync( settings.isVerticalSync() );
         registerWindow(window);
         return window;
+    }
+    
+    private void setNonOpenGlWindowHints() {
+        GLFW.glfwWindowHint( GLFW.GLFW_CLIENT_API, GLFW.GLFW_NO_API );
     }
     
     private void setWindowHints(WindowSettings settings) {

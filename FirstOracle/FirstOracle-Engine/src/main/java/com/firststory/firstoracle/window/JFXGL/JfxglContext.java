@@ -3,6 +3,8 @@
  */
 
 package com.firststory.firstoracle.window.JFXGL;
+import com.firststory.firstoracle.FrameworkProvider;
+import com.firststory.firstoracle.Runner;
 import cuchaz.jfxgl.JFXGL;
 import cuchaz.jfxgl.LWJGLDebug;
 import javafx.application.Application;
@@ -14,7 +16,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.isDebugMode;
  * Class used to create JFXGL context.
  * For now it can only create one instance for one window as there is no support in JFXGL.
  */
-public class JfxglContext {
+public class JfxglContext implements FrameworkProvider {
     private static JfxglContext instance;
     private static Callback debugCallback;
     
@@ -26,11 +28,13 @@ public class JfxglContext {
         if( isDebugMode() )
             debugCallback = LWJGLDebug.enableDebugging();
         instance = new JfxglContext();
+        Runner.registerFramework( instance );
         JFXGL.start( hwnd, new String[]{}, app );
         return instance;
     }
     
-    public static void terminate() {
+    @Override
+    public void terminate() {
         if( debugCallback != null)
             debugCallback.free();
         JFXGL.terminate();

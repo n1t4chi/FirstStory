@@ -5,6 +5,8 @@
 package com.firststory.firstoracle.window.OpenGL;
 
 import com.firststory.firstoracle.data.ArrayBufferLoader;
+import com.firststory.firstoracle.rendering.RenderingCommands;
+import com.firststory.firstoracle.rendering.RenderingFramework;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.GL;
@@ -16,10 +18,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class is used to invoke OpenGL that (may) need synchronisation across all instances like rendering etc.
- * Code that uses methods of this instance should be via method {@link #invoke(Commands)}:
+ * Code that uses methods of this instance should be via method {@link #invoke(RenderingCommands)}:
  * <code>instance.invoke{ instance-> {//method calls on instance\\} }</code>
  */
-public class OpenGlInstance implements AutoCloseable{
+public class OpenGlFramework implements RenderingFramework {
     
     private static final ReentrantLock contextLock = new ReentrantLock(true);
     private final ArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
@@ -30,7 +32,7 @@ public class OpenGlInstance implements AutoCloseable{
     private final OpenGlRenderingContext renderingContext;
     private GLCapabilities capabilities;
 
-    OpenGlInstance(){
+    OpenGlFramework(){
         capabilities = GL.createCapabilities();
         enableFunctionality();
         if ( !OpenGlSupportChecker.isSupportEnough(capabilities) ) {
@@ -48,38 +50,47 @@ public class OpenGlInstance implements AutoCloseable{
         );
     }
 
+    @Override
     public OpenGlRenderingContext getRenderingContext() {
         return renderingContext;
     }
 
+    @Override
     public OpenGlShaderProgram2D getShader2D() {
         return shader2D;
     }
 
+    @Override
     public OpenGlShaderProgram3D getShader3D() {
         return shader3D;
     }
     
+    @Override
     public OpenGlTextureLoader getTextureLoader() {
         return textureLoader;
     }
     
+    @Override
     public OpenGLVertexAttributeLoader getAttributeLoader() {
         return attributeLoader;
     }
     
+    @Override
     public ArrayBufferLoader getBufferLoader() {
         return bufferLoader;
     }
     
+    @Override
     public void clearScreen() {
         GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
     }
 
+    @Override
     public void updateViewPort( int x, int y, int width, int height ) {
         GL11.glViewport( x, y, width, height );
     }
     
+    @Override
     public void setCurrentCapabilitesToThisThread(){
         GL.setCapabilities( capabilities );
     }
@@ -93,13 +104,15 @@ public class OpenGlInstance implements AutoCloseable{
         releaseLock();
     }
     
-    public void invoke( Commands commands) throws Exception{
-        try(OpenGlInstance instance = aquireLock()){
-            commands.execute( instance );
+    @Override
+    public void invoke( RenderingCommands renderingCommands ) throws Exception{
+        try(OpenGlFramework instance = aquireLock()){
+            renderingCommands.execute( instance );
         }
     }
 
-    public void compileShaders() throws IOException {
+    @Override
+        public void compileShaders() throws IOException {
         shader2D.compile();
         shader3D.compile();
     }
@@ -108,7 +121,7 @@ public class OpenGlInstance implements AutoCloseable{
      * Aquires lock across all OpenGlInstances, will block thread until lock is aquired.
      * @return this instance
      */
-    private OpenGlInstance aquireLock(){
+    private OpenGlFramework aquireLock(){
 //        System.err.println("trying to aquire lock by"+Thread.currentThread());
         contextLock.lock();
 //        System.err.println("lock aquired by"+Thread.currentThread());
@@ -133,10 +146,5 @@ public class OpenGlInstance implements AutoCloseable{
         GL11.glFrontFace( GL11.GL_CCW );
         ARBVertexArrayObject.glBindVertexArray( ARBVertexArrayObject.glGenVertexArrays() );
     }
-    
-    public interface Commands {
-        void execute( OpenGlInstance openGlInstance ) throws Exception;
-    }
-    
     
 }

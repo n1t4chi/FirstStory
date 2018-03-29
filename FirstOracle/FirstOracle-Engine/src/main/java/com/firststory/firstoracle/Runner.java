@@ -4,13 +4,11 @@
 
 package com.firststory.firstoracle;
 
-import com.firststory.firstoracle.window.GLFW.GlfwContext;
-import com.firststory.firstoracle.window.JFXGL.JfxglContext;
-import com.firststory.firstoracle.window.OpenGL.OpenGlContext;
-import com.firststory.firstoracle.window.Vulkan.VulkanContext;
 import cuchaz.jfxgl.JFXGLLauncher;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 
 import static com.firststory.firstoracle.FirstOracleConstants.APPLICATION_CLASS_NAME_PROPERTY;
 
@@ -26,6 +24,11 @@ import static com.firststory.firstoracle.FirstOracleConstants.APPLICATION_CLASS_
  */
 public class Runner {
     
+    private static final HashSet<FrameworkProvider > FRAMEWORK_PROVIDERS = new HashSet<>();
+    public static void registerFramework( FrameworkProvider frameworkProvider ) {
+        FRAMEWORK_PROVIDERS.add( frameworkProvider );
+    }
+    
     public static void main( String[] args ) {
         JFXGLLauncher.showFilterWarnings = false;
         JFXGLLauncher.launchMain( Runner.class, args );
@@ -33,26 +36,75 @@ public class Runner {
     
     public static void jfxglmain( String[] args ) {
         try {
-            String className = System.getProperty( APPLICATION_CLASS_NAME_PROPERTY );
-            if ( className == null ) {
-                System.err.println( "Cannot start Engine. Property not set:" + APPLICATION_CLASS_NAME_PROPERTY + "." );
-                return;
-            }
-            try {
-                Class< ? > c = Class.forName( className );
-                Method main = c.getMethod( "main", String[].class );
-                main.invoke( null, new Object[]{ args } );
-            } catch ( ClassNotFoundException ex ) {
-                System.err.println( "Cannot start Engine. Given application class " + className + " was not found." );
-            }
+            String className = getApplicationClassName();
+            Method main = getMainMethod( className );
+            invokeMainMethod( args, className, main );
         } catch ( Exception e ) {
             e.printStackTrace();
         } finally {
-            OpenGlContext.terminate();
-            VulkanContext.terminate();
-            JfxglContext.terminate();
-            GlfwContext.terminate();
+            FRAMEWORK_PROVIDERS.forEach( FrameworkProvider::terminate );
         }
     }
     
+    private static void invokeMainMethod( String[] args, String className, Method main ) throws
+        IllegalAccessException,
+        InvocationTargetException
+    {
+        try {
+            main.invoke( null, new Object[]{ args } );
+        } catch ( NullPointerException e ){
+            throw new ApplicationClassHasNoMainMethodException( className, e );
+        }
+    }
+    
+    private static String getApplicationClassName() {
+        String className = System.getProperty( APPLICATION_CLASS_NAME_PROPERTY );
+        if ( className == null ) {
+            throw new ApplicationPropertyNotSetException();
+        }
+        return className;
+    }
+    
+    private static Method getMainMethod( String className ) {
+        try {
+            Class< ? > c = null;
+            c = Class.forName( className );
+            return c.getMethod( "main", String[].class );
+        } catch ( ClassNotFoundException e ) {
+            throw new ApplicationClassNotFoundException( className, e );
+        } catch ( NoSuchMethodException e ) {
+            throw new ApplicationClassHasNoMainMethodException( className, e );
+        }
+    }
+    
+    private static class RunnerException extends RuntimeException{
+        
+        RunnerException( String message ) {
+            super( message );
+        }
+        
+        RunnerException( String message, Throwable cause ) {
+            super( message, cause );
+        }
+    }
+    
+    private static class ApplicationPropertyNotSetException extends RunnerException {
+        ApplicationPropertyNotSetException() {
+            super("Cannot start Engine. Property not set:" + APPLICATION_CLASS_NAME_PROPERTY + "." );
+        }
+    }
+    
+    private static class ApplicationClassNotFoundException extends RunnerException {
+        
+        ApplicationClassNotFoundException( String className, Exception e ) {
+            super( "Cannot find application Class: "+className, e );
+        }
+    }
+    
+    private static class ApplicationClassHasNoMainMethodException extends RunnerException {
+        
+        ApplicationClassHasNoMainMethodException( String className, Exception e ) {
+            super( "Application Class: "+className+" has no static main(String[]) method", e );
+        }
+    }
 }

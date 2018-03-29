@@ -3,13 +3,14 @@
  */
 package com.firststory.firstoracle.window;
 
+import com.firststory.firstoracle.FrameworkProviderContext;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.rendering.Renderer;
+import com.firststory.firstoracle.rendering.RenderingFramework;
+import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
 import com.firststory.firstoracle.window.GLFW.GlfwContext;
 import com.firststory.firstoracle.window.GLFW.GlfwWindow;
 import com.firststory.firstoracle.window.JFXGL.JfxglContext;
-import com.firststory.firstoracle.window.OpenGL.OpenGlContext;
-import com.firststory.firstoracle.window.OpenGL.OpenGlInstance;
 import com.firststory.firstoracle.window.notifying.*;
 import javafx.application.Application;
 
@@ -35,8 +36,9 @@ public class Window implements Runnable,
     private final Application application;
     private final Renderer renderer;
     private GlfwWindow window;
+    private final RenderingFrameworkProvider renderingFrameworkProvider;
     private GlfwContext glfw;
-    private OpenGlInstance openGl;
+    private RenderingFramework renderingFramework;
     private JfxglContext jfxgl;
     private int frameCount;
     private double lastFrameUpdate;
@@ -48,32 +50,53 @@ public class Window implements Runnable,
         Application application,
         Renderer renderer
     ){
-        return new Window( windowSettings, application, renderer );
+        return new Window( windowSettings, application, renderer,
+            FrameworkProviderContext.getRenderingFrameworkProvider() );
     }
     
     public static Window getOpenGlInstance(
         WindowSettings windowSettings,
         Renderer renderer
     ){
-        return new Window( windowSettings, null, renderer );
+        return new Window( windowSettings, null, renderer,
+            FrameworkProviderContext.getRenderingFrameworkProvider() );
+    }
+    
+    public static Window getOpenGlWithJavaFxInstance(
+        WindowSettings windowSettings,
+        Application application,
+        Renderer renderer,
+        RenderingFrameworkProvider renderingFrameworkProvider
+    ){
+        return new Window( windowSettings, application, renderer, renderingFrameworkProvider );
+    }
+    
+    public static Window getOpenGlInstance(
+        WindowSettings windowSettings,
+        Renderer renderer,
+        RenderingFrameworkProvider renderingFrameworkProvider
+    ){
+        return new Window( windowSettings, null, renderer, renderingFrameworkProvider );
     }
     
     private Window(
         WindowSettings windowSettings,
         Application application,
-        Renderer renderer
+        Renderer renderer,
+        RenderingFrameworkProvider renderingFrameworkProvider
     ) {
         this.settings = windowSettings;
         this.application = application;
         this.renderer = renderer;
+        this.renderingFrameworkProvider = renderingFrameworkProvider;
     }
     
     public void init() {
         try {
             glfw = GlfwContext.createInstance();
-            window = glfw.createWindow( settings );
-            openGl = OpenGlContext.createInstance();
-            openGl.invoke( instance -> {
+            window = glfw.createWindow( settings, renderingFrameworkProvider.isOpenGL() );
+            renderingFramework = renderingFrameworkProvider.getRenderingContext();
+            renderingFramework.invoke( instance -> {
                 setupCallbacks();
                 instance.compileShaders();
                 renderer.init();
@@ -93,7 +116,7 @@ public class Window implements Runnable,
     public void run() {
         Thread.currentThread().setName( "Window" + instanceCounter.getAndIncrement()  );
         try {
-            openGl.invoke( instance -> {
+            renderingFramework.invoke( instance -> {
                 window.show();
                 jfxgl = JfxglContext.createInstance( window.getID(), new String[]{}, application );
             });
@@ -166,7 +189,7 @@ public class Window implements Runnable,
     
     @Override
     public void notify( WindowSizeEvent event ) {
-        openGl.updateViewPort( 0, 0, event.getWidth(), event.getHeight() );
+        renderingFramework.updateViewPort( 0, 0, event.getWidth(), event.getHeight() );
         settings.setWidth( event.getWidth() );
         settings.setHeight( event.getHeight() );
     }
@@ -177,7 +200,8 @@ public class Window implements Runnable,
     }
     
     private void close() {
-        window.destroy();
+        if(window != null)
+            window.destroy();
     }
     
     private void loop() throws Exception {
@@ -192,9 +216,9 @@ public class Window implements Runnable,
             }
             frameCount++;
             
-            openGl.invoke( instance -> {
+            renderingFramework.invoke( instance -> {
                 window.setUpRenderLoop();
-                openGl.clearScreen();
+                renderingFramework.clearScreen();
                 notifyTimeListener( glfw.getTime() );
                 renderer.render( instance.getRenderingContext(), lastFrameUpdate );
                 jfxgl.render();

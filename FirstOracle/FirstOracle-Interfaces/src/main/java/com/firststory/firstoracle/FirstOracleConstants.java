@@ -11,6 +11,8 @@ import org.joml.*;
 public class FirstOracleConstants {
     public static final String DEBUG_PROPERTY = "debugMode";
     public static final String APPLICATION_CLASS_NAME_PROPERTY = "ApplicationClassName";
+    public static final String RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY = "RenderingFrameworkClassName";
+    public static final String GET_FRAMEWORK_METHOD_NAME = "getFramework";
     
     public static boolean isDebugMode(){
         return Boolean.getBoolean( System.getProperty( DEBUG_PROPERTY ) );
