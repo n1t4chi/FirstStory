@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.GLFW;
+package com.firststory.firstoracle.window.glfw;
 
 import com.firststory.firstoracle.key.Key;
 import com.firststory.firstoracle.key.KeyAction;

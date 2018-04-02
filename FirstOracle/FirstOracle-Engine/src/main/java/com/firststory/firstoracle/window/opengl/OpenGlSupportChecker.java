@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
-package com.firststory.firstoracle.window.OpenGL;
+package com.firststory.firstoracle.window.opengl;
 
 import org.lwjgl.opengl.GLCapabilities;
 

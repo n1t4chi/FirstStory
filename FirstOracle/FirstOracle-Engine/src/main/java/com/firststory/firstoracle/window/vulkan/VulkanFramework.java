@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.Vulkan;
+package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.data.ArrayBufferLoader;
 import com.firststory.firstoracle.data.TextureBufferLoader;

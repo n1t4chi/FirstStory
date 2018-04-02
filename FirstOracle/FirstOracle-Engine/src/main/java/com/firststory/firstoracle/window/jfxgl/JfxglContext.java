@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.JFXGL;
+package com.firststory.firstoracle.window.jfxgl;
 import com.firststory.firstoracle.FrameworkProvider;
 import com.firststory.firstoracle.Runner;
 import cuchaz.jfxgl.JFXGL;

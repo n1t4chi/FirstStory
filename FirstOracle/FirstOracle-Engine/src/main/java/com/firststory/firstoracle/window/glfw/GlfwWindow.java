@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.GLFW;
+package com.firststory.firstoracle.window.glfw;
 
 import com.firststory.firstoracle.window.notifying.*;
 import org.lwjgl.glfw.*;
@@ -10,7 +10,7 @@ import org.lwjgl.glfw.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.firststory.firstoracle.window.GLFW.GlfwContext.deregisterWindow;
+import static com.firststory.firstoracle.window.glfw.GlfwContext.deregisterWindow;
 
 
 /**

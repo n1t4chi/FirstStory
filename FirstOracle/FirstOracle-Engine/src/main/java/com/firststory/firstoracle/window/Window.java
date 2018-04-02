@@ -8,9 +8,9 @@ import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
-import com.firststory.firstoracle.window.GLFW.GlfwContext;
-import com.firststory.firstoracle.window.GLFW.GlfwWindow;
-import com.firststory.firstoracle.window.JFXGL.JfxglContext;
+import com.firststory.firstoracle.window.glfw.GlfwContext;
+import com.firststory.firstoracle.window.glfw.GlfwWindow;
+import com.firststory.firstoracle.window.jfxgl.JfxglContext;
 import com.firststory.firstoracle.window.notifying.*;
 import javafx.application.Application;
 

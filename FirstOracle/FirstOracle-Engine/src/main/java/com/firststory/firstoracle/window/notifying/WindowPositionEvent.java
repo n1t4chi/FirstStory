@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.window.notifying;
 
-import com.firststory.firstoracle.window.GLFW.GlfwWindow;
+import com.firststory.firstoracle.window.glfw.GlfwWindow;
 
 /**
  * @author n1t4chi

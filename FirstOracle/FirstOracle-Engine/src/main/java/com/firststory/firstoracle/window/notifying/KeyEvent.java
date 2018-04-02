@@ -8,7 +8,7 @@ import com.firststory.firstoracle.key.Key;
 import com.firststory.firstoracle.key.KeyAction;
 import com.firststory.firstoracle.key.KeyCode;
 import com.firststory.firstoracle.key.KeyModificators;
-import com.firststory.firstoracle.window.GLFW.GlfwWindow;
+import com.firststory.firstoracle.window.glfw.GlfwWindow;
 
 /**
  * @author n1t4chi

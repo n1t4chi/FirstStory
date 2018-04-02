@@ -5,7 +5,7 @@
 package com.firststory.firstoracle;
 
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
-import com.firststory.firstoracle.window.OpenGL.OpenGlFrameworkProvider;
+import com.firststory.firstoracle.window.opengl.OpenGlFrameworkProvider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,8 +14,8 @@ public class FrameworkProviderContext {
     
     public static RenderingFrameworkProvider getRenderingFrameworkProvider(){
         String renderingFrameworkClassName = System.getProperty(
-            FirstOracleConstants.RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY
-            , OpenGlFrameworkProvider.class.getName()
+            FirstOracleConstants.RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY,
+            OpenGlFrameworkProvider.class.getName()
         );
         Class<?> renderingFrameworkClass =
             getRenderingFrameworkProviderClass( renderingFrameworkClassName );
