@@ -42,7 +42,7 @@ public class VulkanFramework implements RenderingFramework {
     private final PriorityQueue< VulkanPhysicalDevice > physicalDevices;
     private final Map< String, Long > enabledExtensions;
     private final Set< VkLayerProperties > layerProperties;
-    private final Set< String > validationLayerNames;
+    private final List< String > validationLayerNames;
     
     VulkanFramework() {
         String applicationName = "ApplicationName";
@@ -69,32 +69,44 @@ public class VulkanFramework implements RenderingFramework {
         instance = createInstance();
         physicalDevices = createPhysicalDevices();
     
-        long address = 0;
-        VkDebugReportCallbackEXT callback = VkDebugReportCallbackEXT.create( ( flags, objectType, object, location, messageCode, pLayerPrefix, pMessage, pUserData ) -> {
-            System.err.println( "Validation layer: "+MemoryUtil.memUTF8( pMessage ) );
-            return VK10.VK_FALSE;
-        } );
-        VkDebugReportCallbackCreateInfoEXT createInfo = VkDebugReportCallbackCreateInfoEXT.create()
-            .sType( EXTDebugReport.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT )
-            .flags( EXTDebugReport.VK_DEBUG_REPORT_ERROR_BIT_EXT | EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT )
-            .pfnCallback( callback );
-        if( instance.getCapabilities().vkCreateDebugReportCallbackEXT != VK10.VK_NULL_HANDLE ){
-            EXTDebugReport.vkCreateDebugReportCallbackEXT( instance, createInfo, null, new long[]{callback.address()} );
-        } else {
-            logger.warning( "Method vkCreateDebugReportCallbackEXT is not supported!" );
+    
+        if( areValidationLayersEnabled() ) {
+            long address = 0;
+            VkDebugReportCallbackEXT callback = VkDebugReportCallbackEXT.create( ( flags, objectType, object, location, messageCode, pLayerPrefix, pMessage, pUserData ) -> {
+                System.err.println( "Validation layer: " + MemoryUtil.memUTF8( pMessage ) );
+                return VK10.VK_FALSE;
+            } );
+            VkDebugReportCallbackCreateInfoEXT createInfo = VkDebugReportCallbackCreateInfoEXT.create()
+                .sType( EXTDebugReport.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT )
+                .flags( EXTDebugReport.VK_DEBUG_REPORT_ERROR_BIT_EXT | EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT )
+                .pfnCallback( callback );
+            if ( instance.getCapabilities().vkCreateDebugReportCallbackEXT != VK10.VK_NULL_HANDLE ) {
+                EXTDebugReport.vkCreateDebugReportCallbackEXT( instance,
+                    createInfo,
+                    null,
+                    new long[]{ callback.address() }
+                );
+                logger.fine( "Method vkCreateDebugReportCallbackEXT is supported." );
+            } else {
+                logger.warning( "Method vkCreateDebugReportCallbackEXT is not supported!" );
+            }
         }
+    }
+    
+    private boolean areValidationLayersEnabled() {
+        return FirstOracleConstants.isPropertyTrue( FirstOracleConstants.VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY );
     }
     
     private Map<String,Long> createEnabledExtensions() {
         Map<String,Long> extensions = new HashMap<>(  );
         addGlfwInstanceExtensions( extensions );
-        if( FirstOracleConstants.isPropertyTrue( FirstOracleConstants.VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY ) ) {
+        if( areValidationLayersEnabled() ) {
             addExtension( extensions, EXTDebugReport.VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
         }
         return extensions;
     }
     
-    private Set< String > createValidationLayerNames( ) {
+    private List< String > createValidationLayerNames( ) {
         Set< String > layerNames = layerProperties.stream()
             .map( VkLayerProperties::layerNameString )
             .collect(Collectors.toSet());
@@ -106,10 +118,9 @@ public class VulkanFramework implements RenderingFramework {
             if ( !layerNames.contains( layer ) ) {
                 iterator.remove();
                 logger.warning( "Validation layer: "+layer+" is not available." );
-            }else{
             }
         }
-        return layerNames;
+        return validationLayers;
     }
     
     private void addExtension( Map< String, Long > enabledExtensions, String extensionName ) {
@@ -187,7 +198,7 @@ public class VulkanFramework implements RenderingFramework {
         validationLayerNames.stream().map( MemoryUtil::memUTF8 ).forEach( validationLayerNamesBuffer::put );
         validationLayerNamesBuffer = validationLayerNamesBuffer.flip();
         
-        createInfo.set( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        createInfo.set( VK10.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
             VK10.VK_NULL_HANDLE,
             FirstOracleConstants.NO_FLAGS,
             applicationInfo,
