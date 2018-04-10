@@ -136,9 +136,13 @@ public class GlfwContext  implements FrameworkProvider {
             );
         }
         GlfwWindow window = new GlfwWindow( windowId );
-        window.setWindowToCurrentThread();
-        window.setupVerticalSync( settings.isVerticalSync() );
         registerWindow(window);
+        window.setVerticalSync( settings.isVerticalSync() );
+        
+        if( isOpenGLWindow ){
+            window.setWindowToCurrentThread();
+        }
+        
         return window;
     }
     

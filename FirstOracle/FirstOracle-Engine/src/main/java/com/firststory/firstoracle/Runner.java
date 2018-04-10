@@ -9,6 +9,8 @@ import cuchaz.jfxgl.JFXGLLauncher;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.logging.Logger;
 
 import static com.firststory.firstoracle.FirstOracleConstants.APPLICATION_CLASS_NAME_PROPERTY;
 
@@ -23,27 +25,35 @@ import static com.firststory.firstoracle.FirstOracleConstants.APPLICATION_CLASS_
  * WARNING: Early exit from that method will result in engine termination which might lead to unwanted crashes.
  */
 public class Runner {
-    
     private static final ArrayList<FrameworkProvider > FRAMEWORK_PROVIDERS = new ArrayList<>();
-    public static void registerFramework( FrameworkProvider frameworkProvider ) {
-        FRAMEWORK_PROVIDERS.add( frameworkProvider );
+    private static Logger logger = FirstOracleConstants.getLogger( Runner.class );
+    
+    public static void registerFramework( FrameworkProvider provider ) {
+        logger.finer( "Registering framework: " + provider );
+        FRAMEWORK_PROVIDERS.add( provider );
     }
     
     public static void main( String[] args ) {
+        logger.fine( "Running application from Runner with arguments: "+ Arrays.toString( args ) );
         JFXGLLauncher.showFilterWarnings = false;
         JFXGLLauncher.launchMain( Runner.class, args );
     }
     
     public static void jfxglmain( String[] args ) {
+        logger.fine( "Starting JFXGL main with arguments: " + Arrays.toString( args ) );
         try {
             String className = getApplicationClassName();
+            logger.fine( "Loading Application from class" + className );
             Method main = getMainMethod( className );
             invokeMainMethod( args, className, main );
         } catch ( Exception e ) {
+            logger.severe( "Error while running application: " + e );
             e.printStackTrace();
         } finally {
             for ( int i = FRAMEWORK_PROVIDERS.size() -1 ; i >= 0 ; i-- ) {
-                FRAMEWORK_PROVIDERS.get( i ).terminate();
+                FrameworkProvider provider = FRAMEWORK_PROVIDERS.get( i );
+                logger.finer( "Terminating framework: "+provider );
+                provider.terminate();
             }
             FRAMEWORK_PROVIDERS.clear();
         }

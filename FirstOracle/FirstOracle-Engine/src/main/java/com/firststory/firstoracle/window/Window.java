@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.window;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.FrameworkProviderContext;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.rendering.Renderer;
@@ -17,6 +18,7 @@ import javafx.application.Application;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 /**
  * @author n1t4chi
@@ -27,6 +29,9 @@ public class Window implements Runnable,
     QuitNotifier,
     FpsNotifier
 {
+    
+    private static Logger logger = FirstOracleConstants.getLogger( Window.class );
+    private static Logger performanceLogger = Logger.getLogger( Window.class.getName()+"#performance" );
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final WindowSettings settings;
@@ -94,8 +99,10 @@ public class Window implements Runnable,
     public void init() {
         try {
             glfw = GlfwContext.createInstance();
+            logger.finest( this+": Window context: "+glfw );
             window = glfw.createWindow( settings, renderingFrameworkProvider.isOpenGL() );
             renderingFramework = renderingFrameworkProvider.getRenderingContext();
+            logger.finest( this+": Rendering context: "+renderingFramework );
             renderingFramework.invoke( instance -> {
                 setupCallbacks();
                 instance.compileShaders();
@@ -119,6 +126,7 @@ public class Window implements Runnable,
             renderingFramework.invoke( instance -> {
                 window.show();
                 jfxgl = JfxglContext.createInstance( window.getID(), new String[]{}, application );
+                logger.finest( this+": GUI context: "+jfxgl );
             });
             loop();
             notifyQuitListeners();
@@ -205,8 +213,10 @@ public class Window implements Runnable,
     }
     
     private void loop() throws Exception {
+        if(true)
+            return;
         while ( !shouldWindowClose() ) {
-    
+            performanceLogger.finest( this+": loop start" );
             lastFrameUpdate = glfw.getTime();
             if ( frameCount % 100 == 0 ) {
                 lastFps = ( int ) ( ( float ) frameCount / ( lastFrameUpdate - lastFpsUpdate ) );
@@ -215,7 +225,7 @@ public class Window implements Runnable,
                 notifyFpsListeners( lastFps );
             }
             frameCount++;
-            
+            performanceLogger.finest( this+": loop invoke start" );
             renderingFramework.invoke( instance -> {
                 window.setUpRenderLoop();
                 renderingFramework.clearScreen();
@@ -224,7 +234,7 @@ public class Window implements Runnable,
                 jfxgl.render();
                 window.cleanAfterLoop();
             } );
-            
+            performanceLogger.finest( this+": loop invoke end" );
         }
     }
 }

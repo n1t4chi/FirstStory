@@ -35,6 +35,7 @@ public class GlfwWindow {
     private final List<WindowListener> windowListeners = new ArrayList<>();
     private final WindowFocusCallback windowFocusCallback = new WindowFocusCallback();
     private final WindowCloseCallback windowCloseCallback = new WindowCloseCallback();
+    private boolean verticalSyncEnabled = false;
     
     /**
      * Constructor for glfw window wrapper.
@@ -45,6 +46,10 @@ public class GlfwWindow {
             throw new IllegalArgumentException("WindowID cannot be 0 or less.");
         this.windowID = windowID;
         setupCallbacks();
+    }
+    
+    public void setVerticalSync( boolean enabled ) {
+        this.verticalSyncEnabled = enabled;
     }
     
     public long getID() {
@@ -87,8 +92,8 @@ public class GlfwWindow {
     }
     
     public void setUpRenderLoop() {
-//        VertexAttributeLoader.cleanBinds();
-//        setWindowToCurrentThread();
+        setWindowToCurrentThread();
+        setupVerticalSync();
     }
 
     public void cleanAfterLoop() {
@@ -96,8 +101,8 @@ public class GlfwWindow {
         GLFW.glfwPollEvents();
     }
 
-    public void setupVerticalSync( boolean verticalSync ) {
-        if ( verticalSync ) {
+    public void setupVerticalSync() {
+        if ( verticalSyncEnabled ) {
             GLFW.glfwSwapInterval( 1 );
         } else {
             GLFW.glfwSwapInterval( 0 );

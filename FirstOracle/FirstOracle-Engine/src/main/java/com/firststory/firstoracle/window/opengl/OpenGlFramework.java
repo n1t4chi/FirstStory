@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.window.opengl;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.ArrayBufferLoader;
 import com.firststory.firstoracle.rendering.RenderingCommands;
 import com.firststory.firstoracle.rendering.RenderingFramework;
@@ -19,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * This class is used to invoke OpenGL that (may) need synchronisation across all instances like rendering etc.
  * Code that uses methods of this instance should be via method {@link #invoke(RenderingCommands)}:
- * <code>instance.invoke{ instance-> {//method calls on instance\\} }</code>
+ * <code>instance.invoke{ instance-&gt; {//method calls on instance\\} }</code>
  */
 public class OpenGlFramework implements RenderingFramework {
     
@@ -34,17 +35,18 @@ public class OpenGlFramework implements RenderingFramework {
 
     OpenGlFramework(){
         capabilities = GL.createCapabilities();
+        
         enableFunctionality();
         if ( !OpenGlSupportChecker.isSupportEnough(capabilities) ) {
             throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
         }
-        boolean drawBorder = "true".equals( System.getProperty( "DrawBorder", "false" ) );
+        boolean drawBorder = FirstOracleConstants.isPropertyTrue( "DrawBorder" );
         renderingContext = new OpenGlRenderingContext(
             attributeLoader,
             textureLoader,
             shader2D,
             shader3D,
-            "true".equals( System.getProperty( "UseTexture", "true" ) ),
+            !FirstOracleConstants.isPropertyTrue( FirstOracleConstants.DISABLE_TEXTURES_PROPERTY ),
             drawBorder,
             new Vector4f( 1,0,0,1 )
         );

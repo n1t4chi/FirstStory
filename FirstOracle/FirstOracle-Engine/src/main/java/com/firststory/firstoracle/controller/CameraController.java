@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.controller;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.key.Key;
@@ -17,6 +18,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 /**
  * @author n1t4chi
@@ -30,6 +32,7 @@ public class CameraController extends Thread
     TimeListener
 {
     
+    private static Logger logger = FirstOracleConstants.getLogger( CameraController.class );
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final CameraKeyMap cameraKeyMap;
     private final long refreshLatency;
@@ -47,6 +50,7 @@ public class CameraController extends Thread
     private float cameraSize = 25;
     private volatile boolean keepWorking = true;
     private double currentTimeUpdate;
+    
     
     public CameraController( CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
         super("Camera Controller " + instanceCounter.getAndIncrement() );
@@ -71,9 +75,11 @@ public class CameraController extends Thread
     public void notify( KeyEvent event ) {
         switch(event.getAction()){
             case PRESS:
+                logger.finest( "Key action: press "+event.getKey() );
                 keyMap.put( event.getKeyCode(), event.getKey() );
                 break;
             case RELEASE:
+                logger.finest( "Key action: release "+event.getKey() );
                 keyMap.remove( event.getKeyCode() );
                 break;
         }

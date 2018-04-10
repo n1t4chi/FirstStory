@@ -5,14 +5,30 @@ package com.firststory.firstoracle;
 
 import org.joml.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
+
 /**
  * @author n1t4chi
  */
 public class FirstOracleConstants {
     public static final String DEBUG_PROPERTY = "debugMode";
+    public static final String VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY = "VulkanValidationLayersEnabled";
+    public static final String VULKAN_VALIDATION_LAYERS_LIST_PROPERTY = "VulkanValidationLayersList";
     public static final String APPLICATION_CLASS_NAME_PROPERTY = "ApplicationClassName";
     public static final String RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY = "RenderingFrameworkClassName";
+    public static final String DISABLE_TEXTURES_PROPERTY = "DisableTextures";
+    
     public static final String GET_FRAMEWORK_METHOD_NAME = "getFramework";
+    
+    public static final int NO_FLAGS = 0;
+    public static final int FIRST_STORY_VERSION_MAJOR = 0;
+    public static final int FIRST_STORY_VERSION_MINOR = 1;
+    public static final int FIRST_STORY_VERSION_PATCH = 0;
+    public static final int FIRST_ORACLE_VERSION_MAJOR = 0;
+    public static final int FIRST_ORACLE_VERSION_MINOR = 4;
+    public static final int FIRST_ORACLE_VERSION_PATCH = 0;
     
     public static boolean isDebugMode(){
         return Boolean.getBoolean( System.getProperty( DEBUG_PROPERTY ) );
@@ -148,4 +164,38 @@ public class FirstOracleConstants {
         return ( float ) finalTranslation;
     }
     
+    public static boolean isPropertyTrue( String propertyName ) {
+        return Boolean.parseBoolean( System.getProperty( propertyName, "false" ) );
+    }
+    
+    public static List<String> getListFromProperty( String propertyName ){
+        String property = System.getProperty( propertyName, null );
+        if(property == null){
+            throw new PropertyNotFoundException( propertyName );
+        }
+        property = property.trim();
+        if( !property.matches( "\\[.*]" ) ){
+            throw new InvalidPropertyFormatException(propertyName, property);
+        }
+        property = property.substring( 1, property.length()-1 );
+        String[] properties = property.split( "," );
+        return Arrays.asList( properties );
+    }
+    
+    public static Logger getLogger( Class classObject ) {
+        return Logger.getLogger( classObject.getName() );
+    }
+    
+    private static class PropertyNotFoundException extends RuntimeException {
+        
+        PropertyNotFoundException( String propertyName ) {
+            super( "Property "+propertyName +"" );
+        }
+    }
+    private static class InvalidPropertyFormatException extends RuntimeException {
+        
+        InvalidPropertyFormatException( String propertyName, String property ) {
+            super( "Property "+propertyName +"" );
+        }
+    }
 }

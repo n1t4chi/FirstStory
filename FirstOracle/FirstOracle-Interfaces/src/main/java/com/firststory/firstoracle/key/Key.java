@@ -78,6 +78,11 @@ public class Key {
     }
     
     @Override
+    public String toString() {
+        return "Key:{code:"+keyCode+", action:"+action+", mods:"+modificators+"}";
+    }
+    
+    @Override
     public int hashCode() {
         return Objects.hash( this.keyCode, /*keyAction,*/ this.modificators );
     }
