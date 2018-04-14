@@ -14,6 +14,7 @@ import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.shader.ShaderProgram2D;
 import com.firststory.firstoracle.shader.ShaderProgram3D;
+import com.firststory.firstoracle.window.WindowContext;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -44,10 +45,12 @@ public class VulkanFramework implements RenderingFramework {
     private final Map< String, Long > enabledExtensions;
     private final Set< VkLayerProperties > layerProperties;
     private final List< String > validationLayerNames;
+    private final WindowContext window;
     private VkDebugReportCallbackEXT callback = null;
     
-    VulkanFramework() {
-        
+    VulkanFramework( WindowContext window ) {
+        this.window = window;
+    
         String applicationName = PropertiesUtil.getProperty( "ApplicationName",
             "Application powered by"+FirstOracleConstants.FIRST_ORACLE );
         int applicationVersion = VK10.VK_MAKE_VERSION(
@@ -76,8 +79,11 @@ public class VulkanFramework implements RenderingFramework {
         if( PropertiesUtil.isDebugMode() ) {
             setupDebugCallback();
         }
-        
-        
+    
+        long[] surface = new long[1];
+        if( GLFWVulkan.glfwCreateWindowSurface( instance, window.getID(),null, surface ) != VK10.VK_SUCCESS ){
+            throw new CannotCreateVulkanWindowSurfaceException( instance, window );
+        }
         
     }
     

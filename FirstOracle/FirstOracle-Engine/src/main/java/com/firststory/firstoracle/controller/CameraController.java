@@ -8,7 +8,7 @@ import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.key.Key;
 import com.firststory.firstoracle.key.KeyCode;
-import com.firststory.firstoracle.window.notifying.*;
+import com.firststory.firstoracle.notyfying.*;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -23,8 +23,7 @@ import java.util.logging.Logger;
 /**
  * @author n1t4chi
  */
-public class CameraController extends Thread
-    implements
+public class CameraController extends Thread implements
     CameraNotifier,
     QuitListener,
     KeyListener,

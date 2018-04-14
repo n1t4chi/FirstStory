@@ -5,6 +5,8 @@
 package com.firststory.firstoracle;
 
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
+import com.firststory.firstoracle.window.WindowFrameworkProvider;
+import com.firststory.firstoracle.window.glfw.GlfwFrameworkProvider;
 import com.firststory.firstoracle.window.opengl.OpenGlFrameworkProvider;
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,6 +34,9 @@ public class FrameworkProviderContext {
         }
     }
     
+    public static WindowFrameworkProvider getWindowFrameworkProvider() {
+        return GlfwFrameworkProvider.createInstance();
+    }
     
     private static Class<?> getRenderingFrameworkProviderClass( String className ) {
         try {

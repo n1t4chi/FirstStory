@@ -7,6 +7,7 @@ package com.firststory.firstoracle.window.vulkan;
 import com.firststory.firstoracle.Runner;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
+import com.firststory.firstoracle.window.WindowContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,8 +28,8 @@ public class VulkanFrameworkProvider implements RenderingFrameworkProvider {
     }
     
     @Override
-    public synchronized RenderingFramework getRenderingContext() {
-        return instances.computeIfAbsent( Thread.currentThread(), thread -> new VulkanFramework() );
+    public synchronized RenderingFramework getRenderingFramework( WindowContext window ) {
+        return instances.computeIfAbsent( Thread.currentThread(), thread -> new VulkanFramework( window ) );
     }
     @Override
     public void terminate() {}

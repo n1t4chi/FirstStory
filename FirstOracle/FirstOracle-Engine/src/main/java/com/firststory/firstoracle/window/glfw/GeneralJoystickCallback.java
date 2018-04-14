@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 class GeneralJoystickCallback implements GLFWJoystickCallbackI {
-    private final List<GlfwWindow> windows = new ArrayList<>(  );
+    private final List<GlfwWindowContext > windows = new ArrayList<>(  );
 
     @Override
     public void invoke( int jid, int event ) {
         windows.forEach( window -> window.notifyJoystickListeners( jid, event ) );
     }
 
-    void addWindow(GlfwWindow window){
+    void addWindow(GlfwWindowContext window){
         windows.add( window );
     }
 
-    void removeWindow(GlfwWindow window){
+    void removeWindow(GlfwWindowContext window){
         windows.remove( window );
     }
 }

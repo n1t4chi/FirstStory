@@ -4,12 +4,10 @@
 
 package com.firststory.firstoracle.window.glfw;
 
-import com.firststory.firstoracle.FrameworkProvider;
-import com.firststory.firstoracle.Runner;
 import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.window.WindowFramework;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 
 import java.util.HashSet;
@@ -20,58 +18,21 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 /**
  * @author n1t4chi
  */
-public class GlfwContext  implements FrameworkProvider {
-    private static Set<GlfwWindow> instances = new HashSet<>();
-    private static GlfwContext instance;
-    private static GLFWErrorCallback errorCallback;
+public class GlfwFramework implements WindowFramework {
+    private static Set<GlfwWindowContext > instances = new HashSet<>();
     
-    public synchronized static GlfwContext createInstance() {
-        Runner.registerFramework( new GlfwContext() );
-        if(instance == null){
-            setUpErrorCallback();
-            init();
-            instance = new GlfwContext();
-        }
-        return instance;
-    }
-    
-    @Override
-    public synchronized void terminate() {
-        for ( GlfwWindow window : instances ) {
-            window.destroy();
-        }
-        GLFW.glfwTerminate();
-        freeErrorCallback();
-        instance = null;
-    }
-    
-    private static void registerWindow( GlfwWindow window ) {
+    private static void registerWindow( GlfwWindowContext window ) {
         instances.add( window );
     }
     
-    static void deregisterWindow( GlfwWindow window ) {
+    static void deregisterWindow( GlfwWindowContext window ) {
         instances.remove( window );
     }
     
-    private static void init() {
-        if ( !GLFW.glfwInit() ) {
-            throw new IllegalStateException( "Unable to initialize GLFW!" );
-        }
-    }
-    
-    private static void setUpErrorCallback() {
-        errorCallback = GLFWErrorCallback.createPrint( System.err ).set();
-    }
-    
-    private static void freeErrorCallback() {
-        if ( errorCallback != null ) {
-            errorCallback.free();
-        }
-    }
-    
-    private GlfwContext(){}
+    GlfwFramework(){}
 
-    public synchronized GlfwWindow createWindow( WindowSettings settings, boolean isOpenGLWindow ){
+    @Override
+    public synchronized GlfwWindowContext createWindowContext( WindowSettings settings, boolean isOpenGLWindow ){
         setWindowHints(settings);
         if( !isOpenGLWindow ) {
             setNonOpenGlWindowHints();
@@ -135,7 +96,7 @@ public class GlfwContext  implements FrameworkProvider {
                 settings.getPositionY() + top[ 0 ]
             );
         }
-        GlfwWindow window = new GlfwWindow( windowId );
+        GlfwWindowContext window = new GlfwWindowContext( windowId );
         registerWindow(window);
         window.setVerticalSync( settings.isVerticalSync() );
         
@@ -164,7 +125,11 @@ public class GlfwContext  implements FrameworkProvider {
         GLFW.glfwWindowHint( GLFW.GLFW_SAMPLES, settings.getAntiAliasing() );
     }
     
+    @Override
     public double getTime() {
         return GLFW.glfwGetTime();
     }
+    
+    @Override
+    public void destroy() {}
 }

@@ -2,26 +2,26 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.notifying;
+package com.firststory.firstoracle.notyfying;
 
 import com.firststory.firstoracle.key.Key;
 import com.firststory.firstoracle.key.KeyAction;
 import com.firststory.firstoracle.key.KeyCode;
 import com.firststory.firstoracle.key.KeyModificators;
-import com.firststory.firstoracle.window.glfw.GlfwWindow;
+import com.firststory.firstoracle.window.WindowContext;
 
 /**
  * @author n1t4chi
  */
 public class KeyEvent {
-    private final GlfwWindow source;
+    private final WindowContext source;
     private Key key;
-    public KeyEvent( GlfwWindow source, Key key ) {
+    public KeyEvent( WindowContext source, Key key ) {
         this.source = source;
         this.key = key;
     }
     
-    public GlfwWindow getSource() {
+    public WindowContext getSource() {
         return source;
     }
     

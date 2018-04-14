@@ -3,10 +3,10 @@
  */
 package com.firststory.firstoracle.window;
 
-import com.firststory.firstoracle.window.notifying.FpsListener;
-import com.firststory.firstoracle.window.notifying.FpsNotifier;
-import com.firststory.firstoracle.window.notifying.TimeListener;
-import com.firststory.firstoracle.window.notifying.TimeNotifier;
+import com.firststory.firstoracle.notyfying.FpsListener;
+import com.firststory.firstoracle.notyfying.FpsNotifier;
+import com.firststory.firstoracle.notyfying.TimeListener;
+import com.firststory.firstoracle.notyfying.TimeNotifier;
 import com.sun.prism.es2.JFXGLContext;
 import cuchaz.jfxgl.CalledByEventsThread;
 import cuchaz.jfxgl.CalledByMainThread;

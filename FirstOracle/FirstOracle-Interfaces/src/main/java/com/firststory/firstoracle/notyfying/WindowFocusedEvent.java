@@ -2,19 +2,19 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.notifying;
+package com.firststory.firstoracle.notyfying;
 
-import com.firststory.firstoracle.window.glfw.GlfwWindow;
+import com.firststory.firstoracle.window.WindowContext;
 
 /**
  * @author n1t4chi
  */
 public class WindowFocusedEvent {
     
-    public final GlfwWindow source;
+    public final WindowContext source;
     public final boolean focused;
     
-    public WindowFocusedEvent( GlfwWindow source, boolean focused ) {
+    public WindowFocusedEvent( WindowContext source, boolean focused ) {
         this.source = source;
         this.focused = focused;
     }

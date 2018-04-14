@@ -2,20 +2,20 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.notifying;
+package com.firststory.firstoracle.notyfying;
 
-import com.firststory.firstoracle.window.glfw.GlfwWindow;
+import com.firststory.firstoracle.window.WindowContext;
 
 /**
  * @author n1t4chi
  */
 public class WindowPositionEvent {
     
-    public final GlfwWindow source;
+    public final WindowContext source;
     public final int xpos;
     public final int ypos;
     
-    public WindowPositionEvent( GlfwWindow source, int xpos, int ypos ) {
+    public WindowPositionEvent( WindowContext source, int xpos, int ypos ) {
         
         this.source = source;
         this.xpos = xpos;

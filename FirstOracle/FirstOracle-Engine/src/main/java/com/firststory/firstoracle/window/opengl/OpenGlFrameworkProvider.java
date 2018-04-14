@@ -6,6 +6,7 @@ package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.Runner;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
+import com.firststory.firstoracle.window.WindowContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class OpenGlFrameworkProvider implements RenderingFrameworkProvider {
     }
     
     @Override
-    public synchronized OpenGlFramework getRenderingContext() {
+    public synchronized OpenGlFramework getRenderingFramework( WindowContext window ) {
         return instances.computeIfAbsent( Thread.currentThread(), thread -> new OpenGlFramework() );
     }
     @Override

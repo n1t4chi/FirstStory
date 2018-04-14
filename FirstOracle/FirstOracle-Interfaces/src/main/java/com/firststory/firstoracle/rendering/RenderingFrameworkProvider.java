@@ -5,10 +5,11 @@
 package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.FrameworkProvider;
+import com.firststory.firstoracle.window.WindowContext;
 
 public interface RenderingFrameworkProvider extends FrameworkProvider {
     
-    RenderingFramework getRenderingContext();
+    RenderingFramework getRenderingFramework( WindowContext window );
     
     boolean isOpenGL();
 }

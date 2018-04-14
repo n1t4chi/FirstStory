@@ -6,13 +6,11 @@ package com.firststory.firstoracle.window;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.FrameworkProviderContext;
 import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
-import com.firststory.firstoracle.window.glfw.GlfwContext;
-import com.firststory.firstoracle.window.glfw.GlfwWindow;
 import com.firststory.firstoracle.window.jfxgl.JfxglContext;
-import com.firststory.firstoracle.window.notifying.*;
 import javafx.application.Application;
 
 import java.util.ArrayList;
@@ -23,10 +21,7 @@ import java.util.logging.Logger;
 /**
  * @author n1t4chi
  */
-public class Window implements Runnable,
-    TimeNotifier,
-    WindowListener,
-    QuitNotifier,
+public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotifier,
     FpsNotifier
 {
     
@@ -40,9 +35,10 @@ public class Window implements Runnable,
     private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
     private final Application application;
     private final Renderer renderer;
-    private GlfwWindow window;
+    private WindowContext window;
+    private final WindowFrameworkProvider windowFrameworkProvider;
     private final RenderingFrameworkProvider renderingFrameworkProvider;
-    private GlfwContext glfw;
+    private WindowFramework windowFramework;
     private RenderingFramework renderingFramework;
     private JfxglContext jfxgl;
     private int frameCount;
@@ -56,6 +52,7 @@ public class Window implements Runnable,
         Renderer renderer
     ){
         return new Window( windowSettings, application, renderer,
+            FrameworkProviderContext.getWindowFrameworkProvider(),
             FrameworkProviderContext.getRenderingFrameworkProvider() );
     }
     
@@ -64,6 +61,7 @@ public class Window implements Runnable,
         Renderer renderer
     ){
         return new Window( windowSettings, null, renderer,
+            FrameworkProviderContext.getWindowFrameworkProvider(),
             FrameworkProviderContext.getRenderingFrameworkProvider() );
     }
     
@@ -71,37 +69,41 @@ public class Window implements Runnable,
         WindowSettings windowSettings,
         Application application,
         Renderer renderer,
+        WindowFrameworkProvider windowFrameworkProvider,
         RenderingFrameworkProvider renderingFrameworkProvider
     ){
-        return new Window( windowSettings, application, renderer, renderingFrameworkProvider );
+        return new Window( windowSettings, application, renderer, windowFrameworkProvider,renderingFrameworkProvider );
     }
     
     public static Window getOpenGlInstance(
         WindowSettings windowSettings,
         Renderer renderer,
+        WindowFrameworkProvider windowFrameworkProvider,
         RenderingFrameworkProvider renderingFrameworkProvider
     ){
-        return new Window( windowSettings, null, renderer, renderingFrameworkProvider );
+        return new Window( windowSettings, null, renderer, windowFrameworkProvider,renderingFrameworkProvider );
     }
     
     private Window(
         WindowSettings windowSettings,
         Application application,
         Renderer renderer,
+        WindowFrameworkProvider windowFrameworkProvider,
         RenderingFrameworkProvider renderingFrameworkProvider
     ) {
         this.settings = windowSettings;
         this.application = application;
         this.renderer = renderer;
+        this.windowFrameworkProvider = windowFrameworkProvider;
         this.renderingFrameworkProvider = renderingFrameworkProvider;
     }
     
     public void init() {
         try {
-            glfw = GlfwContext.createInstance();
-            logger.finest( this+": Window context: "+glfw );
-            window = glfw.createWindow( settings, renderingFrameworkProvider.isOpenGL() );
-            renderingFramework = renderingFrameworkProvider.getRenderingContext();
+            windowFramework = windowFrameworkProvider.getWindowFramework();
+            logger.finest( this+": Window context: "+ windowFramework );
+            window = windowFramework.createWindowContext( settings, renderingFrameworkProvider.isOpenGL() );
+            renderingFramework = renderingFrameworkProvider.getRenderingFramework( window );
             logger.finest( this+": Rendering context: "+renderingFramework );
             renderingFramework.invoke( instance -> {
                 setupCallbacks();
@@ -111,7 +113,7 @@ public class Window implements Runnable,
     
             frameCount = 0;
             lastFps = 0;
-            lastFrameUpdate = glfw.getTime();
+            lastFrameUpdate = windowFramework.getTime();
             lastFpsUpdate = lastFrameUpdate;
         } catch ( Exception ex ) {
             close(); //do not place in finally!
@@ -128,7 +130,7 @@ public class Window implements Runnable,
                 jfxgl = JfxglContext.createInstance( window.getID(), new String[]{}, application );
                 logger.finest( this+": GUI context: "+jfxgl );
             });
-            loop();
+            remderLoop();
             notifyQuitListeners();
         } catch ( Exception ex ) {
             ex.printStackTrace();
@@ -212,10 +214,10 @@ public class Window implements Runnable,
             window.destroy();
     }
     
-    private void loop() throws Exception {
+    private void remderLoop() throws Exception {
         while ( !shouldWindowClose() ) {
-            performanceLogger.finest( this+": loop start" );
-            lastFrameUpdate = glfw.getTime();
+            performanceLogger.finest( this+": remderLoop start" );
+            lastFrameUpdate = windowFramework.getTime();
             if ( frameCount % 100 == 0 ) {
                 lastFps = ( int ) ( ( float ) frameCount / ( lastFrameUpdate - lastFpsUpdate ) );
                 lastFpsUpdate = lastFrameUpdate;
@@ -223,16 +225,16 @@ public class Window implements Runnable,
                 notifyFpsListeners( lastFps );
             }
             frameCount++;
-            performanceLogger.finest( this+": loop invoke start" );
+            performanceLogger.finest( this+": remderLoop invoke start" );
             renderingFramework.invoke( instance -> {
                 window.setUpRenderLoop();
                 renderingFramework.clearScreen();
-                notifyTimeListener( glfw.getTime() );
+                notifyTimeListener( windowFramework.getTime() );
                 renderer.render( instance.getRenderingContext(), lastFrameUpdate );
                 jfxgl.render();
                 window.cleanAfterLoop();
             } );
-            performanceLogger.finest( this+": loop invoke end" );
+            performanceLogger.finest( this+": remderLoop invoke end" );
             if(true)
                 quit();
         }

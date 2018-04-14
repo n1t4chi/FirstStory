@@ -2,20 +2,20 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.notifying;
+package com.firststory.firstoracle.notyfying;
 
-import com.firststory.firstoracle.window.glfw.GlfwWindow;
+import com.firststory.firstoracle.window.WindowContext;
 
 /**
  * @author n1t4chi
  */
 public class WindowSizeEvent {
     
-    private final GlfwWindow source;
+    private final WindowContext source;
     private final int width;
     private final int height;
     
-    public GlfwWindow getSource() {
+    public WindowContext getSource() {
         return source;
     }
     
@@ -27,7 +27,7 @@ public class WindowSizeEvent {
         return height;
     }
     
-    public WindowSizeEvent( GlfwWindow source, int width, int height ) {
+    public WindowSizeEvent( WindowContext source, int width, int height ) {
         this.source = source;
         this.width = width;
         this.height = height;
