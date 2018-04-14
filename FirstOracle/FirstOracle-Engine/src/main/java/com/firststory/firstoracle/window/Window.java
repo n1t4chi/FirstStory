@@ -213,8 +213,6 @@ public class Window implements Runnable,
     }
     
     private void loop() throws Exception {
-        if(true)
-            return;
         while ( !shouldWindowClose() ) {
             performanceLogger.finest( this+": loop start" );
             lastFrameUpdate = glfw.getTime();
@@ -235,6 +233,8 @@ public class Window implements Runnable,
                 window.cleanAfterLoop();
             } );
             performanceLogger.finest( this+": loop invoke end" );
+            if(true)
+                quit();
         }
     }
 }

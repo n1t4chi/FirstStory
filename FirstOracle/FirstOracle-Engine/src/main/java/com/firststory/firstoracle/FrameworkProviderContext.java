@@ -14,7 +14,7 @@ public class FrameworkProviderContext {
     
     public static RenderingFrameworkProvider getRenderingFrameworkProvider(){
         String renderingFrameworkClassName = System.getProperty(
-            FirstOracleConstants.RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY,
+            PropertiesUtil.RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY,
             OpenGlFrameworkProvider.class.getName()
         );
         Class<?> renderingFrameworkClass =

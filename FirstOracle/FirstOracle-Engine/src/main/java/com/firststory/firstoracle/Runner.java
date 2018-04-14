@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import static com.firststory.firstoracle.FirstOracleConstants.APPLICATION_CLASS_NAME_PROPERTY;
 
 /**
  * Class used to run and initialise graphic engine context amd then run proper program.
@@ -20,7 +19,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.APPLICATION_CLASS_
  * After engine initialisation it will try to run proper main method of given class
  * and after that method ends it will try to clear up after engine.
  * In order to run, Runner will try to find class given via property given in
- * {@link FirstOracleConstants#APPLICATION_CLASS_NAME_PROPERTY}
+ * {@link PropertiesUtil#APPLICATION_CLASS_NAME_PROPERTY}
  * And then invoke public static void main(String[] args) method of that class.
  * WARNING: Early exit from that method will result in engine termination which might lead to unwanted crashes.
  */
@@ -55,6 +54,7 @@ public class Runner {
                 logger.finer( "Terminating framework: "+provider );
                 provider.terminate();
             }
+            logger.finer( "All frameworks Terminated." );
             FRAMEWORK_PROVIDERS.clear();
         }
     }
@@ -71,7 +71,7 @@ public class Runner {
     }
     
     private static String getApplicationClassName() {
-        String className = System.getProperty( APPLICATION_CLASS_NAME_PROPERTY );
+        String className = System.getProperty( PropertiesUtil.APPLICATION_CLASS_NAME_PROPERTY );
         if ( className == null ) {
             throw new ApplicationPropertyNotSetException();
         }
@@ -103,7 +103,7 @@ public class Runner {
     
     private static class ApplicationPropertyNotSetException extends RunnerException {
         ApplicationPropertyNotSetException() {
-            super("Cannot start Engine. Property not set:" + APPLICATION_CLASS_NAME_PROPERTY + "." );
+            super("Cannot start Engine. Property not set:" + PropertiesUtil.APPLICATION_CLASS_NAME_PROPERTY + "." );
         }
     }
     

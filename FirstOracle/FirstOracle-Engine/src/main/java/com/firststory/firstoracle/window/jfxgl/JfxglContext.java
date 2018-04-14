@@ -10,7 +10,7 @@ import cuchaz.jfxgl.LWJGLDebug;
 import javafx.application.Application;
 import org.lwjgl.system.Callback;
 
-import static com.firststory.firstoracle.FirstOracleConstants.isDebugMode;
+import static com.firststory.firstoracle.PropertiesUtil.isDebugMode;
 
 /**
  * Class used to create JFXGL context.

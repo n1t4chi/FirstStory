@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.window.opengl;
 
-import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.data.ArrayBufferLoader;
 import com.firststory.firstoracle.rendering.RenderingCommands;
 import com.firststory.firstoracle.rendering.RenderingFramework;
@@ -40,13 +40,13 @@ public class OpenGlFramework implements RenderingFramework {
         if ( !OpenGlSupportChecker.isSupportEnough(capabilities) ) {
             throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
         }
-        boolean drawBorder = FirstOracleConstants.isPropertyTrue( "DrawBorder" );
+        boolean drawBorder = PropertiesUtil.isPropertyTrue( "DrawBorder" );
         renderingContext = new OpenGlRenderingContext(
             attributeLoader,
             textureLoader,
             shader2D,
             shader3D,
-            !FirstOracleConstants.isPropertyTrue( FirstOracleConstants.DISABLE_TEXTURES_PROPERTY ),
+            !PropertiesUtil.isPropertyTrue( PropertiesUtil.DISABLE_TEXTURES_PROPERTY ),
             drawBorder,
             new Vector4f( 1,0,0,1 )
         );

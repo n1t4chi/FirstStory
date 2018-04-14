@@ -56,12 +56,15 @@
             <groupId>jfxgl</groupId>
             <artifactId>jfxgl</artifactId>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>jfx</groupId>-->
+            <!--<artifactId>jfx</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>jfxgl</groupId>
             <artifactId>jfxgl-jfxrt</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>org.lwjgl</groupId>

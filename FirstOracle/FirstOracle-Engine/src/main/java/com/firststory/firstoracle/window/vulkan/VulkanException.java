@@ -7,4 +7,12 @@ package com.firststory.firstoracle.window.vulkan;
 /**
  * @author n1t4chi
  */
-class VulkanException extends RuntimeException {}
+class VulkanException extends RuntimeException {
+    
+    VulkanException() {
+    }
+    
+    VulkanException( String s ) {
+        super( s );
+    }
+}

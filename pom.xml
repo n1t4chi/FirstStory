@@ -116,6 +116,11 @@
                 <artifactId>jfxgl</artifactId>
                 <version>0.5-SNAPSHOT</version>
             </dependency>
+            <!--<dependency>-->
+                <!--<groupId>jfx</groupId>-->
+                <!--<artifactId>jfx</artifactId>-->
+                <!--<version>0.7-SNAPSHOT</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>jfxgl</groupId>
                 <artifactId>jfxgl-jfxrt</artifactId>
@@ -168,7 +173,6 @@
                 <artifactId>lwjgl</artifactId>
                 <version>${lwjgl.version}</version>
                 <classifier>${lwjgl.natives}</classifier>
-                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.lwjgl</groupId>
