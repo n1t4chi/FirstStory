@@ -22,6 +22,8 @@ public class PropertiesUtil {
     public static final String APPLICATION_CLASS_NAME_PROPERTY = "ApplicationClassName";
     public static final String RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY = "RenderingFrameworkClassName";
     public static final String DISABLE_TEXTURES_PROPERTY = "DisableTextures";
+    public static final String FORCE_ONE_LOOP_CYCLE_PROPERTY = "ForceOneLoopCycle";
+    public static final String RENDER_LOOP_PERFORMANCE_LOG_PROPERTY = "EnableRenderLoopPerformanceLog";
     private static final Logger logger = FirstOracleConstants.getLogger( PropertiesUtil.class );
     
     public static boolean isPropertyTrue( String propertyName ) {
@@ -34,7 +36,7 @@ public class PropertiesUtil {
     }
     
     public static int getIntegerProperty( String propertyName, int defaultValue ) {
-        return getGenericProperty( propertyName, defaultValue, "float", Integer::parseInt );
+        return getGenericProperty( propertyName, defaultValue, "integer", Integer::parseInt );
     }
     
     public static float getFloatProperty( String propertyName, float defaultValue ) {
@@ -42,7 +44,7 @@ public class PropertiesUtil {
     }
     
     public static String getProperty( String propertyName, String defaultValue ) {
-        return getGenericProperty( propertyName, defaultValue, "String", Function.identity() );
+        return getGenericProperty( propertyName, defaultValue, "string", Function.identity() );
     }
     
     public static String getMatchingStringProperty( String propertyName, Pattern pattern, String defaultValue ) {

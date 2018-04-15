@@ -23,7 +23,7 @@ public class GlfwWindowContext implements WindowContext {
         JOYSTICK_CALLBACK = new GeneralJoystickCallback();
         GLFW.glfwSetJoystickCallback( JOYSTICK_CALLBACK );
     }
-    private final long windowID;
+    private final long address;
     private final KeyCallback keyCallback = new KeyCallback();
     private final MouseButtonCallback mouseButtonCallback = new MouseButtonCallback();
     private final MouserPositionCallback mousePositionCallback = new MouserPositionCallback();
@@ -45,7 +45,7 @@ public class GlfwWindowContext implements WindowContext {
     GlfwWindowContext( long windowID ) {
         if(windowID <= 0)
             throw new IllegalArgumentException("WindowID cannot be 0 or less.");
-        this.windowID = windowID;
+        this.address = windowID;
         setupCallbacks();
     }
     
@@ -55,31 +55,31 @@ public class GlfwWindowContext implements WindowContext {
     }
     
     @Override
-    public long getID() {
-        return windowID;
+    public long getAddress() {
+        return address;
     }
     
     @Override
     public void show() {
-        GLFW.glfwShowWindow( windowID );
+        GLFW.glfwShowWindow( address );
     }
     
     @Override
     public void destroy(){
         JOYSTICK_CALLBACK.removeWindow( this );
         deregisterWindow(this);
-        Callbacks.glfwFreeCallbacks( windowID );
-        GLFW.glfwDestroyWindow( windowID );
+        Callbacks.glfwFreeCallbacks( address );
+        GLFW.glfwDestroyWindow( address );
     }
     
     @Override
     public boolean shouldClose() {
-        return GLFW.glfwWindowShouldClose( windowID );
+        return GLFW.glfwWindowShouldClose( address );
     }
 
     @Override
     public void quit() {
-        GLFW.glfwSetWindowShouldClose( windowID, true );
+        GLFW.glfwSetWindowShouldClose( address, true );
     }
 
     @Override
@@ -110,7 +110,7 @@ public class GlfwWindowContext implements WindowContext {
 
     @Override
     public void cleanAfterLoop() {
-        GLFW.glfwSwapBuffers( windowID );
+        GLFW.glfwSwapBuffers( address );
         GLFW.glfwPollEvents();
     }
 
@@ -125,7 +125,7 @@ public class GlfwWindowContext implements WindowContext {
     
     @Override
     public void setWindowToCurrentThread() {
-        GLFW.glfwMakeContextCurrent( windowID );
+        GLFW.glfwMakeContextCurrent( address );
     }
     
     void notifyJoystickListeners( int jid, int event ) {
@@ -134,14 +134,14 @@ public class GlfwWindowContext implements WindowContext {
     }
     
     private void setupCallbacks(){
-        GLFW.glfwSetKeyCallback( windowID, keyCallback );
-        GLFW.glfwSetMouseButtonCallback( windowID, mouseButtonCallback );
-        GLFW.glfwSetScrollCallback( windowID, mouseScrollCallback );
-        GLFW.glfwSetCursorPosCallback( windowID, mousePositionCallback );
-        GLFW.glfwSetWindowPosCallback( windowID, windowPositionCallback );
-        GLFW.glfwSetWindowSizeCallback( windowID, windowSizeCallback );
-        GLFW.glfwSetWindowFocusCallback( windowID, windowFocusCallback );
-        GLFW.glfwSetWindowCloseCallback( windowID, windowCloseCallback );
+        GLFW.glfwSetKeyCallback( address, keyCallback );
+        GLFW.glfwSetMouseButtonCallback( address, mouseButtonCallback );
+        GLFW.glfwSetScrollCallback( address, mouseScrollCallback );
+        GLFW.glfwSetCursorPosCallback( address, mousePositionCallback );
+        GLFW.glfwSetWindowPosCallback( address, windowPositionCallback );
+        GLFW.glfwSetWindowSizeCallback( address, windowSizeCallback );
+        GLFW.glfwSetWindowFocusCallback( address, windowFocusCallback );
+        GLFW.glfwSetWindowCloseCallback( address, windowCloseCallback );
         JOYSTICK_CALLBACK.addWindow( this );
     }
     

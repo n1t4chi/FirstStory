@@ -5,13 +5,14 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 /**
@@ -24,54 +25,94 @@ class VulkanPhysicalDevice implements Comparable<VulkanPhysicalDevice>, AutoClos
     private final VkPhysicalDeviceFeatures features;
     private final VkPhysicalDeviceProperties properties;
     private final VKCapabilitiesInstance capabilities;
-    private final List< VulkanQueueFamily > queueFamilies;
+    private final List< VulkanQueueFamily > availableQueueFamilies;
+    private final Set< VulkanQueueFamily > usedQueueFamilies = new HashSet<>();
     
     private final VulkanQueueFamily graphicFamily;
+    private final VulkanQueueFamily presentationFamily;
     private final VkDevice logicalDevice;
+    private final VkQueue presentationQueue;
+    private final VulkanWindowSurface windowSurface;
     
-    VulkanPhysicalDevice( long deviceAddress, VkInstance instance, PointerBuffer validationLayerNamesBuffer ) {
+    VulkanPhysicalDevice(
+        long deviceAddress,
+        VkInstance instance,
+        PointerBuffer validationLayerNamesBuffer,
+        VulkanWindowSurface surface
+    ) {
+        windowSurface = surface;
         physicalDevice = new VkPhysicalDevice( deviceAddress, instance );
         capabilities = physicalDevice.getCapabilities();
-        VkPhysicalDeviceFeatures features = VkPhysicalDeviceFeatures.create();
-        VK10.vkGetPhysicalDeviceFeatures( physicalDevice, features );
-        this.features = features;
-    
-        VkPhysicalDeviceProperties properties =  VkPhysicalDeviceProperties.create();
-        VK10.vkGetPhysicalDeviceProperties( physicalDevice, properties );
-        this.properties = properties;
-        queueFamilies = getQueueFamilies();
-        graphicFamily = getGraphicFamily();
-        logger.finer( this+" selected graphic family: "+ getGraphicFamily() );
-    
-        //VkDevice logicalDevice = new VkDevice(  );
-        
-        VkDeviceQueueCreateInfo.Buffer queueCreateInfo = VkDeviceQueueCreateInfo.calloc( 1 )
-            .sType( VK10.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO )
-            .queueFamilyIndex( graphicFamily.getIndex() )
-            .pQueuePriorities( MemoryStack.stackFloats( 1.0f ) )
-        ;
-        VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO )
-            .pNext( VK10.VK_NULL_HANDLE )
-            .pQueueCreateInfos( queueCreateInfo )
-        ;
-            
+        features = createDeviceFeatures();
+        properties = createDeviceProperties();
+        availableQueueFamilies = getAvailableQueueFamilies();
+        graphicFamily = selectGraphicFamily();
+        usedQueueFamilies.add( graphicFamily );
+        logger.finer( this+" selected graphic family: "+ graphicFamily );
+        presentationFamily = selectPresentationFamily();
+        usedQueueFamilies.add( presentationFamily );
+        logger.finer( this+" selected presentation family: "+ presentationFamily );
+        VkDeviceCreateInfo createInfo = createDeviceCreateInfo();
         if( VulkanFramework.validationLayersAreEnabled() ) {
             createInfo.ppEnabledLayerNames( validationLayerNamesBuffer );
         }
+        logicalDevice = createLogicalDevice( createInfo );
+        presentationQueue = createPresentationQueue();
+        
+        logger.finer( "finished creating "+this );
+    }
     
-        PointerBuffer pDevice = null;
-        try {
-            pDevice = MemoryUtil.memAllocPointer(1);
-            if ( VK10.vkCreateDevice( physicalDevice, createInfo, null, pDevice ) != VK10.VK_SUCCESS ) {
-                throw new CannotCreateVulkanLogicDeviceException( physicalDevice );
-            }
-            logicalDevice = new VkDevice( pDevice.get(), physicalDevice, createInfo );
-        }finally {
-            if(pDevice != null){
-                pDevice.free();
-            }
+    private VkDeviceCreateInfo createDeviceCreateInfo() {
+        return VkDeviceCreateInfo.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO )
+            .pNext( VK10.VK_NULL_HANDLE )
+            .pQueueCreateInfos( createQueueFamilyBuffer() );
+    }
+    
+    private VkQueue createPresentationQueue() {
+        PointerBuffer queuePointer = MemoryStack.stackMallocPointer( 1 );
+        VK10.vkGetDeviceQueue( logicalDevice, presentationFamily.getIndex(), 0, queuePointer );
+        return new VkQueue( queuePointer.get(), logicalDevice );
+    }
+    
+    private VkDeviceQueueCreateInfo.Buffer createQueueFamilyBuffer() {
+        VkDeviceQueueCreateInfo.Buffer buffer = createVkDeviceQueueCreateInfoBuffer( usedQueueFamilies.size() );
+        for ( VulkanQueueFamily usedQueueFamily : usedQueueFamilies ) {
+            VkDeviceQueueCreateInfo queueInfo = VkDeviceQueueCreateInfo.create()
+                .sType( VK10.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO )
+                .queueFamilyIndex( usedQueueFamily.getIndex() )
+                .pQueuePriorities( MemoryStack.stackFloats( 1.0f ) )
+            ;
+            buffer.put( queueInfo );
         }
+        buffer.flip();
+        return buffer;
+    }
+    
+    private VkDeviceQueueCreateInfo.Buffer createVkDeviceQueueCreateInfoBuffer( int count ) {
+        return new VkDeviceQueueCreateInfo.Buffer(
+            BufferUtils.createByteBuffer( count * VkDeviceQueueCreateInfo.SIZEOF )
+        );
+    }
+    
+    private VkPhysicalDeviceFeatures createDeviceFeatures() {
+        VkPhysicalDeviceFeatures features = VkPhysicalDeviceFeatures.create();
+        VK10.vkGetPhysicalDeviceFeatures( physicalDevice, features );
+        return features;
+    }
+    
+    private VkPhysicalDeviceProperties createDeviceProperties() {
+        VkPhysicalDeviceProperties properties =  VkPhysicalDeviceProperties.create();
+        VK10.vkGetPhysicalDeviceProperties( physicalDevice, properties );
+        return properties;
+    }
+    
+    private VkDevice createLogicalDevice( VkDeviceCreateInfo createInfo ) {
+        PointerBuffer devicePointer = MemoryUtil.memAllocPointer(1);
+        if ( VK10.vkCreateDevice( physicalDevice, createInfo, null, devicePointer ) != VK10.VK_SUCCESS ) {
+            throw new CannotCreateVulkanLogicDeviceException( physicalDevice );
+        }
+        return new VkDevice( devicePointer.get(), physicalDevice, createInfo );
     }
     
     @Override
@@ -79,20 +120,38 @@ class VulkanPhysicalDevice implements Comparable<VulkanPhysicalDevice>, AutoClos
         VK10.vkDestroyDevice( logicalDevice, null );
     }
     
-    private VulkanQueueFamily getGraphicFamily() {
-        VulkanQueueFamily graphicFamily = null;
-        for ( VulkanQueueFamily family : queueFamilies ) {
-            
-            int flag = VK10.VK_QUEUE_GRAPHICS_BIT;
-            logger.finer( this+" -> "+family );
-            if( family.isFlagSet( flag ) && family.isBetterThan( graphicFamily ) ) {
-                graphicFamily = family;
-            }
-        }
-        return graphicFamily;
+    private VulkanQueueFamily selectGraphicFamily() {
+        return selectSuitableFamily(
+            family -> family.isFlagSet( VK10.VK_QUEUE_GRAPHICS_BIT ),
+            (first,second) -> VulkanQueueFamily.compare( first,second )
+        );
     }
     
-    private List< VulkanQueueFamily > getQueueFamilies() {
+    private VulkanQueueFamily selectPresentationFamily() {
+        return selectSuitableFamily(
+            family -> {
+                int[] supports = new int[1];
+                KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR( physicalDevice, family.getIndex(), windowSurface.getAddress() , supports);
+                return supports[0] == VK10.VK_SUCCESS;
+            },
+            (first,second) -> VulkanQueueFamily.compare( first,second )
+        );
+    }
+    
+    private VulkanQueueFamily selectSuitableFamily(
+        Predicate<VulkanQueueFamily> familyChecker,
+        Comparator<VulkanQueueFamily> familyComparator
+    ) {
+        VulkanQueueFamily selectedFamily = null;
+        for ( VulkanQueueFamily family : availableQueueFamilies ) {
+            if( familyChecker.test( family ) && familyComparator.compare( selectedFamily, family ) < 0 ) {
+                selectedFamily = family;
+            }
+        }
+        return selectedFamily;
+    }
+    
+    private List< VulkanQueueFamily > getAvailableQueueFamilies() {
         int[] queueFamilyCount = new int[1];
         VK10.vkGetPhysicalDeviceQueueFamilyProperties( physicalDevice, queueFamilyCount, null );
         VkQueueFamilyProperties.Buffer queueFamilyPropertiesBuffer = VkQueueFamilyProperties.create( queueFamilyCount[0] );
@@ -100,7 +159,9 @@ class VulkanPhysicalDevice implements Comparable<VulkanPhysicalDevice>, AutoClos
         List< VulkanQueueFamily > queueFamilyProperties = new ArrayList<>(queueFamilyCount[0]);
         int index =0;
         while( queueFamilyPropertiesBuffer.hasRemaining() ){
-            queueFamilyProperties.add( new VulkanQueueFamily( queueFamilyPropertiesBuffer.get(), index++ ) );
+            VulkanQueueFamily family = new VulkanQueueFamily( queueFamilyPropertiesBuffer.get(), index++ );
+            queueFamilyProperties.add( family );
+            logger.finer( this+" -> "+family );
         }
         return queueFamilyProperties;
     }
@@ -133,5 +194,10 @@ class VulkanPhysicalDevice implements Comparable<VulkanPhysicalDevice>, AutoClos
             default:
                 return 4;
         }
+    }
+    
+    @Override
+    public String toString() {
+        return "VulkanPhysicalDevice@"+hashCode();
     }
 }

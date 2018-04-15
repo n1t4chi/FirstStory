@@ -5,6 +5,7 @@ package com.firststory.firstoracle.window;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.FrameworkProviderContext;
+import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.rendering.Renderer;
@@ -50,7 +51,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         WindowSettings windowSettings,
         Application application,
         Renderer renderer
-    ){
+    ) {
         return new Window( windowSettings, application, renderer,
             FrameworkProviderContext.getWindowFrameworkProvider(),
             FrameworkProviderContext.getRenderingFrameworkProvider() );
@@ -59,7 +60,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     public static Window getOpenGlInstance(
         WindowSettings windowSettings,
         Renderer renderer
-    ){
+    ) {
         return new Window( windowSettings, null, renderer,
             FrameworkProviderContext.getWindowFrameworkProvider(),
             FrameworkProviderContext.getRenderingFrameworkProvider() );
@@ -71,7 +72,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         Renderer renderer,
         WindowFrameworkProvider windowFrameworkProvider,
         RenderingFrameworkProvider renderingFrameworkProvider
-    ){
+    ) {
         return new Window( windowSettings, application, renderer, windowFrameworkProvider,renderingFrameworkProvider );
     }
     
@@ -80,7 +81,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         Renderer renderer,
         WindowFrameworkProvider windowFrameworkProvider,
         RenderingFrameworkProvider renderingFrameworkProvider
-    ){
+    ) {
         return new Window( windowSettings, null, renderer, windowFrameworkProvider,renderingFrameworkProvider );
     }
     
@@ -127,10 +128,11 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         try {
             renderingFramework.invoke( instance -> {
                 window.show();
-                jfxgl = JfxglContext.createInstance( window.getID(), new String[]{}, application );
+                jfxgl = JfxglContext.createInstance( window.getAddress(), new String[]{}, application );
                 logger.finest( this+": GUI context: "+jfxgl );
             });
-            remderLoop();
+            
+            createRenderLoop().loop();
             notifyQuitListeners();
         } catch ( Exception ex ) {
             ex.printStackTrace();
@@ -138,6 +140,15 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         } finally {
             close();
         }
+    }
+    
+    private RenderLoopInterface createRenderLoop() {
+        RenderLoopInterface renderLoop = new RenderLoop();
+        if( PropertiesUtil.isPropertyTrue( PropertiesUtil.RENDER_LOOP_PERFORMANCE_LOG_PROPERTY ) )
+            renderLoop = new RenderLoopPerformanceTester( renderLoop );
+        if( PropertiesUtil.isPropertyTrue( PropertiesUtil.FORCE_ONE_LOOP_CYCLE_PROPERTY ))
+            renderLoop = new RenderLoopEarlyExit( renderLoop );
+        return renderLoop;
     }
     
     /**
@@ -214,18 +225,71 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
             window.destroy();
     }
     
-    private void remderLoop() throws Exception {
-        while ( !shouldWindowClose() ) {
-            performanceLogger.finest( this+": remderLoop start" );
-            lastFrameUpdate = windowFramework.getTime();
-            if ( frameCount % 100 == 0 ) {
-                lastFps = ( int ) ( ( float ) frameCount / ( lastFrameUpdate - lastFpsUpdate ) );
-                lastFpsUpdate = lastFrameUpdate;
-                frameCount = 0;
-                notifyFpsListeners( lastFps );
-            }
-            frameCount++;
-            performanceLogger.finest( this+": remderLoop invoke start" );
+    private class RenderLoopEarlyExit extends RenderLoopDelegate {
+    
+        RenderLoopEarlyExit( RenderLoopInterface delegate ) {
+            super( delegate );
+        }
+    
+        @Override
+        public void loopInside() throws Exception {
+            super.loopInside();
+            quit();
+        }
+    }
+    
+    private class RenderLoopPerformanceTester extends RenderLoopDelegate {
+        RenderLoopPerformanceTester( RenderLoopInterface delegate ) {
+            super( delegate );
+        }
+    
+        @Override
+        public void loopInside() throws Exception {
+            performanceLogger.finest( this+": loop cycle start" );
+            super.loopInside();
+            performanceLogger.finest( this+": loop cycle end" );
+        }
+    
+        @Override
+        public void render() throws Exception {
+            performanceLogger.finest( Window.this+": loop render start" );
+            super.render();
+            performanceLogger.finest( Window.this+": loop render start" );
+        }
+    }
+    
+    private class RenderLoopDelegate extends RenderLoopInterface {
+        private final RenderLoopInterface delegate;
+    
+        RenderLoopDelegate( RenderLoopInterface delegate ) {
+            this.delegate = delegate;
+        }
+    
+        @Override
+        public void loopInside() throws Exception {
+            delegate.loopInside();
+        }
+    
+        @Override
+        public void render() throws Exception {
+            delegate.render();
+        }
+    
+        @Override
+        public void setupCycle() {
+            delegate.setupCycle();
+        }
+    }
+    
+    private class RenderLoop extends RenderLoopInterface {
+        @Override
+        public void loopInside() throws Exception {
+            setupCycle();
+            render();
+        }
+    
+        @Override
+        public void render() throws Exception {
             renderingFramework.invoke( instance -> {
                 window.setUpRenderLoop();
                 renderingFramework.clearScreen();
@@ -234,9 +298,35 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
                 jfxgl.render();
                 window.cleanAfterLoop();
             } );
-            performanceLogger.finest( this+": remderLoop invoke end" );
-            if(true)
-                quit();
         }
+    
+        @Override
+        public void setupCycle() {
+            lastFrameUpdate = windowFramework.getTime();
+            if ( frameCount % 100 == 0 ) {
+                lastFps = ( int ) ( ( float ) frameCount / ( lastFrameUpdate - lastFpsUpdate ) );
+                lastFpsUpdate = lastFrameUpdate;
+                frameCount = 0;
+                notifyFpsListeners( lastFps );
+            }
+            frameCount++;
+        }
+    }
+    
+    private abstract class RenderLoopInterface {
+        void loop() throws Exception{
+            while ( !shouldWindowClose() ) {
+                loopInside();
+            }
+        }
+        abstract void loopInside() throws Exception;
+        abstract void render() throws Exception;
+        abstract void setupCycle();
+    }
+    
+    
+    @Override
+    public String toString() {
+        return "FirstOracle Window@"+hashCode();
     }
 }

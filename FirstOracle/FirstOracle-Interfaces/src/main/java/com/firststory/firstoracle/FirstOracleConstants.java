@@ -11,6 +11,7 @@ import java.util.logging.Logger;
  * @author n1t4chi
  */
 public class FirstOracleConstants {
+    
     private static final Logger logger = getLogger( FirstOracleConstants.class );
     
     public static final String GET_FRAMEWORK_METHOD_NAME = "getFramework";

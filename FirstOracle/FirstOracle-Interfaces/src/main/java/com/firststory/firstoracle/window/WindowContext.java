@@ -16,7 +16,7 @@ public interface WindowContext {
     
     void setVerticalSync( boolean enabled );
     
-    long getID();
+    long getAddress();
     
     void show();
     

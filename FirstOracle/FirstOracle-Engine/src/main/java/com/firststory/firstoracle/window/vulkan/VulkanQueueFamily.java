@@ -23,8 +23,17 @@ class VulkanQueueFamily {
         return index;
     }
     
-    boolean isBetterThan( VulkanQueueFamily family ) {
-        return family == null || properties.queueCount() > family.properties.queueCount();
+    int compare( VulkanQueueFamily family ) {
+        return family == null ? properties.queueCount() : properties.queueCount() - family.properties.queueCount();
+    }
+    
+    static int compare( VulkanQueueFamily family1, VulkanQueueFamily family2 ) {
+        return family1 == family2
+            ? 0
+            : family1 == null
+                ? -family2.compare( null )
+                : family1.compare( family2 )
+        ;
     }
     
     boolean isFlagSet( int flag ) {

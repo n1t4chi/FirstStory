@@ -31,12 +31,9 @@ public class VulkanFramework implements RenderingFramework {
     
     private static Logger logger = FirstOracleConstants.getLogger( VulkanFramework.class );
     
-    static {
-        if( !GLFWVulkan.glfwVulkanSupported() ){
-            throw new RuntimeException( "GLFW Vulkan not supported!" );
-        }
+    static boolean validationLayersAreEnabled() {
+        return PropertiesUtil.isPropertyTrue( PropertiesUtil.VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY );
     }
-
     private final VkApplicationInfo applicationInfo;
     private final VkInstanceCreateInfo createInfo;
     private final VkInstance instance;
@@ -47,12 +44,16 @@ public class VulkanFramework implements RenderingFramework {
     private final List< String > validationLayerNames;
     private final WindowContext window;
     private VkDebugReportCallbackEXT callback = null;
+    private VulkanWindowSurface windowSurface;
     
     VulkanFramework( WindowContext window ) {
         this.window = window;
-    
+        if( !GLFWVulkan.glfwVulkanSupported() ){
+            throw new RuntimeException( "GLFW Vulkan not supported!" );
+        }
+        
         String applicationName = PropertiesUtil.getProperty( "ApplicationName",
-            "Application powered by"+FirstOracleConstants.FIRST_ORACLE );
+            "Application powered by "+FirstOracleConstants.FIRST_ORACLE );
         int applicationVersion = VK10.VK_MAKE_VERSION(
             PropertiesUtil.getIntegerProperty( "ApplicationMajorVersion" , 1 ),
             PropertiesUtil.getIntegerProperty( "ApplicationMinorVersion" , 0 ),
@@ -68,22 +69,19 @@ public class VulkanFramework implements RenderingFramework {
         layerProperties = getLayerProperties();
         enabledExtensions = createEnabledExtensions();
         validationLayerNames = createValidationLayerNames();
-    
-    
+        
+        
         applicationInfo = createApplicationInfo( applicationName, applicationVersion, engineName, engineVersion );
         createInfo = createCreateInfo();
         extensionProperties = getExtensionProperties();
         instance = createInstance();
-        physicalDevices = createPhysicalDevices();
         
         if( PropertiesUtil.isDebugMode() ) {
             setupDebugCallback();
         }
-    
-        long[] surface = new long[1];
-        if( GLFWVulkan.glfwCreateWindowSurface( instance, window.getID(),null, surface ) != VK10.VK_SUCCESS ){
-            throw new CannotCreateVulkanWindowSurfaceException( instance, window );
-        }
+        
+        windowSurface = VulkanWindowSurface.create( instance, window );
+        physicalDevices = createPhysicalDevices();
         
     }
     
@@ -148,11 +146,8 @@ public class VulkanFramework implements RenderingFramework {
             closeDebugCallback();
         }
         physicalDevices.forEach( VulkanPhysicalDevice::close );
+        windowSurface.close( instance );
         VK10.vkDestroyInstance( instance, null );
-    }
-    
-    static boolean validationLayersAreEnabled() {
-        return PropertiesUtil.isPropertyTrue( PropertiesUtil.VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY );
     }
     
     private Map<String,Long> createEnabledExtensions() {
@@ -227,12 +222,17 @@ public class VulkanFramework implements RenderingFramework {
         if( deviceCount[0] == 0 ) {
             throw new NoGpuSupportingVulkanException();
         }
+        
         PointerBuffer devicesBuffer = PointerBuffer.allocateDirect( deviceCount[0] );
         VK10.vkEnumeratePhysicalDevices( instance, deviceCount, devicesBuffer );
-        PriorityQueue<VulkanPhysicalDevice> queue = new PriorityQueue<>( VulkanPhysicalDevice::compareTo );
-        while( devicesBuffer.hasRemaining() ){
-            VulkanPhysicalDevice device = new VulkanPhysicalDevice( devicesBuffer.get(), instance, createValidationLayerNamesBuffer() );
-            if( device.isSuitable() ) {
+        PriorityQueue< VulkanPhysicalDevice > queue = new PriorityQueue<>( VulkanPhysicalDevice::compareTo );
+        while ( devicesBuffer.hasRemaining() ) {
+            VulkanPhysicalDevice device = new VulkanPhysicalDevice( devicesBuffer.get(),
+                instance,
+                createValidationLayerNamesBuffer(),
+                windowSurface
+            );
+            if ( device.isSuitable() ) {
                 queue.add( device );
             }
         }
@@ -245,14 +245,14 @@ public class VulkanFramework implements RenderingFramework {
     private VkInstance createInstance() {
         PointerBuffer instancePointer = MemoryStack.stackCallocPointer( 1 );
         if ( VK10.vkCreateInstance( createInfo, null, instancePointer ) != VK10.VK_SUCCESS ) {
-            throw new CannotCreateVulkanInstanceException();
-        }
-        return new VkInstance( instancePointer.get(), createInfo );
+                throw new CannotCreateVulkanInstanceException();
+            }
+            return new VkInstance( instancePointer.get(), createInfo );
     }
     
     private VkInstanceCreateInfo createCreateInfo() {
         VkInstanceCreateInfo createInfo = VkInstanceCreateInfo.create();
-    
+        
         PointerBuffer enabledExtensionsBuffer = createEnabledExtensionsBuffer();
         PointerBuffer validationLayerNamesBuffer = createValidationLayerNamesBuffer();
         
@@ -307,12 +307,12 @@ public class VulkanFramework implements RenderingFramework {
         if ( instance.getCapabilities().vkCreateDebugReportCallbackEXT != VK10.VK_NULL_HANDLE ) {
             logger.fine( "Method vkCreateDebugReportCallbackEXT is supported." );
             if ( EXTDebugReport.vkCreateDebugReportCallbackEXT(
-                    instance,
-                    createInfo,
-                    null,
-                    new long[]{ callback.address() }
-                ) != VK10.VK_SUCCESS
-            ) {
+                instance,
+                createInfo,
+                null,
+                new long[]{ callback.address() }
+            ) != VK10.VK_SUCCESS
+                ) {
                 System.err.println( "Cannot set up debug callback." );
             }
         } else {
