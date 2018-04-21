@@ -42,7 +42,7 @@ public class Runner {
         logger.fine( "Starting JFXGL main with arguments: " + Arrays.toString( args ) );
         try {
             String className = getApplicationClassName();
-            logger.fine( "Loading Application from class" + className );
+            logger.fine( "Loading Application from class: " + className );
             Method main = getMainMethod( className );
             invokeMainMethod( args, className, main );
         } catch ( Exception e ) {

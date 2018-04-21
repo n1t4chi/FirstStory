@@ -19,6 +19,7 @@ public class PropertiesUtil {
     public static final String DEBUG_PROPERTY = "debugMode";
     public static final String VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY = "VulkanValidationLayersEnabled";
     public static final String VULKAN_VALIDATION_LAYERS_LIST_PROPERTY = "VulkanValidationLayersList";
+    public static final String VULKAN_USE_SRGB_PROPERTY = "VulkanUseSRGBIfPossible";
     public static final String APPLICATION_CLASS_NAME_PROPERTY = "ApplicationClassName";
     public static final String RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY = "RenderingFrameworkClassName";
     public static final String DISABLE_TEXTURES_PROPERTY = "DisableTextures";
@@ -89,7 +90,7 @@ public class PropertiesUtil {
     }
     
     public static boolean isDebugMode(){
-        return Boolean.getBoolean( System.getProperty( DEBUG_PROPERTY ) );
+        return Boolean.parseBoolean( System.getProperty( DEBUG_PROPERTY ) );
     }
     
     private static String propertyNotSetMessage( String propertyName, String expectedValueInfo ) {
