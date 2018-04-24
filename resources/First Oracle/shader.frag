@@ -1,10 +1,11 @@
 #version 330 core
+#extension GL_ARB_separate_shader_objects : enable
 
 // Interpolated values from the vertex shaders
-in vec2 UV;
+layout (location = 0) in vec2 UV;
 
 // Ouput data
-out vec4 color;
+layout (location = 0) out vec4 color;
 
 // Values that stay constant for the whole mesh.
 uniform sampler2D myTextureSampler;

@@ -96,6 +96,22 @@ public class VulkanWindowSurface {
             KHRSwapchain.vkDestroySwapchainKHR( device.getLogicalDevice(), swapChain, null );
         }
     
+        public float getWidth() {
+            return extent.width();
+        }
+    
+        public float getHeight() {
+            return extent.height();
+        }
+    
+        public VkExtent2D getExtent() {
+            return extent;
+        }
+    
+        public int getImageFormat() {
+            return usedFormat.format();
+        }
+    
         boolean isSupported() {
             return !( formats.isEmpty() || presentModes.length == 0 );
         }

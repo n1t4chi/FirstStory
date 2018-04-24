@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
@@ -12,6 +13,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
@@ -44,6 +46,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
     private final VulkanWindowSurface windowSurface;
     private final List< VkExtensionProperties > availableExtensionProperties;
     private final VulkanWindowSurface.VulkanSwapChain swapChain;
+    private final List<VkPipelineShaderStageCreateInfo> shaderStages;
+    private final VulkanGraphicPipeline graphicPipeline;
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -73,6 +77,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
         
         swapChain = windowSurface.createSwapChain( this );
         
+        vertexShader = new VulkanShaderProgram( this, VERTEX_SHADER_FILE_PATH, ShaderType.VERTEX );
+        fragmentShader = new VulkanShaderProgram( this, FRAGMENT_SHADER_FILE_PATH, ShaderType.FRAGMENT );
+    
+        shaderStages = new ArrayList<>(  );
+        graphicPipeline = new VulkanGraphicPipeline( this );
+        
+        
+        
         logger.finer(
             "finished creating " + this + "[" +
                 ", score: " + getScore() +
@@ -83,10 +95,46 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
                 ", swapChain: " + swapChain +
             "]" );
     }
+    VulkanShaderProgram vertexShader;
+    VulkanShaderProgram fragmentShader;
+    private static final String VERTEX_SHADER_FILE_PATH = "resources/First Oracle/vert.spv";
+    private static final String FRAGMENT_SHADER_FILE_PATH = "resources/First Oracle/frag.spv";
+    
+    public List<VkPipelineShaderStageCreateInfo> getShaderStages() {
+        return shaderStages;
+    }
+    
+    VulkanWindowSurface.VulkanSwapChain getSwapChain() {
+        return swapChain;
+    }
+    
+    RenderingContext getRenderingContext() {
+        return null;
+    }
+    
+    void compileShaders() throws IOException {
+        vertexShader.compile();
+        fragmentShader.compile();
+        
+        shaderStages.add( vertexShader.getStageCreateInfo() );
+        shaderStages.add( fragmentShader.getStageCreateInfo() );
+        graphicPipeline.init();
+    }
+    
+    public VulkanShaderProgram getVertexShader() {
+        return vertexShader;
+    }
+    
+    public VulkanShaderProgram getFragmentShader() {
+        return fragmentShader;
+    }
     
     @Override
     public void close() {
+        graphicPipeline.close();
         swapChain.close();
+        vertexShader.dispose();
+        fragmentShader.dispose();
         VK10.vkDestroyDevice( logicalDevice, null );
     }
     

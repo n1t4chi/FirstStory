@@ -30,10 +30,10 @@ import java.util.List;
  *
  * @author n1t4chi
  */
-public class OpenGlAndGlfwApplication2D {
+public class GlfwApplication2D {
     
     public static void main( String[] args ) throws Exception{
-        new OpenGlAndGlfwApplication2D().run( args );
+        new GlfwApplication2D().run( args );
     }
     private Window window;
     private WindowRenderer renderer;

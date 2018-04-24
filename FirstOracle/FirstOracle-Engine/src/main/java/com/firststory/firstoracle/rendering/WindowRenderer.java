@@ -57,18 +57,22 @@ public class WindowRenderer implements Renderer {
     @Override
     public void init() {
         try {
-            BufferedImage image = new BufferedImage( 50, 50, BufferedImage.TYPE_INT_ARGB );
-            Graphics graphics = image.getGraphics();
-            graphics.setColor( Color.BLUE );
-            graphics.fillRect( 0, 0, 50, 50 );
-            graphics.dispose();
-            emptyTexture = new Texture( image );
+            emptyTexture = new Texture( createEmptyTexture() );
             emptyUvMap = new UvMap( new float[1][1][3] );
             grid3DRenderer.init();
             grid2DRenderer.init();
         } catch ( IOException ex ) {
             throw new RuntimeException( "Can't load texture:", ex );
         }
+    }
+    
+    private BufferedImage createEmptyTexture() {
+        BufferedImage image = new BufferedImage( 50, 50, BufferedImage.TYPE_INT_ARGB );
+        Graphics graphics = image.getGraphics();
+        graphics.setColor( Color.BLUE );
+        graphics.fillRect( 0, 0, 50, 50 );
+        graphics.dispose();
+        return image;
     }
     
     @Override

@@ -90,13 +90,13 @@ public class VulkanFramework implements RenderingFramework {
         physicalDevices = createPhysicalDevices();
         mainPhysicalDevice = selectMainPhysicalDevice();
         
-        logger.finer( "Finished creating Vulkan Framework: " + this );
         
+        logger.finer( "Finished creating Vulkan Framework: " + this );
     }
     
     @Override
     public RenderingContext getRenderingContext() {
-        return null;
+        return mainPhysicalDevice.getRenderingContext();
     }
     
     @Override
@@ -141,12 +141,12 @@ public class VulkanFramework implements RenderingFramework {
     
     @Override
     public void invoke( RenderingCommands commands ) throws Exception {
-    
+        commands.execute( this );
     }
     
     @Override
     public void compileShaders() throws IOException {
-    
+        mainPhysicalDevice.compileShaders();
     }
     
     @Override

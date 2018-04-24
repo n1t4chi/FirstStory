@@ -13,6 +13,7 @@ import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
 import com.firststory.firstoracle.window.jfxgl.JfxglContext;
 import javafx.application.Application;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -144,6 +145,23 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     
     private RenderLoopInterface createRenderLoop() {
         RenderLoopInterface renderLoop = new RenderLoop();
+        if ( PropertiesUtil.isPropertyTrue( "vulkanimpl" ) ){
+            renderLoop = new RenderLoop() {
+                @Override
+                public void render() throws Exception {
+                    renderingFramework.invoke( instance -> {
+                        //window.setUpRenderLoop();
+                        renderingFramework.clearScreen();
+                        notifyTimeListener( windowFramework.getTime() );
+                        //renderer.render( instance.getRenderingContext(), lastFrameUpdate );
+                        //jfxgl.render();
+                        //window.cleanAfterLoop();
+                        //GLFW.glfwSwapBuffers( address );
+                        GLFW.glfwPollEvents();
+                    } );
+                }
+            };
+        }
         if( PropertiesUtil.isPropertyTrue( PropertiesUtil.RENDER_LOOP_PERFORMANCE_LOG_PROPERTY ) )
             renderLoop = new RenderLoopPerformanceTester( renderLoop );
         if( PropertiesUtil.isPropertyTrue( PropertiesUtil.FORCE_ONE_LOOP_CYCLE_PROPERTY ))

@@ -5,5 +5,5 @@
 package com.firststory.firstoracle.rendering;
 
 public interface RenderingCommands {
-    void execute( RenderingFramework openGlInstance ) throws Exception;
+    void execute( RenderingFramework renderingFramework ) throws Exception;
 }

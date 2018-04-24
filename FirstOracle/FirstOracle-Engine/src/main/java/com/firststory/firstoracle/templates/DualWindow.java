@@ -27,7 +27,7 @@ public class DualWindow {
     
     private static void secondWindow() {
         try{
-            OpenGlAndGlfwApplication2D.main( new String[]{} );
+            GlfwApplication2D.main( new String[]{} );
         } catch ( Exception e ) {
             e.printStackTrace();
         }
