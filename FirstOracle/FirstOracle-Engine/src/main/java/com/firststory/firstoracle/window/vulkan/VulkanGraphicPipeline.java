@@ -19,39 +19,15 @@ public class VulkanGraphicPipeline implements AutoCloseable {
     
     private final long pipelineLayoutAddress;
     private final VulkanPhysicalDevice device;
-    private final VkViewport viewport;
-    private final VkRect2D scissor;
-    private final VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
-    private final VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo;
-    private final VkPipelineViewportStateCreateInfo viewportStateCreateInfo;
-    private final VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo;
-    private final VkPipelineMultisampleStateCreateInfo multisampleStateCreateInfo;
-    private final VkPipelineColorBlendAttachmentState coluorBlendAttachmentState;
-    private final VkPipelineColorBlendStateCreateInfo coluorBlendStateCreateInfo;
     private final VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo;
-    private final VkAttachmentDescription colourAttachmentDescription;
-    private final VkAttachmentReference colourAttachmentReference;
-    private final VkSubpassDescription subpassDescription;
     private final long renderPassAddress;
     private final long graphicsPipelineAddress;
     
     VulkanGraphicPipeline( VulkanPhysicalDevice device ) {
         this.device = device;
-        vertexInputStateCreateInfo = createVertexInputStateCreateInfo();
-        inputAssemblyStateCreateInfo = createInputAssemblyStateCreateInfo();
-        viewport = createViewport();
-        scissor = createScissor();
-        viewportStateCreateInfo = createViewportStateCreateInfo();
-        rasterizationStateCreateInfo = createRasterizationStateCreateInfo();
-        multisampleStateCreateInfo = createMultisampleStateCreateInfo();
-        coluorBlendAttachmentState = createColourBlendAttachmentState();
-        coluorBlendStateCreateInfo = createColourBlendStateCreateInfo();
         dynamicStateCreateInfo = createDynamicStateCreateInfo();
         pipelineLayoutAddress = createVulkanPipelineLayout();
-        
-        colourAttachmentDescription = createColourAttachmentDescription();
-        colourAttachmentReference = createColourAttachmentReference();
-        subpassDescription = createSubpassDescription();
+    
         renderPassAddress = createRenderPass();
         graphicsPipelineAddress = createGraphicPipeline();
     }
@@ -90,13 +66,13 @@ public class VulkanGraphicPipeline implements AutoCloseable {
         return VkGraphicsPipelineCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO )
             .pStages( createShaderStageCreateInfoBuffer() )
-            .pVertexInputState( vertexInputStateCreateInfo )
-            .pInputAssemblyState( inputAssemblyStateCreateInfo )
-            .pViewportState( viewportStateCreateInfo )
-            .pRasterizationState( rasterizationStateCreateInfo )
-            .pMultisampleState( multisampleStateCreateInfo )
+            .pVertexInputState( createVertexInputStateCreateInfo() )
+            .pInputAssemblyState( createInputAssemblyStateCreateInfo() )
+            .pViewportState( createViewportStateCreateInfo() )
+            .pRasterizationState( createRasterizationStateCreateInfo() )
+            .pMultisampleState( createMultisampleStateCreateInfo() )
             .pDepthStencilState( null )
-            .pColorBlendState( coluorBlendStateCreateInfo )
+            .pColorBlendState( createColourBlendStateCreateInfo() )
             .pDynamicState( null )
             .layout( pipelineLayoutAddress )
             .renderPass( renderPassAddress )
@@ -116,10 +92,13 @@ public class VulkanGraphicPipeline implements AutoCloseable {
     }
     
     private long createRenderPass() {
+    
         VkRenderPassCreateInfo createInfo = VkRenderPassCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
-            .pAttachments( VkAttachmentDescription.calloc( 1 ).put( colourAttachmentDescription ).flip() )
-            .pSubpasses( VkSubpassDescription.create( 1 ).put( subpassDescription ).flip() );
+            .pAttachments( VkAttachmentDescription.calloc( 1 ).put( createColourAttachmentDescription() ).flip() )
+            .pSubpasses( VkSubpassDescription.create( 1 ).put( createSubpassDescription() ).flip() )
+            .pDependencies( VkSubpassDependency.calloc( 1 ).put( createSubpassDependency() ).flip() )
+        ;
         
         long[] address = new long[1];
         if ( VK10.vkCreateRenderPass( device.getLogicalDevice(), createInfo, null, address ) != VK10.VK_SUCCESS ) {
@@ -128,11 +107,21 @@ public class VulkanGraphicPipeline implements AutoCloseable {
         return address[0];
     }
     
+    private VkSubpassDependency createSubpassDependency() {
+        return VkSubpassDependency.create()
+            .srcSubpass( VK10.VK_SUBPASS_EXTERNAL )
+            .dstSubpass( 0 )
+            .srcStageMask( VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT )
+            .dstStageMask( VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT )
+            .srcAccessMask( 0 )
+            .dstAccessMask( VK10.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK10.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT );
+    }
+    
     private VkSubpassDescription createSubpassDescription() {
         return VkSubpassDescription.create()
             .pipelineBindPoint( VK10.VK_PIPELINE_BIND_POINT_GRAPHICS )
             .colorAttachmentCount( 1 )
-            .pColorAttachments( VkAttachmentReference.create( 1 ).put( colourAttachmentReference ).flip() );
+            .pColorAttachments( VkAttachmentReference.create( 1 ).put( createColourAttachmentReference() ).flip() );
     }
     
     private VkAttachmentReference createColourAttachmentReference() {
@@ -164,7 +153,7 @@ public class VulkanGraphicPipeline implements AutoCloseable {
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO )
             .logicOpEnable( false )
             .logicOp( VK10.VK_LOGIC_OP_COPY )
-            .pAttachments( VkPipelineColorBlendAttachmentState.calloc( 1 ).put( coluorBlendAttachmentState ).flip() )
+            .pAttachments( VkPipelineColorBlendAttachmentState.calloc( 1 ).put( createColourBlendAttachmentState() ).flip() )
             .blendConstants( 0, 0f )
             .blendConstants( 1, 0f )
             .blendConstants( 2, 0f )
@@ -215,9 +204,9 @@ public class VulkanGraphicPipeline implements AutoCloseable {
         return VkPipelineViewportStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO )
             .viewportCount( 1 )
-            .pViewports( VkViewport.create( 1 ).put( viewport ).flip() )
+            .pViewports( VkViewport.create( 1 ).put( createViewport() ).flip() )
             .scissorCount( 1 )
-            .pScissors( VkRect2D.create( 1 ).put( scissor ).flip() );
+            .pScissors( VkRect2D.create( 1 ).put( createScissor() ).flip() );
     }
     
     private VkRect2D createScissor() {

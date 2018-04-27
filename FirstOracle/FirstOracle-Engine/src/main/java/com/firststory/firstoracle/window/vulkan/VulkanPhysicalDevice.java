@@ -52,6 +52,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
     private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>(  );
     private final VulkanCommandPool commandPool;
     private final VulkanSemaphore imageAvailableSemaphore;
+    private final Map< Integer, VulkanCommandBuffer > commandBuffers;
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -98,6 +99,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
         createFrameBuffers();
         
         commandPool = new VulkanCommandPool( this );
+        commandBuffers = commandPool.createCommandBuffers();
         
         imageAvailableSemaphore = new VulkanSemaphore( this );
         renderFinishedSemaphore = new VulkanSemaphore( this );
@@ -119,7 +121,57 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
     }
     
     void testRender() {
-        commandPool.testRender();
+        int index = aquireNextImageIndex();
+    
+        VulkanCommandBuffer currentCommandBuffer = commandBuffers.get( index );
+        
+        currentCommandBuffer.fillRenderQueue( currentCommandBuffer::drawVertices );
+        
+        submitQueue( currentCommandBuffer );
+        
+        VkPresentInfoKHR presentInfo = VkPresentInfoKHR.create()
+            .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
+            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress() ) )
+            .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, swapChain.getAddress() ) )
+            .swapchainCount( 1 )
+            .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index ) )
+            .pResults( null )
+        ;
+        KHRSwapchain.vkQueuePresentKHR( presentationQueue , presentInfo );
+    
+        if ( VulkanFramework.validationLayersAreEnabled() ) {
+            VK10.vkQueueWaitIdle( presentationQueue );
+        }
+        
+    }
+    
+    private void submitQueue( VulkanCommandBuffer currentCommandBuffer ) {
+        VkSubmitInfo submitInfo = VkSubmitInfo.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
+            .waitSemaphoreCount( 1 )
+            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, imageAvailableSemaphore.getAddress() ) )
+            .pWaitDstStageMask(
+                MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT ) )
+            .pCommandBuffers(
+                MemoryUtil.memAllocPointer( 1 ).put( 0, currentCommandBuffer.getAddress() ) )
+            .pSignalSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress() ) )
+        ;
+        if( VK10.vkQueueSubmit( presentationQueue, submitInfo, VK10.VK_NULL_HANDLE ) != VK10.VK_SUCCESS ) {
+            throw new CannotSubmitVulkanDrawCommandBufferException( this, presentationQueue );
+        }
+    }
+    
+    private int aquireNextImageIndex() {
+        int[] imageIndex = new int[1];
+        KHRSwapchain.vkAcquireNextImageKHR(
+            logicalDevice,
+            swapChain.getAddress(),
+            Long.MAX_VALUE,
+            imageAvailableSemaphore.getAddress(),
+            VK10.VK_NULL_HANDLE,
+            imageIndex
+        );
+        return imageIndex[0];
     }
     
     private void createFrameBuffers() {

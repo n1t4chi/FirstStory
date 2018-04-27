@@ -13,8 +13,7 @@ class VulkanException extends RuntimeException {
         super( s, ex );
     }
     
-    VulkanException() {
-    }
+    VulkanException() {}
     
     VulkanException( String s ) {
         super( s );

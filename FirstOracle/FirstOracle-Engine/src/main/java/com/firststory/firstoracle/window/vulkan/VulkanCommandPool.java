@@ -6,56 +6,34 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotAllocateVulkanCommandBuffersException;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanCommandBufferException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanCommandPoolException;
-import com.firststory.firstoracle.window.vulkan.exceptions.FailedToEndCommandBuffer;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.vulkan.*;
+import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
+import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
-public class VulkanCommandPool {
+class VulkanCommandPool {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandBuffer.class );
     private final long address;
     private final VulkanPhysicalDevice device;
-    private final List< VulkanCommandBuffer > commandBuffers;
     
     VulkanCommandPool( VulkanPhysicalDevice device ) {
         this.device = device;
         address = createCommandPool();
-        commandBuffers = createCommandBuffers();
     }
     
-    private VkRect2D createRenderArea( VulkanPhysicalDevice device ) {
-        return VkRect2D.create()
-            .offset( VkOffset2D.create().set( 0, 0 ) )
-            .extent( device.getSwapChain().getExtent() );
-    }
-    
-    private VkClearValue.Buffer createClearValue() {
-        return VkClearValue.create( 1 ).put( createClearColour() ).flip();
-    }
-    
-    private VkClearValue createClearColour() {
-        return VkClearValue.create()
-            .color(
-                VkClearColorValue.create()
-                    .float32( 0, 0f )
-                    .float32( 1, 0f )
-                    .float32( 2, 0f )
-                    .float32( 3, 1f )
-            );
-    }
-    
-    private List< VulkanCommandBuffer > createCommandBuffers() {
-        List< VulkanCommandBuffer > commandBuffers = new ArrayList<>(  );
+    Map< Integer, VulkanCommandBuffer > createCommandBuffers() {
+        Map< Integer, VulkanCommandBuffer > commandBuffers = new HashMap<>( device.getFrameBuffers().size() );
         PointerBuffer commandBufferBuffer = createCommandBufferBuffer();
         int iterator = 0;
         while ( commandBufferBuffer.hasRemaining() ) {
-            commandBuffers.add( new VulkanCommandBuffer( commandBufferBuffer.get(), iterator++ ) );
+            commandBuffers.put( iterator, new VulkanCommandBuffer( device, commandBufferBuffer.get(), iterator ) );
+            iterator++;
         }
         return commandBuffers;
     }
@@ -99,91 +77,4 @@ public class VulkanCommandPool {
             );
     }
     
-    void testRender() {
-        commandBuffers.forEach( commandBuffer -> commandBuffer.render( commandBuffer::drawVertices ) );
-    }
-    
-    public class VulkanCommandBuffer {
-    
-        private final long address;
-        private final VkCommandBuffer commandBuffer;
-        private final VkCommandBufferBeginInfo beginInfo;
-        private final VulkanFrameBuffer frameBuffer;
-        private VkRenderPassBeginInfo renderPassBeginInfo;
-    
-        private VulkanCommandBuffer( long address, int iterator ) {
-            this.address = address;
-            frameBuffer = extractCorrespondingFrameBuffer( iterator );
-            commandBuffer = createCommandBuffer();
-            beginInfo = createBeginInfo();
-            renderPassBeginInfo = createRenderPassBeginInfo();
-        }
-    
-        void render( Commands commands ) {
-            beginRecordingCommandBuffer();
-            beginRenderPassForCommandBuffer();
-            bindPipeline();
-            
-            commands.execute();
-            
-            endRenderPass();
-            endCommandBuffer();
-        }
-    
-        private void endCommandBuffer() {
-            if( VK10.vkEndCommandBuffer( commandBuffer ) != VK10.VK_SUCCESS ) {
-                logger.warning( "Failed to record command buffer!" );
-                throw new FailedToEndCommandBuffer(this );
-            }
-        }
-    
-        void drawVertices() {
-            VK10.vkCmdDraw(commandBuffer, 3,1,0,0);
-            
-        }
-    
-        private void endRenderPass() {
-            VK10.vkCmdEndRenderPass( commandBuffer );
-        }
-    
-        private void bindPipeline() {
-            VK10.vkCmdBindPipeline(
-                commandBuffer, VK10.VK_PIPELINE_BIND_POINT_GRAPHICS, device.getGraphicPipeline().getGraphicPipeline());
-        }
-    
-        private void beginRenderPassForCommandBuffer() {
-            VK10.vkCmdBeginRenderPass( commandBuffer, renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_INLINE );
-        }
-    
-        private VkRenderPassBeginInfo createRenderPassBeginInfo() {
-            return VkRenderPassBeginInfo.create()
-                        .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO )
-                        .renderPass( device.getGraphicPipeline().getRenderPass() )
-                        .framebuffer( frameBuffer.getAddress() )
-                        .renderArea( createRenderArea( device ) )
-                        .pClearValues( createClearValue() );
-        }
-    
-        private VulkanFrameBuffer extractCorrespondingFrameBuffer( int iterator ) {
-            return device.getFrameBuffers().get( iterator );
-        }
-    
-        private void beginRecordingCommandBuffer() {
-            if( VK10.vkBeginCommandBuffer( commandBuffer, beginInfo ) != VK10.VK_SUCCESS ) {
-                throw new CannotCreateVulkanCommandBufferException( device );
-            }
-        }
-    
-        private VkCommandBuffer createCommandBuffer() {
-            return new VkCommandBuffer( address, device.getLogicalDevice() );
-        }
-    
-        private VkCommandBufferBeginInfo createBeginInfo() {
-            return VkCommandBufferBeginInfo.create()
-                .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO )
-                .flags( VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT )
-                .pInheritanceInfo( null );
-        }
-    
-    }
 }

@@ -151,7 +151,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
                 @Override
                 public void render() throws Exception {
                     renderingFramework.invoke( instance -> {
-                        //window.setUpRenderLoop();
+                        //indow.setUpRenderLoop();
                         renderingFramework.clearScreen();
                         notifyTimeListener( windowFramework.getTime() );
                         if( renderingFramework instanceof VulkanFramework ){
