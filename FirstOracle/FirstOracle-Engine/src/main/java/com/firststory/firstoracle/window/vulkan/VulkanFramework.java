@@ -146,7 +146,7 @@ public class VulkanFramework implements RenderingFramework {
     
     @Override
     public void compileShaders() throws IOException {
-        mainPhysicalDevice.compileShaders();
+        //already done in constructor
     }
     
     @Override
@@ -157,6 +157,10 @@ public class VulkanFramework implements RenderingFramework {
         physicalDevices.forEach( VulkanPhysicalDevice::close );
         windowSurface.close( instance );
         VK10.vkDestroyInstance( instance, null );
+    }
+    
+    public void testRender() {
+        mainPhysicalDevice.testRender();
     }
     
     private VulkanPhysicalDevice selectMainPhysicalDevice() {

@@ -45,9 +45,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
     private final VkQueue presentationQueue;
     private final VulkanWindowSurface windowSurface;
     private final List< VkExtensionProperties > availableExtensionProperties;
-    private final VulkanWindowSurface.VulkanSwapChain swapChain;
-    private final List<VkPipelineShaderStageCreateInfo> shaderStages;
+    private final VulkanSwapChain swapChain;
+    private final List<VkPipelineShaderStageCreateInfo> shaderStages = new ArrayList<>(  );
     private final VulkanGraphicPipeline graphicPipeline;
+    private final VulkanSemaphore renderFinishedSemaphore;
+    private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>(  );
+    private final VulkanCommandPool commandPool;
+    private final VulkanSemaphore imageAvailableSemaphore;
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -79,11 +83,24 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
         
         vertexShader = new VulkanShaderProgram( this, VERTEX_SHADER_FILE_PATH, ShaderType.VERTEX );
         fragmentShader = new VulkanShaderProgram( this, FRAGMENT_SHADER_FILE_PATH, ShaderType.FRAGMENT );
+        
+        try{
+            vertexShader.compile();
+            fragmentShader.compile();
+        } catch ( IOException ex ) {
+            throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
+        }
+        shaderStages.add( vertexShader.getStageCreateInfo() );
+        shaderStages.add( fragmentShader.getStageCreateInfo() );
     
-        shaderStages = new ArrayList<>(  );
         graphicPipeline = new VulkanGraphicPipeline( this );
         
+        createFrameBuffers();
         
+        commandPool = new VulkanCommandPool( this );
+        
+        imageAvailableSemaphore = new VulkanSemaphore( this );
+        renderFinishedSemaphore = new VulkanSemaphore( this );
         
         logger.finer(
             "finished creating " + this + "[" +
@@ -93,18 +110,42 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
                 ", queues: " + availableQueueFamilies.size() +
                 ", extensions: " + availableExtensionProperties.size() +
                 ", swapChain: " + swapChain +
-            "]" );
+            "]"
+        );
     }
-    VulkanShaderProgram vertexShader;
-    VulkanShaderProgram fragmentShader;
+    
+    Map< Integer, VulkanFrameBuffer > getFrameBuffers() {
+        return frameBuffers;
+    }
+    
+    void testRender() {
+        commandPool.testRender();
+    }
+    
+    private void createFrameBuffers() {
+        for ( Map.Entry< Integer, VulkanImageView > entry : swapChain.getImageViews().entrySet() ) {
+            frameBuffers.put( entry.getKey(), new VulkanFrameBuffer( this, entry.getValue() ) );
+        }
+    }
+    
+    private final VulkanShaderProgram vertexShader;
+    private final VulkanShaderProgram fragmentShader;
     private static final String VERTEX_SHADER_FILE_PATH = "resources/First Oracle/vert.spv";
     private static final String FRAGMENT_SHADER_FILE_PATH = "resources/First Oracle/frag.spv";
     
-    public List<VkPipelineShaderStageCreateInfo> getShaderStages() {
+    List<VkPipelineShaderStageCreateInfo> getShaderStages() {
         return shaderStages;
     }
     
-    VulkanWindowSurface.VulkanSwapChain getSwapChain() {
+    VulkanGraphicPipeline getGraphicPipeline() {
+        return graphicPipeline;
+    }
+    
+    VulkanQueueFamily getGraphicFamily() {
+        return graphicFamily;
+    }
+    
+    VulkanSwapChain getSwapChain() {
         return swapChain;
     }
     
@@ -112,14 +153,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
         return null;
     }
     
-    void compileShaders() throws IOException {
-        vertexShader.compile();
-        fragmentShader.compile();
-        
-        shaderStages.add( vertexShader.getStageCreateInfo() );
-        shaderStages.add( fragmentShader.getStageCreateInfo() );
-        graphicPipeline.init();
-    }
     
     public VulkanShaderProgram getVertexShader() {
         return vertexShader;
@@ -131,10 +164,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
     
     @Override
     public void close() {
+        frameBuffers.values().forEach( VulkanFrameBuffer::close );
         graphicPipeline.close();
         swapChain.close();
         vertexShader.dispose();
         fragmentShader.dispose();
+        imageAvailableSemaphore.close();
+        renderFinishedSemaphore.close();
         VK10.vkDestroyDevice( logicalDevice, null );
     }
     

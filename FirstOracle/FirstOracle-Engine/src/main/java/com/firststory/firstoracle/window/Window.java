@@ -12,6 +12,7 @@ import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
 import com.firststory.firstoracle.window.jfxgl.JfxglContext;
+import com.firststory.firstoracle.window.vulkan.VulkanFramework;
 import javafx.application.Application;
 import org.lwjgl.glfw.GLFW;
 
@@ -153,6 +154,9 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
                         //window.setUpRenderLoop();
                         renderingFramework.clearScreen();
                         notifyTimeListener( windowFramework.getTime() );
+                        if( renderingFramework instanceof VulkanFramework ){
+                            ((VulkanFramework)renderingFramework).testRender();
+                        }
                         //renderer.render( instance.getRenderingContext(), lastFrameUpdate );
                         //jfxgl.render();
                         //window.cleanAfterLoop();

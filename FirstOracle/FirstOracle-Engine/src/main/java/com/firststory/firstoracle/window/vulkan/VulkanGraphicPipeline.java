@@ -33,7 +33,7 @@ public class VulkanGraphicPipeline implements AutoCloseable {
     private final VkAttachmentReference colourAttachmentReference;
     private final VkSubpassDescription subpassDescription;
     private final long renderPassAddress;
-    private long graphicsPipelineAddress;
+    private final long graphicsPipelineAddress;
     
     VulkanGraphicPipeline( VulkanPhysicalDevice device ) {
         this.device = device;
@@ -53,9 +53,6 @@ public class VulkanGraphicPipeline implements AutoCloseable {
         colourAttachmentReference = createColourAttachmentReference();
         subpassDescription = createSubpassDescription();
         renderPassAddress = createRenderPass();
-    }
-    
-    public void init() {
         graphicsPipelineAddress = createGraphicPipeline();
     }
     
@@ -64,6 +61,14 @@ public class VulkanGraphicPipeline implements AutoCloseable {
         VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipelineAddress, null );
         VK10.vkDestroyPipelineLayout( device.getLogicalDevice(), pipelineLayoutAddress, null );
         VK10.vkDestroyRenderPass( device.getLogicalDevice(), renderPassAddress, null );
+    }
+    
+    long getGraphicPipeline() {
+        return graphicsPipelineAddress;
+    }
+    
+    long getRenderPass() {
+        return renderPassAddress;
     }
     
     private long createGraphicPipeline() {
@@ -97,7 +102,8 @@ public class VulkanGraphicPipeline implements AutoCloseable {
             .renderPass( renderPassAddress )
             .subpass( 0 )
             .basePipelineHandle( VK10.VK_NULL_HANDLE )
-            .basePipelineIndex( -1 );
+            .basePipelineIndex( -1 )
+        ;
     }
     
     private VkPipelineShaderStageCreateInfo.Buffer createShaderStageCreateInfoBuffer() {

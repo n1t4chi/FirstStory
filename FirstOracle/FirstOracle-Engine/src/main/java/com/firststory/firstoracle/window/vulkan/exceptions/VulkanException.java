@@ -9,6 +9,10 @@ package com.firststory.firstoracle.window.vulkan.exceptions;
  */
 class VulkanException extends RuntimeException {
     
+    VulkanException( String s, Exception ex ) {
+        super( s, ex );
+    }
+    
     VulkanException() {
     }
     
