@@ -21,21 +21,38 @@ public class VulkanCommandBuffer {
     private final VkCommandBufferBeginInfo beginInfo;
     private final VulkanFrameBuffer frameBuffer;
     private final VkRenderPassBeginInfo renderPassBeginInfo;
+    private final VulkanGraphicPipeline graphicPipeline;
+    private final VulkanCommandPool commandPool;
     
-    VulkanCommandBuffer( VulkanPhysicalDevice device, long address, int iterator ) {
+    VulkanCommandBuffer(
+        VulkanPhysicalDevice device,
+        long address,
+        VulkanFrameBuffer frameBuffer,
+        VulkanGraphicPipeline graphicsPipeline,
+        VulkanSwapChain swapChain,
+        VulkanCommandPool commandPool
+    ) {
         this.device = device;
         this.address = address;
-        frameBuffer = extractCorrespondingFrameBuffer( iterator );
+        this.frameBuffer = frameBuffer;
+        this.graphicPipeline = graphicsPipeline;
+        this.commandPool = commandPool;
         commandBuffer = createCommandBuffer();
         beginInfo = createBeginInfo();
-        renderPassBeginInfo = createRenderPassBeginInfo();
+        renderPassBeginInfo = createRenderPassBeginInfo( graphicsPipeline, swapChain );
+    }
+    
+    void close() {
+        System.err.println(commandBuffer.address());
+        System.err.println(commandBuffer);
+        VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress(), commandBuffer );
     }
     
     void fillRenderQueue( Commands commands ) {
         //resetCommandBuffer();
         beginRecordingCommandBuffer();
         beginRenderPassForCommandBuffer();
-        bindPipeline();
+        bindPipeline( graphicPipeline );
         
         commands.execute();
         
@@ -80,25 +97,23 @@ public class VulkanCommandBuffer {
         VK10.vkCmdEndRenderPass( commandBuffer );
     }
     
-    private void bindPipeline() {
+    private void bindPipeline( VulkanGraphicPipeline graphicPipeline ) {
         VK10.vkCmdBindPipeline(
             commandBuffer,
             VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            device.getGraphicPipeline().getGraphicPipeline()
+            graphicPipeline.getGraphicPipeline()
         );
     }
     
-    private VkRenderPassBeginInfo createRenderPassBeginInfo() {
+    private VkRenderPassBeginInfo createRenderPassBeginInfo(
+        VulkanGraphicPipeline graphicPipeline, VulkanSwapChain swapChain
+    ) {
         return VkRenderPassBeginInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO )
-            .renderPass( device.getGraphicPipeline().getRenderPass() )
+            .renderPass( graphicPipeline.getRenderPass() )
             .framebuffer( frameBuffer.getAddress() )
-            .renderArea( createRenderArea( device ) )
+            .renderArea( createRenderArea( swapChain ) )
             .pClearValues( createClearValue() );
-    }
-    
-    private VulkanFrameBuffer extractCorrespondingFrameBuffer( int iterator ) {
-        return device.getFrameBuffers().get( iterator );
     }
     
     private VkCommandBuffer createCommandBuffer() {
@@ -112,10 +127,10 @@ public class VulkanCommandBuffer {
             .pInheritanceInfo( null );
     }
     
-    private VkRect2D createRenderArea( VulkanPhysicalDevice device ) {
+    private VkRect2D createRenderArea( VulkanSwapChain swapChain ) {
         return VkRect2D.create()
             .offset( VkOffset2D.create().set( 0, 0 ) )
-            .extent( device.getSwapChain().getExtent() );
+            .extent( swapChain.getExtent() );
     }
     
     private VkClearValue.Buffer createClearValue() {

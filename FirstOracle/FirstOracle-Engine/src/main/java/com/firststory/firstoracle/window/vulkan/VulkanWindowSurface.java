@@ -35,12 +35,8 @@ public class VulkanWindowSurface {
         this.address = address;
     }
     
-    public void close( VkInstance instance ) {
+    void dispose( VkInstance instance ) {
         KHRSurface.vkDestroySurfaceKHR( instance, address, null );
-    }
-    
-    VulkanSwapChain createSwapChain( VulkanPhysicalDevice physicalDevice ) {
-        return new VulkanSwapChain( this, physicalDevice );
     }
     
     long getAddress() {

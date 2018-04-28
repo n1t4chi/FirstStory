@@ -11,7 +11,7 @@ import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 /**
  * @author n1t4chi
  */
-class VulkanSemaphore implements AutoCloseable {
+class VulkanSemaphore {
     
     private final VulkanPhysicalDevice device;
     private final long address;
@@ -22,7 +22,7 @@ class VulkanSemaphore implements AutoCloseable {
         this.address = createSemaphore( device );
     }
     
-    public void close() {
+    void dispose() {
         VK10.vkDestroySemaphore( device.getLogicalDevice(), address, null );
     }
     

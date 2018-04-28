@@ -96,7 +96,7 @@ public class VulkanFramework implements RenderingFramework {
     
     @Override
     public RenderingContext getRenderingContext() {
-        return mainPhysicalDevice.getRenderingContext();
+        return null;
     }
     
     @Override
@@ -131,7 +131,7 @@ public class VulkanFramework implements RenderingFramework {
     
     @Override
     public void updateViewPort( int x, int y, int width, int height ) {
-    
+        mainPhysicalDevice.updateRenderingContext();
     }
     
     @Override
@@ -152,10 +152,10 @@ public class VulkanFramework implements RenderingFramework {
     @Override
     public void close() {
         if ( PropertiesUtil.isDebugMode() ) {
-            closeDebugCallback();
+            disposeDebugCallback();
         }
-        physicalDevices.forEach( VulkanPhysicalDevice::close );
-        windowSurface.close( instance );
+        physicalDevices.forEach( VulkanPhysicalDevice::dispose );
+        windowSurface.dispose( instance );
         VK10.vkDestroyInstance( instance, null );
     }
     
@@ -331,7 +331,7 @@ public class VulkanFramework implements RenderingFramework {
         }
     }
     
-    private void closeDebugCallback() {
+    private void disposeDebugCallback() {
         if ( callback == null ) {
             logger.warning( "Debug Callback is a null pointer when closing it." );
             return;

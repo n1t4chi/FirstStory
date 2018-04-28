@@ -5,7 +5,6 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * @author n1t4chi
  */
-public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >, AutoCloseable {
+public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > {
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
     private static final Set< String > requiredExtensions = new HashSet<>();
@@ -52,7 +51,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
     private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>(  );
     private final VulkanCommandPool commandPool;
     private final VulkanSemaphore imageAvailableSemaphore;
-    private final Map< Integer, VulkanCommandBuffer > commandBuffers;
+    private final Map< Integer, VulkanCommandBuffer > commandBuffers = new HashMap<>(  );
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -79,12 +78,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
         addUsedQueueFamily( graphicFamily, presentationFamily );
         logicalDevice = createLogicalDevice( validationLayerNamesBuffer );
         presentationQueue = createPresentationQueue();
-        
-        swapChain = windowSurface.createSwapChain( this );
-        
+    
+        imageAvailableSemaphore = new VulkanSemaphore( this );
+        renderFinishedSemaphore = new VulkanSemaphore( this );
+    
         vertexShader = new VulkanShaderProgram( this, VERTEX_SHADER_FILE_PATH, ShaderType.VERTEX );
         fragmentShader = new VulkanShaderProgram( this, FRAGMENT_SHADER_FILE_PATH, ShaderType.FRAGMENT );
-        
+    
         try{
             vertexShader.compile();
             fragmentShader.compile();
@@ -94,15 +94,12 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
         shaderStages.add( vertexShader.getStageCreateInfo() );
         shaderStages.add( fragmentShader.getStageCreateInfo() );
     
+    
+        swapChain = new VulkanSwapChain( this );
         graphicPipeline = new VulkanGraphicPipeline( this );
-        
-        createFrameBuffers();
-        
         commandPool = new VulkanCommandPool( this );
-        commandBuffers = commandPool.createCommandBuffers();
-        
-        imageAvailableSemaphore = new VulkanSemaphore( this );
-        renderFinishedSemaphore = new VulkanSemaphore( this );
+    
+        updateRenderingContext();
         
         logger.finer(
             "finished creating " + this + "[" +
@@ -111,13 +108,26 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
                 ", presentation family: " + presentationFamily +
                 ", queues: " + availableQueueFamilies.size() +
                 ", extensions: " + availableExtensionProperties.size() +
-                ", swapChain: " + swapChain +
             "]"
         );
     }
     
-    Map< Integer, VulkanFrameBuffer > getFrameBuffers() {
-        return frameBuffers;
+    VulkanQueueFamily getGraphicFamily() {
+        return graphicFamily;
+    }
+    
+    void updateRenderingContext() {
+        waitForDevice();
+        
+        swapChain.update( windowSurface );
+        graphicPipeline.update( swapChain, shaderStages );
+        refreshFrameBuffers( frameBuffers );
+        refreshCommandBuffers( commandBuffers );
+    }
+    
+    private void refreshCommandBuffers( Map< Integer, VulkanCommandBuffer > commandBuffers ) {
+        disposeCommandBuffers( commandBuffers );
+        commandPool.refreshCommandBuffers( commandBuffers, frameBuffers, graphicPipeline, swapChain );
     }
     
     void testRender() {
@@ -140,9 +150,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
         KHRSwapchain.vkQueuePresentKHR( presentationQueue , presentInfo );
     
         if ( VulkanFramework.validationLayersAreEnabled() ) {
-            VK10.vkQueueWaitIdle( presentationQueue );
+            waitForDevice();
         }
         
+    }
+    
+    private void waitForDevice() {
+        VK10.vkQueueWaitIdle( presentationQueue );
     }
     
     private void submitQueue( VulkanCommandBuffer currentCommandBuffer ) {
@@ -174,10 +188,21 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
         return imageIndex[0];
     }
     
-    private void createFrameBuffers() {
+    private void refreshFrameBuffers( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
+        disposeFrameBuffers( frameBuffers );
         for ( Map.Entry< Integer, VulkanImageView > entry : swapChain.getImageViews().entrySet() ) {
-            frameBuffers.put( entry.getKey(), new VulkanFrameBuffer( this, entry.getValue() ) );
+            frameBuffers.put( entry.getKey(), new VulkanFrameBuffer(
+                this,
+                entry.getValue(),
+                graphicPipeline,
+                swapChain
+            ) );
         }
+    }
+    
+    private void disposeFrameBuffers( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
+        frameBuffers.forEach( ( integer, vulkanFrameBuffer ) -> vulkanFrameBuffer.dispose() );
+        frameBuffers.clear();
     }
     
     private final VulkanShaderProgram vertexShader;
@@ -185,45 +210,23 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice >,
     private static final String VERTEX_SHADER_FILE_PATH = "resources/First Oracle/vert.spv";
     private static final String FRAGMENT_SHADER_FILE_PATH = "resources/First Oracle/frag.spv";
     
-    List<VkPipelineShaderStageCreateInfo> getShaderStages() {
-        return shaderStages;
-    }
-    
-    VulkanGraphicPipeline getGraphicPipeline() {
-        return graphicPipeline;
-    }
-    
-    VulkanQueueFamily getGraphicFamily() {
-        return graphicFamily;
-    }
-    
-    VulkanSwapChain getSwapChain() {
-        return swapChain;
-    }
-    
-    RenderingContext getRenderingContext() {
-        return null;
-    }
-    
-    
-    public VulkanShaderProgram getVertexShader() {
-        return vertexShader;
-    }
-    
-    public VulkanShaderProgram getFragmentShader() {
-        return fragmentShader;
-    }
-    
-    @Override
-    public void close() {
-        frameBuffers.values().forEach( VulkanFrameBuffer::close );
-        graphicPipeline.close();
-        swapChain.close();
+    void dispose() {
+        waitForDevice();
+        disposeFrameBuffers( frameBuffers );
+        disposeCommandBuffers( commandBuffers );
+        commandPool.dispose();
+        graphicPipeline.dispose();
+        swapChain.dispose();
         vertexShader.dispose();
         fragmentShader.dispose();
-        imageAvailableSemaphore.close();
-        renderFinishedSemaphore.close();
+        imageAvailableSemaphore.dispose();
+        renderFinishedSemaphore.dispose();
         VK10.vkDestroyDevice( logicalDevice, null );
+    }
+    
+    private void disposeCommandBuffers( Map< Integer, VulkanCommandBuffer > commandBuffers ) {
+        commandBuffers.forEach( ( integer, vulkanCommandBuffer ) -> vulkanCommandBuffer.close() );
+        commandBuffers.clear();
     }
     
     @Override

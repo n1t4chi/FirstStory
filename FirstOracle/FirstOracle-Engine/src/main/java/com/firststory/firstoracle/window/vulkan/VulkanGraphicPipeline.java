@@ -15,28 +15,40 @@ import java.util.List;
 /**
  * @author n1t4chi
  */
-public class VulkanGraphicPipeline implements AutoCloseable {
+public class VulkanGraphicPipeline {
     
-    private final long pipelineLayoutAddress;
     private final VulkanPhysicalDevice device;
     private final VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo;
-    private final long renderPassAddress;
-    private final long graphicsPipelineAddress;
+    private long pipelineLayoutAddress = VK10.VK_NULL_HANDLE;
+    private long renderPassAddress = VK10.VK_NULL_HANDLE;
+    private long graphicsPipelineAddress = VK10.VK_NULL_HANDLE;
     
-    VulkanGraphicPipeline( VulkanPhysicalDevice device ) {
+    VulkanGraphicPipeline(  VulkanPhysicalDevice device ) {
         this.device = device;
         dynamicStateCreateInfo = createDynamicStateCreateInfo();
-        pipelineLayoutAddress = createVulkanPipelineLayout();
     
-        renderPassAddress = createRenderPass();
-        graphicsPipelineAddress = createGraphicPipeline();
     }
     
-    @Override
-    public void close() {
-        VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipelineAddress, null );
-        VK10.vkDestroyPipelineLayout( device.getLogicalDevice(), pipelineLayoutAddress, null );
-        VK10.vkDestroyRenderPass( device.getLogicalDevice(), renderPassAddress, null );
+    void dispose() {
+        if( graphicsPipelineAddress != VK10.VK_NULL_HANDLE ) {
+            VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipelineAddress, null );
+            graphicsPipelineAddress = VK10.VK_NULL_HANDLE;
+        }
+        if( pipelineLayoutAddress != VK10.VK_NULL_HANDLE ) {
+            VK10.vkDestroyPipelineLayout( device.getLogicalDevice(), pipelineLayoutAddress, null );
+            pipelineLayoutAddress = VK10.VK_NULL_HANDLE;
+        }
+        if( renderPassAddress != VK10.VK_NULL_HANDLE ) {
+            VK10.vkDestroyRenderPass( device.getLogicalDevice(), renderPassAddress, null );
+            renderPassAddress = VK10.VK_NULL_HANDLE;
+        }
+    }
+    
+    void update( VulkanSwapChain swapChain, List<VkPipelineShaderStageCreateInfo> shaderStages ) {
+        dispose();
+        pipelineLayoutAddress = createVulkanPipelineLayout();
+        renderPassAddress = createRenderPass( swapChain );
+        graphicsPipelineAddress = createGraphicPipeline( swapChain, shaderStages );
     }
     
     long getGraphicPipeline() {
@@ -47,28 +59,32 @@ public class VulkanGraphicPipeline implements AutoCloseable {
         return renderPassAddress;
     }
     
-    private long createGraphicPipeline() {
-        VkGraphicsPipelineCreateInfo createInfo = createGraphicPipelineCreateInfo();
+    private long createGraphicPipeline(
+        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
+    ) {
+        VkGraphicsPipelineCreateInfo createInfo = createGraphicPipelineCreateInfo( swapChain, shaderStages );
         long[] graphicsPipelineAddress = new long[1];
         if ( VK10.vkCreateGraphicsPipelines( device.getLogicalDevice(),
             VK10.VK_NULL_HANDLE,
             VkGraphicsPipelineCreateInfo.calloc( 1 ).put( createInfo ).flip(),
             null,
             graphicsPipelineAddress
-        ) != VK10.VK_SUCCESS )
-        {
+            ) != VK10.VK_SUCCESS
+        ) {
             throw new CannotCreateVulkanGraphicPipelineException( device );
         }
         return graphicsPipelineAddress[0];
     }
     
-    private VkGraphicsPipelineCreateInfo createGraphicPipelineCreateInfo() {
+    private VkGraphicsPipelineCreateInfo createGraphicPipelineCreateInfo(
+        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
+    ) {
         return VkGraphicsPipelineCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO )
-            .pStages( createShaderStageCreateInfoBuffer() )
+            .pStages( createShaderStageCreateInfoBuffer(shaderStages) )
             .pVertexInputState( createVertexInputStateCreateInfo() )
             .pInputAssemblyState( createInputAssemblyStateCreateInfo() )
-            .pViewportState( createViewportStateCreateInfo() )
+            .pViewportState( createViewportStateCreateInfo( swapChain ) )
             .pRasterizationState( createRasterizationStateCreateInfo() )
             .pMultisampleState( createMultisampleStateCreateInfo() )
             .pDepthStencilState( null )
@@ -82,8 +98,9 @@ public class VulkanGraphicPipeline implements AutoCloseable {
         ;
     }
     
-    private VkPipelineShaderStageCreateInfo.Buffer createShaderStageCreateInfoBuffer() {
-        List< VkPipelineShaderStageCreateInfo > shaderStages = device.getShaderStages();
+    private VkPipelineShaderStageCreateInfo.Buffer createShaderStageCreateInfoBuffer(
+        List<VkPipelineShaderStageCreateInfo> shaderStages
+    ) {
         VkPipelineShaderStageCreateInfo.Buffer shaderStagesBuffer = VkPipelineShaderStageCreateInfo.calloc( shaderStages
             .size() );
         shaderStages.forEach( shaderStagesBuffer::put );
@@ -91,20 +108,23 @@ public class VulkanGraphicPipeline implements AutoCloseable {
         return shaderStagesBuffer;
     }
     
-    private long createRenderPass() {
-    
-        VkRenderPassCreateInfo createInfo = VkRenderPassCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
-            .pAttachments( VkAttachmentDescription.calloc( 1 ).put( createColourAttachmentDescription() ).flip() )
-            .pSubpasses( VkSubpassDescription.create( 1 ).put( createSubpassDescription() ).flip() )
-            .pDependencies( VkSubpassDependency.calloc( 1 ).put( createSubpassDependency() ).flip() )
-        ;
-        
+    private long createRenderPass( VulkanSwapChain swapChain ) {
         long[] address = new long[1];
-        if ( VK10.vkCreateRenderPass( device.getLogicalDevice(), createInfo, null, address ) != VK10.VK_SUCCESS ) {
+        if ( VK10.vkCreateRenderPass(
+                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain ), null, address )
+            != VK10.VK_SUCCESS
+        ) {
             throw new CannotCreateVulkanRenderPass( device );
         }
         return address[0];
+    }
+    
+    private VkRenderPassCreateInfo createRenderPassCreateInfo( VulkanSwapChain swapChain ) {
+        return VkRenderPassCreateInfo.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
+            .pAttachments( VkAttachmentDescription.calloc( 1 ).put( createColourAttachmentDescription( swapChain ) ).flip() )
+            .pSubpasses( VkSubpassDescription.create( 1 ).put( createSubpassDescription() ).flip() )
+            .pDependencies( VkSubpassDependency.calloc( 1 ).put( createSubpassDependency() ).flip() );
     }
     
     private VkSubpassDependency createSubpassDependency() {
@@ -128,9 +148,9 @@ public class VulkanGraphicPipeline implements AutoCloseable {
         return VkAttachmentReference.create().attachment( 0 ).layout( VK10.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
     }
     
-    private VkAttachmentDescription createColourAttachmentDescription() {
+    private VkAttachmentDescription createColourAttachmentDescription( VulkanSwapChain swapChain ) {
         return VkAttachmentDescription.create()
-            .format( device.getSwapChain().getImageFormat() )
+            .format( swapChain.getImageFormat() )
             .samples( VK10.VK_SAMPLE_COUNT_1_BIT )
             .loadOp( VK10.VK_ATTACHMENT_LOAD_OP_CLEAR )
             .storeOp( VK10.VK_ATTACHMENT_STORE_OP_STORE )
@@ -200,25 +220,25 @@ public class VulkanGraphicPipeline implements AutoCloseable {
             .depthBiasSlopeFactor( 0f );
     }
     
-    private VkPipelineViewportStateCreateInfo createViewportStateCreateInfo() {
+    private VkPipelineViewportStateCreateInfo createViewportStateCreateInfo( VulkanSwapChain swapChain ) {
         return VkPipelineViewportStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO )
             .viewportCount( 1 )
-            .pViewports( VkViewport.create( 1 ).put( createViewport() ).flip() )
+            .pViewports( VkViewport.create( 1 ).put( createViewport( swapChain ) ).flip() )
             .scissorCount( 1 )
-            .pScissors( VkRect2D.create( 1 ).put( createScissor() ).flip() );
+            .pScissors( VkRect2D.create( 1 ).put( createScissor( swapChain ) ).flip() );
     }
     
-    private VkRect2D createScissor() {
-        return VkRect2D.create().offset( VkOffset2D.create().set( 0, 0 ) ).extent( device.getSwapChain().getExtent() );
+    private VkRect2D createScissor( VulkanSwapChain swapChain ) {
+        return VkRect2D.create().offset( VkOffset2D.create().set( 0, 0 ) ).extent( swapChain.getExtent() );
     }
     
-    private VkViewport createViewport() {
+    private VkViewport createViewport( VulkanSwapChain swapChain ) {
         return VkViewport.create()
             .x( 0f )
             .y( 0f )
-            .width( device.getSwapChain().getWidth() )
-            .height( device.getSwapChain().getHeight() )
+            .width( swapChain.getWidth() )
+            .height( swapChain.getHeight() )
             .minDepth( 0f )
             .maxDepth( 1f );
     }
@@ -244,7 +264,9 @@ public class VulkanGraphicPipeline implements AutoCloseable {
             .pPushConstantRanges( null );
         
         long[] address = new long[1];
-        if ( VK10.vkCreatePipelineLayout( device.getLogicalDevice(), createInfo, null, address ) != VK10.VK_SUCCESS ) {
+        if ( VK10.vkCreatePipelineLayout( device.getLogicalDevice(), createInfo, null, address )
+            != VK10.VK_SUCCESS
+        ) {
             throw new CannotCreateVulkanPipelineLayoutException( device );
         }
         return address[0];

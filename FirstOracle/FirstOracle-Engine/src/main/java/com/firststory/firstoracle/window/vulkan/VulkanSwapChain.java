@@ -21,35 +21,47 @@ import java.util.stream.Collectors;
 /**
  * @author n1t4chi
  */
-class VulkanSwapChain implements AutoCloseable {
+class VulkanSwapChain {
+    
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanSwapChain.class );
+    private final Set< VkSurfaceFormatKHR > formats = new HashSet<>();
+    private final Map< Integer, VulkanImage > images = new HashMap<>();
+    private final Map< Integer, VulkanImageView > imageViews = new HashMap<>();
+    private VkSurfaceCapabilitiesKHR capabilities;
+    private VkSurfaceFormatKHR usedFormat;
+    private int[] presentModes;
+    private int usedPresentMode;
+    private VulkanPhysicalDevice device;
+    private VkExtent2D extent;
+    private int imageCount;
+    private VkSwapchainCreateInfoKHR createInfo;
+    private long address = VK10.VK_NULL_HANDLE;
     
-    private VulkanWindowSurface windowSurface;
-    private final VkSurfaceCapabilitiesKHR capabilities;
-    private final Set< VkSurfaceFormatKHR > formats;
-    private final VkSurfaceFormatKHR usedFormat;
-    private final int[] presentModes;
-    private final int usedPresentMode;
-    private final VulkanPhysicalDevice device;
-    private final VkExtent2D extent;
-    private final int imageCount;
-    private final VkSwapchainCreateInfoKHR createInfo;
-    private final long address;
-    private final Map< Integer, VulkanImage > images;
-    private final Map< Integer, VulkanImageView > imageViews;
-    
-    Map< Integer, VulkanImageView > getImageViews() {
-        return imageViews;
+    VulkanSwapChain( VulkanPhysicalDevice device ) {
+        this.device = device;
     }
     
-    VulkanSwapChain( VulkanWindowSurface windowSurface, VulkanPhysicalDevice device ) {
-        this.windowSurface = windowSurface;
-        this.device = device;
+    void dispose() {
+        imageViews.values().forEach( VulkanImageView::close );
+        imageViews.clear();
+        if ( address != VK10.VK_NULL_HANDLE ) {
+            KHRSwapchain.vkDestroySwapchainKHR( device.getLogicalDevice(), address, null );
+            address = VK10.VK_NULL_HANDLE;
+        }
+    }
+    
+    @Override
+    public String toString() {
+        return "VulkanSwapChain@" + hashCode() + "[ " + "format:" + usedFormat.format() + ", colorSpace: " +
+            usedFormat.colorSpace() + ", presentMode:" + usedPresentMode + ']';
+    }
+    
+    void update( VulkanWindowSurface windowSurface ) {
+        dispose();
         VkPhysicalDevice physicalDevice = device.getPhysicalDevice();
-        
-        capabilities = createCapabilities( physicalDevice );
-        formats = createFormats( physicalDevice );
-        presentModes = createPresentModes( physicalDevice );
+        capabilities = createCapabilities( physicalDevice, windowSurface );
+        refreshFormats( physicalDevice, windowSurface );
+        presentModes = createPresentModes( physicalDevice, windowSurface );
         
         if ( !isSupported() ) {
             throw new SwapChainIsNotSupportedException( device );
@@ -59,17 +71,14 @@ class VulkanSwapChain implements AutoCloseable {
         usedPresentMode = selectPresentMode();
         extent = selectCurrentExtent();
         imageCount = computeImageCount();
-        createInfo = createSwapChainCreateInfo();
+        createInfo = createSwapChainCreateInfo( windowSurface );
         address = createSwapChain();
-        images = createVulkanImages();
-        imageViews = createImageViews();
-        
+        refreshVulkanImages();
+        refreshImageViews();
     }
     
-    @Override
-    public void close() {
-        imageViews.values().forEach( VulkanImageView::close );
-        KHRSwapchain.vkDestroySwapchainKHR( device.getLogicalDevice(), address, null );
+    Map< Integer, VulkanImageView > getImageViews() {
+        return imageViews;
     }
     
     float getWidth() {
@@ -92,17 +101,17 @@ class VulkanSwapChain implements AutoCloseable {
         return address;
     }
     
-    boolean isSupported() {
+    private boolean isSupported() {
         return !( formats.isEmpty() || presentModes.length == 0 );
     }
     
-    private Map< Integer, VulkanImageView > createImageViews() {
-        Map< Integer, VulkanImageView > imageViews = new HashMap<>( images.size() );
+    private void refreshImageViews() {
+        imageViews.forEach( ( integer, vulkanImageView ) -> imageViews.clear() );
+        imageViews.clear();
         images.forEach( ( index, image ) -> {
             imageViews.put( index, createVulkanImageView( image ) );
             
         } );
-        return imageViews;
     }
     
     private VulkanImageView createVulkanImageView( VulkanImage image ) {
@@ -129,16 +138,15 @@ class VulkanSwapChain implements AutoCloseable {
         return new VulkanImageView( device, this, address[0], image.getIndex() );
     }
     
-    private Map< Integer, VulkanImage > createVulkanImages() {
+    private void refreshVulkanImages() {
         int[] count = new int[1];
         KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address, count, null );
         long[] addresses = new long[count[0]];
-        Map< Integer, VulkanImage > images = new HashMap<>( count[0] );
+        images.clear();
         KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address, count, addresses );
         for ( int i = 0; i < addresses.length; i++ ) {
             images.put( i, new VulkanImage( addresses[i], i ) );
         }
-        return images;
     }
     
     private long createSwapChain() {
@@ -151,7 +159,7 @@ class VulkanSwapChain implements AutoCloseable {
         return swapChainAddress[0];
     }
     
-    private VkSwapchainCreateInfoKHR createSwapChainCreateInfo() {
+    private VkSwapchainCreateInfoKHR createSwapChainCreateInfo( VulkanWindowSurface windowSurface ) {
         VkSwapchainCreateInfoKHR createInfo = VkSwapchainCreateInfoKHR.create()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR )
             .surface( windowSurface.getAddress() )
@@ -184,12 +192,6 @@ class VulkanSwapChain implements AutoCloseable {
             imageCount = capabilities.maxImageCount();
         }
         return imageCount;
-    }
-    
-    @Override
-    public String toString() {
-        return "VulkanSwapChain@" + hashCode() + "[ " + "format:" + usedFormat.format() + ", colorSpace: " + usedFormat.colorSpace() +
-            ", presentMode:" + usedPresentMode + ']';
     }
     
     private VkExtent2D selectCurrentExtent() {
@@ -253,37 +255,47 @@ class VulkanSwapChain implements AutoCloseable {
         return selectedFormat;
     }
     
-    private int[] createPresentModes( VkPhysicalDevice physicalDevice ) {
+    private int[] createPresentModes( VkPhysicalDevice physicalDevice, VulkanWindowSurface windowSurface ) {
         int[] presentModeCount = new int[1];
         KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR( physicalDevice,
-            windowSurface.getAddress(), presentModeCount, null
+            windowSurface.getAddress(),
+            presentModeCount,
+            null
         );
         int[] presentModes = new int[presentModeCount[0]];
-        KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR( physicalDevice, windowSurface.getAddress(),
+        KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR( physicalDevice,
+            windowSurface.getAddress(),
             presentModeCount,
             presentModes
         );
         return presentModes;
     }
     
-    private Set< VkSurfaceFormatKHR > createFormats( VkPhysicalDevice physicalDevice ) {
+    private void refreshFormats( VkPhysicalDevice physicalDevice, VulkanWindowSurface windowSurface ) {
         int[] formatCount = new int[1];
         KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR( physicalDevice,
-            windowSurface.getAddress(), formatCount, null
+            windowSurface.getAddress(),
+            formatCount,
+            null
         );
         VkSurfaceFormatKHR.Buffer formatsBuffer = VkSurfaceFormatKHR.create( formatCount[0] );
         KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR( physicalDevice,
-            windowSurface.getAddress(), formatCount, formatsBuffer
+            windowSurface.getAddress(),
+            formatCount,
+            formatsBuffer
         );
-        Set< VkSurfaceFormatKHR > formats = new HashSet<>( formatCount[0] );
+        formats.clear();
         formatsBuffer.forEach( formats::add );
-        return formats;
     }
     
-    private VkSurfaceCapabilitiesKHR createCapabilities( VkPhysicalDevice physicalDevice ) {
+    private VkSurfaceCapabilitiesKHR createCapabilities(
+        VkPhysicalDevice physicalDevice, VulkanWindowSurface windowSurface
+    )
+    {
         VkSurfaceCapabilitiesKHR capabilities = VkSurfaceCapabilitiesKHR.create();
         KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR( physicalDevice,
-            windowSurface.getAddress(), capabilities
+            windowSurface.getAddress(),
+            capabilities
         );
         return capabilities;
     }

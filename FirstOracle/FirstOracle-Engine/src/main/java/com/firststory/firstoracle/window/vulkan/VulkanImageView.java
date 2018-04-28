@@ -9,7 +9,7 @@ import org.lwjgl.vulkan.VK10;
 /**
  * @author n1t4chi
  */
-class VulkanImageView implements AutoCloseable {
+class VulkanImageView {
     
     private final VulkanPhysicalDevice device;
     private final VulkanSwapChain swapChain;
@@ -38,8 +38,7 @@ class VulkanImageView implements AutoCloseable {
         return ( int ) ( address ^ ( address >>> 32 ) );
     }
     
-    @Override
-    public void close() {
+    void close() {
         VK10.vkDestroyImageView( device.getLogicalDevice(), address, null );
     }
     
