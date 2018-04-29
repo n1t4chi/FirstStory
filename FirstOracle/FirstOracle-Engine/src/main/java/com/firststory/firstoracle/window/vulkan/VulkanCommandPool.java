@@ -56,7 +56,8 @@ class VulkanCommandPool {
                     swapChain,
                     this
                 )
-            ); iterator++;
+            );
+            iterator++;
         }
     }
     
@@ -71,7 +72,6 @@ class VulkanCommandPool {
     }
     
     private VkCommandBufferAllocateInfo createAllocateInfo( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
-        logger.severe( "%%%%%%%%%%%%% address " + address );
         return VkCommandBufferAllocateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO )
             .commandPool( address )

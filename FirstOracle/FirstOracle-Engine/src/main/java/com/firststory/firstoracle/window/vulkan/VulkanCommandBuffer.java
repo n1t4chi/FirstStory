@@ -49,7 +49,7 @@ public class VulkanCommandBuffer {
     }
     
     void fillRenderQueue( Commands commands ) {
-        //resetCommandBuffer();
+        resetCommandBuffer();
         beginRecordingCommandBuffer();
         beginRenderPassForCommandBuffer();
         bindPipeline( graphicPipeline );
