@@ -29,6 +29,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
     private static final Set< String > requiredExtensions = new HashSet<>();
     
+    static final float[] POSITION = new float[]{
+        0.0f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f
+    };
+    static final float[] COLOUR = new float[]{
+        1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f
+    };
+    
     static {
         requiredExtensions.add( KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME );
     }
@@ -99,7 +106,22 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         swapChain = new VulkanSwapChain( this );
         graphicPipeline = new VulkanGraphicPipeline( this );
         commandPool = new VulkanCommandPool( this );
-    
+        
+        VkBufferCreateInfo createInfo = VkBufferCreateInfo.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO )
+            .size( 4 * ( COLOUR.length + POSITION.length ) )
+            .usage( VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT )
+            .sharingMode( VK10.VK_SHARING_MODE_EXCLUSIVE )
+            .flags( 0 )
+        ;
+        
+        long[] address = new long[1];
+        
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreateBuffer( getLogicalDevice(), createInfo, null, address ),
+            errorCode -> new CannotCreateVulkanVertexBuffer( this, errorCode )
+        );
+        
         updateRenderingContext();
         
         logger.finer(
@@ -186,9 +208,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 MemoryUtil.memAllocPointer( 1 ).put( 0, currentCommandBuffer.getAddress() ) )
             .pSignalSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress() ) )
         ;
-        if( VK10.vkQueueSubmit( presentationQueue, submitInfo, VK10.VK_NULL_HANDLE ) != VK10.VK_SUCCESS ) {
-            throw new CannotSubmitVulkanDrawCommandBufferException( this, presentationQueue );
-        }
+        VulkanHelper.assertCallAndThrow(
+            ()-> VK10.vkQueueSubmit( presentationQueue, submitInfo, VK10.VK_NULL_HANDLE ),
+            errorCode -> new CannotSubmitVulkanDrawCommandBufferException( this, errorCode, presentationQueue )
+        );
     }
     
     private int tryToAquireNextImageIndex() {
@@ -201,6 +224,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             VK10.VK_NULL_HANDLE,
             imageIndex
         );
+        
         switch( result ) {
             case KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR :
                 throw new OutOfDateSwapChainException( this, imageIndex[0] );
@@ -310,7 +334,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             throw new CannotCreateVulkanPhysicalDeviceException( this, "Null properties" );
         }
         if ( properties.limits().maxMemoryAllocationCount() <= 32 ) {
-            throw new DeviceHasNotEnoughMemoryException( this );
+            throw new DeviceHasNotEnoughMemoryException( this, properties.limits().maxMemoryAllocationCount() );
         }
     }
     
@@ -399,9 +423,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             createInfo.ppEnabledLayerNames( validationLayerNamesBuffer );
         }
         PointerBuffer devicePointer = MemoryUtil.memAllocPointer( 1 );
-        if ( VK10.vkCreateDevice( physicalDevice, createInfo, null, devicePointer ) != VK10.VK_SUCCESS ) {
-            throw new CannotCreateVulkanLogicDeviceException( this );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreateDevice( physicalDevice, createInfo, null, devicePointer ),
+            errorCode -> new CannotCreateVulkanLogicDeviceException( this, errorCode )
+        );
         return new VkDevice( devicePointer.get(), physicalDevice, createInfo );
     }
     

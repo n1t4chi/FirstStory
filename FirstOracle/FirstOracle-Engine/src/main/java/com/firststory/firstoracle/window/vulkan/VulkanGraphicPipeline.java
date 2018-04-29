@@ -12,6 +12,9 @@ import org.lwjgl.vulkan.*;
 import java.nio.IntBuffer;
 import java.util.List;
 
+import static com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice.COLOUR;
+import static com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice.POSITION;
+
 /**
  * @author n1t4chi
  */
@@ -64,15 +67,16 @@ public class VulkanGraphicPipeline {
     ) {
         VkGraphicsPipelineCreateInfo createInfo = createGraphicPipelineCreateInfo( swapChain, shaderStages );
         long[] graphicsPipelineAddress = new long[1];
-        if ( VK10.vkCreateGraphicsPipelines( device.getLogicalDevice(),
-            VK10.VK_NULL_HANDLE,
-            VkGraphicsPipelineCreateInfo.calloc( 1 ).put( createInfo ).flip(),
-            null,
-            graphicsPipelineAddress
-            ) != VK10.VK_SUCCESS
-        ) {
-            throw new CannotCreateVulkanGraphicPipelineException( device );
-        }
+
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreateGraphicsPipelines( device.getLogicalDevice(),
+                VK10.VK_NULL_HANDLE,
+                VkGraphicsPipelineCreateInfo.calloc( 1 ).put( createInfo ).flip(),
+                null,
+                graphicsPipelineAddress
+            ),
+            errorCode -> new CannotCreateVulkanGraphicPipelineException( device, errorCode )
+        );
         return graphicsPipelineAddress[0];
     }
     
@@ -110,12 +114,11 @@ public class VulkanGraphicPipeline {
     
     private long createRenderPass( VulkanSwapChain swapChain ) {
         long[] address = new long[1];
-        if ( VK10.vkCreateRenderPass(
-                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain ), null, address )
-            != VK10.VK_SUCCESS
-        ) {
-            throw new CannotCreateVulkanRenderPass( device );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreateRenderPass(
+                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain ), null, address ),
+            errorCode -> new CannotCreateVulkanRenderPass( device, errorCode )
+        );
         return address[0];
     }
     
@@ -251,10 +254,53 @@ public class VulkanGraphicPipeline {
     }
     
     private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo() {
+    
         return VkPipelineVertexInputStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO )
-            .pVertexBindingDescriptions( null )
-            .pVertexAttributeDescriptions( null );
+            .pVertexBindingDescriptions(
+                VkVertexInputBindingDescription.create( 1 )
+                    .put( createVertexBindingDescription() )
+                    .flip()
+            )
+            .pVertexAttributeDescriptions(
+                VkVertexInputAttributeDescription.create( 2 )
+                    .put( createPositionAttributeDescription() )
+                    .put( createColourAttributeDescription() )
+                    .flip()
+            );
+    }
+    
+    private VkVertexInputBindingDescription createVertexBindingDescription() {
+        return VkVertexInputBindingDescription.create()
+            .binding( 0 )
+            .stride( COLOUR.length + POSITION.length )
+            .inputRate( VK10.VK_VERTEX_INPUT_RATE_VERTEX );
+    }
+    
+    /**
+     * todo: for shaders
+     * Description for position shader input
+     * @return position description
+     */
+    private VkVertexInputAttributeDescription createColourAttributeDescription() {
+        return VkVertexInputAttributeDescription.create()
+            .binding( 0 )
+            .location( 0 )
+            .format( VK10.VK_FORMAT_R32G32B32_SFLOAT )
+            .offset( 0 );
+    }
+    
+    /**
+     * todo: for shaders
+     * Description for colour shader input
+     * @return colour description
+     */
+    private VkVertexInputAttributeDescription createPositionAttributeDescription() {
+        return VkVertexInputAttributeDescription.create()
+            .binding( 0 )
+            .location( 0 )
+            .format( VK10.VK_FORMAT_R32G32_SFLOAT )
+            .offset( 0 );
     }
     
     private long createVulkanPipelineLayout() {
@@ -264,11 +310,10 @@ public class VulkanGraphicPipeline {
             .pPushConstantRanges( null );
         
         long[] address = new long[1];
-        if ( VK10.vkCreatePipelineLayout( device.getLogicalDevice(), createInfo, null, address )
-            != VK10.VK_SUCCESS
-        ) {
-            throw new CannotCreateVulkanPipelineLayoutException( device );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreatePipelineLayout( device.getLogicalDevice(), createInfo, null, address ),
+            errorCode -> new CannotCreateVulkanPipelineLayoutException( device, errorCode )
+        );
         return address[0];
     }
 }

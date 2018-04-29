@@ -12,7 +12,7 @@ import org.lwjgl.vulkan.VkInstance;
  */
 public class CannotCreateVulkanWindowSurfaceException extends VulkanException {
     
-    public CannotCreateVulkanWindowSurfaceException( VkInstance instance, WindowContext window ) {
-        super( "Cannot create window surface for instance: "+instance +" and window: "+ window  );
+    public CannotCreateVulkanWindowSurfaceException( Integer errorCode, VkInstance instance, WindowContext window ) {
+        super( errorCode, "Cannot create window surface for instance: "+instance +" and window: "+ window  );
     }
 }

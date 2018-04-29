@@ -9,9 +9,9 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 /**
  * @author n1t4chi
  */
-public class CannotCreateVulkanPipelineLayoutException extends CannotCreateVulkanPhysicalDeviceException {
+public class CannotCreateVulkanVertexBuffer extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanPipelineLayoutException( VulkanPhysicalDevice physicalDevice, int errorCode ) {
+    public CannotCreateVulkanVertexBuffer( VulkanPhysicalDevice physicalDevice, Integer errorCode ) {
         super( physicalDevice, errorCode );
     }
 }

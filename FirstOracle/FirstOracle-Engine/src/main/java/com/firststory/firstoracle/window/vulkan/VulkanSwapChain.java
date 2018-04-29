@@ -132,9 +132,10 @@ class VulkanSwapChain {
                 .baseArrayLayer( 0 )
                 .layerCount( 1 ) );
         long[] address = new long[1];
-        if ( VK10.vkCreateImageView( this.device.getLogicalDevice(), createInfo, null, address ) != VK10.VK_SUCCESS ) {
-            throw new CannotCreateVulkanImageViewException( this.device );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreateImageView( device.getLogicalDevice(), createInfo, null, address ),
+            errorCode -> new CannotCreateVulkanImageViewException( device, errorCode )
+        );
         return new VulkanImageView( device, this, address[0], image.getIndex() );
     }
     
@@ -151,11 +152,12 @@ class VulkanSwapChain {
     
     private long createSwapChain() {
         long[] swapChainAddress = new long[1];
-        if ( KHRSwapchain.vkCreateSwapchainKHR( device.getLogicalDevice(), createInfo, null, swapChainAddress ) !=
-            VK10.VK_SUCCESS )
-        {
-            throw new CannotCreateVulkanSwapChainException( device );
-        }
+    
+        VulkanHelper.assertCallAndThrow(
+            () -> KHRSwapchain.vkCreateSwapchainKHR(
+                device.getLogicalDevice(), createInfo, null, swapChainAddress ),
+            errorCode -> new CannotCreateVulkanSwapChainException( device, errorCode )
+        );
         return swapChainAddress[0];
     }
     

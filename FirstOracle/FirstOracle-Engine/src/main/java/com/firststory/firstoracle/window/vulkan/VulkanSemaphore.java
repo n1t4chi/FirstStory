@@ -36,11 +36,12 @@ class VulkanSemaphore {
     
     private long createSemaphore( VulkanPhysicalDevice device ) {
         long[] address = new long[1];
-        if ( VK10.vkCreateSemaphore( device.getLogicalDevice(), createSemaphoreCreateInfo(), null, address ) !=
-            VK10.VK_SUCCESS )
-        {
-            throw new CannotCreateVulkanSemaphoreException( device );
-        }
+    
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreateSemaphore(
+                device.getLogicalDevice(), createSemaphoreCreateInfo(), null, address ),
+            errorCode -> new CannotCreateVulkanSemaphoreException( device, errorCode )
+        );
         return address[0];
     }
 }

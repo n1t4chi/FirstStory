@@ -11,7 +11,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
  */
 public class CannotAllocateVulkanCommandBuffersException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotAllocateVulkanCommandBuffersException( VulkanPhysicalDevice device ) {
-        super( device );
+    public CannotAllocateVulkanCommandBuffersException( VulkanPhysicalDevice device, Integer errorCode ) {
+        super( device, errorCode );
     }
 }

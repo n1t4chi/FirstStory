@@ -83,11 +83,10 @@ class VulkanShaderProgram implements ShaderProgram {
             .sType( VK10.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO )
             .pCode( value );
         long[] address = new long[1];
-        if ( VK10.vkCreateShaderModule( physicalDevice.getLogicalDevice(), createInfo, null, address )
-            != VK10.VK_SUCCESS
-        ) {
-            throw new CannotCreateVulkanShaderException( physicalDevice, filepath );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreateShaderModule( physicalDevice.getLogicalDevice(), createInfo, null, address ),
+            errorCode -> new CannotCreateVulkanShaderException( physicalDevice, filepath )
+        );
         return address[0];
     }
 }

@@ -7,15 +7,31 @@ package com.firststory.firstoracle.window.vulkan.exceptions;
 /**
  * @author n1t4chi
  */
-class VulkanException extends RuntimeException {
+public class VulkanException extends RuntimeException {
+    
+    private static String errorCodeString( int errorCode ) {
+        return "Error code: " + errorCode + ". ";
+    }
     
     VulkanException( String s, Exception ex ) {
         super( s, ex );
     }
     
-    VulkanException() {}
+    VulkanException( int errorCode, String message, Exception ex ) {
+        super( errorCodeString( errorCode ) + message, ex );
+    }
     
-    VulkanException( String s ) {
-        super( s );
+    VulkanException( int errorCode, String message ) {
+        super( errorCodeString( errorCode ) + message );
+    }
+    
+    VulkanException( String message ) {
+        super( message );
+    }
+
+//    VulkanException() {}
+    
+    VulkanException( int errorCode ) {
+        this( errorCode, "" );
     }
 }

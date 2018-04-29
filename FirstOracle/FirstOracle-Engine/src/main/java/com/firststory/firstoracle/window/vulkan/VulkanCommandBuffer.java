@@ -61,17 +61,23 @@ public class VulkanCommandBuffer {
     }
     
     private void resetCommandBuffer() {
-        if (VK10.vkResetCommandBuffer( commandBuffer, VK10.VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT ) != VK10.VK_SUCCESS) {
-            logger.warning( "Failed to reset command buffer!" );
-            throw new VulkanCommandBufferException( device, this, "Failed to reset command buffer" );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkResetCommandBuffer( commandBuffer, VK10.VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT ),
+            errorCode -> {
+                logger.warning( "Failed to reset command buffer!" );
+                return new VulkanCommandBufferException( device, this, "Failed to reset command buffer" );
+            }
+        );
     }
     
     private void beginRecordingCommandBuffer() {
-        if ( VK10.vkBeginCommandBuffer( commandBuffer, beginInfo ) != VK10.VK_SUCCESS ) {
-            logger.warning( "Failed to begin command buffer!" );
-            throw new VulkanCommandBufferException( device, this, "Failed to begin command buffer" );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkBeginCommandBuffer( commandBuffer, beginInfo ),
+            errorCode -> {
+                logger.warning( "Failed to begin command buffer!" );
+                return new VulkanCommandBufferException( device, this, "Failed to begin command buffer" );
+            }
+        );
     }
     
     private void beginRenderPassForCommandBuffer() {
@@ -79,10 +85,13 @@ public class VulkanCommandBuffer {
     }
     
     private void endCommandBuffer() {
-        if ( VK10.vkEndCommandBuffer( commandBuffer ) != VK10.VK_SUCCESS ) {
-            logger.warning( "Failed to end command buffer!" );
-            throw new VulkanCommandBufferException( device, this, "Failed to end command buffer" );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkEndCommandBuffer( commandBuffer ),
+            errorCode -> {
+                logger.warning( "Failed to end command buffer!" );
+                return new VulkanCommandBufferException( device, this, "Failed to end command buffer" );
+            }
+        );
     }
     
     void drawVertices() {

@@ -63,11 +63,11 @@ class VulkanCommandPool {
     
     private PointerBuffer createCommandBufferBuffer( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
         PointerBuffer commandBuffersBuffer = MemoryUtil.memAllocPointer( frameBuffers.size() );
-        if( VK10.vkAllocateCommandBuffers(
-                device.getLogicalDevice(), createAllocateInfo( frameBuffers ), commandBuffersBuffer ) != VK10.VK_SUCCESS
-        ) {
-            throw new CannotAllocateVulkanCommandBuffersException( device );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkAllocateCommandBuffers(
+                device.getLogicalDevice(), createAllocateInfo( frameBuffers ), commandBuffersBuffer ),
+            errorCode -> new CannotAllocateVulkanCommandBuffersException( device, errorCode )
+        );
         return commandBuffersBuffer;
     }
     
@@ -81,11 +81,11 @@ class VulkanCommandPool {
     
     private long createCommandPool() {
         long[] address = new long[1];
-        if( VK10.vkCreateCommandPool(
-            device.getLogicalDevice(), createCommandPoolCreateInfo(), null, address ) != VK10.VK_SUCCESS
-        ) {
-            throw new CannotCreateVulkanCommandPoolException( device );
-        }
+        VulkanHelper.assertCallAndThrow(
+            ()-> VK10.vkCreateCommandPool(
+                device.getLogicalDevice(), createCommandPoolCreateInfo(), null, address ),
+            errorCode -> new CannotCreateVulkanCommandPoolException( device, errorCode )
+        );
         return address[0];
     }
     

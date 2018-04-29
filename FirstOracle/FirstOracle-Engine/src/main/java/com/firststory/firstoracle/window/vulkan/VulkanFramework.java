@@ -18,7 +18,7 @@ import com.firststory.firstoracle.window.WindowContext;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanInstanceException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanPhysicalDeviceException;
 import com.firststory.firstoracle.window.vulkan.exceptions.NoDeviceSupportingVulkanEnoughException;
-import com.firststory.firstoracle.window.vulkan.exceptions.NoGpuSupportingVulkanException;
+import com.firststory.firstoracle.window.vulkan.exceptions.NoDeviceSupportingVulkanException;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -233,7 +233,7 @@ public class VulkanFramework implements RenderingFramework {
         int[] deviceCount = new int[1];
         VK10.vkEnumeratePhysicalDevices( instance, deviceCount, null );
         if ( deviceCount[0] == 0 ) {
-            throw new NoGpuSupportingVulkanException();
+            throw new NoDeviceSupportingVulkanException();
         }
         
         PointerBuffer devicesBuffer = PointerBuffer.allocateDirect( deviceCount[0] );
@@ -258,9 +258,12 @@ public class VulkanFramework implements RenderingFramework {
     
     private VkInstance createInstance() {
         PointerBuffer instancePointer = MemoryStack.stackCallocPointer( 1 );
-        if ( VK10.vkCreateInstance( createInfo, null, instancePointer ) != VK10.VK_SUCCESS ) {
-            throw new CannotCreateVulkanInstanceException();
-        }
+        int errorCode;
+    
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreateInstance( createInfo, null, instancePointer ),
+            CannotCreateVulkanInstanceException::new
+        );
         return new VkInstance( instancePointer.get(), createInfo );
     }
     
@@ -316,16 +319,18 @@ public class VulkanFramework implements RenderingFramework {
             .pfnCallback( callback )
             .pNext( VK10.VK_NULL_HANDLE )
             .pUserData( VK10.VK_NULL_HANDLE );
+        
         if ( instance.getCapabilities().vkCreateDebugReportCallbackEXT != VK10.VK_NULL_HANDLE ) {
             logger.fine( "Method vkCreateDebugReportCallbackEXT is supported." );
-            if ( EXTDebugReport.vkCreateDebugReportCallbackEXT( instance,
-                createInfo,
-                null,
-                new long[]{ callback.address() }
-            ) != VK10.VK_SUCCESS )
-            {
-                System.err.println( "Cannot set up debug callback." );
-            }
+            VulkanHelper.assertCall(
+                () -> EXTDebugReport.vkCreateDebugReportCallbackEXT( instance,
+                    createInfo,
+                    null,
+                    new long[]{ callback.address() }
+                ) ,
+                errorCode ->
+                    logger.warning( "Cannot set up debug callback. Error code: " + errorCode )
+            );
         } else {
             logger.warning( "Method vkCreateDebugReportCallbackEXT is not supported!" );
         }

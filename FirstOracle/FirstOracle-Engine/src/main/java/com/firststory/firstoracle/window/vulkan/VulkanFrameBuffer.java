@@ -38,9 +38,10 @@ class VulkanFrameBuffer {
         long[] address = new long[1];
         VkFramebufferCreateInfo frameBufferCreateInfo = createFrameBufferCreateInfo(
             imageView, graphicPipeline, swapChain );
-        if( VK10.vkCreateFramebuffer( device.getLogicalDevice(), frameBufferCreateInfo, null, address ) != VK10.VK_SUCCESS ) {
-            throw new CannotCreateVulkanFrameBufferException( device );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> VK10.vkCreateFramebuffer( device.getLogicalDevice(), frameBufferCreateInfo, null, address ),
+            errorCode -> new CannotCreateVulkanFrameBufferException( device, errorCode )
+        );
         return address[0];
     }
     

@@ -11,7 +11,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
  */
 public class CannotCreateVulkanLogicDeviceException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanLogicDeviceException( VulkanPhysicalDevice physicalDevice ) {
-        super( physicalDevice, "Cannot create Logical device" );
+    public CannotCreateVulkanLogicDeviceException( VulkanPhysicalDevice physicalDevice, Integer errorCode ) {
+        super( physicalDevice, errorCode );
     }
 }

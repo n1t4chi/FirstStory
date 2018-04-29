@@ -11,7 +11,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
  */
 public class DeviceHasNotEnoughMemoryException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public DeviceHasNotEnoughMemoryException( VulkanPhysicalDevice physicalDevice ) {
-        super( physicalDevice );
+    public DeviceHasNotEnoughMemoryException( VulkanPhysicalDevice physicalDevice, int maxMemory ) {
+        super( physicalDevice, "Max memory supported:" + maxMemory );
     }
 }

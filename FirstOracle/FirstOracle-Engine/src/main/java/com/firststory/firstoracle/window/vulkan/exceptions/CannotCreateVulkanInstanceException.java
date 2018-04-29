@@ -7,4 +7,9 @@ package com.firststory.firstoracle.window.vulkan.exceptions;
 /**
  * @author n1t4chi
  */
-public class CannotCreateVulkanInstanceException extends VulkanException {}
+public class CannotCreateVulkanInstanceException extends VulkanException {
+    
+    public CannotCreateVulkanInstanceException( int errorCode ) {
+        super( errorCode );
+    }
+}

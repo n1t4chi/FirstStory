@@ -11,7 +11,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
  */
 public class CannotCreateVulkanImageViewException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanImageViewException( VulkanPhysicalDevice device ) {
-        super( device );
+    public CannotCreateVulkanImageViewException( VulkanPhysicalDevice device, Integer errorCode ) {
+        super( device, errorCode );
     }
 }

@@ -8,7 +8,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 
 public class CannotCreateVulkanFrameBufferException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanFrameBufferException( VulkanPhysicalDevice vulkanPhysicalDevice ) {
-        super( vulkanPhysicalDevice);
+    public CannotCreateVulkanFrameBufferException( VulkanPhysicalDevice device, Integer errorCode ) {
+        super( device, errorCode );
     }
 }

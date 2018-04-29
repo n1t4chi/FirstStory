@@ -9,7 +9,6 @@ import com.firststory.firstoracle.window.WindowContext;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanWindowSurfaceException;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.vulkan.KHRSurface;
-import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkInstance;
 
 import java.util.logging.Logger;
@@ -23,9 +22,11 @@ public class VulkanWindowSurface {
     
     public static VulkanWindowSurface create( VkInstance instance, WindowContext window ) {
         long[] pSurface = new long[1];
-        if ( GLFWVulkan.glfwCreateWindowSurface( instance, window.getAddress(), null, pSurface ) != VK10.VK_SUCCESS ) {
-            throw new CannotCreateVulkanWindowSurfaceException( instance, window );
-        }
+        VulkanHelper.assertCallAndThrow(
+            () -> GLFWVulkan.glfwCreateWindowSurface( instance, window.getAddress(), null, pSurface ),
+            errorCode ->
+                new CannotCreateVulkanWindowSurfaceException( errorCode, instance, window )
+        );
         return new VulkanWindowSurface( pSurface[0] );
     }
     

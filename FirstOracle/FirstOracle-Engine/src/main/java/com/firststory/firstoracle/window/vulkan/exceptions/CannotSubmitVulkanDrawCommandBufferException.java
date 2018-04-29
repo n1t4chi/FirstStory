@@ -11,10 +11,10 @@ import org.lwjgl.vulkan.VkQueue;
  * @author n1t4chi
  */
 public class CannotSubmitVulkanDrawCommandBufferException extends VulkanException {
-    
     public CannotSubmitVulkanDrawCommandBufferException(
-        VulkanPhysicalDevice physicalDevice, VkQueue presentationQueue
+        VulkanPhysicalDevice physicalDevice, Integer errorCode, VkQueue presentationQueue
     ) {
-        super( "Cannot submit vulkan draw command buffer for " + presentationQueue + " at device" + physicalDevice );
+        super( errorCode,
+            "Cannot submit vulkan draw command buffer for " + presentationQueue + " at device" + physicalDevice );
     }
 }

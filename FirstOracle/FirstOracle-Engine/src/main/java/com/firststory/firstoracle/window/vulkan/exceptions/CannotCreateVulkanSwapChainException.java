@@ -11,7 +11,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
  */
 public class CannotCreateVulkanSwapChainException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanSwapChainException( VulkanPhysicalDevice device ) {
-        super( device );
+    public CannotCreateVulkanSwapChainException( VulkanPhysicalDevice device, Integer errorCode ) {
+        super( device, errorCode );
     }
 }

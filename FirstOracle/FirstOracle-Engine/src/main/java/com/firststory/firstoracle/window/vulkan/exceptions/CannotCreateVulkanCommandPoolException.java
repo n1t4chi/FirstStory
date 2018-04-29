@@ -8,7 +8,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 
 public class CannotCreateVulkanCommandPoolException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanCommandPoolException( VulkanPhysicalDevice device ) {
-        super( device );
+    public CannotCreateVulkanCommandPoolException( VulkanPhysicalDevice device, Integer errorCode ) {
+        super( device, errorCode );
     }
 }

@@ -11,7 +11,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
  */
 public class CannotCreateVulkanRenderPass extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanRenderPass( VulkanPhysicalDevice device ) {
-        super( device );
+    public CannotCreateVulkanRenderPass( VulkanPhysicalDevice device, int errorCode ) {
+        super( device, errorCode );
     }
 }

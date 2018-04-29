@@ -11,7 +11,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
  */
 public class CannotCreateVulkanSemaphoreException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanSemaphoreException( VulkanPhysicalDevice physicalDevice ) {
-        super( physicalDevice );
+    public CannotCreateVulkanSemaphoreException( VulkanPhysicalDevice device, Integer errorCode ) {
+        super( device, errorCode );
     }
 }

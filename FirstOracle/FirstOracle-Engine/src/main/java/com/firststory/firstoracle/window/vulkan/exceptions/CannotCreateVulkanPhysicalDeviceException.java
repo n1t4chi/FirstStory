@@ -11,19 +11,32 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
  */
 public class CannotCreateVulkanPhysicalDeviceException extends VulkanException {
     
+    private static String getDefaultString( VulkanPhysicalDevice physicalDevice ) {
+        return "Cannot create physical device: " + physicalDevice + ".";
+    }
+    
+    public CannotCreateVulkanPhysicalDeviceException( VulkanPhysicalDevice physicalDevice ) {
+        super( getDefaultString( physicalDevice ) );
+    }
+    
     public CannotCreateVulkanPhysicalDeviceException( VulkanPhysicalDevice physicalDevice, Exception ex ) {
         super( getDefaultString( physicalDevice ), ex );
     }
     
-    CannotCreateVulkanPhysicalDeviceException( VulkanPhysicalDevice physicalDevice  ) {
-        this( physicalDevice, "" );
+    public CannotCreateVulkanPhysicalDeviceException( VulkanPhysicalDevice physicalDevice, int errorCode ) {
+        this( physicalDevice, errorCode, "" );
     }
     
-     public CannotCreateVulkanPhysicalDeviceException( VulkanPhysicalDevice physicalDevice, String reason ) {
+    public CannotCreateVulkanPhysicalDeviceException(
+        VulkanPhysicalDevice physicalDevice,
+        int errorCode,
+        String reason
+    ) {
+        super( getDefaultString( physicalDevice ) + "Error code: " + errorCode +
+            ( reason.isEmpty() ? "" : "\nReason: " + reason ) );
+    }
+    
+    public CannotCreateVulkanPhysicalDeviceException( VulkanPhysicalDevice physicalDevice, String reason ) {
         super( getDefaultString( physicalDevice ) + ( reason.isEmpty() ? "" : "\nReason: " + reason ) );
-    }
-    
-    private static String getDefaultString( VulkanPhysicalDevice physicalDevice ) {
-        return "Cannot create physical device: " + physicalDevice + ".";
     }
 }
