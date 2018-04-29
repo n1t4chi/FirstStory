@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -134,11 +135,31 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         int index = aquireNextImageIndex();
     
         VulkanCommandBuffer currentCommandBuffer = commandBuffers.get( index );
-        
         currentCommandBuffer.fillRenderQueue( currentCommandBuffer::drawVertices );
-        
         submitQueue( currentCommandBuffer );
+        presentQueue( index );
+    
+        if ( VulkanFramework.validationLayersAreEnabled() ) {
+            waitForDevice();
+        }
         
+    }
+    
+    private int aquireNextImageIndex() {
+        try {
+            return tryToAquireNextImageIndex();
+        } catch ( VulkanNextImageIndexException ex1 ) {
+            logger.log( Level.WARNING,"Exception during aquiring next image index" , ex1 );
+            try {
+                updateRenderingContext();
+                return tryToAquireNextImageIndex();
+            } catch ( Exception ex2 ) {
+                throw new VulkanNextImageIndexException( this, ex1, ex2 );
+            }
+        }
+    }
+    
+    private void presentQueue( int index ) {
         VkPresentInfoKHR presentInfo = VkPresentInfoKHR.create()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
             .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress() ) )
@@ -148,11 +169,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .pResults( null )
         ;
         KHRSwapchain.vkQueuePresentKHR( presentationQueue , presentInfo );
-    
-        if ( VulkanFramework.validationLayersAreEnabled() ) {
-            waitForDevice();
-        }
-        
     }
     
     private void waitForDevice() {
@@ -175,9 +191,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         }
     }
     
-    private int aquireNextImageIndex() {
+    private int tryToAquireNextImageIndex() {
         int[] imageIndex = new int[1];
-        KHRSwapchain.vkAcquireNextImageKHR(
+        int result = KHRSwapchain.vkAcquireNextImageKHR(
             logicalDevice,
             swapChain.getAddress(),
             Long.MAX_VALUE,
@@ -185,6 +201,16 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             VK10.VK_NULL_HANDLE,
             imageIndex
         );
+        switch( result ) {
+            case KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR :
+                throw new OutOfDateSwapChainException( this, imageIndex[0] );
+            case KHRSwapchain.VK_SUBOPTIMAL_KHR :
+                logger.warning(
+                    "Swap chain images no longer match surface. Update might be required at later time" );
+            case VK10.VK_SUCCESS : break;
+            default:
+                throw new CannotAquireNextImageIndexException( this, imageIndex[0], result );
+        }
         return imageIndex[0];
     }
     
