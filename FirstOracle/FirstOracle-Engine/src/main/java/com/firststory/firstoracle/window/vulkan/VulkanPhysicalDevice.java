@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.data.ArrayBufferLoader;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
@@ -28,13 +29,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
     private static final Set< String > requiredExtensions = new HashSet<>();
-    
-    static final float[] POSITION = new float[]{
-        0.0f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f
-    };
-    static final float[] COLOUR = new float[]{
-        1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f
-    };
     
     static {
         requiredExtensions.add( KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME );
@@ -60,6 +54,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanCommandPool commandPool;
     private final VulkanSemaphore imageAvailableSemaphore;
     private final Map< Integer, VulkanCommandBuffer > commandBuffers = new HashMap<>(  );
+    private final VulkanBufferLoader bufferLoader;
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -106,22 +101,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         swapChain = new VulkanSwapChain( this );
         graphicPipeline = new VulkanGraphicPipeline( this );
         commandPool = new VulkanCommandPool( this );
-        
-        VkBufferCreateInfo createInfo = VkBufferCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO )
-            .size( 4 * ( COLOUR.length + POSITION.length ) )
-            .usage( VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT )
-            .sharingMode( VK10.VK_SHARING_MODE_EXCLUSIVE )
-            .flags( 0 )
-        ;
-        
-        long[] address = new long[1];
-        
-        VulkanHelper.assertCallAndThrow(
-            () -> VK10.vkCreateBuffer( getLogicalDevice(), createInfo, null, address ),
-            errorCode -> new CannotCreateVulkanVertexBuffer( this, errorCode )
-        );
-        
+        bufferLoader = new VulkanBufferLoader( this );
         updateRenderingContext();
         
         logger.finer(
@@ -135,6 +115,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         );
     }
     
+    ArrayBufferLoader getBufferLoader() {
+        return null;
+    }
+    
     VulkanQueueFamily getGraphicFamily() {
         return graphicFamily;
     }
@@ -143,9 +127,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         waitForDevice();
         
         swapChain.update( windowSurface );
-        graphicPipeline.update( swapChain, shaderStages );
+        graphicPipeline.update( swapChain, shaderStages, bufferLoader );
         refreshFrameBuffers( frameBuffers );
         refreshCommandBuffers( commandBuffers );
+        bufferLoader.update();
     }
     
     private void refreshCommandBuffers( Map< Integer, VulkanCommandBuffer > commandBuffers ) {
@@ -184,8 +169,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private void presentQueue( int index ) {
         VkPresentInfoKHR presentInfo = VkPresentInfoKHR.create()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
-            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress() ) )
-            .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, swapChain.getAddress() ) )
+            .pWaitSemaphores(
+                MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress().getValue() ) )
+            .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, swapChain.getAddress().getValue() ) )
             .swapchainCount( 1 )
             .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index ) )
             .pResults( null )
@@ -201,16 +187,19 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VkSubmitInfo submitInfo = VkSubmitInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
             .waitSemaphoreCount( 1 )
-            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, imageAvailableSemaphore.getAddress() ) )
+            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put(
+                0, imageAvailableSemaphore.getAddress().getValue() ) )
             .pWaitDstStageMask(
                 MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT ) )
             .pCommandBuffers(
-                MemoryUtil.memAllocPointer( 1 ).put( 0, currentCommandBuffer.getAddress() ) )
-            .pSignalSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress() ) )
+                MemoryUtil.memAllocPointer( 1 ).put(
+                    0, currentCommandBuffer.getAddress().getValue() ) )
+            .pSignalSemaphores( MemoryUtil.memAllocLong( 1 ).put(
+                0, renderFinishedSemaphore.getAddress().getValue() ) )
         ;
         VulkanHelper.assertCallAndThrow(
             ()-> VK10.vkQueueSubmit( presentationQueue, submitInfo, VK10.VK_NULL_HANDLE ),
-            errorCode -> new CannotSubmitVulkanDrawCommandBufferException( this, errorCode, presentationQueue )
+            resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode, presentationQueue )
         );
     }
     
@@ -218,9 +207,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         int[] imageIndex = new int[1];
         int result = KHRSwapchain.vkAcquireNextImageKHR(
             logicalDevice,
-            swapChain.getAddress(),
+            swapChain.getAddress().getValue(),
             Long.MAX_VALUE,
-            imageAvailableSemaphore.getAddress(),
+            imageAvailableSemaphore.getAddress().getValue(),
             VK10.VK_NULL_HANDLE,
             imageIndex
         );
@@ -425,7 +414,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         PointerBuffer devicePointer = MemoryUtil.memAllocPointer( 1 );
         VulkanHelper.assertCallAndThrow(
             () -> VK10.vkCreateDevice( physicalDevice, createInfo, null, devicePointer ),
-            errorCode -> new CannotCreateVulkanLogicDeviceException( this, errorCode )
+            resultCode -> new CannotCreateVulkanLogicDeviceException( this, resultCode )
         );
         return new VkDevice( devicePointer.get(), physicalDevice, createInfo );
     }
@@ -451,7 +440,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             int[] supports = new int[1];
             return KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR( physicalDevice,
                 family.getIndex(),
-                windowSurface.getAddress(),
+                windowSurface.getAddress().getValue(),
                 supports
             ) == VK10.VK_SUCCESS;
         }, ( first, second ) -> VulkanQueueFamily.compare( first, second ), "presentation" );

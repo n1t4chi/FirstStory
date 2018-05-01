@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class VulkanCommandBuffer {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandBuffer.class );
     private final VulkanPhysicalDevice device;
-    private final long address;
+    private final VulkanAddress address;
     private final VkCommandBuffer commandBuffer;
     private final VkCommandBufferBeginInfo beginInfo;
     private final VulkanFrameBuffer frameBuffer;
@@ -26,7 +26,7 @@ public class VulkanCommandBuffer {
     
     VulkanCommandBuffer(
         VulkanPhysicalDevice device,
-        long address,
+        VulkanAddress address,
         VulkanFrameBuffer frameBuffer,
         VulkanGraphicPipeline graphicsPipeline,
         VulkanSwapChain swapChain,
@@ -42,10 +42,21 @@ public class VulkanCommandBuffer {
         renderPassBeginInfo = createRenderPassBeginInfo( graphicsPipeline, swapChain );
     }
     
+    VulkanCommandBuffer(
+        VulkanPhysicalDevice device,
+        long address,
+        VulkanFrameBuffer frameBuffer,
+        VulkanGraphicPipeline graphicsPipeline,
+        VulkanSwapChain swapChain,
+        VulkanCommandPool commandPool
+    ) {
+        this( device, new VulkanAddress( address ), frameBuffer, graphicsPipeline, swapChain, commandPool );
+    }
+    
     void close() {
         System.err.println(commandBuffer.address());
         System.err.println(commandBuffer);
-        VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress(), commandBuffer );
+        VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress().getValue(), commandBuffer );
     }
     
     void fillRenderQueue( Commands commands ) {
@@ -63,7 +74,7 @@ public class VulkanCommandBuffer {
     private void resetCommandBuffer() {
         VulkanHelper.assertCallAndThrow(
             () -> VK10.vkResetCommandBuffer( commandBuffer, VK10.VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT ),
-            errorCode -> {
+            resultCode -> {
                 logger.warning( "Failed to reset command buffer!" );
                 return new VulkanCommandBufferException( device, this, "Failed to reset command buffer" );
             }
@@ -73,7 +84,7 @@ public class VulkanCommandBuffer {
     private void beginRecordingCommandBuffer() {
         VulkanHelper.assertCallAndThrow(
             () -> VK10.vkBeginCommandBuffer( commandBuffer, beginInfo ),
-            errorCode -> {
+            resultCode -> {
                 logger.warning( "Failed to begin command buffer!" );
                 return new VulkanCommandBufferException( device, this, "Failed to begin command buffer" );
             }
@@ -87,7 +98,7 @@ public class VulkanCommandBuffer {
     private void endCommandBuffer() {
         VulkanHelper.assertCallAndThrow(
             () -> VK10.vkEndCommandBuffer( commandBuffer ),
-            errorCode -> {
+            resultCode -> {
                 logger.warning( "Failed to end command buffer!" );
                 return new VulkanCommandBufferException( device, this, "Failed to end command buffer" );
             }
@@ -98,7 +109,7 @@ public class VulkanCommandBuffer {
         VK10.vkCmdDraw( commandBuffer, 3, 1, 0, 0 );
     }
     
-    long getAddress(){
+    VulkanAddress getAddress(){
         return address;
     }
     
@@ -120,13 +131,13 @@ public class VulkanCommandBuffer {
         return VkRenderPassBeginInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO )
             .renderPass( graphicPipeline.getRenderPass() )
-            .framebuffer( frameBuffer.getAddress() )
+            .framebuffer( frameBuffer.getAddress().getValue() )
             .renderArea( createRenderArea( swapChain ) )
             .pClearValues( createClearValue() );
     }
     
     private VkCommandBuffer createCommandBuffer() {
-        return new VkCommandBuffer( address, device.getLogicalDevice() );
+        return new VkCommandBuffer( address.getValue(), device.getLogicalDevice() );
     }
     
     private VkCommandBufferBeginInfo createBeginInfo() {

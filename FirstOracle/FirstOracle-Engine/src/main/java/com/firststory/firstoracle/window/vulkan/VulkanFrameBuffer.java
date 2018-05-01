@@ -11,7 +11,7 @@ import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 
 class VulkanFrameBuffer {
     
-    private final long address;
+    private final VulkanAddress address;
     private final VulkanPhysicalDevice device;
     
     VulkanFrameBuffer(
@@ -25,24 +25,22 @@ class VulkanFrameBuffer {
     }
     
     void dispose() {
-        VK10.vkDestroyFramebuffer( device.getLogicalDevice(), address, null );
+        VK10.vkDestroyFramebuffer( device.getLogicalDevice(), address.getValue(), null );
     }
     
-    long getAddress() {
+    VulkanAddress getAddress() {
         return address;
     }
     
-    private long createFrameBuffer(
+    private VulkanAddress createFrameBuffer(
         VulkanImageView imageView, VulkanGraphicPipeline graphicPipeline, VulkanSwapChain swapChain
     ) {
-        long[] address = new long[1];
-        VkFramebufferCreateInfo frameBufferCreateInfo = createFrameBufferCreateInfo(
-            imageView, graphicPipeline, swapChain );
-        VulkanHelper.assertCallAndThrow(
-            () -> VK10.vkCreateFramebuffer( device.getLogicalDevice(), frameBufferCreateInfo, null, address ),
-            errorCode -> new CannotCreateVulkanFrameBufferException( device, errorCode )
+        return VulkanHelper.createAddress(
+            () -> createFrameBufferCreateInfo(
+                imageView, graphicPipeline, swapChain ),
+            (createInfo, address) -> VK10.vkCreateFramebuffer( device.getLogicalDevice(), createInfo, null, address ),
+            resultCode -> new CannotCreateVulkanFrameBufferException( device, resultCode )
         );
-        return address[0];
     }
     
     private VkFramebufferCreateInfo createFrameBufferCreateInfo(
@@ -51,7 +49,7 @@ class VulkanFrameBuffer {
         return VkFramebufferCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO )
             .renderPass( graphicPipeline.getRenderPass() )
-            .pAttachments( MemoryUtil.memAllocLong( 1 ).put( 0, imageView.getAddress() ) )
+            .pAttachments( MemoryUtil.memAllocLong( 1 ).put( 0, imageView.getAddress().getValue() ) )
             .width( ( int ) swapChain.getWidth() )
             .height( ( int ) swapChain.getHeight() )
             .layers( 1 )

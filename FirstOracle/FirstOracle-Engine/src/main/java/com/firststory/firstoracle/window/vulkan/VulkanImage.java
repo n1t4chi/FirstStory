@@ -9,17 +9,23 @@ package com.firststory.firstoracle.window.vulkan;
  */
 class VulkanImage {
     
-    private final long address;
+    private final VulkanAddress address;
     private final int index;
     
-    VulkanImage( long address, int index ) {
+    VulkanImage( VulkanAddress address, int index ) {
         this.address = address;
         this.index = index;
     }
     
+    VulkanImage( long address, int index ) {
+        this( new VulkanAddress( address ), index );
+    }
+    
     @Override
     public int hashCode() {
-        return ( int ) ( address ^ ( address >>> 32 ) );
+        int result = address != null ? address.hashCode() : 0;
+        result = 31 * result + index;
+        return result;
     }
     
     @Override
@@ -29,10 +35,11 @@ class VulkanImage {
         
         VulkanImage that = ( VulkanImage ) o;
         
-        return address == that.address;
+        if ( index != that.index ) { return false; }
+        return address != null ? address.equals( that.address ) : that.address == null;
     }
     
-    long getAddress() {
+    public VulkanAddress getAddress() {
         return address;
     }
     

@@ -7,50 +7,173 @@ package com.firststory.firstoracle.window.vulkan;
 import com.firststory.firstoracle.window.vulkan.exceptions.VulkanException;
 import org.lwjgl.vulkan.VK10;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /**
  * @author n1t4chi
  */
 public class VulkanHelper {
     
-    static void assertCallAndThrow(
-        Supplier< Integer > errorCodeProvider,
-        Function< Integer, VulkanException > failureException
+    static final FailTest VK_SUCCESS_TEST = resultCode -> resultCode != VK10.VK_SUCCESS;
+    
+    static < CreateInfo > VulkanAddress createAddress(
+        CreateInfoSupplier< CreateInfo > supplier,
+        CreateInfoCreator< CreateInfo > creator,
+        ExceptionThrower thrower
     ) {
-        assertCallAndThrow( errorCodeProvider, errorCode -> errorCode != VK10.VK_SUCCESS, failureException );
+        return createAddress( supplier, creator, VK_SUCCESS_TEST, thrower );
+    }
+    
+    static < CreateInfo > VulkanAddress createAddress(
+        CreateInfoSupplier< CreateInfo > supplier,
+        CreateInfoCreator< CreateInfo > creator,
+        FailTest test,
+        ExceptionThrower thrower
+    ) {
+        return createAddress( address -> creator.create( supplier.get(), address ), test, thrower );
+    }
+    
+    static VulkanAddress createAddress(
+        SimpleCreator creator, ExceptionThrower thrower
+    ) {
+        return createAddress( creator, VK_SUCCESS_TEST, thrower );
+    }
+    
+    static VulkanAddress createAddress(
+        SimpleCreator creator, FailTest test, ExceptionThrower thrower
+    ) {
+        return updateAddress( new VulkanAddress(), creator, test, thrower );
+    }
+    
+    static < CreateInfo > VulkanAddress updateAddress(
+        VulkanAddress address,
+        CreateInfoSupplier< CreateInfo > supplier,
+        CreateInfoCreator< CreateInfo > creator,
+        ExceptionThrower thrower
+    ) {
+        return updateAddress( address, supplier, creator, VK_SUCCESS_TEST, thrower );
+    }
+    
+    static < CreateInfo > VulkanAddress updateAddress(
+        VulkanAddress addres,
+        CreateInfoSupplier< CreateInfo > supplier,
+        CreateInfoCreator< CreateInfo > creator,
+        FailTest test,
+        ExceptionThrower thrower
+    ) {
+        return updateAddress( addres, addressA -> creator.create( supplier.get(), addressA ), test, thrower );
+    }
+    
+    static VulkanAddress updateAddress(
+        VulkanAddress address,
+        SimpleCreator creator, ExceptionThrower thrower
+    ) {
+        return updateAddress( address, creator, VK_SUCCESS_TEST, thrower );
+    }
+    
+    static VulkanAddress updateAddress(
+        VulkanAddress address,
+        SimpleCreator creator, FailTest test, ExceptionThrower thrower
+    ) {
+        long[] addressA = new long[1];
+        VulkanHelper.assertCallAndThrow( () -> creator.create( addressA ), test, thrower );
+        return address.setAddress( addressA[0] );
+    }
+    
+    static void assertCallAndThrow(
+        ResultCodeSupplier supplier, ExceptionThrower thrower
+    ) {
+        assertCallAndThrow( supplier, VK_SUCCESS_TEST, thrower );
     }
     
     static void assertCall(
-        Supplier< Integer > errorCodeProvider,
-        Consumer< Integer > failureAction
+        ResultCodeSupplier supplier, FailAction action
     ) {
-        assertCall( errorCodeProvider, errorCode -> errorCode != VK10.VK_SUCCESS, failureAction );
+        assertCall( supplier, VK_SUCCESS_TEST, action );
     }
     
     static void assertCallAndThrow(
-        Supplier< Integer > errorCodeProvider,
-        Predicate< Integer > failureTest,
-        Function< Integer, VulkanException > failureException
+        ResultCodeSupplier supplier, FailTest test, ExceptionThrower thrower
     ) {
-        assertCall(
-            errorCodeProvider,
-            failureTest,
-            ( Consumer< Integer > ) errorCode -> { throw failureException.apply( errorCode ); }
-        );
+        assertCall( supplier, test, resultCode -> { throw thrower.create( resultCode ); } );
     }
     
     static void assertCall(
-        Supplier< Integer > errorCodeProvider,
-        Predicate< Integer > failureTest,
-        Consumer< Integer > failureAction
+        ResultCodeSupplier supplier, FailTest test, FailAction action
     ) {
-        int errorCode;
-        if ( failureTest.test( errorCode = errorCodeProvider.get() ) ) {
-            failureAction.accept( errorCode );
+        int resultCode;
+        if ( test.test( resultCode = supplier.get() ) ) {
+            action.accept( resultCode );
+        }
+    }
+    
+    interface FailTest extends Predicate< Integer > {
+        
+        boolean isFailure( Integer resultCode );
+        
+        @Override
+        default boolean test( Integer resultCode ) {
+            return isFailure( resultCode );
+        }
+    }
+    
+    interface SimpleCreator extends Function< long[], Integer > {
+
+        Integer create( long[] address );
+
+        @Override
+        default Integer apply( long[] address ) {
+            return create( address );
+        }
+    }
+    
+    interface CreateInfoCreator< CreateInfo > extends BiFunction< CreateInfo, long[], Integer > {
+        
+        Integer create( CreateInfo createInfo, long[] address );
+        
+        @Override
+        default Integer apply( CreateInfo createInfo, long[] address ) {
+            return create( createInfo, address );
+        }
+    }
+    
+    interface ResultCodeSupplier extends Supplier< Integer > {
+        
+        Integer create();
+        
+        @Override
+        default Integer get() {
+            return create();
+        }
+    }
+    
+    interface CreateInfoSupplier< CreateInfo > extends Supplier< CreateInfo > {
+    
+        CreateInfo create();
+    
+        @Override
+        default CreateInfo get() {
+            return create();
+        }
+    }
+    
+    interface ExceptionThrower extends FailAction {
+        
+        VulkanException create( Integer resultCode );
+        
+        @Override
+        default void perform( Integer resultCode ) {
+            throw create( resultCode );
+        }
+    }
+    
+    interface FailAction extends Consumer< Integer > {
+        
+        void perform( Integer resultCode );
+        
+        @Override
+        default void accept( Integer resultCode ) {
+            perform( resultCode );
         }
     }
 }

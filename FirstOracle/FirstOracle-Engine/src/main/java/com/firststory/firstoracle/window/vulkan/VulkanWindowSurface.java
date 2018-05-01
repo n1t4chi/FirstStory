@@ -21,26 +21,23 @@ public class VulkanWindowSurface {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanWindowSurface.class );
     
     public static VulkanWindowSurface create( VkInstance instance, WindowContext window ) {
-        long[] pSurface = new long[1];
-        VulkanHelper.assertCallAndThrow(
-            () -> GLFWVulkan.glfwCreateWindowSurface( instance, window.getAddress(), null, pSurface ),
-            errorCode ->
-                new CannotCreateVulkanWindowSurfaceException( errorCode, instance, window )
-        );
-        return new VulkanWindowSurface( pSurface[0] );
+        return new VulkanWindowSurface( VulkanHelper.createAddress(
+            address -> GLFWVulkan.glfwCreateWindowSurface( instance, window.getAddress(), null, address ),
+            resultCode -> new CannotCreateVulkanWindowSurfaceException( resultCode, instance, window )
+        ) );
     }
     
-    private final long address;
+    private final VulkanAddress address;
     
-    private VulkanWindowSurface( long address ) {
+    private VulkanWindowSurface( VulkanAddress address ) {
         this.address = address;
     }
     
     void dispose( VkInstance instance ) {
-        KHRSurface.vkDestroySurfaceKHR( instance, address, null );
+        KHRSurface.vkDestroySurfaceKHR( instance, address.getValue(), null );
     }
     
-    long getAddress() {
+    VulkanAddress getAddress() {
         return address;
     }
     

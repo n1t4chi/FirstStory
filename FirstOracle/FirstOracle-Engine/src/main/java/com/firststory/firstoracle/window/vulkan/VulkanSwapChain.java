@@ -35,7 +35,7 @@ class VulkanSwapChain {
     private VkExtent2D extent;
     private int imageCount;
     private VkSwapchainCreateInfoKHR createInfo;
-    private long address = VK10.VK_NULL_HANDLE;
+    private VulkanAddress address = VulkanAddress.NULL;
     
     VulkanSwapChain( VulkanPhysicalDevice device ) {
         this.device = device;
@@ -44,9 +44,9 @@ class VulkanSwapChain {
     void dispose() {
         imageViews.values().forEach( VulkanImageView::close );
         imageViews.clear();
-        if ( address != VK10.VK_NULL_HANDLE ) {
-            KHRSwapchain.vkDestroySwapchainKHR( device.getLogicalDevice(), address, null );
-            address = VK10.VK_NULL_HANDLE;
+        if ( !address.isNull() ) {
+            KHRSwapchain.vkDestroySwapchainKHR( device.getLogicalDevice(), address.getValue(), null );
+            address.setNull();
         }
     }
     
@@ -72,7 +72,7 @@ class VulkanSwapChain {
         extent = selectCurrentExtent();
         imageCount = computeImageCount();
         createInfo = createSwapChainCreateInfo( windowSurface );
-        address = createSwapChain();
+        address = updateSwapChainAddress();
         refreshVulkanImages();
         refreshImageViews();
     }
@@ -97,7 +97,7 @@ class VulkanSwapChain {
         return usedFormat.format();
     }
     
-    long getAddress() {
+    VulkanAddress getAddress() {
         return address;
     }
     
@@ -115,56 +115,55 @@ class VulkanSwapChain {
     }
     
     private VulkanImageView createVulkanImageView( VulkanImage image ) {
-        VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO )
-            .image( image.getAddress() )
-            .viewType( VK10.VK_IMAGE_VIEW_TYPE_2D )
-            .format( usedFormat.format() )
-            .components( VkComponentMapping.create()
-                .a( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
-                .r( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
-                .g( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
-                .b( VK10.VK_COMPONENT_SWIZZLE_IDENTITY ) )
-            .subresourceRange( VkImageSubresourceRange.create()
-                .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
-                .baseMipLevel( 0 )
-                .levelCount( 1 )
-                .baseArrayLayer( 0 )
-                .layerCount( 1 ) );
-        long[] address = new long[1];
-        VulkanHelper.assertCallAndThrow(
-            () -> VK10.vkCreateImageView( device.getLogicalDevice(), createInfo, null, address ),
-            errorCode -> new CannotCreateVulkanImageViewException( device, errorCode )
+    
+        return new VulkanImageView( device, this,
+            VulkanHelper.createAddress(
+                () -> VkImageViewCreateInfo.create()
+                    .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO )
+                    .image( image.getAddress().getValue() )
+                    .viewType( VK10.VK_IMAGE_VIEW_TYPE_2D )
+                    .format( usedFormat.format() )
+                    .components( VkComponentMapping.create()
+                        .a( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
+                        .r( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
+                        .g( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
+                        .b( VK10.VK_COMPONENT_SWIZZLE_IDENTITY ) )
+                    .subresourceRange( VkImageSubresourceRange.create()
+                        .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
+                        .baseMipLevel( 0 )
+                        .levelCount( 1 )
+                        .baseArrayLayer( 0 )
+                        .layerCount( 1 ) ),
+                ( createInfo, addressA ) -> VK10.vkCreateImageView( device.getLogicalDevice(), createInfo, null, addressA ),
+                resultCode -> new CannotCreateVulkanImageViewException( device, resultCode )
+            ), image.getIndex()
         );
-        return new VulkanImageView( device, this, address[0], image.getIndex() );
     }
     
     private void refreshVulkanImages() {
         int[] count = new int[1];
-        KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address, count, null );
+        KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address.getValue(), count, null );
         long[] addresses = new long[count[0]];
         images.clear();
-        KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address, count, addresses );
+        KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address.getValue(), count, addresses );
         for ( int i = 0; i < addresses.length; i++ ) {
             images.put( i, new VulkanImage( addresses[i], i ) );
         }
     }
     
-    private long createSwapChain() {
-        long[] swapChainAddress = new long[1];
-    
-        VulkanHelper.assertCallAndThrow(
-            () -> KHRSwapchain.vkCreateSwapchainKHR(
-                device.getLogicalDevice(), createInfo, null, swapChainAddress ),
-            errorCode -> new CannotCreateVulkanSwapChainException( device, errorCode )
+    private VulkanAddress updateSwapChainAddress() {
+        return VulkanHelper.updateAddress(
+            address,
+            addressA -> KHRSwapchain.vkCreateSwapchainKHR(
+                device.getLogicalDevice(), createInfo, null, addressA ),
+            resultCode -> new CannotCreateVulkanSwapChainException( device, resultCode )
         );
-        return swapChainAddress[0];
     }
     
     private VkSwapchainCreateInfoKHR createSwapChainCreateInfo( VulkanWindowSurface windowSurface ) {
         VkSwapchainCreateInfoKHR createInfo = VkSwapchainCreateInfoKHR.create()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR )
-            .surface( windowSurface.getAddress() )
+            .surface( windowSurface.getAddress().getValue() )
             .minImageCount( imageCount )
             .imageFormat( usedFormat.format() )
             .imageColorSpace( usedFormat.colorSpace() )
@@ -260,13 +259,13 @@ class VulkanSwapChain {
     private int[] createPresentModes( VkPhysicalDevice physicalDevice, VulkanWindowSurface windowSurface ) {
         int[] presentModeCount = new int[1];
         KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR( physicalDevice,
-            windowSurface.getAddress(),
+            windowSurface.getAddress().getValue(),
             presentModeCount,
             null
         );
         int[] presentModes = new int[presentModeCount[0]];
         KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR( physicalDevice,
-            windowSurface.getAddress(),
+            windowSurface.getAddress().getValue(),
             presentModeCount,
             presentModes
         );
@@ -276,13 +275,13 @@ class VulkanSwapChain {
     private void refreshFormats( VkPhysicalDevice physicalDevice, VulkanWindowSurface windowSurface ) {
         int[] formatCount = new int[1];
         KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR( physicalDevice,
-            windowSurface.getAddress(),
+            windowSurface.getAddress().getValue(),
             formatCount,
             null
         );
         VkSurfaceFormatKHR.Buffer formatsBuffer = VkSurfaceFormatKHR.create( formatCount[0] );
         KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR( physicalDevice,
-            windowSurface.getAddress(),
+            windowSurface.getAddress().getValue(),
             formatCount,
             formatsBuffer
         );
@@ -296,7 +295,7 @@ class VulkanSwapChain {
     {
         VkSurfaceCapabilitiesKHR capabilities = VkSurfaceCapabilitiesKHR.create();
         KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR( physicalDevice,
-            windowSurface.getAddress(),
+            windowSurface.getAddress().getValue(),
             capabilities
         );
         return capabilities;

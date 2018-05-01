@@ -23,7 +23,7 @@ class VulkanShaderProgram implements ShaderProgram {
     private final String filepath;
     private final ShaderType type;
     private VulkanPhysicalDevice physicalDevice;
-    private long address;
+    private VulkanAddress address;
     private VkPipelineShaderStageCreateInfo stageCreateInfo;
     
     VulkanShaderProgram( VulkanPhysicalDevice physicalDevice, String filepath, ShaderType type ) {
@@ -32,11 +32,11 @@ class VulkanShaderProgram implements ShaderProgram {
         this.type = type;
     }
     
-    public long getAddress() {
+    VulkanAddress getAddress() {
         return address;
     }
     
-    public VkPipelineShaderStageCreateInfo getStageCreateInfo() {
+    VkPipelineShaderStageCreateInfo getStageCreateInfo() {
         return stageCreateInfo;
     }
     
@@ -53,13 +53,13 @@ class VulkanShaderProgram implements ShaderProgram {
     
     @Override
     public void dispose() {
-        VK10.vkDestroyShaderModule( physicalDevice.getLogicalDevice(), address, null );
+        VK10.vkDestroyShaderModule( physicalDevice.getLogicalDevice(), address.getValue(), null );
     }
     
     private VkPipelineShaderStageCreateInfo createStageCreateInfo() {
         VkPipelineShaderStageCreateInfo stageCreateInfo = VkPipelineShaderStageCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO )
-            .module( address )
+            .module( address.getValue() )
             .pName( MemoryUtil.memUTF8( "main" ) )
         ;
         int stage;
@@ -77,16 +77,14 @@ class VulkanShaderProgram implements ShaderProgram {
         return stageCreateInfo;
     }
     
-    private long createShader() throws IOException {
+    private VulkanAddress createShader() throws IOException {
         ByteBuffer value = IOUtilities.readBinaryResource( filepath );
-        VkShaderModuleCreateInfo createInfo = VkShaderModuleCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO )
-            .pCode( value );
-        long[] address = new long[1];
-        VulkanHelper.assertCallAndThrow(
-            () -> VK10.vkCreateShaderModule( physicalDevice.getLogicalDevice(), createInfo, null, address ),
-            errorCode -> new CannotCreateVulkanShaderException( physicalDevice, filepath )
+        return VulkanHelper.createAddress(
+            () -> VkShaderModuleCreateInfo.create()
+                .sType( VK10.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO )
+                .pCode( value ),
+            ( createInfo, address ) -> VK10.vkCreateShaderModule( physicalDevice.getLogicalDevice(), createInfo, null, address ),
+            resultCode -> new CannotCreateVulkanShaderException( physicalDevice, filepath )
         );
-        return address[0];
     }
 }

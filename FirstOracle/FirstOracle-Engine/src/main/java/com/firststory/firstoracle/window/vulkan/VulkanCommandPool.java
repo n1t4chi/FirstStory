@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 class VulkanCommandPool {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandBuffer.class );
-    private long address = VK10.VK_NULL_HANDLE;
+    private VulkanAddress address = VulkanAddress.NULL;
     private final VulkanPhysicalDevice device;
     
     VulkanCommandPool( VulkanPhysicalDevice device ) {
@@ -27,13 +27,13 @@ class VulkanCommandPool {
     }
     
     void dispose() {
-        if( address != VK10.VK_NULL_HANDLE ){
-            VK10.vkDestroyCommandPool( device.getLogicalDevice(), address, null );
-            address = VK10.VK_NULL_HANDLE;
+        if( !address.isNull() ){
+            VK10.vkDestroyCommandPool( device.getLogicalDevice(), address.getValue(), null );
+            address.setNull();
         }
     }
     
-    public long getAddress() {
+    public VulkanAddress getAddress() {
         return address;
     }
     
@@ -66,7 +66,7 @@ class VulkanCommandPool {
         VulkanHelper.assertCallAndThrow(
             () -> VK10.vkAllocateCommandBuffers(
                 device.getLogicalDevice(), createAllocateInfo( frameBuffers ), commandBuffersBuffer ),
-            errorCode -> new CannotAllocateVulkanCommandBuffersException( device, errorCode )
+            resultCode -> new CannotAllocateVulkanCommandBuffersException( device, resultCode )
         );
         return commandBuffersBuffer;
     }
@@ -74,19 +74,17 @@ class VulkanCommandPool {
     private VkCommandBufferAllocateInfo createAllocateInfo( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
         return VkCommandBufferAllocateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO )
-            .commandPool( address )
+            .commandPool( address.getValue() )
             .level( VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY )
             .commandBufferCount( frameBuffers.size() );
     }
     
-    private long createCommandPool() {
-        long[] address = new long[1];
-        VulkanHelper.assertCallAndThrow(
-            ()-> VK10.vkCreateCommandPool(
+    private VulkanAddress createCommandPool() {
+        return VulkanHelper.createAddress(
+            (address)-> VK10.vkCreateCommandPool(
                 device.getLogicalDevice(), createCommandPoolCreateInfo(), null, address ),
-            errorCode -> new CannotCreateVulkanCommandPoolException( device, errorCode )
+            resultCode -> new CannotCreateVulkanCommandPoolException( device, resultCode )
         );
-        return address[0];
     }
     
     private VkCommandPoolCreateInfo createCommandPoolCreateInfo() {

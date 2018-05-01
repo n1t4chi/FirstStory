@@ -14,7 +14,7 @@ import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 class VulkanSemaphore {
     
     private final VulkanPhysicalDevice device;
-    private final long address;
+    private final VulkanAddress address;
     
     VulkanSemaphore( VulkanPhysicalDevice device ) {
         this.device = device;
@@ -23,10 +23,10 @@ class VulkanSemaphore {
     }
     
     void dispose() {
-        VK10.vkDestroySemaphore( device.getLogicalDevice(), address, null );
+        VK10.vkDestroySemaphore( device.getLogicalDevice(), address.getValue(), null );
     }
     
-    public long getAddress() {
+    public VulkanAddress getAddress() {
         return address;
     }
     
@@ -34,14 +34,11 @@ class VulkanSemaphore {
         return VkSemaphoreCreateInfo.create().sType( VK10.VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO );
     }
     
-    private long createSemaphore( VulkanPhysicalDevice device ) {
-        long[] address = new long[1];
-    
-        VulkanHelper.assertCallAndThrow(
-            () -> VK10.vkCreateSemaphore(
+    private VulkanAddress createSemaphore( VulkanPhysicalDevice device ) {
+        return VulkanHelper.createAddress(
+            (address) -> VK10.vkCreateSemaphore(
                 device.getLogicalDevice(), createSemaphoreCreateInfo(), null, address ),
-            errorCode -> new CannotCreateVulkanSemaphoreException( device, errorCode )
+            resultCode -> new CannotCreateVulkanSemaphoreException( device, resultCode )
         );
-        return address[0];
     }
 }

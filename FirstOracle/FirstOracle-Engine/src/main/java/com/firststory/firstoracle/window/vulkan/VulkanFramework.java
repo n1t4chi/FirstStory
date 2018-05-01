@@ -50,8 +50,8 @@ public class VulkanFramework implements RenderingFramework {
     private final Set< VkLayerProperties > layerProperties;
     private final List< String > validationLayerNames;
     private final WindowContext window;
+    private final VulkanWindowSurface windowSurface;
     private VkDebugReportCallbackEXT callback = null;
-    private VulkanWindowSurface windowSurface;
     
     VulkanFramework( WindowContext window ) {
         this.window = window;
@@ -89,8 +89,8 @@ public class VulkanFramework implements RenderingFramework {
         windowSurface = VulkanWindowSurface.create( instance, window );
         physicalDevices = createPhysicalDevices();
         mainPhysicalDevice = selectMainPhysicalDevice();
-        
-        
+    
+    
         logger.finer( "Finished creating Vulkan Framework: " + this );
     }
     
@@ -121,7 +121,7 @@ public class VulkanFramework implements RenderingFramework {
     
     @Override
     public ArrayBufferLoader getBufferLoader() {
-        return null;
+        return mainPhysicalDevice.getBufferLoader();
     }
     
     @Override
@@ -258,7 +258,7 @@ public class VulkanFramework implements RenderingFramework {
     
     private VkInstance createInstance() {
         PointerBuffer instancePointer = MemoryStack.stackCallocPointer( 1 );
-        int errorCode;
+        int resultCode;
     
         VulkanHelper.assertCallAndThrow(
             () -> VK10.vkCreateInstance( createInfo, null, instancePointer ),
@@ -328,8 +328,8 @@ public class VulkanFramework implements RenderingFramework {
                     null,
                     new long[]{ callback.address() }
                 ) ,
-                errorCode ->
-                    logger.warning( "Cannot set up debug callback. Error code: " + errorCode )
+                resultCode ->
+                    logger.warning( "Cannot set up debug callback. Error code: " + resultCode )
             );
         } else {
             logger.warning( "Method vkCreateDebugReportCallbackEXT is not supported!" );

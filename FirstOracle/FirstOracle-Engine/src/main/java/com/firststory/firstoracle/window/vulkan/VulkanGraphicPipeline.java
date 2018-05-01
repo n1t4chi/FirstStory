@@ -12,9 +12,6 @@ import org.lwjgl.vulkan.*;
 import java.nio.IntBuffer;
 import java.util.List;
 
-import static com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice.COLOUR;
-import static com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice.POSITION;
-
 /**
  * @author n1t4chi
  */
@@ -47,11 +44,13 @@ public class VulkanGraphicPipeline {
         }
     }
     
-    void update( VulkanSwapChain swapChain, List<VkPipelineShaderStageCreateInfo> shaderStages ) {
+    void update(
+        VulkanSwapChain swapChain, List<VkPipelineShaderStageCreateInfo> shaderStages, VulkanBufferLoader bufferLoader
+    ) {
         dispose();
         pipelineLayoutAddress = createVulkanPipelineLayout();
         renderPassAddress = createRenderPass( swapChain );
-        graphicsPipelineAddress = createGraphicPipeline( swapChain, shaderStages );
+        graphicsPipelineAddress = createGraphicPipeline( swapChain, shaderStages, bufferLoader );
     }
     
     long getGraphicPipeline() {
@@ -63,9 +62,10 @@ public class VulkanGraphicPipeline {
     }
     
     private long createGraphicPipeline(
-        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
+        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages, VulkanBufferLoader bufferLoader
     ) {
-        VkGraphicsPipelineCreateInfo createInfo = createGraphicPipelineCreateInfo( swapChain, shaderStages );
+        VkGraphicsPipelineCreateInfo createInfo =
+            createGraphicPipelineCreateInfo( swapChain, shaderStages, bufferLoader );
         long[] graphicsPipelineAddress = new long[1];
 
         VulkanHelper.assertCallAndThrow(
@@ -75,18 +75,18 @@ public class VulkanGraphicPipeline {
                 null,
                 graphicsPipelineAddress
             ),
-            errorCode -> new CannotCreateVulkanGraphicPipelineException( device, errorCode )
+            resultCode -> new CannotCreateVulkanGraphicPipelineException( device, resultCode )
         );
         return graphicsPipelineAddress[0];
     }
     
     private VkGraphicsPipelineCreateInfo createGraphicPipelineCreateInfo(
-        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
+        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages, VulkanBufferLoader bufferLoader
     ) {
         return VkGraphicsPipelineCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO )
-            .pStages( createShaderStageCreateInfoBuffer(shaderStages) )
-            .pVertexInputState( createVertexInputStateCreateInfo() )
+            .pStages( createShaderStageCreateInfoBuffer( shaderStages ) )
+            .pVertexInputState( createVertexInputStateCreateInfo( bufferLoader ) )
             .pInputAssemblyState( createInputAssemblyStateCreateInfo() )
             .pViewportState( createViewportStateCreateInfo( swapChain ) )
             .pRasterizationState( createRasterizationStateCreateInfo() )
@@ -117,7 +117,7 @@ public class VulkanGraphicPipeline {
         VulkanHelper.assertCallAndThrow(
             () -> VK10.vkCreateRenderPass(
                 device.getLogicalDevice(), createRenderPassCreateInfo( swapChain ), null, address ),
-            errorCode -> new CannotCreateVulkanRenderPass( device, errorCode )
+            resultCode -> new CannotCreateVulkanRenderPass( device, resultCode )
         );
         return address[0];
     }
@@ -253,13 +253,13 @@ public class VulkanGraphicPipeline {
             .primitiveRestartEnable( false );
     }
     
-    private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo() {
+    private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo( VulkanBufferLoader bufferLoader ) {
     
         return VkPipelineVertexInputStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO )
             .pVertexBindingDescriptions(
                 VkVertexInputBindingDescription.create( 1 )
-                    .put( createVertexBindingDescription() )
+                    .put( createVertexBindingDescription( bufferLoader ) )
                     .flip()
             )
             .pVertexAttributeDescriptions(
@@ -270,10 +270,10 @@ public class VulkanGraphicPipeline {
             );
     }
     
-    private VkVertexInputBindingDescription createVertexBindingDescription() {
+    private VkVertexInputBindingDescription createVertexBindingDescription( VulkanBufferLoader bufferLoader ) {
         return VkVertexInputBindingDescription.create()
             .binding( 0 )
-            .stride( COLOUR.length + POSITION.length )
+            .stride( bufferLoader.getVertexLength() )
             .inputRate( VK10.VK_VERTEX_INPUT_RATE_VERTEX );
     }
     
@@ -312,7 +312,7 @@ public class VulkanGraphicPipeline {
         long[] address = new long[1];
         VulkanHelper.assertCallAndThrow(
             () -> VK10.vkCreatePipelineLayout( device.getLogicalDevice(), createInfo, null, address ),
-            errorCode -> new CannotCreateVulkanPipelineLayoutException( device, errorCode )
+            resultCode -> new CannotCreateVulkanPipelineLayoutException( device, resultCode )
         );
         return address[0];
     }
