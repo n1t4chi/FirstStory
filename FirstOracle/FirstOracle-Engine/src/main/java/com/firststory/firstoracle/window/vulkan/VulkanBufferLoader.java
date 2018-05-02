@@ -6,24 +6,24 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.data.ArrayBufferLoader;
 import com.firststory.firstoracle.data.CannotCreateBufferException;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanVertexBuffer;
-import org.lwjgl.vulkan.VK10;
-import org.lwjgl.vulkan.VkBufferCreateInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author n1t4chi
  */
 public class VulkanBufferLoader implements ArrayBufferLoader {
     
-    static final float[] POSITION = new float[]{
-        0.0f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f
-    };
-    static final float[] COLOUR = new float[]{
-        1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f
+    static final float[] VERTICES = new float[]{
+        /*1*/ /*pos*/ -0.75f, -0.75f, /*col*/ 1.0f, 0.0f, 1.0f,
+        /*2*/ /*pos*/ 0.75f, -0.75f, /*col*/ 1.0f, 1.0f, 0.0f,
+        /*3*/ /*pos*/ 0.0f, 0.75f, /*col*/ 0.0f, 1.0f, 1.0f
     };
     
     private final VulkanPhysicalDevice device;
-    private VulkanAddress address;
+    private List<VulkanDataBuffer > buffers = new ArrayList<>(  );
+    VulkanDataBuffer buffer;
     
     VulkanBufferLoader( VulkanPhysicalDevice device ) {
         
@@ -51,28 +51,18 @@ public class VulkanBufferLoader implements ArrayBufferLoader {
     }
     
     @Override
-    public void close() throws Exception {
-    
+    public void close() {
+        buffers.forEach( VulkanDataBuffer::close );
     }
     
     int getVertexLength() {
-        return COLOUR.length + POSITION.length;
+        return VERTICES.length;
     }
     
     void update() {
-    
-        this.address = createBuffer();
-    }
-    
-    private VulkanAddress createBuffer() {
-        return VulkanHelper.createAddress(
-            () -> VkBufferCreateInfo.create()
-                .sType( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO )
-                .size( 4 * getVertexLength() )
-                .usage( VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT )
-                .sharingMode( VK10.VK_SHARING_MODE_EXCLUSIVE ),
-            ( createInfo, address ) -> VK10.vkCreateBuffer( device.getLogicalDevice(), createInfo, null, address ),
-            resultCode -> new CannotCreateVulkanVertexBuffer( device, resultCode )
-        );
+        if(buffers.isEmpty()) {
+            buffer = new VulkanDataBuffer( device, VERTICES );
+            buffers.add( buffer );
+        }
     }
 }

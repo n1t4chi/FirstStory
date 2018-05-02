@@ -36,7 +36,7 @@ class VulkanSemaphore {
     
     private VulkanAddress createSemaphore( VulkanPhysicalDevice device ) {
         return VulkanHelper.createAddress(
-            (address) -> VK10.vkCreateSemaphore(
+            address -> VK10.vkCreateSemaphore(
                 device.getLogicalDevice(), createSemaphoreCreateInfo(), null, address ),
             resultCode -> new CannotCreateVulkanSemaphoreException( device, resultCode )
         );

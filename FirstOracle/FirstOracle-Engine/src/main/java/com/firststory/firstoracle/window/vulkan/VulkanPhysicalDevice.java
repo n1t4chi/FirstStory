@@ -29,11 +29,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
     private static final Set< String > requiredExtensions = new HashSet<>();
-    
+    private static final String VERTEX_SHADER_FILE_PATH = "resources/First Oracle/vert.spv";
+    private static final String FRAGMENT_SHADER_FILE_PATH = "resources/First Oracle/frag.spv";
+
     static {
         requiredExtensions.add( KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME );
     }
-    
+
     private final VkPhysicalDevice physicalDevice;
     private final VkPhysicalDeviceFeatures features;
     private final VkPhysicalDeviceProperties properties;
@@ -55,6 +57,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanSemaphore imageAvailableSemaphore;
     private final Map< Integer, VulkanCommandBuffer > commandBuffers = new HashMap<>(  );
     private final VulkanBufferLoader bufferLoader;
+    private final VkPhysicalDeviceMemoryProperties memoryProperties;
+    private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
+    private final Map< Integer, VulkanMemoryHeap > memoryHeaps = new HashMap<>();
+    private final VulkanShaderProgram vertexShader;
+    private final VulkanShaderProgram fragmentShader;
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -81,7 +88,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         addUsedQueueFamily( graphicFamily, presentationFamily );
         logicalDevice = createLogicalDevice( validationLayerNamesBuffer );
         presentationQueue = createPresentationQueue();
-    
+        
+        memoryProperties = createPhysicalDeviceMemoryProperties();
+        fillMemoryTypes();
+        fillMemoryHeaps();
+        
         imageAvailableSemaphore = new VulkanSemaphore( this );
         renderFinishedSemaphore = new VulkanSemaphore( this );
     
@@ -111,8 +122,54 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 ", presentation family: " + presentationFamily +
                 ", queues: " + availableQueueFamilies.size() +
                 ", extensions: " + availableExtensionProperties.size() +
+                ", memory types: " + memoryTypesToString() +
             "]"
         );
+    }
+    
+    public Map< Integer, VulkanMemoryType > getMemoryTypes() {
+        return memoryTypes;
+    }
+    
+    VulkanMemoryType selectMemoryType( int desiredType, int... desiredFlags ) {
+        for ( VulkanMemoryType memoryType : memoryTypes.values() ) {
+            if( checkMemoryTypeFlags( memoryType.propertyFlags(), desiredType, desiredFlags ) ) {
+                return memoryType;
+            }
+        }
+        throw new CannotSelectSuitableMemoryTypeException( this, desiredType, desiredFlags );
+    }
+    
+    private boolean checkMemoryTypeFlags( int memoryFlags, int desiredType, int... desiredFlags ) {
+        if( ( memoryFlags & (1 << desiredType) ) == 0 ) {
+            return false;
+        }
+        for( int desiredFlag : desiredFlags ) {
+            if( (memoryFlags & desiredFlag ) == 0 ) {
+                return false;
+            }
+        }
+        return true ;
+    }
+    
+    private void fillMemoryHeaps() {
+        VulkanHelper.iterate( memoryProperties.memoryHeaps(),
+            ( index, memoryHeap ) -> memoryHeaps.put( index, new VulkanMemoryHeap( index, memoryHeap ) ) );
+    }
+    
+    private void fillMemoryTypes() {
+        VulkanHelper.iterate( memoryProperties.memoryTypes(),
+            ( index, memoryType ) -> memoryTypes.put( index, new VulkanMemoryType( index, memoryType ) ) );
+    }
+    
+    @Override
+    public int compareTo( VulkanPhysicalDevice o ) {
+        return Long.compare( getScore(), o.getScore() );
+    }
+    
+    @Override
+    public String toString() {
+        return "VulkanPhysicalDevice@" + hashCode() + "[name:" + properties.deviceNameString() + "]";
     }
     
     ArrayBufferLoader getBufferLoader() {
@@ -127,22 +184,20 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         waitForDevice();
         
         swapChain.update( windowSurface );
-        graphicPipeline.update( swapChain, shaderStages, bufferLoader );
+        bufferLoader.update();
+        graphicPipeline.update( swapChain, shaderStages, bufferLoader.buffer );
         refreshFrameBuffers( frameBuffers );
         refreshCommandBuffers( commandBuffers );
-        bufferLoader.update();
-    }
-    
-    private void refreshCommandBuffers( Map< Integer, VulkanCommandBuffer > commandBuffers ) {
-        disposeCommandBuffers( commandBuffers );
-        commandPool.refreshCommandBuffers( commandBuffers, frameBuffers, graphicPipeline, swapChain );
     }
     
     void testRender() {
         int index = aquireNextImageIndex();
     
         VulkanCommandBuffer currentCommandBuffer = commandBuffers.get( index );
-        currentCommandBuffer.fillRenderQueue( currentCommandBuffer::drawVertices );
+        currentCommandBuffer.fillRenderQueue( () -> {
+                currentCommandBuffer.drawVertices( bufferLoader );
+            }
+        );
         submitQueue( currentCommandBuffer );
         presentQueue( index );
     
@@ -150,6 +205,60 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             waitForDevice();
         }
         
+    }
+    
+    void dispose() {
+        waitForDevice();
+        disposeFrameBuffers( frameBuffers );
+        disposeCommandBuffers( commandBuffers );
+        commandPool.dispose();
+        graphicPipeline.dispose();
+        swapChain.dispose();
+        bufferLoader.close();
+        vertexShader.dispose();
+        fragmentShader.dispose();
+        imageAvailableSemaphore.dispose();
+        renderFinishedSemaphore.dispose();
+        VK10.vkDestroyDevice( logicalDevice, null );
+    }
+    
+    VkDevice getLogicalDevice() {
+        return logicalDevice;
+    }
+    
+    boolean isSingleQueueFamilyUsed() {
+        return usedQueueFamilies.size() == 1;
+    }
+    
+    VkPhysicalDevice getPhysicalDevice() {
+        return physicalDevice;
+    }
+
+    long getScore() {
+        return (
+            (
+                properties.limits().maxMemoryAllocationCount() + properties.limits().maxImageDimension2D() +
+                    ( availableExtensionProperties.size() + availableQueueFamilies.size() ) * 1000
+            ) * typeMultiplier()
+        );
+    }
+
+    IntBuffer createQueueFamilyIndicesBuffer() {
+        IntBuffer buffer = MemoryUtil.memAllocInt( usedQueueFamilies.size() );
+        usedQueueFamilies.forEach( family -> buffer.put( family.getIndex() ) );
+        buffer.flip();
+        return buffer;
+    }
+
+    private VkPhysicalDeviceMemoryProperties createPhysicalDeviceMemoryProperties() {
+        VkPhysicalDeviceMemoryProperties memoryProperties = VkPhysicalDeviceMemoryProperties.create();
+        VK10.vkGetPhysicalDeviceMemoryProperties( physicalDevice, memoryProperties );
+        return memoryProperties;
+    }
+    
+    private void refreshCommandBuffers( Map< Integer, VulkanCommandBuffer > commandBuffers ) {
+        disposeCommandBuffers( commandBuffers );
+        commandPool.refreshCommandBuffers( commandBuffers, frameBuffers, graphicPipeline, swapChain );
     }
     
     private int aquireNextImageIndex() {
@@ -244,66 +353,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         frameBuffers.clear();
     }
     
-    private final VulkanShaderProgram vertexShader;
-    private final VulkanShaderProgram fragmentShader;
-    private static final String VERTEX_SHADER_FILE_PATH = "resources/First Oracle/vert.spv";
-    private static final String FRAGMENT_SHADER_FILE_PATH = "resources/First Oracle/frag.spv";
-    
-    void dispose() {
-        waitForDevice();
-        disposeFrameBuffers( frameBuffers );
-        disposeCommandBuffers( commandBuffers );
-        commandPool.dispose();
-        graphicPipeline.dispose();
-        swapChain.dispose();
-        vertexShader.dispose();
-        fragmentShader.dispose();
-        imageAvailableSemaphore.dispose();
-        renderFinishedSemaphore.dispose();
-        VK10.vkDestroyDevice( logicalDevice, null );
-    }
-    
     private void disposeCommandBuffers( Map< Integer, VulkanCommandBuffer > commandBuffers ) {
         commandBuffers.forEach( ( integer, vulkanCommandBuffer ) -> vulkanCommandBuffer.close() );
         commandBuffers.clear();
-    }
-    
-    @Override
-    public int compareTo( VulkanPhysicalDevice o ) {
-        return Long.compare( getScore(), o.getScore() );
-    }
-    
-    @Override
-    public String toString() {
-        return "VulkanPhysicalDevice@" + hashCode() + "[name:" + properties.deviceNameString() + "]";
-    }
-    
-    VkDevice getLogicalDevice() {
-        return logicalDevice;
-    }
-    
-    boolean isSingleQueueFamilyUsed() {
-        return usedQueueFamilies.size() == 1;
-    }
-    
-    VkPhysicalDevice getPhysicalDevice() {
-        return physicalDevice;
-    }
-    
-    long getScore() {
-        return (
-            (
-                properties.limits().maxMemoryAllocationCount() + properties.limits().maxImageDimension2D() +
-                    ( availableExtensionProperties.size() + availableQueueFamilies.size() ) * 1000
-            ) * typeMultiplier()
-        );
-    }
-    
-    IntBuffer createQueueFamilyIndicesBuffer() {
-        IntBuffer buffer = MemoryUtil.memAllocInt( usedQueueFamilies.size() );
-        usedQueueFamilies.forEach( family -> buffer.put( family.getIndex() ) );
-        buffer.flip();
-        return buffer;
     }
     
     private void addUsedQueueFamily( VulkanQueueFamily... family ) {
@@ -470,13 +522,27 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VkQueueFamilyProperties.Buffer queueFamilyPropertiesBuffer = VkQueueFamilyProperties.create( queueFamilyCount[0] );
         VK10.vkGetPhysicalDeviceQueueFamilyProperties( physicalDevice, queueFamilyCount, queueFamilyPropertiesBuffer );
         List< VulkanQueueFamily > queueFamilyProperties = new ArrayList<>( queueFamilyCount[0] );
-        int index = 0;
-        while ( queueFamilyPropertiesBuffer.hasRemaining() ) {
-            VulkanQueueFamily family = new VulkanQueueFamily( queueFamilyPropertiesBuffer.get(), index++ );
+        
+        VulkanHelper.iterate( queueFamilyPropertiesBuffer, ( index, properties ) -> {
+            VulkanQueueFamily family = new VulkanQueueFamily( properties, index );
             queueFamilyProperties.add( family );
             logger.finer( this + " -> " + family );
-        }
+        } );
         return queueFamilyProperties;
+    }
+    
+    public String memoryTypesToString() {
+        StringBuilder memoryTypesString = new StringBuilder(  );
+        memoryTypesString.append( "{" );
+        memoryTypes.values().forEach( memoryType ->
+            memoryTypesString.append( " { heapIndex:" )
+                .append( memoryType.heapIndex() )
+                .append( ", flags:" )
+                .append( memoryType.propertyFlags() )
+                .append( " }," ) );
+        memoryTypesString.deleteCharAt( memoryTypesString.length()-1 );
+        memoryTypesString.append( " }" );
+        return memoryTypesString.toString();
     }
     
     private long typeMultiplier() {

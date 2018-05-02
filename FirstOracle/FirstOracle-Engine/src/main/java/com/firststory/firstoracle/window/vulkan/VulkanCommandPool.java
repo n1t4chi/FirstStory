@@ -43,22 +43,19 @@ class VulkanCommandPool {
         VulkanGraphicPipeline graphicPipeline,
         VulkanSwapChain swapChain
     ) {
-        PointerBuffer commandBufferBuffer = createCommandBufferBuffer( frameBuffers );
-        int iterator = 0;
-        while ( commandBufferBuffer.hasRemaining() ) {
-            commandBuffers.put(
-                iterator,
+        VulkanHelper.iterate( createCommandBufferBuffer( frameBuffers ),
+            ( index, commandBufferAddress ) -> commandBuffers.put(
+                index,
                 new VulkanCommandBuffer(
                     device,
-                    commandBufferBuffer.get(),
-                    frameBuffers.get( iterator ),
+                    commandBufferAddress,
+                    frameBuffers.get( index ),
                     graphicPipeline,
                     swapChain,
-                    this
+                    VulkanCommandPool.this
                 )
-            );
-            iterator++;
-        }
+            )
+        );
     }
     
     private PointerBuffer createCommandBufferBuffer( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
@@ -81,7 +78,7 @@ class VulkanCommandPool {
     
     private VulkanAddress createCommandPool() {
         return VulkanHelper.createAddress(
-            (address)-> VK10.vkCreateCommandPool(
+            address -> VK10.vkCreateCommandPool(
                 device.getLogicalDevice(), createCommandPoolCreateInfo(), null, address ),
             resultCode -> new CannotCreateVulkanCommandPoolException( device, resultCode )
         );

@@ -54,8 +54,6 @@ public class VulkanCommandBuffer {
     }
     
     void close() {
-        System.err.println(commandBuffer.address());
-        System.err.println(commandBuffer);
         VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress().getValue(), commandBuffer );
     }
     
@@ -105,7 +103,12 @@ public class VulkanCommandBuffer {
         );
     }
     
-    void drawVertices() {
+    void drawVertices( VulkanBufferLoader bufferLoader ) {
+    
+        VK10.vkCmdBindVertexBuffers( commandBuffer, 0,
+            new long[]{ bufferLoader.buffer.getBufferAddress().getValue() },
+            new long[]{ 0 }
+        );
         VK10.vkCmdDraw( commandBuffer, 3, 1, 0, 0 );
     }
     

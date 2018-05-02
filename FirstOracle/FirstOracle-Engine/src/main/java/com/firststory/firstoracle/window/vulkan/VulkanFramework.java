@@ -314,8 +314,9 @@ public class VulkanFramework implements RenderingFramework {
         } );
         VkDebugReportCallbackCreateInfoEXT createInfo = VkDebugReportCallbackCreateInfoEXT.create()
             .sType( EXTDebugReport.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT )
-            .flags( EXTDebugReport.VK_DEBUG_REPORT_ERROR_BIT_EXT | EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT |
-                EXTDebugReport.VK_DEBUG_REPORT_INFORMATION_BIT_EXT )
+            .flags( EXTDebugReport.VK_DEBUG_REPORT_ERROR_BIT_EXT | EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT
+                //| EXTDebugReport.VK_DEBUG_REPORT_INFORMATION_BIT_EXT
+            )
             .pfnCallback( callback )
             .pNext( VK10.VK_NULL_HANDLE )
             .pUserData( VK10.VK_NULL_HANDLE );

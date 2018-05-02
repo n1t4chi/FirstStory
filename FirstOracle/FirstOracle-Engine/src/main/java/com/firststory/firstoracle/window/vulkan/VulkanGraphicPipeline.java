@@ -45,12 +45,12 @@ public class VulkanGraphicPipeline {
     }
     
     void update(
-        VulkanSwapChain swapChain, List<VkPipelineShaderStageCreateInfo> shaderStages, VulkanBufferLoader bufferLoader
+        VulkanSwapChain swapChain, List<VkPipelineShaderStageCreateInfo> shaderStages, VulkanDataBuffer dataBuffer
     ) {
         dispose();
         pipelineLayoutAddress = createVulkanPipelineLayout();
         renderPassAddress = createRenderPass( swapChain );
-        graphicsPipelineAddress = createGraphicPipeline( swapChain, shaderStages, bufferLoader );
+        graphicsPipelineAddress = createGraphicPipeline( swapChain, shaderStages, dataBuffer );
     }
     
     long getGraphicPipeline() {
@@ -62,10 +62,10 @@ public class VulkanGraphicPipeline {
     }
     
     private long createGraphicPipeline(
-        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages, VulkanBufferLoader bufferLoader
+        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages, VulkanDataBuffer dataBuffer
     ) {
         VkGraphicsPipelineCreateInfo createInfo =
-            createGraphicPipelineCreateInfo( swapChain, shaderStages, bufferLoader );
+            createGraphicPipelineCreateInfo( swapChain, shaderStages, dataBuffer );
         long[] graphicsPipelineAddress = new long[1];
 
         VulkanHelper.assertCallAndThrow(
@@ -81,12 +81,12 @@ public class VulkanGraphicPipeline {
     }
     
     private VkGraphicsPipelineCreateInfo createGraphicPipelineCreateInfo(
-        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages, VulkanBufferLoader bufferLoader
+        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages, VulkanDataBuffer dataBuffer
     ) {
         return VkGraphicsPipelineCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO )
             .pStages( createShaderStageCreateInfoBuffer( shaderStages ) )
-            .pVertexInputState( createVertexInputStateCreateInfo( bufferLoader ) )
+            .pVertexInputState( createVertexInputStateCreateInfo( dataBuffer ) )
             .pInputAssemblyState( createInputAssemblyStateCreateInfo() )
             .pViewportState( createViewportStateCreateInfo( swapChain ) )
             .pRasterizationState( createRasterizationStateCreateInfo() )
@@ -253,13 +253,14 @@ public class VulkanGraphicPipeline {
             .primitiveRestartEnable( false );
     }
     
-    private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo( VulkanBufferLoader bufferLoader ) {
-    
+    private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo( VulkanDataBuffer dataBuffer ) {
+        
         return VkPipelineVertexInputStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO )
+            .pNext( VK10.VK_NULL_HANDLE )
             .pVertexBindingDescriptions(
                 VkVertexInputBindingDescription.create( 1 )
-                    .put( createVertexBindingDescription( bufferLoader ) )
+                    .put( createVertexBindingDescription( dataBuffer ) )
                     .flip()
             )
             .pVertexAttributeDescriptions(
@@ -270,10 +271,10 @@ public class VulkanGraphicPipeline {
             );
     }
     
-    private VkVertexInputBindingDescription createVertexBindingDescription( VulkanBufferLoader bufferLoader ) {
+    private VkVertexInputBindingDescription createVertexBindingDescription( VulkanDataBuffer dataBuffer ) {
         return VkVertexInputBindingDescription.create()
             .binding( 0 )
-            .stride( bufferLoader.getVertexLength() )
+            .stride( dataBuffer.getVertexDataSize() ) //todo
             .inputRate( VK10.VK_VERTEX_INPUT_RATE_VERTEX );
     }
     
@@ -285,9 +286,9 @@ public class VulkanGraphicPipeline {
     private VkVertexInputAttributeDescription createColourAttributeDescription() {
         return VkVertexInputAttributeDescription.create()
             .binding( 0 )
-            .location( 0 )
+            .location( 1 )
             .format( VK10.VK_FORMAT_R32G32B32_SFLOAT )
-            .offset( 0 );
+            .offset( 2*4 ); //todo
     }
     
     /**
@@ -300,7 +301,7 @@ public class VulkanGraphicPipeline {
             .binding( 0 )
             .location( 0 )
             .format( VK10.VK_FORMAT_R32G32_SFLOAT )
-            .offset( 0 );
+            .offset( 0 ); //todo
     }
     
     private long createVulkanPipelineLayout() {

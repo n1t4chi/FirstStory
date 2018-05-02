@@ -5,6 +5,8 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.window.vulkan.exceptions.VulkanException;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 
 import java.util.function.*;
@@ -18,7 +20,7 @@ public class VulkanHelper {
     
     static < CreateInfo > VulkanAddress createAddress(
         CreateInfoSupplier< CreateInfo > supplier,
-        CreateInfoCreator< CreateInfo > creator,
+        CreateInfoArrayCreator< CreateInfo > creator,
         ExceptionThrower thrower
     ) {
         return createAddress( supplier, creator, VK_SUCCESS_TEST, thrower );
@@ -26,7 +28,7 @@ public class VulkanHelper {
     
     static < CreateInfo > VulkanAddress createAddress(
         CreateInfoSupplier< CreateInfo > supplier,
-        CreateInfoCreator< CreateInfo > creator,
+        CreateInfoArrayCreator< CreateInfo > creator,
         FailTest test,
         ExceptionThrower thrower
     ) {
@@ -34,13 +36,13 @@ public class VulkanHelper {
     }
     
     static VulkanAddress createAddress(
-        SimpleCreator creator, ExceptionThrower thrower
+        ArrayCreator creator, ExceptionThrower thrower
     ) {
         return createAddress( creator, VK_SUCCESS_TEST, thrower );
     }
     
     static VulkanAddress createAddress(
-        SimpleCreator creator, FailTest test, ExceptionThrower thrower
+        ArrayCreator creator, FailTest test, ExceptionThrower thrower
     ) {
         return updateAddress( new VulkanAddress(), creator, test, thrower );
     }
@@ -48,7 +50,7 @@ public class VulkanHelper {
     static < CreateInfo > VulkanAddress updateAddress(
         VulkanAddress address,
         CreateInfoSupplier< CreateInfo > supplier,
-        CreateInfoCreator< CreateInfo > creator,
+        CreateInfoArrayCreator< CreateInfo > creator,
         ExceptionThrower thrower
     ) {
         return updateAddress( address, supplier, creator, VK_SUCCESS_TEST, thrower );
@@ -57,7 +59,7 @@ public class VulkanHelper {
     static < CreateInfo > VulkanAddress updateAddress(
         VulkanAddress addres,
         CreateInfoSupplier< CreateInfo > supplier,
-        CreateInfoCreator< CreateInfo > creator,
+        CreateInfoArrayCreator< CreateInfo > creator,
         FailTest test,
         ExceptionThrower thrower
     ) {
@@ -66,18 +68,66 @@ public class VulkanHelper {
     
     static VulkanAddress updateAddress(
         VulkanAddress address,
-        SimpleCreator creator, ExceptionThrower thrower
+        ArrayCreator creator, ExceptionThrower thrower
     ) {
         return updateAddress( address, creator, VK_SUCCESS_TEST, thrower );
     }
     
     static VulkanAddress updateAddress(
         VulkanAddress address,
-        SimpleCreator creator, FailTest test, ExceptionThrower thrower
+        ArrayCreator creator, FailTest test, ExceptionThrower thrower
     ) {
         long[] addressA = new long[1];
         VulkanHelper.assertCallAndThrow( () -> creator.create( addressA ), test, thrower );
         return address.setAddress( addressA[0] );
+    }
+    
+    
+    static < CreateInfo > VulkanAddress createAddressViaBuffer(
+        CreateInfoSupplier< CreateInfo > supplier,
+        CreateInfoBufferCreator< CreateInfo > creator,
+        ExceptionThrower thrower
+    ) {
+        return createAddressViaBuffer( supplier, creator, VK_SUCCESS_TEST, thrower );
+    }
+    
+    static < CreateInfo > VulkanAddress createAddressViaBuffer(
+        CreateInfoSupplier< CreateInfo > supplier,
+        CreateInfoBufferCreator< CreateInfo > creator,
+        FailTest test,
+        ExceptionThrower thrower
+    ) {
+        return createAddressViaBuffer( address -> creator.create( supplier.get(), address ), test, thrower );
+    }
+    
+    static VulkanAddress createAddressViaBuffer(
+        PointerBufferCreator creator, ExceptionThrower thrower
+    ) {
+        return createAddressViaBuffer( creator, VK_SUCCESS_TEST, thrower );
+    }
+    
+    static VulkanAddress createAddressViaBuffer(
+        PointerBufferCreator creator, FailTest test, ExceptionThrower thrower
+    ) {
+        return updateAddressViaBuffer( new VulkanAddress(), creator, test, thrower );
+    }
+    
+    static VulkanAddress updateAddressViaBuffer(
+        VulkanAddress address,
+        PointerBufferCreator creator, ExceptionThrower thrower
+    ) {
+        return updateAddressViaBuffer( address, creator, VK_SUCCESS_TEST, thrower );
+    }
+    
+    static VulkanAddress updateAddressViaBuffer(
+        VulkanAddress address,
+        PointerBufferCreator creator, FailTest test, ExceptionThrower thrower
+    ) {
+        PointerBuffer pointerBuffer = MemoryUtil.memAllocPointer( 1 );
+        VulkanHelper.assertCallAndThrow( () -> creator.create( pointerBuffer ), test, thrower );
+        long value = pointerBuffer.get();
+        pointerBuffer.free();
+        return address.setAddress( value );
     }
     
     static void assertCallAndThrow(
@@ -117,17 +167,37 @@ public class VulkanHelper {
         }
     }
     
-    interface SimpleCreator extends Function< long[], Integer > {
+    interface PointerBufferCreator extends Function< PointerBuffer, Integer > {
 
+        Integer create( PointerBuffer address );
+
+        @Override
+        default Integer apply( PointerBuffer address ) {
+            return create( address );
+        }
+    }
+    
+    interface ArrayCreator extends Function< long[], Integer > {
+        
         Integer create( long[] address );
-
+        
         @Override
         default Integer apply( long[] address ) {
             return create( address );
         }
     }
     
-    interface CreateInfoCreator< CreateInfo > extends BiFunction< CreateInfo, long[], Integer > {
+    interface CreateInfoBufferCreator< CreateInfo > extends BiFunction< CreateInfo, PointerBuffer, Integer > {
+        
+        Integer create( CreateInfo createInfo, PointerBuffer address );
+        
+        @Override
+        default Integer apply( CreateInfo createInfo, PointerBuffer address ) {
+            return create( createInfo, address );
+        }
+    }
+    
+    interface CreateInfoArrayCreator< CreateInfo > extends BiFunction< CreateInfo, long[], Integer > {
         
         Integer create( CreateInfo createInfo, long[] address );
         
@@ -174,6 +244,31 @@ public class VulkanHelper {
         @Override
         default void accept( Integer resultCode ) {
             perform( resultCode );
+        }
+    }
+    
+    public interface IterationAction< Product > extends BiConsumer< Integer, Product > {
+        @Override
+        void accept( Integer index, Product product );
+    }
+    
+    static < Product > void iterate(
+        Iterable< Product > products,
+        IterationAction< Product > action
+    ) {
+        int index = 0;
+        for ( Product product : products ) {
+            action.accept( index++, product );
+        }
+    }
+    
+    static void iterate(
+        PointerBuffer products,
+        IterationAction< Long > action
+    ) {
+        int index = 0;
+        while ( products.hasRemaining() ) {
+            action.accept( index++, products.get() );
         }
     }
 }

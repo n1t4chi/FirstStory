@@ -36,9 +36,9 @@ class VulkanFrameBuffer {
         VulkanImageView imageView, VulkanGraphicPipeline graphicPipeline, VulkanSwapChain swapChain
     ) {
         return VulkanHelper.createAddress(
-            () -> createFrameBufferCreateInfo(
-                imageView, graphicPipeline, swapChain ),
-            (createInfo, address) -> VK10.vkCreateFramebuffer( device.getLogicalDevice(), createInfo, null, address ),
+            () -> createFrameBufferCreateInfo( imageView, graphicPipeline, swapChain ),
+            (createInfo, address) -> VK10.vkCreateFramebuffer(
+                device.getLogicalDevice(), createInfo, null, address ),
             resultCode -> new CannotCreateVulkanFrameBufferException( device, resultCode )
         );
     }
