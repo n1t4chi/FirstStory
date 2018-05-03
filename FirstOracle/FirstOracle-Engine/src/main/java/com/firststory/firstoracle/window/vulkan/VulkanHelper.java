@@ -78,7 +78,7 @@ public class VulkanHelper {
         ArrayCreator creator, FailTest test, ExceptionThrower thrower
     ) {
         long[] addressA = new long[1];
-        VulkanHelper.assertCallAndThrow( () -> creator.create( addressA ), test, thrower );
+        VulkanHelper.assertCallOrThrow( () -> creator.create( addressA ), test, thrower );
         return address.setAddress( addressA[0] );
     }
     
@@ -124,16 +124,16 @@ public class VulkanHelper {
         PointerBufferCreator creator, FailTest test, ExceptionThrower thrower
     ) {
         PointerBuffer pointerBuffer = MemoryUtil.memAllocPointer( 1 );
-        VulkanHelper.assertCallAndThrow( () -> creator.create( pointerBuffer ), test, thrower );
+        VulkanHelper.assertCallOrThrow( () -> creator.create( pointerBuffer ), test, thrower );
         long value = pointerBuffer.get();
         pointerBuffer.free();
         return address.setAddress( value );
     }
     
-    static void assertCallAndThrow(
+    static void assertCallOrThrow(
         ResultCodeSupplier supplier, ExceptionThrower thrower
     ) {
-        assertCallAndThrow( supplier, VK_SUCCESS_TEST, thrower );
+        assertCallOrThrow( supplier, VK_SUCCESS_TEST, thrower );
     }
     
     static void assertCall(
@@ -142,7 +142,7 @@ public class VulkanHelper {
         assertCall( supplier, VK_SUCCESS_TEST, action );
     }
     
-    static void assertCallAndThrow(
+    static void assertCallOrThrow(
         ResultCodeSupplier supplier, FailTest test, ExceptionThrower thrower
     ) {
         assertCall( supplier, test, resultCode -> { throw thrower.create( resultCode ); } );
@@ -155,6 +155,31 @@ public class VulkanHelper {
         if ( test.test( resultCode = supplier.get() ) ) {
             action.accept( resultCode );
         }
+    }
+    
+    static < Product > void iterate(
+        Iterable< Product > products,
+        IterationAction< Product > action
+    ) {
+        int index = 0;
+        for ( Product product : products ) {
+            action.accept( index++, product );
+        }
+    }
+    
+    static void iterate(
+        PointerBuffer products,
+        IterationAction< Long > action
+    ) {
+        int index = 0;
+        while ( products.hasRemaining() ) {
+            action.accept( index++, products.get() );
+        }
+    }
+    
+    public interface IterationAction< Product > extends BiConsumer< Integer, Product > {
+        @Override
+        void accept( Integer index, Product product );
     }
     
     interface FailTest extends Predicate< Integer > {
@@ -244,31 +269,6 @@ public class VulkanHelper {
         @Override
         default void accept( Integer resultCode ) {
             perform( resultCode );
-        }
-    }
-    
-    public interface IterationAction< Product > extends BiConsumer< Integer, Product > {
-        @Override
-        void accept( Integer index, Product product );
-    }
-    
-    static < Product > void iterate(
-        Iterable< Product > products,
-        IterationAction< Product > action
-    ) {
-        int index = 0;
-        for ( Product product : products ) {
-            action.accept( index++, product );
-        }
-    }
-    
-    static void iterate(
-        PointerBuffer products,
-        IterationAction< Long > action
-    ) {
-        int index = 0;
-        while ( products.hasRemaining() ) {
-            action.accept( index++, products.get() );
         }
     }
 }

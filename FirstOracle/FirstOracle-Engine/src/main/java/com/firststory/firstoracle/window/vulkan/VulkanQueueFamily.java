@@ -4,22 +4,48 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 
 class VulkanQueueFamily {
+    
+    private final VulkanPhysicalDevice device;
     private final VkQueueFamilyProperties properties;
     private final int index;
+    private VkQueue queue = null;
     
-    VulkanQueueFamily( VkQueueFamilyProperties properties, int index ) {
+    VulkanQueueFamily( VulkanPhysicalDevice device, VkQueueFamilyProperties properties, int index ) {
+        this.device = device;
         this.properties = properties;
         this.index = index;
     }
     
-    public VkQueueFamilyProperties getProperties() {
+    VkQueue getQueue() {
+        if( queue == null ) {
+            queue = extractQueue();
+        }
+        return queue;
+    }
+    
+    void waitForQueue() {
+        VK10.vkQueueWaitIdle( getQueue() );
+    }
+    
+    private VkQueue extractQueue() {
+        PointerBuffer queuePointer = MemoryStack.stackMallocPointer( 1 );
+        VK10.vkGetDeviceQueue( device.getLogicalDevice(), index, 0, queuePointer );
+        return new VkQueue( queuePointer.get(), device.getLogicalDevice() );
+        
+    }
+    
+    VkQueueFamilyProperties getProperties() {
         return properties;
     }
     
-    public int getIndex() {
+    int getIndex() {
         return index;
     }
     
@@ -34,6 +60,24 @@ class VulkanQueueFamily {
                 ? -family2.compare( null )
                 : family1.compare( family2 )
         ;
+    }
+    
+    @Override
+    public boolean equals( Object o ) {
+        if ( this == o ) { return true; }
+        if ( o == null || getClass() != o.getClass() ) { return false; }
+        
+        VulkanQueueFamily that = ( VulkanQueueFamily ) o;
+        
+        if ( index != that.index ) { return false; }
+        return properties != null ? properties.equals( that.properties ) : that.properties == null;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = properties != null ? properties.hashCode() : 0;
+        result = 31 * result + index;
+        return result;
     }
     
     boolean isFlagSet( int flag ) {

@@ -68,7 +68,7 @@ public class VulkanGraphicPipeline {
             createGraphicPipelineCreateInfo( swapChain, shaderStages, dataBuffer );
         long[] graphicsPipelineAddress = new long[1];
 
-        VulkanHelper.assertCallAndThrow(
+        VulkanHelper.assertCallOrThrow(
             () -> VK10.vkCreateGraphicsPipelines( device.getLogicalDevice(),
                 VK10.VK_NULL_HANDLE,
                 VkGraphicsPipelineCreateInfo.calloc( 1 ).put( createInfo ).flip(),
@@ -114,7 +114,7 @@ public class VulkanGraphicPipeline {
     
     private long createRenderPass( VulkanSwapChain swapChain ) {
         long[] address = new long[1];
-        VulkanHelper.assertCallAndThrow(
+        VulkanHelper.assertCallOrThrow(
             () -> VK10.vkCreateRenderPass(
                 device.getLogicalDevice(), createRenderPassCreateInfo( swapChain ), null, address ),
             resultCode -> new CannotCreateVulkanRenderPass( device, resultCode )
@@ -311,7 +311,7 @@ public class VulkanGraphicPipeline {
             .pPushConstantRanges( null );
         
         long[] address = new long[1];
-        VulkanHelper.assertCallAndThrow(
+        VulkanHelper.assertCallOrThrow(
             () -> VK10.vkCreatePipelineLayout( device.getLogicalDevice(), createInfo, null, address ),
             resultCode -> new CannotCreateVulkanPipelineLayoutException( device, resultCode )
         );

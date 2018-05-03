@@ -138,7 +138,9 @@ public class VulkanDataBuffer {
                 .pNext( VK10.VK_NULL_HANDLE )
                 .size( vertexBuffer.remaining() )
                 .usage( VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT )
-                .sharingMode( VK10.VK_SHARING_MODE_EXCLUSIVE )
+                .sharingMode( device.isSingleCommandPoolUsed()
+                    ? VK10.VK_SHARING_MODE_EXCLUSIVE
+                    : VK10.VK_SHARING_MODE_CONCURRENT )
                 .flags( 0 ),
             ( createInfo, address ) ->
                     VK10.vkCreateBuffer( device.getLogicalDevice(), createInfo, null, address ),

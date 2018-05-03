@@ -57,7 +57,15 @@ public class VulkanCommandBuffer {
         VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress().getValue(), commandBuffer );
     }
     
-    void fillRenderQueue( Commands commands ) {
+    void transferQueue( Commands commands ) {
+        resetCommandBuffer();
+        beginRecordingCommandBuffer();
+        
+        commands.execute();
+        
+        endCommandBuffer();
+    }
+    void renderQueue( Commands commands ) {
         resetCommandBuffer();
         beginRecordingCommandBuffer();
         beginRenderPassForCommandBuffer();
@@ -70,7 +78,7 @@ public class VulkanCommandBuffer {
     }
     
     private void resetCommandBuffer() {
-        VulkanHelper.assertCallAndThrow(
+        VulkanHelper.assertCallOrThrow(
             () -> VK10.vkResetCommandBuffer( commandBuffer, VK10.VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT ),
             resultCode -> {
                 logger.warning( "Failed to reset command buffer!" );
@@ -80,7 +88,7 @@ public class VulkanCommandBuffer {
     }
     
     private void beginRecordingCommandBuffer() {
-        VulkanHelper.assertCallAndThrow(
+        VulkanHelper.assertCallOrThrow(
             () -> VK10.vkBeginCommandBuffer( commandBuffer, beginInfo ),
             resultCode -> {
                 logger.warning( "Failed to begin command buffer!" );
@@ -94,7 +102,7 @@ public class VulkanCommandBuffer {
     }
     
     private void endCommandBuffer() {
-        VulkanHelper.assertCallAndThrow(
+        VulkanHelper.assertCallOrThrow(
             () -> VK10.vkEndCommandBuffer( commandBuffer ),
             resultCode -> {
                 logger.warning( "Failed to end command buffer!" );

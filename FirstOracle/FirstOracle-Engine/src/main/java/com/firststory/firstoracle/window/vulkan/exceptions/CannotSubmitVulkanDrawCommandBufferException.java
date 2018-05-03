@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan.exceptions;
 
-import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
+import com.firststory.firstoracle.window.vulkan.VulkanCommandPool;
 import org.lwjgl.vulkan.VkQueue;
 
 /**
@@ -12,9 +12,9 @@ import org.lwjgl.vulkan.VkQueue;
  */
 public class CannotSubmitVulkanDrawCommandBufferException extends VulkanException {
     public CannotSubmitVulkanDrawCommandBufferException(
-        VulkanPhysicalDevice physicalDevice, Integer errorCode, VkQueue presentationQueue
+        VulkanCommandPool pool, Integer errorCode, VkQueue presentationQueue
     ) {
         super( errorCode,
-            "Cannot submit vulkan draw command buffer for " + presentationQueue + " at device" + physicalDevice );
+            "Cannot submit vulkan draw command buffer for " + presentationQueue + " at command pool:" + pool );
     }
 }

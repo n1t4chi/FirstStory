@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -44,18 +45,19 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Set< VulkanQueueFamily > usedQueueFamilies = new HashSet<>();
     private final VulkanQueueFamily graphicFamily;
     private final VulkanQueueFamily presentationFamily;
+    private final VulkanQueueFamily transferFamily;
     private final VkDevice logicalDevice;
-    private final VkQueue presentationQueue;
     private final VulkanWindowSurface windowSurface;
     private final List< VkExtensionProperties > availableExtensionProperties;
     private final VulkanSwapChain swapChain;
     private final List<VkPipelineShaderStageCreateInfo> shaderStages = new ArrayList<>(  );
     private final VulkanGraphicPipeline graphicPipeline;
-    private final VulkanSemaphore renderFinishedSemaphore;
     private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>(  );
-    private final VulkanCommandPool commandPool;
+    private final VulkanCommandPool graphicCommandPool;
+    private final VulkanCommandPool transferCommandPool;
+    private final Set< VulkanCommandPool > commandPools = new HashSet<>(  );
+    private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
-    private final Map< Integer, VulkanCommandBuffer > commandBuffers = new HashMap<>(  );
     private final VulkanBufferLoader bufferLoader;
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
@@ -83,11 +85,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         availableQueueFamilies = getAvailableQueueFamilies();
         graphicFamily = selectGraphicFamily();
         presentationFamily = selectPresentationFamily();
-        assertQueueFamilies();
+        transferFamily = selectTransferFamily();
         
-        addUsedQueueFamily( graphicFamily, presentationFamily );
+        addUsedQueueFamily( graphicFamily, presentationFamily, transferFamily );
         logicalDevice = createLogicalDevice( validationLayerNamesBuffer );
-        presentationQueue = createPresentationQueue();
         
         memoryProperties = createPhysicalDeviceMemoryProperties();
         fillMemoryTypes();
@@ -111,20 +112,49 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
         swapChain = new VulkanSwapChain( this );
         graphicPipeline = new VulkanGraphicPipeline( this );
-        commandPool = new VulkanCommandPool( this );
+        graphicCommandPool = new VulkanCommandPool( this, graphicFamily,
+            imageAvailableSemaphore,
+            renderFinishedSemaphore
+        );
+        transferCommandPool = provideTransferCommandPool();
+        commandPools.add( graphicCommandPool );
+        commandPools.add( transferCommandPool );
+        
         bufferLoader = new VulkanBufferLoader( this );
         updateRenderingContext();
         
         logger.finer(
             "finished creating " + this + "[" +
-                ", score: " + getScore() +
-                ", graphic family: " + graphicFamily +
-                ", presentation family: " + presentationFamily +
-                ", queues: " + availableQueueFamilies.size() +
-                ", extensions: " + availableExtensionProperties.size() +
-                ", memory types: " + memoryTypesToString() +
+                "\nscore: " + getScore() +
+                "\ngraphic family: " + graphicFamily +
+                "\npresentation family: " + presentationFamily +
+                "\ntransfer family: " + transferFamily +
+                "\nqueues: " + availableQueueFamilies.size() +
+                "\nextensions: " + availableExtensionProperties.size() +
+                "\nmemory types: " + memoryTypesToString() +
             "]"
         );
+    }
+    
+    private VulkanCommandPool provideTransferCommandPool() {
+        VulkanCommandPool transferCommandPool;
+        if( isGraphicAndTransferQueueSame() ) {
+            transferCommandPool = graphicCommandPool;
+        }else{
+            transferCommandPool = new VulkanCommandPool( this, transferFamily,
+                imageAvailableSemaphore,
+                renderFinishedSemaphore
+            );
+        }
+        return transferCommandPool;
+    }
+    
+    private boolean isGraphicAndTransferQueueSame() {
+        return graphicFamily.equals( transferFamily );
+    }
+    
+    boolean isSingleCommandPoolUsed() {
+        return commandPools.size() == 1;
     }
     
     public Map< Integer, VulkanMemoryType > getMemoryTypes() {
@@ -141,7 +171,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private boolean checkMemoryTypeFlags( int memoryFlags, int desiredType, int... desiredFlags ) {
-        if( ( memoryFlags & (1 << desiredType) ) == 0 ) {
+        if( ( memoryFlags & ( 1 << desiredType ) ) == 0 ) {
             return false;
         }
         for( int desiredFlag : desiredFlags ) {
@@ -181,37 +211,38 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     void updateRenderingContext() {
-        waitForDevice();
+        presentationFamily.waitForQueue();
         
         swapChain.update( windowSurface );
         bufferLoader.update();
         graphicPipeline.update( swapChain, shaderStages, bufferLoader.buffer );
         refreshFrameBuffers( frameBuffers );
-        refreshCommandBuffers( commandBuffers );
+        refreshCommandBuffers();
     }
     
     void testRender() {
         int index = aquireNextImageIndex();
     
-        VulkanCommandBuffer currentCommandBuffer = commandBuffers.get( index );
-        currentCommandBuffer.fillRenderQueue( () -> {
-                currentCommandBuffer.drawVertices( bufferLoader );
-            }
-        );
-        submitQueue( currentCommandBuffer );
-        presentQueue( index );
+//        VulkanCommandBuffer currentTransferCommandBuffer = transferCommandPool.getCommandBuffer( index );
+//        currentTransferCommandBuffer.transferQueue( () -> { } );
+        
+        VulkanCommandBuffer currentGraphicCommandBuffer = graphicCommandPool.getCommandBuffer( index );
+        currentGraphicCommandBuffer.renderQueue( () -> { currentGraphicCommandBuffer.drawVertices( bufferLoader ); } );
+    
+//        transferCommandPool.submitQueue( currentTransferCommandBuffer );
+        graphicCommandPool.submitQueue( currentGraphicCommandBuffer );
+        graphicCommandPool.presentQueue( swapChain, index );
     
         if ( VulkanFramework.validationLayersAreEnabled() ) {
-            waitForDevice();
+            presentationFamily.waitForQueue();
         }
         
     }
     
     void dispose() {
-        waitForDevice();
+        presentationFamily.waitForQueue();
         disposeFrameBuffers( frameBuffers );
-        disposeCommandBuffers( commandBuffers );
-        commandPool.dispose();
+        commandPools.forEach( VulkanCommandPool::dispose );
         graphicPipeline.dispose();
         swapChain.dispose();
         bufferLoader.close();
@@ -256,9 +287,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return memoryProperties;
     }
     
-    private void refreshCommandBuffers( Map< Integer, VulkanCommandBuffer > commandBuffers ) {
-        disposeCommandBuffers( commandBuffers );
-        commandPool.refreshCommandBuffers( commandBuffers, frameBuffers, graphicPipeline, swapChain );
+    private void refreshCommandBuffers() {
+        commandPools.forEach( pool -> pool.refreshCommandBuffers( frameBuffers, graphicPipeline, swapChain ) );
     }
     
     private int aquireNextImageIndex() {
@@ -273,43 +303,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 throw new VulkanNextImageIndexException( this, ex1, ex2 );
             }
         }
-    }
-    
-    private void presentQueue( int index ) {
-        VkPresentInfoKHR presentInfo = VkPresentInfoKHR.create()
-            .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
-            .pWaitSemaphores(
-                MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress().getValue() ) )
-            .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, swapChain.getAddress().getValue() ) )
-            .swapchainCount( 1 )
-            .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index ) )
-            .pResults( null )
-        ;
-        KHRSwapchain.vkQueuePresentKHR( presentationQueue , presentInfo );
-    }
-    
-    private void waitForDevice() {
-        VK10.vkQueueWaitIdle( presentationQueue );
-    }
-    
-    private void submitQueue( VulkanCommandBuffer currentCommandBuffer ) {
-        VkSubmitInfo submitInfo = VkSubmitInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
-            .waitSemaphoreCount( 1 )
-            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put(
-                0, imageAvailableSemaphore.getAddress().getValue() ) )
-            .pWaitDstStageMask(
-                MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT ) )
-            .pCommandBuffers(
-                MemoryUtil.memAllocPointer( 1 ).put(
-                    0, currentCommandBuffer.getAddress().getValue() ) )
-            .pSignalSemaphores( MemoryUtil.memAllocLong( 1 ).put(
-                0, renderFinishedSemaphore.getAddress().getValue() ) )
-        ;
-        VulkanHelper.assertCallAndThrow(
-            ()-> VK10.vkQueueSubmit( presentationQueue, submitInfo, VK10.VK_NULL_HANDLE ),
-            resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode, presentationQueue )
-        );
     }
     
     private int tryToAquireNextImageIndex() {
@@ -353,11 +346,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         frameBuffers.clear();
     }
     
-    private void disposeCommandBuffers( Map< Integer, VulkanCommandBuffer > commandBuffers ) {
-        commandBuffers.forEach( ( integer, vulkanCommandBuffer ) -> vulkanCommandBuffer.close() );
-        commandBuffers.clear();
-    }
-    
     private void addUsedQueueFamily( VulkanQueueFamily... family ) {
         if ( family != null ) {
             usedQueueFamilies.addAll( Arrays.asList( family ) );
@@ -390,14 +378,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         }
     }
     
-    private void assertQueueFamilies() {
-        if ( graphicFamily == null ) {
-            throw new CannotSelectVulkanQueueFamilyException( this, "graphic" );
-        } else if ( presentationFamily == null ) {
-            throw new CannotSelectVulkanQueueFamilyException( this, "presentation" );
-        }
-    }
-    
     private List< VkExtensionProperties > createExtensionProperties() {
         int[] extensionCount = new int[1];
         VK10.vkEnumerateDeviceExtensionProperties( physicalDevice, ( ByteBuffer ) null, extensionCount, null );
@@ -419,13 +399,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .pNext( VK10.VK_NULL_HANDLE )
             .pQueueCreateInfos( createQueueFamilyBuffer() )
             .ppEnabledExtensionNames( createEnabledExtensionNamesBuffer() );
-    }
-    
-    private VkQueue createPresentationQueue() {
-        PointerBuffer queuePointer = MemoryStack.stackMallocPointer( 1 );
-        VK10.vkGetDeviceQueue( logicalDevice, presentationFamily.getIndex(), 0, queuePointer );
-        return new VkQueue( queuePointer.get(), logicalDevice );
-        
     }
     
     private VkDeviceQueueCreateInfo.Buffer createQueueFamilyBuffer() {
@@ -464,7 +437,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             createInfo.ppEnabledLayerNames( validationLayerNamesBuffer );
         }
         PointerBuffer devicePointer = MemoryUtil.memAllocPointer( 1 );
-        VulkanHelper.assertCallAndThrow(
+        VulkanHelper.assertCallOrThrow(
             () -> VK10.vkCreateDevice( physicalDevice, createInfo, null, devicePointer ),
             resultCode -> new CannotCreateVulkanLogicDeviceException( this, resultCode )
         );
@@ -478,6 +451,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         } );
         extensionsBuffer.flip();
         return extensionsBuffer;
+    }
+    
+    
+    private VulkanQueueFamily selectTransferFamily() {
+        return selectSuitableFamily(
+            family -> family.isFlagSet( VK10.VK_QUEUE_TRANSFER_BIT ) && family != graphicFamily,
+            ( first, second ) -> VulkanQueueFamily.compare( first, second ),
+            () -> {
+                logger.warning( "Selecting graphic family for transfer family." );
+                return graphicFamily;
+            }
+        );
     }
     
     private VulkanQueueFamily selectGraphicFamily() {
@@ -502,8 +487,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         Predicate< VulkanQueueFamily > familyChecker,
         Comparator< VulkanQueueFamily > familyComparator,
         String familyName
-    )
-    {
+    ) {
+        return selectSuitableFamily( familyChecker, familyComparator, () -> {
+            logger.warning( "Could not select " + familyName + " family!" );
+            throw new CannotSelectVulkanQueueFamilyException( this, familyName );
+        } );
+    }
+    
+    private VulkanQueueFamily selectSuitableFamily(
+        Predicate< VulkanQueueFamily > familyChecker,
+        Comparator< VulkanQueueFamily > familyComparator,
+        Supplier< VulkanQueueFamily > noSelectedFamilyAction
+    ) {
         VulkanQueueFamily selectedFamily = null;
         for ( VulkanQueueFamily family : availableQueueFamilies ) {
             if ( familyChecker.test( family ) && familyComparator.compare( selectedFamily, family ) < 0 ) {
@@ -511,10 +506,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             }
         }
         if ( selectedFamily == null ) {
-            logger.warning( "Could not select " + familyName + " family!" );
+            return noSelectedFamilyAction.get();
         }
         return selectedFamily;
     }
+    
     
     private List< VulkanQueueFamily > getAvailableQueueFamilies() {
         int[] queueFamilyCount = new int[1];
@@ -524,7 +520,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         List< VulkanQueueFamily > queueFamilyProperties = new ArrayList<>( queueFamilyCount[0] );
         
         VulkanHelper.iterate( queueFamilyPropertiesBuffer, ( index, properties ) -> {
-            VulkanQueueFamily family = new VulkanQueueFamily( properties, index );
+            VulkanQueueFamily family = new VulkanQueueFamily( this, properties, index );
             queueFamilyProperties.add( family );
             logger.finer( this + " -> " + family );
         } );

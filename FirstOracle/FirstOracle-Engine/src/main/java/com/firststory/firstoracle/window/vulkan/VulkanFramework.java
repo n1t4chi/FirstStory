@@ -260,7 +260,7 @@ public class VulkanFramework implements RenderingFramework {
         PointerBuffer instancePointer = MemoryStack.stackCallocPointer( 1 );
         int resultCode;
     
-        VulkanHelper.assertCallAndThrow(
+        VulkanHelper.assertCallOrThrow(
             () -> VK10.vkCreateInstance( createInfo, null, instancePointer ),
             CannotCreateVulkanInstanceException::new
         );
