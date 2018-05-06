@@ -5,7 +5,6 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
@@ -27,6 +26,12 @@ import java.util.stream.Collectors;
  * @author n1t4chi
  */
 public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > {
+    
+    static final float[] VERTICES = new float[]{
+        /*1*/ /*pos*/ -0.75f, -0.75f, /*col*/ 1.0f, 0.0f, 1.0f,
+        /*2*/ /*pos*/ 0.75f, -0.75f, /*col*/ 1.0f, 1.0f, 0.0f,
+        /*3*/ /*pos*/ 0.0f, 0.75f, /*col*/ 0.0f, 1.0f, 1.0f
+    };
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
     private static final Set< String > requiredExtensions = new HashSet<>();
@@ -202,32 +207,34 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return "VulkanPhysicalDevice@" + hashCode() + "[name:" + properties.deviceNameString() + "]";
     }
     
-    ArrayBufferProvider getBufferLoader() {
-        return null;
-    }
-    
-    VulkanQueueFamily getGraphicFamily() {
-        return graphicFamily;
+    VulkanBufferLoader getBufferLoader() {
+        return bufferLoader;
     }
     
     void updateRenderingContext() {
         presentationFamily.waitForQueue();
-        
-        swapChain.update( windowSurface );
         bufferLoader.update();
-        graphicPipeline.update( swapChain, shaderStages, bufferLoader.buffer );
+        if( vulkanDataBuffer == null ) {
+            vulkanDataBuffer = bufferLoader.create();
+            vulkanDataBuffer.load( VERTICES );
+        }
+        swapChain.update( windowSurface );
+        graphicPipeline.update( swapChain, shaderStages, vulkanDataBuffer );
         refreshFrameBuffers( frameBuffers );
         refreshCommandBuffers();
     }
+    
+    private VulkanDataBuffer vulkanDataBuffer = null;
     
     void testRender() {
         int index = aquireNextImageIndex();
     
 //        VulkanCommandBuffer currentTransferCommandBuffer = transferCommandPool.getCommandBuffer( index );
 //        currentTransferCommandBuffer.transferQueue( () -> { } );
-        
+    
+        vulkanDataBuffer.bind();
         VulkanCommandBuffer currentGraphicCommandBuffer = graphicCommandPool.getCommandBuffer( index );
-        currentGraphicCommandBuffer.renderQueue( () -> { currentGraphicCommandBuffer.drawVertices( bufferLoader ); } );
+        currentGraphicCommandBuffer.renderQueue( () -> { currentGraphicCommandBuffer.drawVertices( vulkanDataBuffer ); } );
     
 //        transferCommandPool.submitQueue( currentTransferCommandBuffer );
         graphicCommandPool.submitQueue( currentGraphicCommandBuffer );

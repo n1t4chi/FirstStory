@@ -11,8 +11,11 @@ import org.lwjgl.vulkan.VK10;
  */
 class VulkanAddress {
     
-    static final VulkanAddress NULL = new VulkanAddress();
+    private static final VulkanAddress NULL = createNull();
     private static final long NULL_HANDLE = VK10.VK_NULL_HANDLE;
+    
+    static VulkanAddress createNull() { return new VulkanAddress(); }
+    
     private long value;
     
     VulkanAddress( long value ) {

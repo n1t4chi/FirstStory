@@ -4,7 +4,6 @@
 package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.data.ArrayBuffer;
-import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.data.DataBuffer;
 import com.firststory.firstoracle.object.VertexAttribute;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
@@ -22,9 +21,9 @@ public class OpenGLVertexAttributeLoader implements VertexAttributeLoader, AutoC
     
     private final Map< Integer, Integer > lastBinds = new HashMap<>( 2 );
     private final HashSet<ArrayBuffer> buffers = new HashSet<>();
-    private final ArrayBufferProvider<Integer> loader;
+    private final OpenGlArrayBufferLoader loader;
     
-    public OpenGLVertexAttributeLoader( ArrayBufferProvider<Integer> loader ) {
+    OpenGLVertexAttributeLoader( OpenGlArrayBufferLoader loader ) {
         this.loader = loader;
     }
     
@@ -35,8 +34,8 @@ public class OpenGLVertexAttributeLoader implements VertexAttributeLoader, AutoC
     }
     
     @Override
-    public ArrayBuffer<Integer> createEmptyBuffer() {
-        return new ArrayBuffer<>( loader );
+    public OpenGlArrayBuffer createEmptyBuffer() {
+        return new OpenGlArrayBuffer( loader );
     }
     
     @Override

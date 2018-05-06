@@ -25,7 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class OpenGlFramework implements RenderingFramework {
     
     private static final ReentrantLock contextLock = new ReentrantLock(true);
-    private final ArrayBufferProvider bufferLoader = new OpenGlArrayBufferLoader();
+    private final OpenGlArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
     private final OpenGLVertexAttributeLoader attributeLoader = new OpenGLVertexAttributeLoader( bufferLoader );
     private final OpenGlTextureLoader textureLoader = new OpenGlTextureLoader();
     private final OpenGlShaderProgram2D shader2D = new OpenGlShaderProgram2D(  );

@@ -4,6 +4,10 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
+import com.firststory.firstoracle.data.ArrayBuffer;
+import com.firststory.firstoracle.data.ArrayBufferProvider;
+import com.firststory.firstoracle.data.BufferNotCreatedException;
+import com.firststory.firstoracle.data.BufferNotLoadedException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotAllocateVulkanMemoryExcpetion;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotBindVulkanMemoryException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanVertexBuffer;
@@ -20,42 +24,53 @@ import java.nio.FloatBuffer;
 /**
  * @author n1t4chi
  */
-public class VulkanDataBuffer {
+public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
     
     private static final int ATTRIBUTES = 2 + 3;
     private static final int VERTEX_DATA_SIZE = ATTRIBUTES * 4;
     
-    
     private final VulkanPhysicalDevice device;
-    private final int length;
-    private final VulkanAddress bufferAddress;
-    private final VkMemoryRequirements memoryRequirements;
-    private final VulkanMemoryType usedMemoryType;
-    private final ByteBuffer vertexBuffer;
-    private final float[] data;
-    private final VkMemoryAllocateInfo allocateInfo;
-    private final VulkanAddress allocatedMemoryAddress;
+    private int length;
+    private VulkanAddress bufferAddress = VulkanAddress.createNull();
+    private VkMemoryRequirements memoryRequirements;
+    private VulkanMemoryType usedMemoryType;
+    private ByteBuffer vertexBuffer;
+    private float[] data;
+    private VkMemoryAllocateInfo allocateInfo;
+    private VulkanAddress allocatedMemoryAddress = VulkanAddress.createNull();
+    
+    VulkanDataBuffer( VulkanPhysicalDevice device, ArrayBufferProvider< VulkanDataBuffer > loader ) {
+        super( loader );
+        this.device = device;
+    }
     
     VulkanAddress getBufferAddress() {
         return bufferAddress;
     }
     
-    VulkanDataBuffer( VulkanPhysicalDevice device, float[] dataArray ) {
-        this.device = device;
+    @Override
+    public void load( float[] dataArray ) {
         this.data = dataArray;
         length = caluclateLength();
         vertexBuffer = createVertexDataBuffer();
-
+        
         bufferAddress = createBuffer();
         memoryRequirements = createMemoryRequirements();
         usedMemoryType = selectRequiredMemoryType();
     
         allocateInfo = createMemoryAllocateInfo();
-        allocatedMemoryAddress = allocateMemory();
-        bindMemoryToBuffer();
     }
     
-    void load() {
+    @Override
+    public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
+        if( bufferAddress.isNull() ) {
+            throw new BufferNotLoadedException();
+        }
+        if( !allocatedMemoryAddress.isNull() ) {
+            return;
+        }
+        allocatedMemoryAddress = allocateMemory();
+        bindMemoryToBuffer();
         copyMemory();
         unmapMemory();
     }
@@ -150,7 +165,13 @@ public class VulkanDataBuffer {
     }
 
     public void close() {
-        VK10.vkDestroyBuffer( device.getLogicalDevice(), bufferAddress.getValue(), null );
+        if( !bufferAddress.isNull() ) {
+            VK10.vkDestroyBuffer( device.getLogicalDevice(), bufferAddress.getValue(), null );
+            bufferAddress.setNull();
+        }
+        if( !allocatedMemoryAddress.isNull() ) {
         VK10.vkFreeMemory(device.getLogicalDevice(), allocatedMemoryAddress.getValue(), null );
+            allocatedMemoryAddress.setNull();
+        }
     }
 }

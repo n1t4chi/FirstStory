@@ -111,10 +111,10 @@ public class VulkanCommandBuffer {
         );
     }
     
-    void drawVertices( VulkanBufferLoader bufferLoader ) {
+    void drawVertices( VulkanDataBuffer buffer ) {
     
         VK10.vkCmdBindVertexBuffers( commandBuffer, 0,
-            new long[]{ bufferLoader.buffer.getBufferAddress().getValue() },
+            new long[]{ buffer.getBufferAddress().getValue() },
             new long[]{ 0 }
         );
         VK10.vkCmdDraw( commandBuffer, 3, 1, 0, 0 );

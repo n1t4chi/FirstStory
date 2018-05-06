@@ -15,15 +15,8 @@ import java.util.List;
  */
 public class VulkanBufferLoader implements ArrayBufferProvider< VulkanDataBuffer > {
     
-    static final float[] VERTICES = new float[]{
-        /*1*/ /*pos*/ -0.75f, -0.75f, /*col*/ 1.0f, 0.0f, 1.0f,
-        /*2*/ /*pos*/ 0.75f, -0.75f, /*col*/ 1.0f, 1.0f, 0.0f,
-        /*3*/ /*pos*/ 0.0f, 0.75f, /*col*/ 0.0f, 1.0f, 1.0f
-    };
-    
     private final VulkanPhysicalDevice device;
-    private List<VulkanDataBuffer > buffers = new ArrayList<>(  );
-    VulkanDataBuffer buffer;
+    private final List<VulkanDataBuffer > buffers = new ArrayList<>(  );
     
     VulkanBufferLoader( VulkanPhysicalDevice device ) {
         
@@ -32,38 +25,29 @@ public class VulkanBufferLoader implements ArrayBufferProvider< VulkanDataBuffer
     
     @Override
     public VulkanDataBuffer create() throws CannotCreateBufferException {
-        return null;
+        return new VulkanDataBuffer( device, this );
     }
     
     @Override
-    public void bind( VulkanDataBuffer bufferID ) {
-    
+    public void bind( VulkanDataBuffer buffer ) {
     }
     
     @Override
-    public void load( VulkanDataBuffer bufferID, float[] bufferData ) {
-    
+    public void load( VulkanDataBuffer buffer, float[] bufferData ) {
+        buffer.load( bufferData );
     }
     
     @Override
-    public void delete( VulkanDataBuffer bufferID ) {
-    
+    public void delete( VulkanDataBuffer buffer ) {
+        buffer.close();
     }
     
     @Override
     public void close() {
         buffers.forEach( VulkanDataBuffer::close );
-    }
-    
-    int getVertexLength() {
-        return VERTICES.length;
+        buffers.clear();
     }
     
     void update() {
-        if(buffers.isEmpty()) {
-            buffer = new VulkanDataBuffer( device, VERTICES );
-            buffer.load();
-            buffers.add( buffer );
-        }
     }
 }

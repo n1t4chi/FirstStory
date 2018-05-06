@@ -6,7 +6,6 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.PropertiesUtil;
-import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.data.TextureBufferLoader;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
 import com.firststory.firstoracle.rendering.RenderingCommands;
@@ -120,7 +119,7 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     @Override
-    public ArrayBufferProvider getBufferLoader() {
+    public VulkanBufferLoader getBufferLoader() {
         return mainPhysicalDevice.getBufferLoader();
     }
     

@@ -35,7 +35,7 @@ class VulkanSwapChain {
     private VkExtent2D extent;
     private int imageCount;
     private VkSwapchainCreateInfoKHR createInfo;
-    private VulkanAddress address = VulkanAddress.NULL;
+    private VulkanAddress address = VulkanAddress.createNull();
     
     VulkanSwapChain( VulkanPhysicalDevice device ) {
         this.device = device;

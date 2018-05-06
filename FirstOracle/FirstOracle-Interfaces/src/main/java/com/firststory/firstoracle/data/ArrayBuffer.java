@@ -7,7 +7,7 @@ package com.firststory.firstoracle.data;
 /**
  * @author n1t4chi
  */
-public class ArrayBuffer<Context> implements DataBuffer<Context, float[]> {
+public abstract class ArrayBuffer<Context> implements DataBuffer<Context, float[]> {
     
     private final ArrayBufferProvider<Context> loader;
     private Context bufferID = null;
