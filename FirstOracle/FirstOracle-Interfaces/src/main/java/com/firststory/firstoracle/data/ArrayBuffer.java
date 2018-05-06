@@ -7,19 +7,19 @@ package com.firststory.firstoracle.data;
 /**
  * @author n1t4chi
  */
-public class ArrayBuffer implements DataBuffer<float[]> {
+public class ArrayBuffer<Context> implements DataBuffer<Context, float[]> {
     
-    private final ArrayBufferLoader loader;
-    private int bufferID = 0;
+    private final ArrayBufferProvider<Context> loader;
+    private Context bufferID = null;
     private boolean loaded = false;
     private int length;
     
-    public ArrayBuffer( ArrayBufferLoader loader ) {
+    public ArrayBuffer( ArrayBufferProvider<Context> loader ) {
         this.loader = loader;
     }
     
     @Override
-    public int getID() {
+    public Context getContext() {
         return bufferID;
     }
     
@@ -34,7 +34,7 @@ public class ArrayBuffer implements DataBuffer<float[]> {
     
     @Override
     public boolean isCreated() {
-        return bufferID != 0;
+        return bufferID != null;
     }
     
     @Override
@@ -66,7 +66,7 @@ public class ArrayBuffer implements DataBuffer<float[]> {
     }
     
     private void cleanUpFields() {
-        bufferID = 0;
+        bufferID = null;
         length = 0;
         loaded = false;
     }

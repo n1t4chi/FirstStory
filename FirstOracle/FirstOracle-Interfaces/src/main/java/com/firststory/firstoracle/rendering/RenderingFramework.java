@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.data.ArrayBufferLoader;
+import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.data.TextureBufferLoader;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
 import com.firststory.firstoracle.shader.ShaderProgram2D;
@@ -24,7 +24,7 @@ public interface RenderingFramework extends AutoCloseable {
     
     VertexAttributeLoader getAttributeLoader();
     
-    ArrayBufferLoader getBufferLoader();
+    ArrayBufferProvider getBufferLoader();
     
     void clearScreen();
     

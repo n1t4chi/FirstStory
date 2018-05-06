@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.ArrayBufferLoader;
+import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
@@ -202,7 +202,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return "VulkanPhysicalDevice@" + hashCode() + "[name:" + properties.deviceNameString() + "]";
     }
     
-    ArrayBufferLoader getBufferLoader() {
+    ArrayBufferProvider getBufferLoader() {
         return null;
     }
     

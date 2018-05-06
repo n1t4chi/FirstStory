@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.window.opengl;
 
-import com.firststory.firstoracle.data.ArrayBufferLoader;
+import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.data.CannotCreateBufferException;
 import org.lwjgl.opengl.GL15;
 
@@ -14,12 +14,12 @@ import java.util.HashSet;
 /**
  * @author n1t4chi
  */
-class OpenGlArrayBufferLoader implements ArrayBufferLoader {
+class OpenGlArrayBufferLoader implements ArrayBufferProvider<Integer> {
     private HashSet<Integer> buffers = new HashSet<>();
     private int lastBoundBuffer = 0;
     
     @Override
-    public int create() throws CannotCreateBufferException {
+    public Integer create() throws CannotCreateBufferException {
         int bufferID = GL15.glGenBuffers();
         if ( bufferID == 0 ) {
             throw new CannotCreateBufferException();
@@ -29,7 +29,7 @@ class OpenGlArrayBufferLoader implements ArrayBufferLoader {
     }
     
     @Override
-    public void bind( int bufferID ) {
+    public void bind( Integer bufferID ) {
         if ( lastBoundBuffer != bufferID ) {
             GL15.glBindBuffer( GL15.GL_ARRAY_BUFFER, bufferID );
             lastBoundBuffer = bufferID;
@@ -37,14 +37,14 @@ class OpenGlArrayBufferLoader implements ArrayBufferLoader {
     }
     
     @Override
-    public void load( int bufferID, float[] bufferData ) {
+    public void load( Integer bufferID, float[] bufferData ) {
         bind( bufferID );
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, bufferData, GL15.GL_STATIC_DRAW);
 //        GL15.glBufferData( GL15.GL_ARRAY_BUFFER, bufferData, GL15.GL_DYNAMIC_DRAW );
     }
     
     @Override
-    public void delete( int bufferID ) {
+    public void delete( Integer bufferID ) {
         GL15.glDeleteBuffers( bufferID );
         buffers.remove( bufferID );
     }

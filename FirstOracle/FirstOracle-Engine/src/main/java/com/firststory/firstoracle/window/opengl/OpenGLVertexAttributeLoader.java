@@ -4,7 +4,7 @@
 package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.data.ArrayBuffer;
-import com.firststory.firstoracle.data.ArrayBufferLoader;
+import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.data.DataBuffer;
 import com.firststory.firstoracle.object.VertexAttribute;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
@@ -22,9 +22,9 @@ public class OpenGLVertexAttributeLoader implements VertexAttributeLoader, AutoC
     
     private final Map< Integer, Integer > lastBinds = new HashMap<>( 2 );
     private final HashSet<ArrayBuffer> buffers = new HashSet<>();
-    private final ArrayBufferLoader loader;
+    private final ArrayBufferProvider<Integer> loader;
     
-    public OpenGLVertexAttributeLoader( ArrayBufferLoader loader ) {
+    public OpenGLVertexAttributeLoader( ArrayBufferProvider<Integer> loader ) {
         this.loader = loader;
     }
     
@@ -35,19 +35,19 @@ public class OpenGLVertexAttributeLoader implements VertexAttributeLoader, AutoC
     }
     
     @Override
-    public ArrayBuffer createEmptyBuffer() {
-        return new ArrayBuffer( loader );
+    public ArrayBuffer<Integer> createEmptyBuffer() {
+        return new ArrayBuffer<>( loader );
     }
     
     @Override
     public void bindBuffer( VertexAttribute attribute, long key ) {
-        ArrayBuffer buffer = attribute.getBuffer( key, this );
+        ArrayBuffer<Integer> buffer = attribute.getBuffer( key, this );
         int index = attribute.getIndex();
         Integer lastBind = lastBinds.get( index );
-        if ( lastBind == null || !lastBind.equals( buffer.getID() ) ) {
+        if ( lastBind == null || !lastBind.equals( buffer.getContext() ) ) {
             buffer.bind();
             GL20.glVertexAttribPointer( index, attribute.getVertexSize(), GL11.GL_FLOAT, false, 0, 0 );
-            lastBinds.put( index, buffer.getID() );
+            lastBinds.put( index, buffer.getContext() );
         }
         
     }

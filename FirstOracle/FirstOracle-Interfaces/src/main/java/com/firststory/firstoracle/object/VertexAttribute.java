@@ -12,12 +12,12 @@ import java.util.HashMap;
 /**
  * @author n1t4chi
  */
-public abstract class VertexAttribute implements AutoCloseable {
+public abstract class VertexAttribute<Context> implements AutoCloseable {
     private final HashMap< VertexAttributeLoader, BufferMap > bufferMaps = new HashMap<>();
     private final HashMap< Long, float[] > arrays = new HashMap<>(  );
     
     
-    public ArrayBuffer getBuffer( long key, VertexAttributeLoader loader ) {
+    public ArrayBuffer<Context> getBuffer( long key, VertexAttributeLoader<Context> loader ) {
         return bufferMaps.computeIfAbsent( loader, ignored -> new BufferMap() )
             .get(key, () -> {
                 ArrayBuffer newBuffer = loader.createEmptyBuffer();

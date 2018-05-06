@@ -35,7 +35,6 @@ public class VulkanDataBuffer {
     private final float[] data;
     private final VkMemoryAllocateInfo allocateInfo;
     private final VulkanAddress allocatedMemoryAddress;
-    private final VulkanAddress mappedMemoryAddres;
     
     VulkanAddress getBufferAddress() {
         return bufferAddress;
@@ -53,14 +52,16 @@ public class VulkanDataBuffer {
     
         allocateInfo = createMemoryAllocateInfo();
         allocatedMemoryAddress = allocateMemory();
-        mappedMemoryAddres = mapMemory();
-        copyMemory();
-        unmapMemory();
         bindMemoryToBuffer();
     }
     
+    void load() {
+        copyMemory();
+        unmapMemory();
+    }
+    
     private void copyMemory() {
-        MemoryUtil.memCopy(MemoryUtil.memAddress( vertexBuffer ), mappedMemoryAddres.getValue(), vertexBuffer.remaining());
+        MemoryUtil.memCopy( MemoryUtil.memAddress( vertexBuffer ), mapMemory().getValue(), vertexBuffer.remaining());
         MemoryUtil.memFree( vertexBuffer );
     }
     

@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.PropertiesUtil;
-import com.firststory.firstoracle.data.ArrayBufferLoader;
+import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.rendering.RenderingCommands;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import org.joml.Vector4f;
@@ -25,7 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class OpenGlFramework implements RenderingFramework {
     
     private static final ReentrantLock contextLock = new ReentrantLock(true);
-    private final ArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
+    private final ArrayBufferProvider bufferLoader = new OpenGlArrayBufferLoader();
     private final OpenGLVertexAttributeLoader attributeLoader = new OpenGLVertexAttributeLoader( bufferLoader );
     private final OpenGlTextureLoader textureLoader = new OpenGlTextureLoader();
     private final OpenGlShaderProgram2D shader2D = new OpenGlShaderProgram2D(  );
@@ -78,7 +78,7 @@ public class OpenGlFramework implements RenderingFramework {
     }
     
     @Override
-    public ArrayBufferLoader getBufferLoader() {
+    public ArrayBufferProvider getBufferLoader() {
         return bufferLoader;
     }
     

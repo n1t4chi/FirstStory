@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * @author n1t4chi
  */
-public class TextureBuffer implements DataBuffer< TextureData > {
+public class TextureBuffer implements DataBuffer<Integer, TextureData > {
     
     private final TextureBufferLoader loader;
     
@@ -26,7 +26,7 @@ public class TextureBuffer implements DataBuffer< TextureData > {
     }
     
     @Override
-    public int getID() {
+    public Integer getContext() {
         return textureID;
     }
     
