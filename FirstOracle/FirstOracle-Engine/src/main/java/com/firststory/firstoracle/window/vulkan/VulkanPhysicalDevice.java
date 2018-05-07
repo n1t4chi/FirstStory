@@ -22,15 +22,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.firststory.firstoracle.window.vulkan.VulkanDataBuffer.ATTRIBUTES_COLOUR;
+import static com.firststory.firstoracle.window.vulkan.VulkanDataBuffer.ATTRIBUTES_POSITION;
+
 /**
  * @author n1t4chi
  */
 public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > {
     
-    static final float[] VERTICES = new float[]{
-        /*1*/ /*pos*/ -0.75f, -0.75f, /*col*/ 1.0f, 0.0f, 1.0f,
-        /*2*/ /*pos*/ 0.75f, -0.75f, /*col*/ 1.0f, 1.0f, 0.0f,
-        /*3*/ /*pos*/ 0.0f, 0.75f, /*col*/ 0.0f, 1.0f, 1.0f
+//    static final float[] VERTICES = new float[]{
+//        /*1*/ /*pos*/ -0.75f, -0.75f, /*col*/ 1.0f, 0.0f, 1.0f,
+//        /*2*/ /*pos*/ 0.75f, -0.75f, /*col*/ 1.0f, 1.0f, 0.0f,
+//        /*3*/ /*pos*/ 0.0f, 0.75f, /*col*/ 0.0f, 1.0f, 1.0f
+//    };
+    static final float[] POSITION = new float[]{
+        /*1*/ /*pos*/ -0.75f, -0.75f,
+        /*2*/ /*pos*/ 0.75f, -0.75f,
+        /*3*/ /*pos*/ 0.0f, 0.75f,
+    };
+    static final float[] COLOUR = new float[]{
+        /*1*/  /*col*/ 1.0f, 0.0f, 1.0f,
+        /*2*/ /*col*/ 1.0f, 1.0f, 0.0f,
+        /*3*/ /*col*/ 0.0f, 1.0f, 1.0f
     };
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
@@ -63,7 +76,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Set< VulkanCommandPool > commandPools = new HashSet<>(  );
     private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
-    private final VulkanBufferLoader bufferLoader;
+    private final VulkanDataBufferLoader bufferLoader;
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
     private final Map< Integer, VulkanMemoryHeap > memoryHeaps = new HashMap<>();
@@ -125,7 +138,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.add( graphicCommandPool );
         commandPools.add( transferCommandPool );
         
-        bufferLoader = new VulkanBufferLoader( this );
+        bufferLoader = new VulkanDataBufferLoader( this );
         updateRenderingContext();
         
         logger.finer(
@@ -141,17 +154,15 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         );
     }
     
-    private VulkanCommandPool provideTransferCommandPool() {
-        VulkanCommandPool transferCommandPool;
-        if( isGraphicAndTransferQueueSame() ) {
-            transferCommandPool = graphicCommandPool;
-        }else{
-            transferCommandPool = new VulkanCommandPool( this, transferFamily,
-                imageAvailableSemaphore,
-                renderFinishedSemaphore
-            );
-        }
+    VulkanCommandPool getTransferCommandPool() {
         return transferCommandPool;
+    }
+    
+    private VulkanCommandPool provideTransferCommandPool() {
+        return isGraphicAndTransferQueueSame() || true
+            ? graphicCommandPool
+            : new VulkanCommandPool( this, transferFamily, imageAvailableSemaphore, renderFinishedSemaphore )
+        ;
     }
     
     private boolean isGraphicAndTransferQueueSame() {
@@ -167,24 +178,23 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     VulkanMemoryType selectMemoryType( int desiredType, int... desiredFlags ) {
+        List< Integer > collect = memoryTypes.values()
+            .stream()
+            .map( o -> o.getType().propertyFlags() )
+            .collect( Collectors.toList() );
         for ( VulkanMemoryType memoryType : memoryTypes.values() ) {
-            if( checkMemoryTypeFlags( memoryType.propertyFlags(), desiredType, desiredFlags ) ) {
+            if( checkMemoryTypeFlags( memoryType.getIndex(), memoryType.propertyFlags(), desiredType, desiredFlags ) ) {
                 return memoryType;
             }
         }
         throw new CannotSelectSuitableMemoryTypeException( this, desiredType, desiredFlags );
     }
     
-    private boolean checkMemoryTypeFlags( int memoryFlags, int desiredType, int... desiredFlags ) {
-        if( ( memoryFlags & ( 1 << desiredType ) ) == 0 ) {
+    private boolean checkMemoryTypeFlags( int index, int memoryFlags, int desiredType, int... desiredFlags ) {
+        if( ( desiredType & ( 1 << index ) ) == 0 ) {
             return false;
         }
-        for( int desiredFlag : desiredFlags ) {
-            if( (memoryFlags & desiredFlag ) == 0 ) {
-                return false;
-            }
-        }
-        return true ;
+        return ( memoryFlags & VulkanHelper.flagsToInt( desiredFlags ) ) != 0 ;
     }
     
     private void fillMemoryHeaps() {
@@ -207,24 +217,31 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return "VulkanPhysicalDevice@" + hashCode() + "[name:" + properties.deviceNameString() + "]";
     }
     
-    VulkanBufferLoader getBufferLoader() {
+    VulkanDataBufferLoader getBufferLoader() {
         return bufferLoader;
     }
     
     void updateRenderingContext() {
         presentationFamily.waitForQueue();
-        bufferLoader.update();
-        if( vulkanDataBuffer == null ) {
-            vulkanDataBuffer = bufferLoader.create();
-            vulkanDataBuffer.load( VERTICES );
+//        bufferLoader.update();
+        if( positionBuffer == null ) {
+            positionBuffer = bufferLoader.create();
+            bufferLoader.load( positionBuffer, POSITION, ATTRIBUTES_POSITION );
+            positionBuffer.bind();
+        }
+        if( colourBuffer == null ) {
+            colourBuffer = bufferLoader.create();
+            bufferLoader.load( colourBuffer, COLOUR, ATTRIBUTES_COLOUR );
+            colourBuffer.bind();
         }
         swapChain.update( windowSurface );
-        graphicPipeline.update( swapChain, shaderStages, vulkanDataBuffer );
+        graphicPipeline.update( swapChain, shaderStages );
         refreshFrameBuffers( frameBuffers );
         refreshCommandBuffers();
     }
     
-    private VulkanDataBuffer vulkanDataBuffer = null;
+    private VulkanDataBuffer positionBuffer = null;
+    private VulkanDataBuffer colourBuffer = null;
     
     void testRender() {
         int index = aquireNextImageIndex();
@@ -232,9 +249,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
 //        VulkanCommandBuffer currentTransferCommandBuffer = transferCommandPool.getCommandBuffer( index );
 //        currentTransferCommandBuffer.transferQueue( () -> { } );
     
-        vulkanDataBuffer.bind();
+        //vulkanDataBuffer.bind();
         VulkanCommandBuffer currentGraphicCommandBuffer = graphicCommandPool.getCommandBuffer( index );
-        currentGraphicCommandBuffer.renderQueue( () -> { currentGraphicCommandBuffer.drawVertices( vulkanDataBuffer ); } );
+        currentGraphicCommandBuffer.renderQueue( () -> { currentGraphicCommandBuffer.drawVertices( positionBuffer, colourBuffer ); } );
     
 //        transferCommandPool.submitQueue( currentTransferCommandBuffer );
         graphicCommandPool.submitQueue( currentGraphicCommandBuffer );

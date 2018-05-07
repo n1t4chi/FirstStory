@@ -177,7 +177,15 @@ public class VulkanHelper {
         }
     }
     
-    public interface IterationAction< Product > extends BiConsumer< Integer, Product > {
+    static int flagsToInt( int... flags ) {
+        int returnedFlag = 0;
+        for ( int flag : flags ) {
+            returnedFlag |= flag;
+        }
+        return returnedFlag;
+    }
+    
+    interface IterationAction< Product > extends BiConsumer< Integer, Product > {
         @Override
         void accept( Integer index, Product product );
     }

@@ -119,7 +119,7 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     @Override
-    public VulkanBufferLoader getBufferLoader() {
+    public VulkanDataBufferLoader getBufferLoader() {
         return mainPhysicalDevice.getBufferLoader();
     }
     

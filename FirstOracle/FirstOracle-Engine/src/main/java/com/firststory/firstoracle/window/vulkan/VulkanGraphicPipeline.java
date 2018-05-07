@@ -45,12 +45,12 @@ public class VulkanGraphicPipeline {
     }
     
     void update(
-        VulkanSwapChain swapChain, List<VkPipelineShaderStageCreateInfo> shaderStages, VulkanDataBuffer dataBuffer
+        VulkanSwapChain swapChain, List<VkPipelineShaderStageCreateInfo> shaderStages
     ) {
         dispose();
         pipelineLayoutAddress = createVulkanPipelineLayout();
         renderPassAddress = createRenderPass( swapChain );
-        graphicsPipelineAddress = createGraphicPipeline( swapChain, shaderStages, dataBuffer );
+        graphicsPipelineAddress = createGraphicPipeline( swapChain, shaderStages );
     }
     
     long getGraphicPipeline() {
@@ -62,10 +62,10 @@ public class VulkanGraphicPipeline {
     }
     
     private long createGraphicPipeline(
-        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages, VulkanDataBuffer dataBuffer
+        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
     ) {
         VkGraphicsPipelineCreateInfo createInfo =
-            createGraphicPipelineCreateInfo( swapChain, shaderStages, dataBuffer );
+            createGraphicPipelineCreateInfo( swapChain, shaderStages );
         long[] graphicsPipelineAddress = new long[1];
 
         VulkanHelper.assertCallOrThrow(
@@ -81,12 +81,12 @@ public class VulkanGraphicPipeline {
     }
     
     private VkGraphicsPipelineCreateInfo createGraphicPipelineCreateInfo(
-        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages, VulkanDataBuffer dataBuffer
+        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
     ) {
         return VkGraphicsPipelineCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO )
             .pStages( createShaderStageCreateInfoBuffer( shaderStages ) )
-            .pVertexInputState( createVertexInputStateCreateInfo( dataBuffer ) )
+            .pVertexInputState( createVertexInputStateCreateInfo() )
             .pInputAssemblyState( createInputAssemblyStateCreateInfo() )
             .pViewportState( createViewportStateCreateInfo( swapChain ) )
             .pRasterizationState( createRasterizationStateCreateInfo() )
@@ -253,15 +253,15 @@ public class VulkanGraphicPipeline {
             .primitiveRestartEnable( false );
     }
     
-    private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo( VulkanDataBuffer dataBuffer ) {
+    private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo() {
         
         return VkPipelineVertexInputStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO )
             .pNext( VK10.VK_NULL_HANDLE )
             .pVertexBindingDescriptions(
-                VkVertexInputBindingDescription.create( 1 )
-                    .put( createVertexBindingDescription( dataBuffer ) )
-                    .flip()
+                VkVertexInputBindingDescription.create( 2 )
+                    .put( 0, createVertexBindingDescription( 0, VulkanDataBuffer.VERTEX_POSITION_DATA_SIZE ) )
+                    .put( 1, createVertexBindingDescription( 1, VulkanDataBuffer.VERTEX_COLOUR_DATA_SIZE ) )
             )
             .pVertexAttributeDescriptions(
                 VkVertexInputAttributeDescription.create( 2 )
@@ -271,10 +271,10 @@ public class VulkanGraphicPipeline {
             );
     }
     
-    private VkVertexInputBindingDescription createVertexBindingDescription( VulkanDataBuffer dataBuffer ) {
+    private VkVertexInputBindingDescription createVertexBindingDescription( int binding, int dataSize ) {
         return VkVertexInputBindingDescription.create()
-            .binding( 0 )
-            .stride( dataBuffer.getVertexDataSize() ) //todo
+            .binding( binding )
+            .stride( dataSize ) //todo
             .inputRate( VK10.VK_VERTEX_INPUT_RATE_VERTEX );
     }
     
@@ -285,10 +285,10 @@ public class VulkanGraphicPipeline {
      */
     private VkVertexInputAttributeDescription createColourAttributeDescription() {
         return VkVertexInputAttributeDescription.create()
-            .binding( 0 )
+            .binding( 1 )
             .location( 1 )
             .format( VK10.VK_FORMAT_R32G32B32_SFLOAT )
-            .offset( 2*4 ); //todo
+            .offset( 0 ); //todo
     }
     
     /**

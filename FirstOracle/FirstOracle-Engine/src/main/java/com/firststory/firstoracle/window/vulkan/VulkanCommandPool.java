@@ -17,13 +17,17 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public class VulkanCommandPool {
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandBuffer.class );
+    private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandPool.class );
     private VulkanAddress address;
     private final VulkanPhysicalDevice device;
     private final VulkanQueueFamily usedQueueFamily;
     private final Map< Integer, VulkanCommandBuffer > commandBuffers = new HashMap<>(  );
     private final VulkanSemaphore imageAvailableSemaphore;
     private final VulkanSemaphore renderFinishedSemaphore;
+    
+    public VulkanQueueFamily getUsedQueueFamily() {
+        return usedQueueFamily;
+    }
     
     VulkanCommandPool(
         VulkanPhysicalDevice device,
@@ -60,7 +64,7 @@ public class VulkanCommandPool {
         VulkanSwapChain swapChain
     ) {
         disposeCommandBuffers();
-        VulkanHelper.iterate( createCommandBufferBuffer( frameBuffers ),
+        VulkanHelper.iterate( createCommandBufferBuffer( createAllocateInfo( frameBuffers ), frameBuffers.size() ),
             ( index, commandBufferAddress ) -> commandBuffers.put(
                 index,
                 new VulkanCommandBuffer(
@@ -113,11 +117,13 @@ public class VulkanCommandPool {
         commandBuffers.clear();
     }
     
-    private PointerBuffer createCommandBufferBuffer( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
-        PointerBuffer commandBuffersBuffer = MemoryUtil.memAllocPointer( frameBuffers.size() );
+    PointerBuffer createCommandBufferBuffer(
+        VkCommandBufferAllocateInfo allocateInfo, int size
+    ) {
+        PointerBuffer commandBuffersBuffer = MemoryUtil.memAllocPointer( size );
         VulkanHelper.assertCallOrThrow(
             () -> VK10.vkAllocateCommandBuffers(
-                device.getLogicalDevice(), createAllocateInfo( frameBuffers ), commandBuffersBuffer ),
+                device.getLogicalDevice(), allocateInfo, commandBuffersBuffer ),
             resultCode -> new CannotAllocateVulkanCommandBuffersException( device, resultCode )
         );
         return commandBuffersBuffer;

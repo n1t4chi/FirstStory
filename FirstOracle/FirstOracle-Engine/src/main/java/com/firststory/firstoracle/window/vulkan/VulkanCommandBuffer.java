@@ -65,6 +65,7 @@ public class VulkanCommandBuffer {
         
         endCommandBuffer();
     }
+    
     void renderQueue( Commands commands ) {
         resetCommandBuffer();
         beginRecordingCommandBuffer();
@@ -111,11 +112,11 @@ public class VulkanCommandBuffer {
         );
     }
     
-    void drawVertices( VulkanDataBuffer buffer ) {
+    void drawVertices( VulkanDataBuffer vertexBuffer, VulkanDataBuffer colourBuffer ) {
     
         VK10.vkCmdBindVertexBuffers( commandBuffer, 0,
-            new long[]{ buffer.getBufferAddress().getValue() },
-            new long[]{ 0 }
+            new long[]{ vertexBuffer.getBufferAddress().getValue(), colourBuffer.getBufferAddress().getValue() },
+            new long[]{ 0, 0 }
         );
         VK10.vkCmdDraw( commandBuffer, 3, 1, 0, 0 );
     }
