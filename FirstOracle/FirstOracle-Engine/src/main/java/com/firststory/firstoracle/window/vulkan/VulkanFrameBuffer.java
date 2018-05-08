@@ -48,7 +48,7 @@ class VulkanFrameBuffer {
     ) {
         return VkFramebufferCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO )
-            .renderPass( graphicPipeline.getRenderPass() )
+            .renderPass( graphicPipeline.getRenderPass().getValue() )
             .pAttachments( MemoryUtil.memAllocLong( 1 ).put( 0, imageView.getAddress().getValue() ) )
             .width( ( int ) swapChain.getWidth() )
             .height( ( int ) swapChain.getHeight() )

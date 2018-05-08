@@ -6,6 +6,7 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.window.vulkan.exceptions.VulkanCommandBufferException;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.util.logging.Logger;
@@ -112,8 +113,17 @@ public class VulkanCommandBuffer {
         );
     }
     
-    void drawVertices( VulkanDataBuffer vertexBuffer, VulkanDataBuffer colourBuffer ) {
+    void bindDescriptorSets( VulkanAddress descriptorSet ) {
+        VK10.vkCmdBindDescriptorSets( commandBuffer,
+            VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
+            graphicPipeline.getPipelineLayout().getValue(),
+            0,
+            MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getValue() ),
+            null
+        );
+    }
     
+    void drawVertices( VulkanDataBuffer vertexBuffer, VulkanDataBuffer colourBuffer ) {
         VK10.vkCmdBindVertexBuffers( commandBuffer, 0,
             new long[]{ vertexBuffer.getBufferAddress().getValue(), colourBuffer.getBufferAddress().getValue() },
             new long[]{ 0, 0 }
@@ -133,7 +143,7 @@ public class VulkanCommandBuffer {
         VK10.vkCmdBindPipeline(
             commandBuffer,
             VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphicPipeline.getGraphicPipeline()
+            graphicPipeline.getGraphicPipeline().getValue()
         );
     }
     
@@ -142,7 +152,7 @@ public class VulkanCommandBuffer {
     ) {
         return VkRenderPassBeginInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO )
-            .renderPass( graphicPipeline.getRenderPass() )
+            .renderPass( graphicPipeline.getRenderPass().getValue() )
             .framebuffer( frameBuffer.getAddress().getValue() )
             .renderArea( createRenderArea( swapChain ) )
             .pClearValues( createClearValue() );

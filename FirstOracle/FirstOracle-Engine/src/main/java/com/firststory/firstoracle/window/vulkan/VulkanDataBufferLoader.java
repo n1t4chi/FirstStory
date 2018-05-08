@@ -27,6 +27,12 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
     private static final int[] STAGING_BUFFER_MEMORY_FLAGS = { VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
         VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
     };
+    
+    private static final int[] UNIFORM_BUFFER_USAGE_FLAGS = { VK10.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT };
+    private static final int[] UNIFORM_BUFFER_MEMORY_FLAGS = { VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
+    
     private final VulkanPhysicalDevice device;
     private final List<VulkanDataBuffer > buffers = new ArrayList<>(  );
     private final Map< float[], VulkanDataBuffer > stagingBuffers = new HashMap<>();
@@ -41,13 +47,24 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
         return new VulkanDataBuffer( device, this, LOCAL_BUFFER_USAGE_FLAGS, LOCAL_BUFFER_MEMORY_FLAGS );
     }
     
+    VulkanDataBuffer createUniformBuffer( int dataSize ) {
+        VulkanDataBuffer uniformBuffer = new VulkanDataBuffer(
+            device,
+            this,
+            UNIFORM_BUFFER_USAGE_FLAGS,
+            UNIFORM_BUFFER_MEMORY_FLAGS
+        );
+        uniformBuffer.createBuffer( dataSize, 1 );
+        return uniformBuffer;
+    }
+    
     @Override
     public void bind( VulkanDataBuffer buffer ) {
         VulkanDataBuffer stagingBuffer = buffer.getStagingBuffer();
         stagingBuffer.copyBuffer( buffer, device.getTransferCommandPool() );
     }
     
-    public void load( VulkanDataBuffer buffer, float[] bufferData, int dataSize ) {
+    void load( VulkanDataBuffer buffer, float[] bufferData, int dataSize ) {
         buffer.setStagingBuffer( stagingBuffers.computeIfAbsent( bufferData, data -> {
             VulkanDataBuffer stagingBuffer = new VulkanDataBuffer(
                 device,
@@ -55,12 +72,12 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
                 STAGING_BUFFER_USAGE_FLAGS,
                 STAGING_BUFFER_MEMORY_FLAGS
             );
-            stagingBuffer.load( bufferData.length, dataSize );
+            stagingBuffer.createBuffer( bufferData.length, dataSize );
             stagingBuffer.mapMemory( bufferData );
             stagingBuffer.setStagingBuffer( stagingBuffer );
             return stagingBuffer;
         } ) );
-        buffer.load( bufferData.length, dataSize );
+        buffer.createBuffer( bufferData.length, dataSize );
     }
     
     @Override

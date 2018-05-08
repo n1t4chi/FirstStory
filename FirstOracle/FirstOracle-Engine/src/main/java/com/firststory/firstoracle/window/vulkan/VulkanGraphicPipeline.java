@@ -7,6 +7,7 @@ package com.firststory.firstoracle.window.vulkan;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanGraphicPipelineException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanPipelineLayoutException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanRenderPass;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
@@ -19,28 +20,27 @@ public class VulkanGraphicPipeline {
     
     private final VulkanPhysicalDevice device;
     private final VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo;
-    private long pipelineLayoutAddress = VK10.VK_NULL_HANDLE;
-    private long renderPassAddress = VK10.VK_NULL_HANDLE;
-    private long graphicsPipelineAddress = VK10.VK_NULL_HANDLE;
+    private VulkanAddress pipelineLayout = VulkanAddress.createNull();
+    private VulkanAddress renderPass = VulkanAddress.createNull();
+    private VulkanAddress graphicsPipeline = VulkanAddress.createNull();
     
     VulkanGraphicPipeline(  VulkanPhysicalDevice device ) {
         this.device = device;
         dynamicStateCreateInfo = createDynamicStateCreateInfo();
-    
     }
     
     void dispose() {
-        if( graphicsPipelineAddress != VK10.VK_NULL_HANDLE ) {
-            VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipelineAddress, null );
-            graphicsPipelineAddress = VK10.VK_NULL_HANDLE;
+        if( !graphicsPipeline.isNull() ) {
+            VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipeline.getValue(), null );
+            graphicsPipeline.setNull();
         }
-        if( pipelineLayoutAddress != VK10.VK_NULL_HANDLE ) {
-            VK10.vkDestroyPipelineLayout( device.getLogicalDevice(), pipelineLayoutAddress, null );
-            pipelineLayoutAddress = VK10.VK_NULL_HANDLE;
+        if( !pipelineLayout.isNull() ) {
+            VK10.vkDestroyPipelineLayout( device.getLogicalDevice(), pipelineLayout.getValue(), null );
+            pipelineLayout.setNull();
         }
-        if( renderPassAddress != VK10.VK_NULL_HANDLE ) {
-            VK10.vkDestroyRenderPass( device.getLogicalDevice(), renderPassAddress, null );
-            renderPassAddress = VK10.VK_NULL_HANDLE;
+        if( !renderPass.isNull() ) {
+            VK10.vkDestroyRenderPass( device.getLogicalDevice(), renderPass.getValue(), null );
+            renderPass.setNull();
         }
     }
     
@@ -48,36 +48,38 @@ public class VulkanGraphicPipeline {
         VulkanSwapChain swapChain, List<VkPipelineShaderStageCreateInfo> shaderStages
     ) {
         dispose();
-        pipelineLayoutAddress = createVulkanPipelineLayout();
-        renderPassAddress = createRenderPass( swapChain );
-        graphicsPipelineAddress = createGraphicPipeline( swapChain, shaderStages );
+        updateVulkanPipelineLayout();
+        updateRenderPass( swapChain );
+        createGraphicPipeline( swapChain, shaderStages );
     }
     
-    long getGraphicPipeline() {
-        return graphicsPipelineAddress;
+    VulkanAddress getPipelineLayout() {
+        return pipelineLayout;
     }
     
-    long getRenderPass() {
-        return renderPassAddress;
+    VulkanAddress getGraphicPipeline() {
+        return graphicsPipeline;
     }
     
-    private long createGraphicPipeline(
+    VulkanAddress getRenderPass() {
+        return renderPass;
+    }
+    
+    private void createGraphicPipeline(
         VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
     ) {
         VkGraphicsPipelineCreateInfo createInfo =
             createGraphicPipelineCreateInfo( swapChain, shaderStages );
-        long[] graphicsPipelineAddress = new long[1];
 
-        VulkanHelper.assertCallOrThrow(
-            () -> VK10.vkCreateGraphicsPipelines( device.getLogicalDevice(),
+        VulkanHelper.updateAddress( graphicsPipeline,
+            ( address ) -> VK10.vkCreateGraphicsPipelines( device.getLogicalDevice(),
                 VK10.VK_NULL_HANDLE,
                 VkGraphicsPipelineCreateInfo.calloc( 1 ).put( createInfo ).flip(),
                 null,
-                graphicsPipelineAddress
+                address
             ),
             resultCode -> new CannotCreateVulkanGraphicPipelineException( device, resultCode )
         );
-        return graphicsPipelineAddress[0];
     }
     
     private VkGraphicsPipelineCreateInfo createGraphicPipelineCreateInfo(
@@ -94,8 +96,8 @@ public class VulkanGraphicPipeline {
             .pDepthStencilState( null )
             .pColorBlendState( createColourBlendStateCreateInfo() )
             .pDynamicState( null )
-            .layout( pipelineLayoutAddress )
-            .renderPass( renderPassAddress )
+            .layout( pipelineLayout.getValue() )
+            .renderPass( renderPass.getValue() )
             .subpass( 0 )
             .basePipelineHandle( VK10.VK_NULL_HANDLE )
             .basePipelineIndex( -1 )
@@ -112,14 +114,12 @@ public class VulkanGraphicPipeline {
         return shaderStagesBuffer;
     }
     
-    private long createRenderPass( VulkanSwapChain swapChain ) {
-        long[] address = new long[1];
-        VulkanHelper.assertCallOrThrow(
-            () -> VK10.vkCreateRenderPass(
+    private void updateRenderPass( VulkanSwapChain swapChain ) {
+        VulkanHelper.updateAddress( renderPass,
+            (address) -> VK10.vkCreateRenderPass(
                 device.getLogicalDevice(), createRenderPassCreateInfo( swapChain ), null, address ),
             resultCode -> new CannotCreateVulkanRenderPass( device, resultCode )
         );
-        return address[0];
     }
     
     private VkRenderPassCreateInfo createRenderPassCreateInfo( VulkanSwapChain swapChain ) {
@@ -216,7 +216,7 @@ public class VulkanGraphicPipeline {
             .polygonMode( VK10.VK_POLYGON_MODE_FILL )
             .lineWidth( 1f )
             .cullMode( VK10.VK_CULL_MODE_BACK_BIT )
-            .frontFace( VK10.VK_FRONT_FACE_CLOCKWISE )
+            .frontFace( VK10.VK_FRONT_FACE_COUNTER_CLOCKWISE )
             .depthBiasEnable( false )
             .depthBiasConstantFactor( 0f )
             .depthBiasClamp( 0f )
@@ -304,17 +304,15 @@ public class VulkanGraphicPipeline {
             .offset( 0 ); //todo
     }
     
-    private long createVulkanPipelineLayout() {
+    private void updateVulkanPipelineLayout() {
         VkPipelineLayoutCreateInfo createInfo = VkPipelineLayoutCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO )
-            .pSetLayouts( null )
+            .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, device.getDescriptorSetLayout().getValue() ) )
             .pPushConstantRanges( null );
         
-        long[] address = new long[1];
-        VulkanHelper.assertCallOrThrow(
-            () -> VK10.vkCreatePipelineLayout( device.getLogicalDevice(), createInfo, null, address ),
+        VulkanHelper.updateAddress( pipelineLayout,
+            (address) -> VK10.vkCreatePipelineLayout( device.getLogicalDevice(), createInfo, null, address ),
             resultCode -> new CannotCreateVulkanPipelineLayoutException( device, resultCode )
         );
-        return address[0];
     }
 }

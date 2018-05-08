@@ -36,8 +36,6 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
     private VulkanAddress bufferAddress = VulkanAddress.createNull();
     private VkMemoryRequirements memoryRequirements;
     private VulkanMemoryType usedMemoryType;
-//    private ByteBuffer vertexBuffer;
-    //private float[] data;
     private VkMemoryAllocateInfo allocateInfo;
     private VulkanAddress allocatedMemoryAddress = VulkanAddress.createNull();
     private VulkanDataBuffer stagingBuffer;
@@ -128,7 +126,7 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
         return stagingBuffer;
     }
     
-    void load( int arrayLength, int dataSize ) {
+    void createBuffer( int arrayLength, int dataSize ) {
         this.size = arrayLength / dataSize;
 //        vertexBuffer = createVertexDataBuffer();
         
@@ -147,7 +145,7 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
             bufferAddress.setNull();
         }
         if( !allocatedMemoryAddress.isNull() ) {
-        VK10.vkFreeMemory(device.getLogicalDevice(), allocatedMemoryAddress.getValue(), null );
+            VK10.vkFreeMemory(device.getLogicalDevice(), allocatedMemoryAddress.getValue(), null );
             allocatedMemoryAddress.setNull();
         }
     }
