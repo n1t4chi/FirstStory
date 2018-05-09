@@ -35,7 +35,7 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
     
     private final VulkanPhysicalDevice device;
     private final List<VulkanDataBuffer > buffers = new ArrayList<>(  );
-    private final Map< float[], VulkanDataBuffer > stagingBuffers = new HashMap<>();
+    private final Map< Object, VulkanDataBuffer > stagingBuffers = new HashMap<>();
     
     VulkanDataBufferLoader( VulkanPhysicalDevice device ) {
         
@@ -47,14 +47,14 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
         return new VulkanDataBuffer( device, this, LOCAL_BUFFER_USAGE_FLAGS, LOCAL_BUFFER_MEMORY_FLAGS );
     }
     
-    VulkanDataBuffer createUniformBuffer( int dataSize ) {
+    VulkanDataBuffer createUniformBuffer( int dataCount, int dataSize ) {
         VulkanDataBuffer uniformBuffer = new VulkanDataBuffer(
             device,
             this,
             UNIFORM_BUFFER_USAGE_FLAGS,
             UNIFORM_BUFFER_MEMORY_FLAGS
         );
-        uniformBuffer.createBuffer( dataSize, 1 );
+        uniformBuffer.createBuffer( dataCount, dataSize );
         return uniformBuffer;
     }
     
@@ -64,7 +64,7 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
         stagingBuffer.copyBuffer( buffer, device.getTransferCommandPool() );
     }
     
-    void load( VulkanDataBuffer buffer, float[] bufferData, int dataSize ) {
+    public void load( VulkanDataBuffer buffer, byte[] bufferData ) {
         buffer.setStagingBuffer( stagingBuffers.computeIfAbsent( bufferData, data -> {
             VulkanDataBuffer stagingBuffer = new VulkanDataBuffer(
                 device,
@@ -72,17 +72,28 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
                 STAGING_BUFFER_USAGE_FLAGS,
                 STAGING_BUFFER_MEMORY_FLAGS
             );
-            stagingBuffer.createBuffer( bufferData.length, dataSize );
+            stagingBuffer.createBuffer( bufferData.length, 1 );
             stagingBuffer.mapMemory( bufferData );
             stagingBuffer.setStagingBuffer( stagingBuffer );
             return stagingBuffer;
         } ) );
-        buffer.createBuffer( bufferData.length, dataSize );
+        buffer.createBuffer( bufferData.length, 1 );
     }
-    
     @Override
     public void load( VulkanDataBuffer buffer, float[] bufferData ) {
-        throw new UnsupportedOperationException( "asfasdfasf" );
+        buffer.setStagingBuffer( stagingBuffers.computeIfAbsent( bufferData, data -> {
+            VulkanDataBuffer stagingBuffer = new VulkanDataBuffer(
+                device,
+                this,
+                STAGING_BUFFER_USAGE_FLAGS,
+                STAGING_BUFFER_MEMORY_FLAGS
+            );
+            stagingBuffer.createBuffer( bufferData.length, 4 );
+            stagingBuffer.mapMemory( bufferData );
+            stagingBuffer.setStagingBuffer( stagingBuffer );
+            return stagingBuffer;
+        } ) );
+        buffer.createBuffer( bufferData.length, 4 );
     }
     
     @Override

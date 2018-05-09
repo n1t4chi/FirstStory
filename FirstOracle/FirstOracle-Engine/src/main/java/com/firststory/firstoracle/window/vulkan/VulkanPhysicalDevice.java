@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -25,9 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.firststory.firstoracle.window.vulkan.VulkanDataBuffer.ATTRIBUTES_COLOUR;
-import static com.firststory.firstoracle.window.vulkan.VulkanDataBuffer.ATTRIBUTES_POSITION;
-
 /**
  * @author n1t4chi
  */
@@ -38,15 +36,25 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
 //        /*2*/ /*pos*/ 0.75f, -0.75f, /*col*/ 1.0f, 1.0f, 0.0f,
 //        /*3*/ /*pos*/ 0.0f, 0.75f, /*col*/ 0.0f, 1.0f, 1.0f
 //    };
-    static final float[] POSITION = new float[]{
+    static final float[] POSITION_1 = new float[]{
         /*3*/ /*pos*/ 0.0f, 0.75f,
-        /*2*/ /*pos*/ 0.75f, -0.75f,
-        /*1*/ /*pos*/ -0.75f, -0.75f,
+        /*2*/ /*pos*/ 0.75f, 0.35f,
+        /*1*/ /*pos*/ 0.35f, 0.35f,
     };
-    static final float[] COLOUR = new float[]{
+    static final float[] COLOUR_1 = new float[]{
         /*1*/  /*col*/ 1.0f, 0.0f, 1.0f,
         /*2*/ /*col*/ 1.0f, 1.0f, 0.0f,
         /*3*/ /*col*/ 0.0f, 1.0f, 1.0f
+    };
+    static final float[] POSITION_2 = new float[]{
+        /*3*/ /*pos*/ 0.0f, 0.25f,
+        /*2*/ /*pos*/ 0.25f, -0.35f,
+        /*1*/ /*pos*/ -0.35f, -0.35f,
+    };
+    static final float[] COLOUR_2 = new float[]{
+        /*1*/  /*col*/ 0.5f, 0.5f, 0.5f,
+        /*2*/ /*col*/ 1.0f, 1.0f, 0.5f,
+        /*3*/ /*col*/ 0.5f, 1.0f, 1.0f
     };
     private static final int FLOAT_SIZE = 4;
     private static final int MATRIX_SIZE = 4*4;
@@ -91,8 +99,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanShaderProgram vertexShader;
     private final VulkanShaderProgram fragmentShader;
     private final VulkanAddress descriptorSetLayout;
-    private final VulkanDataBuffer positionBuffer;
-    private final VulkanDataBuffer colourBuffer;
+    private final VulkanDataBuffer positionBuffer1;
+    private final VulkanDataBuffer positionBuffer2;
+    private final VulkanDataBuffer colourBuffer1;
+    private final VulkanDataBuffer colourBuffer2;
     private final VulkanDataBuffer uniformBuffer;
     
     private final float[] uniformBufferData = new float[ UNIFORM_SIZE ];
@@ -101,6 +111,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Vector2f scale = new Vector2f( 1,1 );
     private final VulkanAddress descriptorPool;
     private final VulkanAddress descriptorSet;
+    private VulkanDataBuffer textureBuffer;
+    private final VulkanTextureLoader textureLoader;
     
     VulkanAddress getDescriptorSetLayout() {
         return descriptorSetLayout;
@@ -165,22 +177,40 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.add( transferCommandPool );
         
         bufferLoader = new VulkanDataBufferLoader( this );
+    
+        textureLoader = new VulkanTextureLoader( this, bufferLoader );
+    
         
-        positionBuffer = bufferLoader.create();
-        bufferLoader.load( positionBuffer, POSITION, ATTRIBUTES_POSITION );
-        positionBuffer.bind();
+        Texture texture;
+        try {
+            texture = new Texture( "resources/First Oracle/texture2D.png" );
+        } catch ( Exception ex ) {
+            throw new RuntimeException( ex );
+        }
+        texture.load( textureLoader );
         
-        colourBuffer = bufferLoader.create();
-        bufferLoader.load( colourBuffer, COLOUR, ATTRIBUTES_COLOUR );
-        colourBuffer.bind();
         
-        uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_DATA_SIZE );
+    
+        positionBuffer1 = bufferLoader.create();
+        bufferLoader.load( positionBuffer1, POSITION_1 );
+        positionBuffer1.bind();
+        positionBuffer2 = bufferLoader.create();
+        bufferLoader.load( positionBuffer2, POSITION_2 );
+        positionBuffer2.bind();
+        
+        colourBuffer1 = bufferLoader.create();
+        bufferLoader.load( colourBuffer1, COLOUR_1 );
+        colourBuffer1.bind();
+        colourBuffer2 = bufferLoader.create();
+        bufferLoader.load( colourBuffer2, COLOUR_2 );
+        colourBuffer2.bind();
+        
+        uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, FLOAT_SIZE );
         
         descriptorPool = createDescriptorPool();
         descriptorSet = createDescriptorSet();
     
         updateDesciptorSetsOnDevice();
-        
         
         updateRenderingContext();
         
@@ -356,7 +386,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VulkanCommandBuffer currentGraphicCommandBuffer = graphicCommandPool.getCommandBuffer( index );
         currentGraphicCommandBuffer.renderQueue( () -> {
             currentGraphicCommandBuffer.bindDescriptorSets( descriptorSet );
-            currentGraphicCommandBuffer.drawVertices( positionBuffer, colourBuffer );
+            currentGraphicCommandBuffer.drawVertices( positionBuffer1, colourBuffer1 );
+            currentGraphicCommandBuffer.drawVertices( positionBuffer2, colourBuffer2 );
         } );
     
         graphicCommandPool.submitQueue( currentGraphicCommandBuffer );

@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * @author n1t4chi
  */
-public class VulkanGraphicPipeline {
+class VulkanGraphicPipeline {
     
     private final VulkanPhysicalDevice device;
     private final VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo;

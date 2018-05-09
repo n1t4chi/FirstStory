@@ -32,13 +32,14 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
     private final ArrayBufferProvider< VulkanDataBuffer > loader;
     private final int[] usageFlags;
     private final int[] requiredMemoryTypeFlags;
-    private int size;
     private VulkanAddress bufferAddress = VulkanAddress.createNull();
     private VkMemoryRequirements memoryRequirements;
     private VulkanMemoryType usedMemoryType;
     private VkMemoryAllocateInfo allocateInfo;
     private VulkanAddress allocatedMemoryAddress = VulkanAddress.createNull();
     private VulkanDataBuffer stagingBuffer;
+    private int dataCount;
+    private int dataSize;
     
     VulkanDataBuffer(
         VulkanPhysicalDevice device,
@@ -82,7 +83,7 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
     
     @Override
     public int getLength() {
-        return size;
+        return dataSize * dataCount;
     }
     
     @Override
@@ -126,8 +127,9 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
         return stagingBuffer;
     }
     
-    void createBuffer( int arrayLength, int dataSize ) {
-        this.size = arrayLength / dataSize;
+    void createBuffer( int dataLength, int dataSize ) {
+        this.dataCount = dataLength;
+        this.dataSize = dataSize;
 //        vertexBuffer = createVertexDataBuffer();
         
         bufferAddress = createBuffer();
@@ -151,8 +153,6 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
     }
     
     void copyBuffer( VulkanDataBuffer dstBuffer, VulkanCommandPool commandPool ) {
-        int size = dstBuffer.size * VERTEX_DATA_SIZE;
-    
         VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO )
             .level( VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY )
@@ -170,7 +170,8 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
     
         VkBufferCopy copyRegion = VkBufferCopy.create().srcOffset( 0 ) // Optional
             .dstOffset( 0 ) // Optional
-            .size( size );
+            .size( dstBuffer.getLength() )
+        ;
     
         VK10.vkCmdCopyBuffer(
             commandBuffer,
@@ -199,6 +200,17 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
         copyMemory( dataArray );
         unmapMemory();
     }
+    void mapMemory( byte[] data ){
+        copyMemory( data );
+        unmapMemory();
+    }
+    
+    private void copyMemory( byte[] dataArray ) {
+        ByteBuffer vertexBuffer = createVertexDataBuffer( dataArray );
+        MemoryUtil.memCopy(
+            MemoryUtil.memAddress( vertexBuffer ), mapMemory().getValue(), vertexBuffer.remaining());
+        MemoryUtil.memFree( vertexBuffer );
+    }
     
     private void copyMemory( float[] dataArray ) {
         ByteBuffer vertexBuffer = createVertexDataBuffer( dataArray );
@@ -220,9 +232,14 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
     }
     
     private ByteBuffer createVertexDataBuffer( float[] data ) {
-        ByteBuffer vertexDataBuffer = MemoryUtil.memAlloc( size * VERTEX_DATA_SIZE );
+        ByteBuffer vertexDataBuffer = MemoryUtil.memAlloc( getLength() );
         FloatBuffer dataBuffer = vertexDataBuffer.asFloatBuffer();
         dataBuffer.put( data );
+        return vertexDataBuffer;
+    }
+    private ByteBuffer createVertexDataBuffer( byte[] data ) {
+        ByteBuffer vertexDataBuffer = MemoryUtil.memAlloc( getLength() );
+        vertexDataBuffer.put( data );
         return vertexDataBuffer;
     }
 
@@ -271,7 +288,7 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
             () -> VkBufferCreateInfo.create()
                 .sType( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO )
                 .pNext( VK10.VK_NULL_HANDLE )
-                .size( size )
+                .size( getLength() )
                 .usage( VulkanHelper.flagsToInt( usageFlags ) )
                 .sharingMode( device.isSingleCommandPoolUsed()
                     ? VK10.VK_SHARING_MODE_EXCLUSIVE

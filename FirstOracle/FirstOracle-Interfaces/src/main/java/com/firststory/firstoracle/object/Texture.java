@@ -104,9 +104,9 @@ public final class Texture implements Closeable {
         for ( int frame = 0; frame < frames; frame++ ) {
             for ( int direction = 0; direction < directions; direction++ ) {
                 File file = new File( replaceKeywords( filePathMask, frame, direction ) );
-                if ( !file.canRead() ) {
-                    throw new IOException( "File:" + file.getPath() + " does not exists!" );
-                }
+                //if ( !file.canRead() ) {
+                //    throw new IOException( "File:" + file.getPath() + " does not exists!" );
+                //}
                 files[frame][direction] = file;
             }
         }

@@ -9,9 +9,9 @@ import java.nio.ByteBuffer;
 /**
  * @author n1t4chi
  */
-public interface TextureBufferLoader extends AutoCloseable {
-    int create();
-    void bind( int textureID );
-    void load( int textureID, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException;
-    void delete( int textureID );
+public interface TextureBufferLoader<Context> extends AutoCloseable {
+    Context create();
+    void bind( Context context );
+    void load( Context context, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException;
+    void delete( Context context );
 }

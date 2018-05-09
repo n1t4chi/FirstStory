@@ -20,7 +20,7 @@ import java.util.HashSet;
 /**
  * @author n1t4chi
  */
-public class OpenGlTextureLoader implements TextureBufferLoader {
+public class OpenGlTextureLoader implements TextureBufferLoader<Integer> {
     
     private HashSet<Integer> textures = new HashSet<>();
     
@@ -30,7 +30,7 @@ public class OpenGlTextureLoader implements TextureBufferLoader {
     }
     
     @Override
-    public int create(){
+    public Integer create(){
         int textureID = GL11.glGenTextures();
         if( textureID <= 0 ) {
             throw new CannotCreateBufferException();
@@ -40,12 +40,12 @@ public class OpenGlTextureLoader implements TextureBufferLoader {
     }
     
     @Override
-    public void bind( int textureID ) {
+    public void bind( Integer textureID ) {
         GL11.glBindTexture( GL11.GL_TEXTURE_2D, textureID );
     }
     
     @Override
-    public void load( int textureID, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException {
+    public void load( Integer textureID, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException {
         bind( textureID );
         IntBuffer w = BufferUtils.createIntBuffer( 1 );
         IntBuffer h = BufferUtils.createIntBuffer( 1 );
@@ -75,7 +75,7 @@ public class OpenGlTextureLoader implements TextureBufferLoader {
         GL30.glGenerateMipmap( GL11.GL_TEXTURE_2D );
     }
     
-    public void delete( int textureID ) {
+    public void delete( Integer textureID ) {
         textures.remove( textureID );
         GL11.glDeleteTextures( textureID );
     }

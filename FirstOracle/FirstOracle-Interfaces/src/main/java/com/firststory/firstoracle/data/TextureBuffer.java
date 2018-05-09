@@ -9,16 +9,16 @@ import java.io.IOException;
 /**
  * @author n1t4chi
  */
-public class TextureBuffer implements DataBuffer<Integer, TextureData > {
+public class TextureBuffer<Context> implements DataBuffer<Context, TextureData > {
     
-    private final TextureBufferLoader loader;
+    private final TextureBufferLoader<Context> loader;
     
-    public TextureBuffer( TextureBufferLoader loader ) {
+    public TextureBuffer( TextureBufferLoader<Context> loader ) {
         this.loader = loader;
     }
     
     private TextureData data;
-    private int textureID;
+    private Context context;
     private boolean isLoaded;
     
     public TextureData getData() {
@@ -26,8 +26,8 @@ public class TextureBuffer implements DataBuffer<Integer, TextureData > {
     }
     
     @Override
-    public Integer getContext() {
-        return textureID;
+    public Context getContext() {
+        return context;
     }
     
     @Override
@@ -37,25 +37,25 @@ public class TextureBuffer implements DataBuffer<Integer, TextureData > {
     
     @Override
     public boolean isCreated() {
-        return textureID != 0;
+        return context != null;
     }
     
     @Override
     public void create() throws CannotCreateBufferException {
-        textureID = loader.create();
+        context = loader.create();
     }
     
     @Override
     public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
         assertCreated();
         assertLoaded();
-        loader.bind( textureID );
+        loader.bind( context );
     }
     
     @Override
     public void load( TextureData data ) throws BufferNotCreatedException {
         try {
-            loader.load( textureID, data.getByteBuffer(), data.getName() );
+            loader.load( context, data.getByteBuffer(), data.getName() );
             this.data = data;
             isLoaded = true;
         } catch ( IOException e ) {
@@ -66,8 +66,8 @@ public class TextureBuffer implements DataBuffer<Integer, TextureData > {
     @Override
     public void delete() throws BufferNotCreatedException {
         assertLoaded();
-        loader.delete( textureID );
-        textureID = 0;
+        loader.delete( context );
+        context = null;
         isLoaded = false;
     }
 }

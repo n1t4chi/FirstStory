@@ -32,8 +32,10 @@ public class CannotCreateVulkanPhysicalDeviceException extends VulkanException {
         int errorCode,
         String reason
     ) {
-        super( getDefaultString( physicalDevice ) + "Error code: " + errorCode +
-            ( reason.isEmpty() ? "" : "\nReason: " + reason ) );
+        super( getDefaultString( physicalDevice ) +
+            "Error code: " + errorCode +" ["+VulkanExceptionHelper.parseResultCode(errorCode)+"]" +
+            ( reason.isEmpty() ? "" : "\nReason: " + reason )
+        );
     }
     
     public CannotCreateVulkanPhysicalDeviceException( VulkanPhysicalDevice physicalDevice, String reason ) {
