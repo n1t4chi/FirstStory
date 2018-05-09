@@ -12,10 +12,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
@@ -100,14 +97,19 @@ public final class Texture implements Closeable {
             throw new IllegalArgumentException( "File path mask does not contain direction keyword" );
         }
         
-        File[][] files = new File[frames][directions];
+        InputStream[][] inputStreams = new InputStream[frames][directions];
         for ( int frame = 0; frame < frames; frame++ ) {
             for ( int direction = 0; direction < directions; direction++ ) {
-                File file = new File( replaceKeywords( filePathMask, frame, direction ) );
-                //if ( !file.canRead() ) {
-                //    throw new IOException( "File:" + file.getPath() + " does not exists!" );
-                //}
-                files[frame][direction] = file;
+                String path = replaceKeywords( filePathMask, frame, direction );
+                File file = new File( path );
+                if ( file.canRead() ) {
+                    inputStreams[frame][direction] = file.toURI().toURL().openStream();
+                }else{
+                    inputStreams[frame][direction] = Texture.class.getClassLoader().getResourceAsStream( path );
+                    if(inputStreams[frame][direction] == null){
+                        throw new IOException( "Image:" + path + " does not exists!" );
+                    }
+                }
             }
         }
         
@@ -117,21 +119,23 @@ public final class Texture implements Closeable {
         BufferedImage[][] images = new BufferedImage[frames][directions];
         for ( int frame = 0; frame < frames; frame++ ) {
             for ( int direction = 0; direction < directions; direction++ ) {
-                BufferedImage image = ImageIO.read( files[frame][direction] );
+                BufferedImage image = ImageIO.read( inputStreams[frame][direction] );
                 if ( width == -1 && height == -1 ) {
                     height = image.getHeight();
                     width = image.getWidth();
                 } else {
                     if ( width != image.getWidth() && height != image.getHeight() ) {
                         throw new RuntimeException(
-                            "Image:" + files[frame][direction].getPath() + " has different height/width than others!" );
+                            "Image:" + replaceKeywords( filePathMask, frame, direction ) +
+                            " has different height/width than others!" );
                     }
                 }
                 images[frame][direction] = image;
             }
         }
         
-        BufferedImage image = new BufferedImage( directions * width, frames * height, BufferedImage.TYPE_INT_ARGB );
+        BufferedImage image = new BufferedImage(
+            directions * width, frames * height, BufferedImage.TYPE_INT_ARGB );
         Graphics2D graphics = ( Graphics2D ) image.getGraphics();
         for ( int frame = 0; frame < frames; frame++ ) {
             for ( int direction = 0; direction < directions; direction++ ) {
