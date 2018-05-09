@@ -63,6 +63,10 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTexture> {
         bufferLoader.load( textureData.getStagingBuffer(), data );
         textureData.getStagingBuffer().bind();
     
+        createImage( textureData, width, height );
+    }
+    
+    private void createImage( VulkanTexture textureData, int width, int height ) {
         VkImageCreateInfo imageCreateInfo = VkImageCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO )
             .imageType( VK10.VK_IMAGE_TYPE_2D )
@@ -82,29 +86,29 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTexture> {
             address -> VK10.vkCreateImage( device.getLogicalDevice(), imageCreateInfo, null, address ),
             resultCode -> new CannotCreateVulkanImageException( device, resultCode )
         ) );
-    
+        
         VkMemoryRequirements memoryRequirements = VkMemoryRequirements.create();
         VK10.vkGetImageMemoryRequirements(
             device.getLogicalDevice(), textureData.getTextureImage().getValue(), memoryRequirements );
-    
+        
         VulkanMemoryType memoryType = device.selectMemoryType(
             memoryRequirements.memoryTypeBits(),
             VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
         );
-    
+        
         VkMemoryAllocateInfo allocateInfo = VkMemoryAllocateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO )
             .allocationSize( memoryRequirements.size() )
             .memoryTypeIndex( memoryType.getIndex() )
             ;
-    
+        
         VulkanAddress textureImageMemory = VulkanHelper.createAddress(
             address -> VK10.vkAllocateMemory( device.getLogicalDevice(), allocateInfo, null, address ),
             resultCode -> new CannotAllocateVulkanImageMemoryException( device, resultCode )
         );
-    
+        
         VulkanHelper.assertCallOrThrow(
-            () -> VK10.vkBindImageMemory( 
+            () -> VK10.vkBindImageMemory(
                 device.getLogicalDevice(),
                 textureData.getTextureImage().getValue(),
                 textureImageMemory.getValue(),
