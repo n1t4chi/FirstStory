@@ -204,7 +204,7 @@ public class FullApplication2D {
             }
         };
         application = new WindowApplication( contentManager );
-        window = Window.getOpenGlWithJavaFxInstance( settings, application, renderer );
+        window = Window.createWindow( settings, application, renderer );
         window.init();
         window.addFpsListener( application );
         window.addTimeListener( application );

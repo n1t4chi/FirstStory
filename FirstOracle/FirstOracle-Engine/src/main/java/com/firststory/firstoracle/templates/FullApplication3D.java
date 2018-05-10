@@ -163,7 +163,7 @@ public class FullApplication3D {
         //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
         //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
         //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
-        window = Window.getOpenGlWithJavaFxInstance( settings, application,
+        window = Window.createWindow( settings, application,
             renderer
         );
         window.addFpsListener( application );

@@ -49,7 +49,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     private double lastFpsUpdate;
     private int lastFps;
     
-    public static Window getOpenGlWithJavaFxInstance(
+    public static Window createWindow(
         WindowSettings windowSettings,
         Application application,
         Renderer renderer
@@ -59,7 +59,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
             FrameworkProviderContext.getRenderingFrameworkProvider() );
     }
     
-    public static Window getOpenGlInstance(
+    public static Window createWindow(
         WindowSettings windowSettings,
         Renderer renderer
     ) {
@@ -68,7 +68,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
             FrameworkProviderContext.getRenderingFrameworkProvider() );
     }
     
-    public static Window getOpenGlWithJavaFxInstance(
+    public static Window createWindow(
         WindowSettings windowSettings,
         Application application,
         Renderer renderer,
@@ -78,7 +78,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         return new Window( windowSettings, application, renderer, windowFrameworkProvider,renderingFrameworkProvider );
     }
     
-    public static Window getOpenGlInstance(
+    public static Window createWindow(
         WindowSettings windowSettings,
         Renderer renderer,
         WindowFrameworkProvider windowFrameworkProvider,

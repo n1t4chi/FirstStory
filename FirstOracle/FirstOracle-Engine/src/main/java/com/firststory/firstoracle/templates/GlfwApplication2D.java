@@ -131,7 +131,7 @@ public class GlfwApplication2D {
             settings.isUseTexture(),
             settings.isDrawBorder()
         );
-        window = Window.getOpenGlInstance( settings, renderer );
+        window = Window.createWindow( settings, renderer );
         window.init();
         renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
     
