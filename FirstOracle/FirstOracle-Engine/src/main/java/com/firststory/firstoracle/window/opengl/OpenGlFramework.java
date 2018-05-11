@@ -78,7 +78,7 @@ public class OpenGlFramework implements RenderingFramework {
     }
     
     @Override
-    public ArrayBufferProvider getBufferLoader() {
+    public ArrayBufferProvider getArrayBufferProvider() {
         return bufferLoader;
     }
     

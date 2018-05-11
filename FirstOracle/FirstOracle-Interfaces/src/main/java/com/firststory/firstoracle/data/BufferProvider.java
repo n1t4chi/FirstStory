@@ -7,7 +7,7 @@ package com.firststory.firstoracle.data;
 /**
  * @author n1t4chi
  */
-public interface ArrayBufferProvider<Context extends ArrayBuffer> extends BufferProvider<Context>,AutoCloseable {
+public interface BufferProvider< Context > {
     
     Context create() throws CannotCreateBufferException;
 }

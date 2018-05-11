@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
-import com.firststory.firstoracle.data.ArrayBufferProvider;
+import com.firststory.firstoracle.data.BufferProvider;
 import com.firststory.firstoracle.data.CannotCreateBufferException;
 import org.lwjgl.vulkan.VK10;
 
@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * @author n1t4chi
  */
-public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBuffer > {
+public class VulkanDataBufferLoader implements BufferProvider< VulkanDataBuffer > {
     
     private static final int[] LOCAL_BUFFER_USAGE_FLAGS = { VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
         VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
@@ -58,7 +58,6 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
         return uniformBuffer;
     }
     
-    @Override
     public void bind( VulkanDataBuffer buffer ) {
         VulkanDataBuffer stagingBuffer = buffer.getStagingBuffer();
         stagingBuffer.copyBuffer( buffer, device.getTransferCommandPool() );
@@ -79,8 +78,8 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
         } ) );
         buffer.createBuffer( bufferData.length, 1 );
     }
-    @Override
-    public void load( VulkanDataBuffer buffer, float[] bufferData ) {
+    
+    void load( VulkanDataBuffer buffer, float[] bufferData ) {
         buffer.setStagingBuffer( stagingBuffers.computeIfAbsent( bufferData, data -> {
             VulkanDataBuffer stagingBuffer = new VulkanDataBuffer(
                 device,
@@ -96,12 +95,10 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
         buffer.createBuffer( bufferData.length, 4 );
     }
     
-    @Override
     public void delete( VulkanDataBuffer buffer ) {
         buffer.close();
     }
     
-    @Override
     public void close() {
         stagingBuffers.values().forEach( VulkanDataBuffer::close );
         stagingBuffers.clear();

@@ -8,7 +8,7 @@ import com.firststory.firstoracle.data.ArrayBuffer;
 /**
  * @author n1t4chi
  */
-public interface VertexAttributeLoader<Context> {
-    ArrayBuffer<Context> createEmptyBuffer();
-    void bindBuffer( VertexAttribute<Context> attribute, long key );
+public interface VertexAttributeLoader<VertexBuffer extends ArrayBuffer> {
+    VertexBuffer createEmptyBuffer();
+    void bindBuffer( VertexAttribute attribute, long key );
 }

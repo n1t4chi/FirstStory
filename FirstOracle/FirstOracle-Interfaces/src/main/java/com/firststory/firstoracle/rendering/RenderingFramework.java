@@ -24,7 +24,7 @@ public interface RenderingFramework extends AutoCloseable {
     
     VertexAttributeLoader getAttributeLoader();
     
-    ArrayBufferProvider getBufferLoader();
+    ArrayBufferProvider getArrayBufferProvider();
     
     void clearScreen();
     

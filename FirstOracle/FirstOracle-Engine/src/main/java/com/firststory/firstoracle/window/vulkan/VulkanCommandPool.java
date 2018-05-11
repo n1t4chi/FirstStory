@@ -18,16 +18,12 @@ import java.util.logging.Logger;
 
 public class VulkanCommandPool {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandPool.class );
-    private VulkanAddress address;
     private final VulkanPhysicalDevice device;
     private final VulkanQueueFamily usedQueueFamily;
     private final Map< Integer, VulkanCommandBuffer > commandBuffers = new HashMap<>(  );
     private final VulkanSemaphore imageAvailableSemaphore;
     private final VulkanSemaphore renderFinishedSemaphore;
-    
-    public VulkanQueueFamily getUsedQueueFamily() {
-        return usedQueueFamily;
-    }
+    private VulkanAddress address;
     
     VulkanCommandPool(
         VulkanPhysicalDevice device,
@@ -40,6 +36,10 @@ public class VulkanCommandPool {
         this.imageAvailableSemaphore = imageAvailableSemaphore;
         this.renderFinishedSemaphore = renderFinishedSemaphore;
         address = createCommandPool();
+    }
+    
+    VulkanQueueFamily getUsedQueueFamily() {
+        return usedQueueFamily;
     }
     
     void dispose() {
@@ -112,11 +112,6 @@ public class VulkanCommandPool {
         );
     }
     
-    private void disposeCommandBuffers() {
-        commandBuffers.forEach( ( integer, vulkanCommandBuffer ) -> vulkanCommandBuffer.close() );
-        commandBuffers.clear();
-    }
-    
     PointerBuffer createCommandBufferBuffer(
         VkCommandBufferAllocateInfo allocateInfo, int size
     ) {
@@ -127,6 +122,11 @@ public class VulkanCommandPool {
             resultCode -> new CannotAllocateVulkanCommandBuffersException( device, resultCode )
         );
         return commandBuffersBuffer;
+    }
+    
+    private void disposeCommandBuffers() {
+        commandBuffers.forEach( ( integer, vulkanCommandBuffer ) -> vulkanCommandBuffer.close() );
+        commandBuffers.clear();
     }
     
     private VkCommandBufferAllocateInfo createAllocateInfo( Map< Integer, VulkanFrameBuffer > frameBuffers ) {

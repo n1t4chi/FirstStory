@@ -7,67 +7,23 @@ package com.firststory.firstoracle.data;
 /**
  * @author n1t4chi
  */
-public abstract class ArrayBuffer<Context> implements DataBuffer<Context, float[]> {
-    
-    private final ArrayBufferProvider<Context> loader;
-    private Context bufferID = null;
-    private boolean loaded = false;
-    private int length;
-    
-    public ArrayBuffer( ArrayBufferProvider<Context> loader ) {
-        this.loader = loader;
-    }
+public interface ArrayBuffer extends DataBuffer<float[]> {
     
     @Override
-    public Context getContext() {
-        return bufferID;
-    }
-    
-    public int getLength() {
-        return length;
-    }
+    boolean isLoaded();
     
     @Override
-    public boolean isLoaded() {
-        return loaded;
-    }
+    boolean isCreated();
     
     @Override
-    public boolean isCreated() {
-        return bufferID != null;
-    }
+    void create() throws CannotCreateBufferException;
     
     @Override
-    public void create() throws CannotCreateBufferException {
-        bufferID = loader.create();
-    }
+    void bind() throws BufferNotCreatedException, BufferNotLoadedException;
     
     @Override
-    public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
-        assertCreated();
-        assertLoaded();
-        loader.bind( bufferID );
-    }
+    void load( float[] bufferData ) throws BufferNotCreatedException;
     
     @Override
-    public void load( float[] bufferData ) throws BufferNotCreatedException {
-        assertCreated();
-        loader.bind( bufferID );
-        loader.load( bufferID, bufferData );
-        length = bufferData.length;
-        loaded = true;
-    }
-    
-    @Override
-    public void delete() throws BufferNotCreatedException {
-        assertCreated();
-        loader.delete( bufferID );
-        cleanUpFields();
-    }
-    
-    private void cleanUpFields() {
-        bufferID = null;
-        length = 0;
-        loaded = false;
-    }
+    void delete() throws BufferNotCreatedException;
 }

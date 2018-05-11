@@ -4,14 +4,12 @@
 package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.data.ArrayBuffer;
-import com.firststory.firstoracle.data.DataBuffer;
 import com.firststory.firstoracle.object.VertexAttribute;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -19,8 +17,7 @@ import java.util.Map;
  */
 public class OpenGLVertexAttributeLoader implements VertexAttributeLoader, AutoCloseable {
     
-    private final Map< Integer, Integer > lastBinds = new HashMap<>( 2 );
-    private final HashSet<ArrayBuffer> buffers = new HashSet<>();
+    private final Map< Integer, ArrayBuffer > lastBinds = new HashMap<>( 2 );
     private final OpenGlArrayBufferLoader loader;
     
     OpenGLVertexAttributeLoader( OpenGlArrayBufferLoader loader ) {
@@ -29,8 +26,6 @@ public class OpenGLVertexAttributeLoader implements VertexAttributeLoader, AutoC
     
     @Override
     public void close() {
-        buffers.forEach( DataBuffer::close );
-        buffers.clear();
     }
     
     @Override
@@ -40,13 +35,13 @@ public class OpenGLVertexAttributeLoader implements VertexAttributeLoader, AutoC
     
     @Override
     public void bindBuffer( VertexAttribute attribute, long key ) {
-        ArrayBuffer<Integer> buffer = attribute.getBuffer( key, this );
+        ArrayBuffer buffer = attribute.getBuffer( key, this );
         int index = attribute.getIndex();
-        Integer lastBind = lastBinds.get( index );
-        if ( lastBind == null || !lastBind.equals( buffer.getContext() ) ) {
+        ArrayBuffer lastBind = lastBinds.get( index );
+        if ( lastBind == null || !lastBind.equals( buffer ) ) {
             buffer.bind();
             GL20.glVertexAttribPointer( index, attribute.getVertexSize(), GL11.GL_FLOAT, false, 0, 0 );
-            lastBinds.put( index, buffer.getContext() );
+            lastBinds.put( index, buffer );
         }
         
     }

@@ -7,9 +7,7 @@ package com.firststory.firstoracle.data;
 /**
  * @author n1t4chi
  */
-public interface DataBuffer<Context, Data> extends AutoCloseable {
-    
-    Context getContext();
+public interface DataBuffer<Data> extends AutoCloseable {
     
     boolean isLoaded();
     

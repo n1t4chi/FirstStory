@@ -87,8 +87,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final List<VkPipelineShaderStageCreateInfo> shaderStages = new ArrayList<>(  );
     private final VulkanGraphicPipeline graphicPipeline;
     private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>(  );
-    private final VulkanCommandPool graphicCommandPool;
-    private final VulkanCommandPool transferCommandPool;
+    private final VulkanGraphicCommandPool graphicCommandPool;
+    private final VulkanTransferCommandPool transferCommandPool;
     private final Set< VulkanCommandPool > commandPools = new HashSet<>(  );
     private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
@@ -168,11 +168,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         this.descriptorSetLayout = createDescriptorSetLayout();
         
         graphicPipeline = new VulkanGraphicPipeline( this );
-        graphicCommandPool = new VulkanCommandPool( this, graphicFamily,
+        graphicCommandPool = new VulkanGraphicCommandPool( this, graphicFamily,
             imageAvailableSemaphore,
             renderFinishedSemaphore
         );
-        transferCommandPool = provideTransferCommandPool();
+        transferCommandPool = new VulkanTransferCommandPool( this, transferFamily,
+            imageAvailableSemaphore,
+            renderFinishedSemaphore
+        );
         commandPools.add( graphicCommandPool );
         commandPools.add( transferCommandPool );
         
@@ -297,13 +300,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     VulkanCommandPool getTransferCommandPool() {
         return transferCommandPool;
-    }
-    
-    private VulkanCommandPool provideTransferCommandPool() {
-        return isGraphicAndTransferQueueSame()
-            ? graphicCommandPool
-            : new VulkanCommandPool( this, transferFamily, imageAvailableSemaphore, renderFinishedSemaphore )
-        ;
     }
     
     private boolean isGraphicAndTransferQueueSame() {
