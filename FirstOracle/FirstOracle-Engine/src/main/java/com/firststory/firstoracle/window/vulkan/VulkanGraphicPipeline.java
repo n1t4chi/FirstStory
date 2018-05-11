@@ -18,6 +18,13 @@ import java.util.List;
  */
 class VulkanGraphicPipeline {
     
+    private static final int ATTRIBUTES_POSITION = 2;
+    private static final int ATTRIBUTES_COLOUR = 3;
+    private static final int ATTRIBUTES = ATTRIBUTES_POSITION + ATTRIBUTES_COLOUR;
+    private static final int VERTEX_DATA_SIZE = ATTRIBUTES * 4;
+    private static final int VERTEX_POSITION_DATA_SIZE = ATTRIBUTES_POSITION * 4;
+    private static final int VERTEX_COLOUR_DATA_SIZE = ATTRIBUTES_COLOUR * 4;
+    
     private final VulkanPhysicalDevice device;
     private final VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo;
     private VulkanAddress pipelineLayout = VulkanAddress.createNull();
@@ -260,8 +267,8 @@ class VulkanGraphicPipeline {
             .pNext( VK10.VK_NULL_HANDLE )
             .pVertexBindingDescriptions(
                 VkVertexInputBindingDescription.create( 2 )
-                    .put( 0, createVertexBindingDescription( 0, VulkanDataBuffer.VERTEX_POSITION_DATA_SIZE ) )
-                    .put( 1, createVertexBindingDescription( 1, VulkanDataBuffer.VERTEX_COLOUR_DATA_SIZE ) )
+                    .put( 0, createVertexBindingDescription( 0, VERTEX_POSITION_DATA_SIZE ) )
+                    .put( 1, createVertexBindingDescription( 1, VERTEX_COLOUR_DATA_SIZE ) )
             )
             .pVertexAttributeDescriptions(
                 VkVertexInputAttributeDescription.create( 2 )

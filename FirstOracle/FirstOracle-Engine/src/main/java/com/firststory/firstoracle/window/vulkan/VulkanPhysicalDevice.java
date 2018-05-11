@@ -300,7 +300,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private VulkanCommandPool provideTransferCommandPool() {
-        return isGraphicAndTransferQueueSame() || true
+        return isGraphicAndTransferQueueSame()
             ? graphicCommandPool
             : new VulkanCommandPool( this, transferFamily, imageAvailableSemaphore, renderFinishedSemaphore )
         ;

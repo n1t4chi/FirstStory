@@ -77,7 +77,10 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTexture> {
             .tiling( VK10.VK_IMAGE_TILING_OPTIMAL )
             .initialLayout( VK10.VK_IMAGE_LAYOUT_UNDEFINED )
             .usage( VulkanHelper.flagsToInt( VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK10.VK_IMAGE_USAGE_SAMPLED_BIT ) )
-            .sharingMode( VK10.VK_SHARING_MODE_EXCLUSIVE )
+            .sharingMode( device.isSingleCommandPoolUsed()
+                ? VK10.VK_SHARING_MODE_EXCLUSIVE
+                : VK10.VK_SHARING_MODE_CONCURRENT
+            )
             .samples( VK10.VK_SAMPLE_COUNT_1_BIT )
             .flags( 0 )
         ;

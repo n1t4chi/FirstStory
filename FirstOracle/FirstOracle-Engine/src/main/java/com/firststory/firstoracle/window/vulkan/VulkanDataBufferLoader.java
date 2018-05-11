@@ -64,7 +64,7 @@ public class VulkanDataBufferLoader implements ArrayBufferProvider< VulkanDataBu
         stagingBuffer.copyBuffer( buffer, device.getTransferCommandPool() );
     }
     
-    public void load( VulkanDataBuffer buffer, byte[] bufferData ) {
+    void load( VulkanDataBuffer buffer, byte[] bufferData ) {
         buffer.setStagingBuffer( stagingBuffers.computeIfAbsent( bufferData, data -> {
             VulkanDataBuffer stagingBuffer = new VulkanDataBuffer(
                 device,

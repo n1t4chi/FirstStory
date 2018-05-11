@@ -21,13 +21,6 @@ import java.nio.FloatBuffer;
  */
 public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
     
-    static final int ATTRIBUTES_POSITION = 2;
-    static final int ATTRIBUTES_COLOUR = 3;
-    private static final int ATTRIBUTES = ATTRIBUTES_POSITION + ATTRIBUTES_COLOUR;
-    static final int VERTEX_DATA_SIZE = ATTRIBUTES * 4;
-    static final int VERTEX_POSITION_DATA_SIZE = ATTRIBUTES_POSITION * 4;
-    static final int VERTEX_COLOUR_DATA_SIZE = ATTRIBUTES_COLOUR * 4;
-    
     private final VulkanPhysicalDevice device;
     private final ArrayBufferProvider< VulkanDataBuffer > loader;
     private final int[] usageFlags;
@@ -183,12 +176,11 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
         VK10.vkEndCommandBuffer( commandBuffer );
     
         VkSubmitInfo submitInfo = VkSubmitInfo.create()
-        .sType ( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
-        .pCommandBuffers( commandBufferBuffer );
+            .sType ( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
+            .pCommandBuffers( commandBufferBuffer );
     
         VK10.vkQueueSubmit( commandPool.getUsedQueueFamily().getQueue()  , submitInfo, VK10.VK_NULL_HANDLE);
         commandPool.getUsedQueueFamily().waitForQueue();
-    
         VK10.vkFreeCommandBuffers(device.getLogicalDevice(), commandPool.getAddress().getValue(), commandBufferBuffer );
     }
     
@@ -285,15 +277,22 @@ public class VulkanDataBuffer extends ArrayBuffer< VulkanDataBuffer > {
 
     private VulkanAddress createBuffer() {
         return VulkanHelper.createAddress(
-            () -> VkBufferCreateInfo.create()
-                .sType( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO )
-                .pNext( VK10.VK_NULL_HANDLE )
-                .size( getLength() )
-                .usage( VulkanHelper.flagsToInt( usageFlags ) )
-                .sharingMode( device.isSingleCommandPoolUsed()
-                    ? VK10.VK_SHARING_MODE_EXCLUSIVE
-                    : VK10.VK_SHARING_MODE_CONCURRENT )
-                .flags( 0 ),
+            () -> {
+                VkBufferCreateInfo createInfo = VkBufferCreateInfo.create()
+                    .sType( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO )
+                    .pNext( VK10.VK_NULL_HANDLE )
+                    .size( getLength() )
+                    .usage( VulkanHelper.flagsToInt( usageFlags ) )
+                    .flags( 0 );
+                if( device.isSingleCommandPoolUsed() ){
+                    createInfo.sharingMode( VK10.VK_SHARING_MODE_EXCLUSIVE );
+                } else {
+                    createInfo
+                        .sharingMode( VK10.VK_SHARING_MODE_CONCURRENT )
+                        .pQueueFamilyIndices( device.createQueueFamilyIndicesBuffer() );
+                }
+                return createInfo;
+            },
             ( createInfo, address ) ->
                     VK10.vkCreateBuffer( device.getLogicalDevice(), createInfo, null, address ),
             resultCode -> new CannotCreateVulkanVertexBuffer( device, resultCode )
