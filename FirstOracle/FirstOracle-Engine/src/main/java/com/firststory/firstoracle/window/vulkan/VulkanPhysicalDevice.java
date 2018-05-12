@@ -92,7 +92,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Set< VulkanCommandPool > commandPools = new HashSet<>(  );
     private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
-    private final VulkanDataBufferLoader bufferLoader;
+    private final VulkanDataBufferProvider bufferLoader;
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
     private final Map< Integer, VulkanMemoryHeap > memoryHeaps = new HashMap<>();
@@ -103,7 +103,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanDataBuffer positionBuffer2;
     private final VulkanDataBuffer colourBuffer1;
     private final VulkanDataBuffer colourBuffer2;
-    private final VulkanDataBuffer uniformBuffer;
+    private final VulkanUniformBuffer uniformBuffer;
     
     private final float[] uniformBufferData = new float[ UNIFORM_SIZE ];
     private final Matrix4f matrix = new Matrix4f(  );
@@ -179,7 +179,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.add( graphicCommandPool );
         commandPools.add( transferCommandPool );
         
-        bufferLoader = new VulkanDataBufferLoader( this );
+        bufferLoader = new VulkanDataBufferProvider( this );
     
         textureLoader = new VulkanTextureLoader( this, bufferLoader );
     
@@ -194,18 +194,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
         
     
-        positionBuffer1 = bufferLoader.create();
-        bufferLoader.load( positionBuffer1, POSITION_1 );
+        positionBuffer1 = bufferLoader.createFloatBuffer();
+        positionBuffer1.load( POSITION_1 );
         positionBuffer1.bind();
-        positionBuffer2 = bufferLoader.create();
-        bufferLoader.load( positionBuffer2, POSITION_2 );
+        positionBuffer2 = bufferLoader.createFloatBuffer();
+        positionBuffer2.load( POSITION_2 );
         positionBuffer2.bind();
         
-        colourBuffer1 = bufferLoader.create();
-        bufferLoader.load( colourBuffer1, COLOUR_1 );
+        colourBuffer1 = bufferLoader.createFloatBuffer();
+        colourBuffer1.load( COLOUR_1 );
         colourBuffer1.bind();
-        colourBuffer2 = bufferLoader.create();
-        bufferLoader.load( colourBuffer2, COLOUR_2 );
+        colourBuffer2 = bufferLoader.createFloatBuffer();
+        colourBuffer2.load( COLOUR_2 );
         colourBuffer2.bind();
         
         uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, FLOAT_SIZE );
@@ -354,7 +354,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return "VulkanPhysicalDevice@" + hashCode() + "[name:" + properties.deviceNameString() + "]";
     }
     
-    VulkanDataBufferLoader getBufferLoader() {
+    VulkanDataBufferProvider getBufferLoader() {
         return bufferLoader;
     }
     
@@ -376,7 +376,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         uniformBufferData[17] = trans.y = trans.y*1.00001f;
         uniformBufferData[18] = scale.x = scale.x*1.00001f;
         uniformBufferData[19] = scale.y = scale.y*1.00001f;
-        uniformBuffer.mapMemory( uniformBufferData );
+        uniformBuffer.load( uniformBufferData );
         
         
         VulkanCommandBuffer currentGraphicCommandBuffer = graphicCommandPool.getCommandBuffer( index );

@@ -22,9 +22,9 @@ import java.nio.IntBuffer;
 public class VulkanTextureLoader implements TextureBufferLoader<VulkanTexture> {
     
     private final VulkanPhysicalDevice device;
-    private final VulkanDataBufferLoader bufferLoader;
+    private final VulkanDataBufferProvider bufferLoader;
     
-    VulkanTextureLoader( VulkanPhysicalDevice physicalDevice, VulkanDataBufferLoader bufferLoader ) {
+    VulkanTextureLoader( VulkanPhysicalDevice physicalDevice, VulkanDataBufferProvider bufferLoader ) {
         
         device = physicalDevice;
         this.bufferLoader = bufferLoader;
@@ -59,10 +59,10 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTexture> {
     
         pixels.get( data );
     
-        textureData.setStagingBuffer( bufferLoader.create() );
-        bufferLoader.load( textureData.getStagingBuffer(), data );
-        textureData.getStagingBuffer().bind();
-    
+        textureData.setBuffer( bufferLoader.createByteBuffer() );
+        textureData.getBuffer().load( data );
+        textureData.getBuffer().bind();
+
         createImage( textureData, width, height );
     }
     

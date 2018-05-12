@@ -5,14 +5,11 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.data.BufferNotCreatedException;
-import com.firststory.firstoracle.data.BufferNotLoadedException;
 import com.firststory.firstoracle.data.CannotCreateBufferException;
 import com.firststory.firstoracle.data.DataBuffer;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotAllocateVulkanMemoryExcpetion;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotBindVulkanMemoryException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanVertexBuffer;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotMapVulkanMemoryException;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
@@ -22,10 +19,9 @@ import java.nio.FloatBuffer;
 /**
  * @author n1t4chi
  */
-public class VulkanDataBuffer< Data > implements DataBuffer< Data > {
+public abstract class VulkanDataBuffer< Data > implements DataBuffer< Data > {
     
     private final VulkanPhysicalDevice device;
-    private final VulkanDataBufferLoader loader;
     private final int[] usageFlags;
     private final int[] requiredMemoryTypeFlags;
     private VulkanAddress bufferAddress = VulkanAddress.createNull();
@@ -33,26 +29,22 @@ public class VulkanDataBuffer< Data > implements DataBuffer< Data > {
     private VulkanMemoryType usedMemoryType;
     private VkMemoryAllocateInfo allocateInfo;
     private VulkanAddress allocatedMemoryAddress = VulkanAddress.createNull();
-    private VulkanDataBuffer stagingBuffer;
     private int dataCount;
     private int dataSize;
     
     VulkanDataBuffer(
         VulkanPhysicalDevice device,
-        VulkanDataBufferLoader loader,
         int[] usageFlags,
         int[] requiredMemoryTypeFlags
-    )
-    {
+    ) {
         this.device = device;
-        this.loader = loader;
         this.usageFlags = usageFlags;
         this.requiredMemoryTypeFlags = requiredMemoryTypeFlags;
     }
     
     @Override
     public boolean isLoaded() {
-        return !( bufferAddress.isNull() || stagingBuffer == null );
+        return !bufferAddress.isNull();
     }
     
     @Override
@@ -63,17 +55,12 @@ public class VulkanDataBuffer< Data > implements DataBuffer< Data > {
     @Override
     public void create() throws CannotCreateBufferException {}
     
-    @Override
-    public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
-        assertCreated();
-        assertLoaded();
-        loader.bind( this );
-    }
-    
-    @Override
-    public void load( Data bufferData ) throws BufferNotCreatedException {
-    
-    }
+//    @Override
+//    public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
+//        assertCreated();
+//        assertLoaded();
+//        loader.bind( this );
+//    }
     
     @Override
     public void delete() throws BufferNotCreatedException {
@@ -95,20 +82,6 @@ public class VulkanDataBuffer< Data > implements DataBuffer< Data > {
         return dataSize * dataCount;
     }
     
-    public void load( float[] dataArray ) {
-//        this.data = dataArray;
-//        size = caluclateLength();
-        throw new UnsupportedOperationException( "asfasdfasf" );
-    }
-    
-    VulkanDataBuffer getStagingBuffer() {
-        return stagingBuffer;
-    }
-    
-    void setStagingBuffer( VulkanDataBuffer stagingBuffer ) {
-        this.stagingBuffer = stagingBuffer;
-    }
-    
     void createBuffer( int dataLength, int dataSize ) {
         this.dataCount = dataLength;
         this.dataSize = dataSize;
@@ -123,84 +96,24 @@ public class VulkanDataBuffer< Data > implements DataBuffer< Data > {
         bindMemoryToBuffer();
     }
     
-    void copyBuffer( VulkanDataBuffer dstBuffer, VulkanCommandPool commandPool ) {
-        VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO )
-            .level( VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY )
-            .commandPool( commandPool.getAddress().getValue() )
-            .commandBufferCount( 1 );
-        
-        VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO )
-            .flags( VK10.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT );
-        
-        PointerBuffer commandBufferBuffer = commandPool.createCommandBufferBuffer( allocInfo, 1 );
-        VkCommandBuffer commandBuffer = new VkCommandBuffer( commandBufferBuffer.get( 0 ), device.getLogicalDevice() );
-        VK10.vkBeginCommandBuffer( commandBuffer, beginInfo );
-        
-        VkBufferCopy copyRegion = VkBufferCopy.create().srcOffset( 0 ) // Optional
-            .dstOffset( 0 ) // Optional
-            .size( dstBuffer.getLength() );
-        
-        VK10.vkCmdCopyBuffer( commandBuffer,
-            this.bufferAddress.getValue(),
-            dstBuffer.bufferAddress.getValue(),
-            VkBufferCopy.create( 1 ).put( 0, copyRegion )
-        );
-        
-        VK10.vkEndCommandBuffer( commandBuffer );
-        
-        VkSubmitInfo submitInfo = VkSubmitInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
-            .pCommandBuffers( commandBufferBuffer );
-        
-        VK10.vkQueueSubmit( commandPool.getUsedQueueFamily().getQueue(), submitInfo, VK10.VK_NULL_HANDLE );
-        commandPool.getUsedQueueFamily().waitForQueue();
-        VK10.vkFreeCommandBuffers(
-            device.getLogicalDevice(),
-            commandPool.getAddress().getValue(),
-            commandBufferBuffer
-        );
-    }
-    
     VulkanAddress getBufferAddress() {
         return bufferAddress;
     }
     
-    void mapMemory( float[] dataArray ) {
-        copyMemory( dataArray );
-        unmapMemory();
+    VulkanPhysicalDevice getDevice() {
+        return device;
     }
     
-    void mapMemory( byte[] data ) {
-        copyMemory( data );
-        unmapMemory();
+    VkDevice getDeviceLogicalDevice() {
+        return device.getLogicalDevice();
     }
     
-    private void copyMemory( byte[] dataArray ) {
-        ByteBuffer vertexBuffer = createVertexDataBuffer( dataArray );
-        MemoryUtil.memCopy( MemoryUtil.memAddress( vertexBuffer ), mapMemory().getValue(), vertexBuffer.remaining() );
-        MemoryUtil.memFree( vertexBuffer );
+    VkMemoryAllocateInfo getAllocateInfo() {
+        return allocateInfo;
     }
     
-    private void copyMemory( float[] dataArray ) {
-        ByteBuffer vertexBuffer = createVertexDataBuffer( dataArray );
-        MemoryUtil.memCopy( MemoryUtil.memAddress( vertexBuffer ), mapMemory().getValue(), vertexBuffer.remaining() );
-        MemoryUtil.memFree( vertexBuffer );
-    }
-    
-    private VulkanAddress mapMemory() {
-        return VulkanHelper.createAddressViaBuffer( address -> VK10.vkMapMemory( device.getLogicalDevice(),
-            allocatedMemoryAddress.getValue(),
-            0,
-            allocateInfo.allocationSize(),
-            0,
-            address
-        ), resultCode -> new CannotMapVulkanMemoryException( device, resultCode ) );
-    }
-    
-    private void unmapMemory() {
-        VK10.vkUnmapMemory( device.getLogicalDevice(), allocatedMemoryAddress.getValue() );
+    VulkanAddress getAllocatedMemoryAddress() {
+        return allocatedMemoryAddress;
     }
     
     private ByteBuffer createVertexDataBuffer( float[] data ) {
