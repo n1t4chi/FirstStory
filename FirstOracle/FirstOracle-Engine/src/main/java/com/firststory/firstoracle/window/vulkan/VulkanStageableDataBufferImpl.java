@@ -9,11 +9,11 @@ import java.nio.ByteBuffer;
 /**
  * @author n1t4chi
  */
-public class VulkanStagableDataBufferImpl< Data > extends VulkanStagableDataBuffer<Data> {
+public class VulkanStageableDataBufferImpl< Data > extends VulkanStageableDataBuffer<Data> {
     
     
     
-    VulkanStagableDataBufferImpl(
+    VulkanStageableDataBufferImpl(
         VulkanPhysicalDevice device, VulkanDataBufferProvider provider ) {
         super( device, provider );
     }

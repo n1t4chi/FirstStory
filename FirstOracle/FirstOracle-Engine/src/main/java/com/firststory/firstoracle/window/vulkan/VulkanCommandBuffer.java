@@ -24,6 +24,7 @@ public class VulkanCommandBuffer {
     private final VkRenderPassBeginInfo renderPassBeginInfo;
     private final VulkanGraphicPipeline graphicPipeline;
     private final VulkanCommandPool commandPool;
+    private final int[] usedBeginInfoFlags;
     
     VulkanCommandBuffer(
         VulkanPhysicalDevice device,
@@ -31,13 +32,15 @@ public class VulkanCommandBuffer {
         VulkanFrameBuffer frameBuffer,
         VulkanGraphicPipeline graphicsPipeline,
         VulkanSwapChain swapChain,
-        VulkanCommandPool commandPool
+        VulkanCommandPool commandPool,
+        int... usedBeginInfoFlags
     ) {
         this.device = device;
         this.address = address;
         this.frameBuffer = frameBuffer;
         this.graphicPipeline = graphicsPipeline;
         this.commandPool = commandPool;
+        this.usedBeginInfoFlags = usedBeginInfoFlags;
         commandBuffer = createCommandBuffer();
         beginInfo = createBeginInfo();
         renderPassBeginInfo = createRenderPassBeginInfo( graphicsPipeline, swapChain );
@@ -49,31 +52,34 @@ public class VulkanCommandBuffer {
         VulkanFrameBuffer frameBuffer,
         VulkanGraphicPipeline graphicsPipeline,
         VulkanSwapChain swapChain,
-        VulkanCommandPool commandPool
+        VulkanCommandPool commandPool,
+        int... usedBeginInfoFlags
     ) {
-        this( device, new VulkanAddress( address ), frameBuffer, graphicsPipeline, swapChain, commandPool );
+        this( device, new VulkanAddress( address ), frameBuffer, graphicsPipeline, swapChain, commandPool,
+            usedBeginInfoFlags
+        );
     }
     
     void close() {
         VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress().getValue(), commandBuffer );
     }
     
-    void transferQueue( Commands commands ) {
+    void transferQueue( VulkanCommands commands ) {
         resetCommandBuffer();
         beginRecordingCommandBuffer();
         
-        commands.execute();
+        commands.execute( commandBuffer );
         
         endCommandBuffer();
     }
     
-    void renderQueue( Commands commands ) {
+    void renderQueue( VulkanCommands commands ) {
         resetCommandBuffer();
         beginRecordingCommandBuffer();
         beginRenderPassForCommandBuffer();
         bindPipeline( graphicPipeline );
         
-        commands.execute();
+        commands.execute( commandBuffer );
         
         endRenderPass();
         endCommandBuffer();
@@ -165,7 +171,7 @@ public class VulkanCommandBuffer {
     private VkCommandBufferBeginInfo createBeginInfo() {
         return VkCommandBufferBeginInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO )
-            .flags( VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT )
+            .flags( VulkanHelper.flagsToInt( usedBeginInfoFlags ) )
             .pInheritanceInfo( null );
     }
     
@@ -190,4 +196,8 @@ public class VulkanCommandBuffer {
             );
     }
     
+    interface VulkanCommands {
+        
+        void execute( VkCommandBuffer commandBufferReference );
+    }
 }

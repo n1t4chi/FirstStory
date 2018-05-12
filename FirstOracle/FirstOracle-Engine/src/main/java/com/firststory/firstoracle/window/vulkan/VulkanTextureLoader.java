@@ -81,6 +81,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTexture> {
                 ? VK10.VK_SHARING_MODE_EXCLUSIVE
                 : VK10.VK_SHARING_MODE_CONCURRENT
             )
+            .pQueueFamilyIndices( device.createQueueFamilyIndicesBuffer() )
             .samples( VK10.VK_SAMPLE_COUNT_1_BIT )
             .flags( 0 )
         ;

@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 /**
  * @author n1t4chi
  */
-public abstract class VulkanStagableDataBuffer< Data > extends VulkanDataBuffer< Data > {
+public abstract class VulkanStageableDataBuffer< Data > extends VulkanDataBuffer< Data > {
     
     private static final int[] LOCAL_BUFFER_USAGE_FLAGS = {
         VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
@@ -22,7 +22,7 @@ public abstract class VulkanStagableDataBuffer< Data > extends VulkanDataBuffer<
     private VulkanStagingBuffer stagingBuffer;
     private VulkanDataBufferProvider provider;
     
-    VulkanStagableDataBuffer( VulkanPhysicalDevice device, VulkanDataBufferProvider provider ) {
+    VulkanStageableDataBuffer( VulkanPhysicalDevice device, VulkanDataBufferProvider provider ) {
         super( device, LOCAL_BUFFER_USAGE_FLAGS, LOCAL_BUFFER_MEMORY_FLAGS );
         this.provider = provider;
     }
@@ -36,10 +36,6 @@ public abstract class VulkanStagableDataBuffer< Data > extends VulkanDataBuffer<
     public void load( Data data ) throws BufferNotCreatedException {
         stagingBuffer = extractStagingBufferFromLoader( data );
         createBuffer( extractLength( data ), extractDataByteSize( data ) );
-    }
-    
-    VulkanDataBuffer getStagingBuffer() {
-        return stagingBuffer;
     }
     
     @Override

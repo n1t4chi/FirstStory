@@ -21,8 +21,7 @@ public class VulkanUniformBuffer extends VulkanMappableBuffer {
         VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
     };
     
-    VulkanUniformBuffer( VulkanPhysicalDevice device, VulkanDataBufferProvider loader )
-    {
+    VulkanUniformBuffer( VulkanPhysicalDevice device ) {
         super( device, UNIFORM_BUFFER_USAGE_FLAGS, UNIFORM_BUFFER_MEMORY_FLAGS );
     }
     

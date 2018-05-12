@@ -32,8 +32,8 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         throw new UnsupportedOperationException( "use dedicated method" );
     }
     
-    VulkanStagableDataBuffer< float[] > createFloatBuffer() throws CannotCreateBufferException {
-        return new VulkanStagableDataBuffer< float[] >( device, this ) {
+    VulkanStageableDataBuffer< float[] > createFloatBuffer() throws CannotCreateBufferException {
+        return new VulkanStageableDataBuffer< float[] >( device, this ) {
     
             @Override
             int extractLength( float[] data ) {
@@ -57,8 +57,8 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         };
     }
     
-    VulkanStagableDataBuffer< byte[] > createByteBuffer() throws CannotCreateBufferException {
-        return new VulkanStagableDataBuffer< byte[] >( device, this ) {
+    VulkanStageableDataBuffer< byte[] > createByteBuffer() throws CannotCreateBufferException {
+        return new VulkanStageableDataBuffer< byte[] >( device, this ) {
             
             @Override
             int extractLength( byte[] data ) {
@@ -82,16 +82,15 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
     }
     
     VulkanUniformBuffer createUniformBuffer( int dataCount, int dataSize ) {
-        VulkanUniformBuffer uniformBuffer = new VulkanUniformBuffer( device, this );
+        VulkanUniformBuffer uniformBuffer = new VulkanUniformBuffer( device );
         uniformBuffer.createBuffer( dataCount, dataSize );
         return uniformBuffer;
     }
     
-    <D> VulkanStagingBuffer provideStagingBuffer( D data, int dataLength, int dataByteSize, VulkanStagableDataBuffer<D> dataBuffer ) {
+    <D> VulkanStagingBuffer provideStagingBuffer( D data, int dataLength, int dataByteSize, VulkanStageableDataBuffer<D> dataBuffer ) {
         return stagingBuffers.computeIfAbsent( data, dataA -> {
             VulkanStagingBuffer stagingBuffer = new VulkanStagingBuffer(
-                device,
-                this
+                device
             );
             stagingBuffer.createBuffer( dataLength, dataByteSize );
             stagingBuffer.load( dataBuffer.toByteBuffer( data ) );

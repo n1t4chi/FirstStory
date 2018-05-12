@@ -10,31 +10,35 @@ import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanCom
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotSubmitVulkanDrawCommandBufferException;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.vulkan.*;
+import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
+import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
+import org.lwjgl.vulkan.VkSubmitInfo;
 
+import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class VulkanCommandPool {
+public abstract class VulkanCommandPool {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandPool.class );
     private final VulkanPhysicalDevice device;
     private final VulkanQueueFamily usedQueueFamily;
     private final Map< Integer, VulkanCommandBuffer > commandBuffers = new HashMap<>(  );
     private final VulkanSemaphore imageAvailableSemaphore;
-    private final VulkanSemaphore renderFinishedSemaphore;
     private VulkanAddress address;
+    private final int[] usedBeginInfoFlags;
     
     VulkanCommandPool(
         VulkanPhysicalDevice device,
         VulkanQueueFamily usedQueueFamily,
         VulkanSemaphore imageAvailableSemaphore,
-        VulkanSemaphore renderFinishedSemaphore
+        int... usedBeginInfoFlags
     ) {
         this.device = device;
         this.usedQueueFamily = usedQueueFamily;
+        this.usedBeginInfoFlags = usedBeginInfoFlags;
         this.imageAvailableSemaphore = imageAvailableSemaphore;
-        this.renderFinishedSemaphore = renderFinishedSemaphore;
         address = createCommandPool();
     }
     
@@ -73,44 +77,34 @@ public class VulkanCommandPool {
                     frameBuffers.get( index ),
                     graphicPipeline,
                     swapChain,
-                    VulkanCommandPool.this
+                    VulkanCommandPool.this,
+                    usedBeginInfoFlags
                 )
             )
         );
     }
     
-    void presentQueue( VulkanSwapChain swapChain, int index ) {
-        VkPresentInfoKHR presentInfo = VkPresentInfoKHR.create()
-            .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
-            .pWaitSemaphores(
-                MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress().getValue() ) )
-            .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, swapChain.getAddress().getValue() ) )
-            .swapchainCount( 1 )
-            .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index ) )
-            .pResults( null )
-            ;
-        KHRSwapchain.vkQueuePresentKHR( usedQueueFamily.getQueue() , presentInfo );
-    }
-    
      void submitQueue( VulkanCommandBuffer currentCommandBuffer ) {
-        VkSubmitInfo submitInfo = VkSubmitInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
-            .waitSemaphoreCount( 1 )
-            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put(
-                0, imageAvailableSemaphore.getAddress().getValue() ) )
-            .pWaitDstStageMask(
-                MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT ) )
-            .pCommandBuffers(
-                MemoryUtil.memAllocPointer( 1 ).put(
-                    0, currentCommandBuffer.getAddress().getValue() ) )
-            .pSignalSemaphores( MemoryUtil.memAllocLong( 1 ).put(
-                0, renderFinishedSemaphore.getAddress().getValue() ) )
-            ;
+        VkSubmitInfo submitInfo = createSubmitInfo( currentCommandBuffer ) ;
+        
         VulkanHelper.assertCallOrThrow(
             ()-> VK10.vkQueueSubmit( usedQueueFamily.getQueue(), submitInfo, VK10.VK_NULL_HANDLE ),
             resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode, usedQueueFamily.getQueue() )
         );
     }
+    
+    VkSubmitInfo createSubmitInfo( VulkanCommandBuffer currentCommandBuffer ) {
+        return VkSubmitInfo.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
+            .waitSemaphoreCount( 1 )
+            .pWaitDstStageMask( createWaitStageMaskBuffer() )
+            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put(
+                0, imageAvailableSemaphore.getAddress().getValue() ) )
+            .pCommandBuffers( MemoryUtil.memAllocPointer( 1 ).put(
+                    0, currentCommandBuffer.getAddress().getValue() ) );
+    }
+    
+    abstract IntBuffer createWaitStageMaskBuffer();
     
     PointerBuffer createCommandBufferBuffer(
         VkCommandBufferAllocateInfo allocateInfo, int size

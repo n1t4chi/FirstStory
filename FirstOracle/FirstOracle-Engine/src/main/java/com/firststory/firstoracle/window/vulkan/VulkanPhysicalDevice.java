@@ -172,18 +172,23 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             imageAvailableSemaphore,
             renderFinishedSemaphore
         );
-        transferCommandPool = new VulkanTransferCommandPool( this, transferFamily,
-            imageAvailableSemaphore,
-            renderFinishedSemaphore
-        );
+        transferCommandPool = new VulkanTransferCommandPool( this, transferFamily, imageAvailableSemaphore );
         commandPools.add( graphicCommandPool );
         commandPools.add( transferCommandPool );
         
         bufferLoader = new VulkanDataBufferProvider( this );
     
         textureLoader = new VulkanTextureLoader( this, bufferLoader );
-    
         
+        descriptorPool = createDescriptorPool();
+        descriptorSet = createDescriptorSet();
+    
+        uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, FLOAT_SIZE );
+        
+        updateDesciptorSetsOnDevice();
+        updateRenderingContext();
+    
+    
         Texture texture;
         try {
             texture = new Texture( "resources/First Oracle/texture2D.png" );
@@ -191,8 +196,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             throw new RuntimeException( ex );
         }
         texture.load( textureLoader );
-        
-        
+    
+    
     
         positionBuffer1 = bufferLoader.createFloatBuffer();
         positionBuffer1.load( POSITION_1 );
@@ -200,22 +205,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         positionBuffer2 = bufferLoader.createFloatBuffer();
         positionBuffer2.load( POSITION_2 );
         positionBuffer2.bind();
-        
+    
         colourBuffer1 = bufferLoader.createFloatBuffer();
         colourBuffer1.load( COLOUR_1 );
         colourBuffer1.bind();
         colourBuffer2 = bufferLoader.createFloatBuffer();
         colourBuffer2.load( COLOUR_2 );
         colourBuffer2.bind();
-        
-        uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, FLOAT_SIZE );
-        
-        descriptorPool = createDescriptorPool();
-        descriptorSet = createDescriptorSet();
     
-        updateDesciptorSetsOnDevice();
-        
-        updateRenderingContext();
         
         logger.finer(
             "finished creating " + this + "[" +
@@ -298,7 +295,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         );
     }
     
-    VulkanCommandPool getTransferCommandPool() {
+    VulkanTransferCommandPool getTransferCommandPool() {
         return transferCommandPool;
     }
     
@@ -380,7 +377,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
         
         VulkanCommandBuffer currentGraphicCommandBuffer = graphicCommandPool.getCommandBuffer( index );
-        currentGraphicCommandBuffer.renderQueue( () -> {
+        currentGraphicCommandBuffer.renderQueue( commandBuffer -> {
             currentGraphicCommandBuffer.bindDescriptorSets( descriptorSet );
             currentGraphicCommandBuffer.drawVertices( positionBuffer1, colourBuffer1 );
             currentGraphicCommandBuffer.drawVertices( positionBuffer2, colourBuffer2 );
@@ -450,7 +447,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.forEach( pool -> pool.refreshCommandBuffers( frameBuffers, graphicPipeline, swapChain ) );
     }
     
-    private int aquireNextImageIndex() {
+    int aquireNextImageIndex() {
         try {
             return tryToAquireNextImageIndex();
         } catch ( VulkanNextImageIndexException ex1 ) {
