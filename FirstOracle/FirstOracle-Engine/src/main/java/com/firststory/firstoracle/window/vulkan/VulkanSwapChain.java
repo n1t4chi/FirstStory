@@ -147,7 +147,7 @@ class VulkanSwapChain {
         images.clear();
         KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address.getValue(), count, addresses );
         for ( int i = 0; i < addresses.length; i++ ) {
-            images.put( i, new VulkanImage( addresses[i], i ) );
+            images.put( i, new VulkanImage( new VulkanAddress( addresses[i] ), i ) );
         }
     }
     

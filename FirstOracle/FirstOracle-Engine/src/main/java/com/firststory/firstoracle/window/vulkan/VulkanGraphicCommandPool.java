@@ -11,27 +11,56 @@ import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.nio.IntBuffer;
+import java.util.Map;
 
 /**
  * @author n1t4chi
  */
-class VulkanGraphicCommandPool extends VulkanCommandPool {
+class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBuffer > {
     
+    private final VulkanSwapChain swapChain;
+    private final VulkanGraphicPipeline graphicPipeline;
     private final VulkanSemaphore renderFinishedSemaphore;
     
     VulkanGraphicCommandPool(
         VulkanPhysicalDevice device,
         VulkanQueueFamily usedQueueFamily,
+        VulkanSwapChain swapChain,
+        VulkanGraphicPipeline graphicPipeline,
         VulkanSemaphore imageAvailableSemaphore,
         VulkanSemaphore renderFinishedSemaphore
     ) {
         super(
             device,
             usedQueueFamily,
-            imageAvailableSemaphore,
+            imageAvailableSemaphore
+        );
+        this.swapChain = swapChain;
+        this.graphicPipeline = graphicPipeline;
+        this.renderFinishedSemaphore = renderFinishedSemaphore;
+    }
+    
+    @Override
+    VulkanGraphicCommandBuffer createNewCommandBuffer(
+        int index,
+        VulkanAddress address,
+        Map< Integer, VulkanFrameBuffer > frameBuffers
+    ) {
+        return new VulkanGraphicCommandBuffer(
+            getDevice(),
+            address,
+            frameBuffers.get( index ),
+            graphicPipeline,
+            swapChain,
+            this,
+            index,
             VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
         );
-        this.renderFinishedSemaphore = renderFinishedSemaphore;
+    }
+    
+    @Override
+    void postExecute( VulkanGraphicCommandBuffer commandBuffer ) {
+        presentQueue( swapChain, commandBuffer.getIndex() );
     }
     
     VkSubmitInfo createSubmitInfo( VulkanCommandBuffer currentCommandBuffer ) {

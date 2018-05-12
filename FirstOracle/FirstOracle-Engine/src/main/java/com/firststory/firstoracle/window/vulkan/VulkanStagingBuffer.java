@@ -21,21 +21,17 @@ class VulkanStagingBuffer extends VulkanMappableBuffer {
         super( device, STAGING_BUFFER_USAGE_FLAGS, STAGING_BUFFER_MEMORY_FLAGS );
     }
     void copyBuffer( VulkanDataBuffer dstBuffer, VulkanTransferCommandPool commandPool ) {
-        
-        VulkanCommandBuffer commandBuffer = commandPool.getCommandBuffer( getDevice().aquireNextImageIndex() );
-        commandBuffer.transferQueue( commandBufferReference -> {
+        commandPool.executeQueue( commandBuffer -> {
             VkBufferCopy copyRegion = VkBufferCopy.create().srcOffset( 0 ) // Optional
                 .dstOffset( 0 ) // Optional
                 .size( dstBuffer.getLength() );
-            
-            VK10.vkCmdCopyBuffer( commandBufferReference,
+    
+            VK10.vkCmdCopyBuffer( commandBuffer.getCommandBuffer(),
                 this.getBufferAddress().getValue(),
                 dstBuffer.getBufferAddress().getValue(),
                 VkBufferCopy.create( 1 ).put( 0, copyRegion )
             );
         } );
-        commandPool.submitQueue( commandBuffer );
-        commandPool.getUsedQueueFamily().waitForQueue();
     }
     
 }

@@ -99,7 +99,40 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTexture> {
             memoryRequirements.memoryTypeBits(),
             VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
         );
+    
+        bindImageMemory( textureData, memoryRequirements, memoryType );
         
+        // vars?
+        int oldLayout = 0; //todo could be: VK10.VK_IMAGE_LAYOUT_UNDEFINED
+        int newLayout = 0;
+        VulkanAddress image = textureData.getTextureImage();
+        // vars?
+        
+        VkImageMemoryBarrier barrier = VkImageMemoryBarrier.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER )
+            .oldLayout( oldLayout )
+            .newLayout( newLayout )
+            .srcQueueFamilyIndex( VK10.VK_QUEUE_FAMILY_IGNORED )
+            .dstQueueFamilyIndex( VK10.VK_QUEUE_FAMILY_IGNORED )
+            .image( image.getValue() )
+            .subresourceRange( VkImageSubresourceRange.create()
+                .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
+                .baseMipLevel( 0 )
+                .levelCount( 1 )
+                .baseArrayLayer( 0 )
+                .layerCount( 1 )
+            )
+            .srcAccessMask( 0 ) //todo
+            .dstAccessMask( 0 ) //todo
+        ;
+        
+//        device.getTransferCommandPool().submitQueue(  );
+//        VK10.vkCmdPipelineBarrier(  );
+    }
+    
+    private void bindImageMemory(
+        VulkanTexture textureData, VkMemoryRequirements memoryRequirements, VulkanMemoryType memoryType
+    ) {
         VkMemoryAllocateInfo allocateInfo = VkMemoryAllocateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO )
             .allocationSize( memoryRequirements.size() )

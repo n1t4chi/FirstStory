@@ -168,7 +168,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         this.descriptorSetLayout = createDescriptorSetLayout();
         
         graphicPipeline = new VulkanGraphicPipeline( this );
-        graphicCommandPool = new VulkanGraphicCommandPool( this, graphicFamily,
+        graphicCommandPool = new VulkanGraphicCommandPool( this, graphicFamily, swapChain, graphicPipeline,
             imageAvailableSemaphore,
             renderFinishedSemaphore
         );
@@ -364,9 +364,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private float rotate = 0;
+    
     void testRender() {
-        int index = aquireNextImageIndex();
-        
         matrix.identity().scale( ThreadLocalRandom.current().nextFloat()/10+1 ).rotateZ( rotate = rotate + 0.001f );
         matrix.get( uniformBufferData, 0 );
         uniformBufferData[16] = trans.x = trans.x*1.00001f;
@@ -375,17 +374,12 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         uniformBufferData[19] = scale.y = scale.y*1.00001f;
         uniformBuffer.load( uniformBufferData );
         
-        
-        VulkanCommandBuffer currentGraphicCommandBuffer = graphicCommandPool.getCommandBuffer( index );
-        currentGraphicCommandBuffer.renderQueue( commandBuffer -> {
-            currentGraphicCommandBuffer.bindDescriptorSets( descriptorSet );
-            currentGraphicCommandBuffer.drawVertices( positionBuffer1, colourBuffer1 );
-            currentGraphicCommandBuffer.drawVertices( positionBuffer2, colourBuffer2 );
+        graphicCommandPool.executeQueue( commandBufferReference -> {
+            commandBufferReference.bindDescriptorSets( descriptorSet );
+            commandBufferReference.drawVertices( positionBuffer1, colourBuffer1 );
+            commandBufferReference.drawVertices( positionBuffer2, colourBuffer2 );
         } );
-    
-        graphicCommandPool.submitQueue( currentGraphicCommandBuffer );
-        graphicCommandPool.presentQueue( swapChain, index );
-    
+        
         if ( VulkanFramework.validationLayersAreEnabled() ) {
             presentationFamily.waitForQueue();
         }
@@ -444,7 +438,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private void refreshCommandBuffers() {
-        commandPools.forEach( pool -> pool.refreshCommandBuffers( frameBuffers, graphicPipeline, swapChain ) );
+        commandPools.forEach( pool -> pool.refreshCommandBuffers( frameBuffers ) );
     }
     
     int aquireNextImageIndex() {

@@ -17,10 +17,6 @@ class VulkanImage {
         this.index = index;
     }
     
-    VulkanImage( long address, int index ) {
-        this( new VulkanAddress( address ), index );
-    }
-    
     @Override
     public int hashCode() {
         int result = address != null ? address.hashCode() : 0;

@@ -12,6 +12,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 public class CannotAquireNextImageIndexException extends VulkanNextImageIndexException {
     
     public CannotAquireNextImageIndexException( VulkanPhysicalDevice device, int index, int errorCode ) {
-        super( device, index, "Cannot aquire next image index. Error code:" + errorCode );
+        super( device, index, "Cannot aquire next image index. " +
+            "Error code:" + errorCode+"["+VulkanExceptionHelper.parseResultCode( errorCode )+"]" );
     }
 }

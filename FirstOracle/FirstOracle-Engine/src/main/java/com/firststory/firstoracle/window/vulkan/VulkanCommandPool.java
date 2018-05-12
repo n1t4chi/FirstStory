@@ -20,26 +20,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public abstract class VulkanCommandPool {
+public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffer> {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandPool.class );
     private final VulkanPhysicalDevice device;
     private final VulkanQueueFamily usedQueueFamily;
-    private final Map< Integer, VulkanCommandBuffer > commandBuffers = new HashMap<>(  );
+    private final Map< Integer, CommandBuffer > commandBuffers = new HashMap<>(  );
     private final VulkanSemaphore imageAvailableSemaphore;
     private VulkanAddress address;
-    private final int[] usedBeginInfoFlags;
     
     VulkanCommandPool(
         VulkanPhysicalDevice device,
         VulkanQueueFamily usedQueueFamily,
-        VulkanSemaphore imageAvailableSemaphore,
-        int... usedBeginInfoFlags
+        VulkanSemaphore imageAvailableSemaphore
     ) {
         this.device = device;
         this.usedQueueFamily = usedQueueFamily;
-        this.usedBeginInfoFlags = usedBeginInfoFlags;
         this.imageAvailableSemaphore = imageAvailableSemaphore;
         address = createCommandPool();
+    }
+    
+    VulkanPhysicalDevice getDevice() {
+        return device;
     }
     
     VulkanQueueFamily getUsedQueueFamily() {
@@ -58,40 +59,34 @@ public abstract class VulkanCommandPool {
         return address;
     }
     
-    VulkanCommandBuffer getCommandBuffer( int index ) {
+    private CommandBuffer getCommandBuffer( int index ) {
         return commandBuffers.get( index );
     }
     
     void refreshCommandBuffers(
-        Map< Integer, VulkanFrameBuffer > frameBuffers,
-        VulkanGraphicPipeline graphicPipeline,
-        VulkanSwapChain swapChain
+        Map< Integer, VulkanFrameBuffer > frameBuffers
     ) {
         disposeCommandBuffers();
         VulkanHelper.iterate( createCommandBufferBuffer( createAllocateInfo( frameBuffers ), frameBuffers.size() ),
-            ( index, commandBufferAddress ) -> commandBuffers.put(
-                index,
-                new VulkanCommandBuffer(
-                    device,
-                    commandBufferAddress,
-                    frameBuffers.get( index ),
-                    graphicPipeline,
-                    swapChain,
-                    VulkanCommandPool.this,
-                    usedBeginInfoFlags
-                )
-            )
-        );
+            ( index, address ) -> commandBuffers.put( index,
+                createNewCommandBuffer( index, new VulkanAddress( address ) , frameBuffers )
+        ) );
     }
     
-     void submitQueue( VulkanCommandBuffer currentCommandBuffer ) {
-        VkSubmitInfo submitInfo = createSubmitInfo( currentCommandBuffer ) ;
-        
-        VulkanHelper.assertCallOrThrow(
-            ()-> VK10.vkQueueSubmit( usedQueueFamily.getQueue(), submitInfo, VK10.VK_NULL_HANDLE ),
-            resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode, usedQueueFamily.getQueue() )
-        );
+    abstract CommandBuffer createNewCommandBuffer(
+        int index,
+        VulkanAddress address,
+        Map< Integer, VulkanFrameBuffer > frameBuffers
+    );
+    
+    void executeQueue( VulkanCommands<CommandBuffer> commands ) {
+        CommandBuffer commandBuffer = getCommandBuffer( getDevice().aquireNextImageIndex() );
+        commandBuffer.fillQueue( commands );
+        submitQueue( commandBuffer );
+        postExecute( commandBuffer );
     }
+    
+    abstract void postExecute( CommandBuffer commandBuffer );
     
     VkSubmitInfo createSubmitInfo( VulkanCommandBuffer currentCommandBuffer ) {
         return VkSubmitInfo.create()
@@ -106,7 +101,16 @@ public abstract class VulkanCommandPool {
     
     abstract IntBuffer createWaitStageMaskBuffer();
     
-    PointerBuffer createCommandBufferBuffer(
+    private void submitQueue( CommandBuffer currentCommandBuffer ) {
+        VkSubmitInfo submitInfo = createSubmitInfo( currentCommandBuffer ) ;
+        
+        VulkanHelper.assertCallOrThrow(
+            ()-> VK10.vkQueueSubmit( usedQueueFamily.getQueue(), submitInfo, VK10.VK_NULL_HANDLE ),
+            resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode, usedQueueFamily.getQueue() )
+        );
+    }
+    
+    private PointerBuffer createCommandBufferBuffer(
         VkCommandBufferAllocateInfo allocateInfo, int size
     ) {
         PointerBuffer commandBuffersBuffer = MemoryUtil.memAllocPointer( size );

@@ -8,23 +8,35 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 
 import java.nio.IntBuffer;
+import java.util.Map;
 
 /**
  * @author n1t4chi
  */
-class VulkanTransferCommandPool extends VulkanCommandPool {
+class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommandBuffer > {
     
     VulkanTransferCommandPool(
-        VulkanPhysicalDevice device,
-        VulkanQueueFamily usedQueueFamily,
-        VulkanSemaphore imageAvailableSemaphore
+        VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily, VulkanSemaphore imageAvailableSemaphore
     ) {
-        super(
-            device,
-            usedQueueFamily,
-            imageAvailableSemaphore,
+        super( device, usedQueueFamily, imageAvailableSemaphore );
+    }
+    
+    @Override
+    VulkanTransferCommandBuffer createNewCommandBuffer(
+        int index,
+        VulkanAddress address,
+        Map< Integer, VulkanFrameBuffer > frameBuffers
+    ) {
+        return new VulkanTransferCommandBuffer( getDevice(),
+            address,
+            this,
             VK10.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
         );
+    }
+    
+    @Override
+    void postExecute( VulkanTransferCommandBuffer commandBuffer ) {
+        getUsedQueueFamily().waitForQueue();
     }
     
     @Override
