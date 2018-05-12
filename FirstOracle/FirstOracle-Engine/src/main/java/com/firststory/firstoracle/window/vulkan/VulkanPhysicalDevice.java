@@ -299,10 +299,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return transferCommandPool;
     }
     
-    private boolean isGraphicAndTransferQueueSame() {
-        return graphicFamily.equals( transferFamily );
-    }
-    
     boolean isSingleCommandPoolUsed() {
         return commandPools.size() == 1;
     }
@@ -374,10 +370,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         uniformBufferData[19] = scale.y = scale.y*1.00001f;
         uniformBuffer.load( uniformBufferData );
         
-        graphicCommandPool.executeQueue( commandBufferReference -> {
-            commandBufferReference.bindDescriptorSets( descriptorSet );
-            commandBufferReference.drawVertices( positionBuffer1, colourBuffer1 );
-            commandBufferReference.drawVertices( positionBuffer2, colourBuffer2 );
+        graphicCommandPool.executeQueue( commandBuffer -> {
+            commandBuffer.bindDescriptorSets( descriptorSet );
+            commandBuffer.drawVertices( positionBuffer1, colourBuffer1 );
+            commandBuffer.drawVertices( positionBuffer2, colourBuffer2 );
         } );
         
         if ( VulkanFramework.validationLayersAreEnabled() ) {
@@ -445,10 +441,12 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         try {
             return tryToAquireNextImageIndex();
         } catch ( VulkanNextImageIndexException ex1 ) {
-            logger.log( Level.WARNING,"Exception during aquiring next image index" , ex1 );
+            logger.log( Level.WARNING,"Exception during aquiring next image index. Updating rendering context." , ex1 );
             try {
                 updateRenderingContext();
-                return tryToAquireNextImageIndex();
+                int imageIndex = tryToAquireNextImageIndex();
+                logger.log( Level.FINEST,"Aquired image index: "+imageIndex+" after context update." );
+                return imageIndex;
             } catch ( Exception ex2 ) {
                 throw new VulkanNextImageIndexException( this, ex1, ex2 );
             }

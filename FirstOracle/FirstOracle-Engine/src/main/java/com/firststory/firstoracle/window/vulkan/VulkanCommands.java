@@ -9,5 +9,5 @@ package com.firststory.firstoracle.window.vulkan;
  */
 interface VulkanCommands<CommandBuffer extends VulkanCommandBuffer> {
     
-    void execute( CommandBuffer commandBufferReference );
+    void execute( CommandBuffer commandBuffer );
 }

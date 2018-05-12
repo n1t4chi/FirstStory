@@ -19,8 +19,8 @@ public abstract class VulkanStageableDataBuffer< Data > extends VulkanDataBuffer
         VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
     };
     private static final int[] LOCAL_BUFFER_MEMORY_FLAGS = { VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT };
+    private final VulkanDataBufferProvider provider;
     private VulkanStagingBuffer stagingBuffer;
-    private VulkanDataBufferProvider provider;
     
     VulkanStageableDataBuffer( VulkanPhysicalDevice device, VulkanDataBufferProvider provider ) {
         super( device, LOCAL_BUFFER_USAGE_FLAGS, LOCAL_BUFFER_MEMORY_FLAGS );

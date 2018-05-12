@@ -10,11 +10,7 @@ import com.firststory.firstoracle.data.DataBuffer;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotAllocateVulkanMemoryExcpetion;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotBindVulkanMemoryException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanVertexBuffer;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
-
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 /**
  * @author n1t4chi
@@ -114,19 +110,6 @@ public abstract class VulkanDataBuffer< Data > implements DataBuffer< Data > {
     
     VulkanAddress getAllocatedMemoryAddress() {
         return allocatedMemoryAddress;
-    }
-    
-    private ByteBuffer createVertexDataBuffer( float[] data ) {
-        ByteBuffer vertexDataBuffer = MemoryUtil.memAlloc( getLength() );
-        FloatBuffer dataBuffer = vertexDataBuffer.asFloatBuffer();
-        dataBuffer.put( data );
-        return vertexDataBuffer;
-    }
-    
-    private ByteBuffer createVertexDataBuffer( byte[] data ) {
-        ByteBuffer vertexDataBuffer = MemoryUtil.memAlloc( getLength() );
-        vertexDataBuffer.put( data );
-        return vertexDataBuffer;
     }
     
     private void bindMemoryToBuffer() {

@@ -59,7 +59,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         return address;
     }
     
-    private CommandBuffer getCommandBuffer( int index ) {
+    CommandBuffer getCommandBuffer( int index ) {
         return commandBuffers.get( index );
     }
     

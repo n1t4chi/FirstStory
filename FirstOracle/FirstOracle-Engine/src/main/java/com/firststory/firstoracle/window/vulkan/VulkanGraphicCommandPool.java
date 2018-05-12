@@ -84,7 +84,7 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
             .swapchainCount( 1 )
             .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index ) )
             .pResults( null )
-            ;
+        ;
         KHRSwapchain.vkQueuePresentKHR( getUsedQueueFamily().getQueue() , presentInfo );
     }
 }

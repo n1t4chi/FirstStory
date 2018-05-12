@@ -7,6 +7,7 @@ package com.firststory.firstoracle.window.vulkan;
 import com.firststory.firstoracle.data.BufferProvider;
 import com.firststory.firstoracle.data.CannotCreateBufferException;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.vulkan.VK10;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -19,6 +20,11 @@ import java.util.Map;
  * @author n1t4chi
  */
 public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffer > {
+    
+    private static final int[] MAPPABLE_BUFFER_USAGE_FLAGS = { VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT };
+    private static final int[] MAPPABLE_BUFFER_MEMORY_FLAGS = { VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
     private final VulkanPhysicalDevice device;
     private final List<VulkanDataBuffer > buffers = new ArrayList<>(  );
     private final Map< Object, VulkanStagingBuffer > stagingBuffers = new HashMap<>();
@@ -32,7 +38,15 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         throw new UnsupportedOperationException( "use dedicated method" );
     }
     
-    VulkanStageableDataBuffer< float[] > createFloatBuffer() throws CannotCreateBufferException {
+    VulkanMappableBuffer createMappableBuffer() {
+        return new VulkanMappableBuffer(
+            device,
+            MAPPABLE_BUFFER_USAGE_FLAGS,
+            MAPPABLE_BUFFER_MEMORY_FLAGS
+        );
+    }
+    
+    VulkanStageableDataBuffer< float[] > createFloatBuffer() {
         return new VulkanStageableDataBuffer< float[] >( device, this ) {
     
             @Override
@@ -57,7 +71,7 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         };
     }
     
-    VulkanStageableDataBuffer< byte[] > createByteBuffer() throws CannotCreateBufferException {
+    VulkanStageableDataBuffer< byte[] > createByteBuffer() {
         return new VulkanStageableDataBuffer< byte[] >( device, this ) {
             
             @Override

@@ -15,12 +15,13 @@ import java.nio.ByteBuffer;
 /**
  * @author n1t4chi
  */
-public abstract class VulkanMappableBuffer extends VulkanDataBuffer< ByteBuffer > {
+public class VulkanMappableBuffer extends VulkanDataBuffer< ByteBuffer > {
     
-    public VulkanMappableBuffer(
+    VulkanMappableBuffer(
         VulkanPhysicalDevice device, int[] usageFlags, int[] requiredMemoryTypeFlags
-    )
-    {super( device, usageFlags, requiredMemoryTypeFlags );}
+    ) {
+        super( device, usageFlags, requiredMemoryTypeFlags );
+    }
     
     @Override
     public void bind() throws BufferNotCreatedException, BufferNotLoadedException {}
@@ -31,7 +32,7 @@ public abstract class VulkanMappableBuffer extends VulkanDataBuffer< ByteBuffer 
         unmapMemory();
     }
     
-    void unmapMemory() {
+    private void unmapMemory() {
         VK10.vkUnmapMemory( getDeviceLogicalDevice(), getAllocatedMemoryAddress().getValue() );
     }
     

@@ -7,16 +7,16 @@ package com.firststory.firstoracle.window.vulkan;
 /**
  * @author n1t4chi
  */
-class VulkanTexture {
+class VulkanTextureData {
     
-    private VulkanStageableDataBuffer< byte[] > buffer;
+    private VulkanMappableBuffer buffer;
     private VulkanAddress textureImage;
     
-    VulkanStageableDataBuffer< byte[] > getBuffer() {
+    VulkanMappableBuffer getBuffer() {
         return buffer;
     }
     
-    void setBuffer( VulkanStageableDataBuffer< byte[] > buffer ) {
+    void setBuffer( VulkanMappableBuffer buffer ) {
         this.buffer = buffer;
     }
     
