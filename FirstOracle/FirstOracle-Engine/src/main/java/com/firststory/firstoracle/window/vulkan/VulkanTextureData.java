@@ -11,6 +11,29 @@ class VulkanTextureData {
     
     private VulkanMappableBuffer buffer;
     private VulkanAddress textureImage;
+    private int width;
+    private int height;
+    private VulkanAddress imageView;
+    
+    void setImageView( VulkanAddress imageView ) {
+        this.imageView = imageView;
+    }
+    
+    int getWidth() {
+        return width;
+    }
+    
+    void setWidth( int width ) {
+        this.width = width;
+    }
+    
+    int getHeight() {
+        return height;
+    }
+    
+    void setHeight( int height ) {
+        this.height = height;
+    }
     
     VulkanMappableBuffer getBuffer() {
         return buffer;

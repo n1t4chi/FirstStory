@@ -6,7 +6,6 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.PropertiesUtil;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanImageViewException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanSwapChainException;
 import com.firststory.firstoracle.window.vulkan.exceptions.SwapChainIsNotSupportedException;
 import org.lwjgl.vulkan.*;
@@ -115,28 +114,11 @@ class VulkanSwapChain {
     }
     
     private VulkanImageView createVulkanImageView( VulkanImage image ) {
-    
-        return new VulkanImageView( device, this,
-            VulkanHelper.createAddress(
-                () -> VkImageViewCreateInfo.create()
-                    .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO )
-                    .image( image.getAddress().getValue() )
-                    .viewType( VK10.VK_IMAGE_VIEW_TYPE_2D )
-                    .format( usedFormat.format() )
-                    .components( VkComponentMapping.create()
-                        .a( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
-                        .r( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
-                        .g( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
-                        .b( VK10.VK_COMPONENT_SWIZZLE_IDENTITY ) )
-                    .subresourceRange( VkImageSubresourceRange.create()
-                        .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
-                        .baseMipLevel( 0 )
-                        .levelCount( 1 )
-                        .baseArrayLayer( 0 )
-                        .layerCount( 1 ) ),
-                ( createInfo, addressA ) -> VK10.vkCreateImageView( device.getLogicalDevice(), createInfo, null, addressA ),
-                resultCode -> new CannotCreateVulkanImageViewException( device, resultCode )
-            ), image.getIndex()
+        return new VulkanImageView(
+            device,
+            this,
+            device.createImageView( image.getAddress(), usedFormat.format() ),
+            image.getIndex()
         );
     }
     

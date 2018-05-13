@@ -114,6 +114,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private VulkanDataBuffer textureBuffer;
     private final VulkanTextureLoader textureLoader;
     
+    VulkanGraphicCommandPool getGraphicCommandPool() {
+        return graphicCommandPool;
+    }
+    
     VulkanAddress getDescriptorSetLayout() {
         return descriptorSetLayout;
     }
@@ -196,7 +200,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             throw new RuntimeException( ex );
         }
         texture.load( textureLoader );
-    
+        
     
     
         positionBuffer1 = bufferLoader.createFloatBuffer();
@@ -224,6 +228,31 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 "\nextensions: " + availableExtensionProperties.size() +
                 "\nmemory types: " + memoryTypesToString() +
             "]"
+        );
+    }
+    
+    VulkanAddress createImageView( VulkanAddress image, int format ) {
+        return VulkanHelper.createAddress(
+            () -> VkImageViewCreateInfo.create()
+                .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO )
+                .image( image.getValue() )
+                .viewType( VK10.VK_IMAGE_VIEW_TYPE_2D )
+                .format( format )
+                .components( VkComponentMapping.create()
+                    .a( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
+                    .r( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
+                    .g( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
+                    .b( VK10.VK_COMPONENT_SWIZZLE_IDENTITY ) )
+                .subresourceRange( VkImageSubresourceRange.create()
+                    .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
+                    .baseMipLevel( 0 )
+                    .levelCount( 1 )
+                    .baseArrayLayer( 0 )
+                    .layerCount( 1 )
+                ),
+            ( createInfo, address ) ->
+                VK10.vkCreateImageView( logicalDevice, createInfo, null, address ),
+            resultCode -> new CannotCreateVulkanImageViewException( this, resultCode )
         );
     }
     

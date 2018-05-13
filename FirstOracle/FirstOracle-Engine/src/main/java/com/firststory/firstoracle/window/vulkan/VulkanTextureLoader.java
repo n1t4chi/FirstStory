@@ -41,10 +41,17 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     }
     
     @Override
-    //createTextureImage()
-    public void load( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) throws
-        BufferNotCreatedException
-    {
+    public void load( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) {
+        createTextureImage( textureData, imageBuffer, name );
+        createTextureImageView( textureData );
+    }
+    
+    private void createTextureImageView( VulkanTextureData textureData ) {
+        textureData.setImageView(
+            device.createImageView( textureData.getTextureImage(), VK10.VK_FORMAT_R8G8B8A8_UNORM ) );
+    }
+    
+    private void createTextureImage( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) {
         IntBuffer w = BufferUtils.createIntBuffer( 1 );
         IntBuffer h = BufferUtils.createIntBuffer( 1 );
         IntBuffer c = BufferUtils.createIntBuffer( 1 );
@@ -54,30 +61,29 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         }
         int width = w.get( 0 );
         int height = h.get( 0 );
-    
+        textureData.setWidth( width );
+        textureData.setHeight( height );
         textureData.setBuffer( bufferLoader.createMappableBuffer() );
         textureData.getBuffer().createBuffer( pixels.capacity(), 1 );
         textureData.getBuffer().load( pixels );
         textureData.getBuffer().bind();
         
-        createImage( textureData, width, height );
+        createImage( textureData );
     
-        transitionImageLayout(
+        initialTransitionImageLayout(
             textureData,
-            VK10.VK_FORMAT_R8G8B8A8_UNORM,
-            VK10.VK_IMAGE_LAYOUT_UNDEFINED,
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+            VK10.VK_FORMAT_R8G8B8A8_UNORM
         );
-        copyBufferToImage( textureData, width, height );
-        transitionImageLayout(
+        copyBufferToImage( textureData );
+        postCopyTransitionImageLayout(
             textureData,
-            VK10.VK_FORMAT_R8G8B8A8_UNORM,
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+            VK10.VK_FORMAT_R8G8B8A8_UNORM
         );
+        
+        textureData.getBuffer().close();
     }
     
-    private void copyBufferToImage( VulkanTextureData textureData, int width, int height) {
+    private void copyBufferToImage( VulkanTextureData textureData ) {
         device.getTransferCommandPool().executeQueue( commandBuffer -> {
             VkBufferImageCopy region = VkBufferImageCopy.create()
                 .bufferOffset(0)
@@ -90,8 +96,8 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
                     .layerCount(1)
                 )
                 .imageOffset( VkOffset3D.create().set( 0,0,0 ) )
-                .imageExtent( VkExtent3D.create().set( width, height, 1 ) )
-                ;
+                .imageExtent( VkExtent3D.create().set( textureData.getWidth(), textureData.getHeight(), 1 ) )
+            ;
     
             VkBufferImageCopy.Buffer regionBuffer = VkBufferImageCopy.calloc( 1 ).put( 0, region );
     
@@ -106,15 +112,46 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         } );
     }
     
-    private void transitionImageLayout( VulkanTextureData textureData, int format, int oldLayout, int newLayout) {
-        int srcAccessMask = 0;
-        int dstAccessMask = 0;
-        int srcStageMask = 0;
-        int dstStageMask = 0;
+    private void initialTransitionImageLayout( VulkanTextureData textureData, int format ) {
+        transitionImageLayout( textureData,
+            format,
+            VK10.VK_IMAGE_LAYOUT_UNDEFINED,
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            0,
+            VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK10.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
+            device.getGraphicCommandPool()
+        );
+    }
     
-        device.getTransferCommandPool().executeQueue( commandBuffer -> {
-            VK10.vkCmdPipelineBarrier( commandBuffer.getCommandBuffer(),
-                srcStageMask,//todo
+    private void postCopyTransitionImageLayout( VulkanTextureData textureData, int format ) {
+        transitionImageLayout( textureData,
+            format,
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK10.VK_ACCESS_SHADER_READ_BIT,
+            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK10.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            device.getGraphicCommandPool()
+        );
+    }
+    
+    private void transitionImageLayout(
+        VulkanTextureData textureData,
+        int format,
+        int oldLayout,
+        int newLayout,
+        int srcAccessMask,
+        int dstAccessMask,
+        int srcStageMask,
+        int dstStageMask,
+        VulkanCommandPool<?> transferCommandPool
+    ) {
+    
+        transferCommandPool.executeQueue( commandBuffer -> {
+            VK10.vkCmdPipelineBarrier( commandBuffer.getCommandBuffer(), srcStageMask,//todo
                 dstStageMask,//todo
                 0,
                 null,
@@ -124,11 +161,11 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         } );
     }
     
-    private void createImage( VulkanTextureData textureData, int width, int height ) {
+    private void createImage( VulkanTextureData textureData ) {
         VkImageCreateInfo imageCreateInfo = VkImageCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO )
             .imageType( VK10.VK_IMAGE_TYPE_2D )
-            .extent( VkExtent3D.create().set( width, height, 1 ) )
+            .extent( VkExtent3D.create().set( textureData.getWidth(), textureData.getHeight(), 1 ) )
             .mipLevels( 1 )
             .arrayLayers( 1 )
             .format( VK10.VK_FORMAT_R8G8B8A8_UNORM )
@@ -213,7 +250,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     }
     
     @Override
-    public void close() throws Exception {
+    public void close() {
     
     }
 }
