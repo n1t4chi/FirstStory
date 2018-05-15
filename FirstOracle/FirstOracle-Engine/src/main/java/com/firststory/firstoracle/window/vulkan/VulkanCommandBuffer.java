@@ -62,13 +62,15 @@ public abstract class VulkanCommandBuffer {
     }
     
     void drawVertices(
-        VulkanDataBuffer vertexBuffer, VulkanDataBuffer colourBuffer, VulkanStageableDataBuffer< float[] > uvBuffer
+        VulkanDataBuffer< float[] >vertexBuffer,
+        VulkanDataBuffer< float[] > uvBuffer,
+        VulkanDataBuffer< float[] > colourBuffer
     ) {
         VK10.vkCmdBindVertexBuffers( commandBuffer, 0,
             new long[]{
                 vertexBuffer.getBufferAddress().getValue(),
-                colourBuffer.getBufferAddress().getValue(),
-                uvBuffer.getBufferAddress().getValue()
+                uvBuffer.getBufferAddress().getValue(),
+                colourBuffer.getBufferAddress().getValue()
             },
             new long[]{ 0, 0, 0 }
         );

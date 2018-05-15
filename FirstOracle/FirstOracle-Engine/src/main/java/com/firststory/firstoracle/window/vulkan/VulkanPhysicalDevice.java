@@ -9,7 +9,7 @@ import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -33,14 +32,14 @@ import java.util.stream.Collectors;
 public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > {
     
     static final float[] POSITION_1 = new float[]{
-        /*3*/ /*pos*/ 0.0f, 0.0f,
-        /*1*/ /*pos*/ 0.5f, 0.5f,
-        /*2*/ /*pos*/ 0.5f, 0.0f,
+        /*3*/ /*pos*/ -0.5f, -0.5f, 0.5f,
+        /*2*/ /*pos*/ -0.5f, 0.5f, 0.5f,
+        /*1*/ /*pos*/ 0.5f, 0.5f, 0.5f,
     };
     static final float[] COLOUR_1 = new float[]{
-        /*1*/  /*col*/ 1.0f, 0.0f, 1.0f,
-        /*2*/ /*col*/ 1.0f, 1.0f, 0.0f,
-        /*3*/ /*col*/ 0.0f, 1.0f, 1.0f
+        /*1*/ /*col*/ 1.0f, 0.0f, 1.0f, 1.0f,
+        /*2*/ /*col*/ 1.0f, 1.0f, 0.0f, 1.0f,
+        /*3*/ /*col*/ 0.0f, 1.0f, 1.0f, 1.0f,
     };
     static final float[] UVMAP_1 = new float[]{
         /*3*/ /*pos*/ 0f, 0f,
@@ -48,14 +47,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         /*1*/ /*pos*/ 1f, 0f,
     };
     static final float[] POSITION_2 = new float[]{
-        /*3*/ /*pos*/ 0.0f, 0.0f,
-        /*2*/ /*pos*/ 0.0f, 0.5f,
-        /*1*/ /*pos*/ 0.5f, 0.5f,
+        /*3*/ /*pos*/ 1.0f, 1.0f, 0.0f,
+        /*1*/ /*pos*/ 1.0f, -1.0f, 0.0f,
+        /*2*/ /*pos*/ -1.0f, 1.0f, 0.0f,
     };
     static final float[] COLOUR_2 = new float[]{
-        /*1*/  /*col*/ 0.5f, 0.5f, 0.5f,
-        /*2*/ /*col*/ 1.0f, 1.0f, 0.5f,
-        /*3*/ /*col*/ 0.5f, 1.0f, 1.0f
+        /*1*/ /*col*/ 0.5f, 0.5f, 0.5f, 1.0f,
+        /*2*/ /*col*/ 1.0f, 1.0f, 0.5f, 1.5f,
+        /*3*/ /*col*/ 0.5f, 1.0f, 1.0f, 1.5f,
     };
     static final float[] UVMAP_2 = new float[]{
         /*3*/ /*pos*/ 0f, 0f,
@@ -64,7 +63,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     };
     private static final int FLOAT_SIZE = 4;
     private static final int MATRIX_SIZE = 4 * 4;
-    private static final int VEC_SIZE = 2;
+    private static final int VEC_SIZE = 3;
     private static final int UNIFORM_SIZE = MATRIX_SIZE + VEC_SIZE * 2;
     private static final int UNIFORM_DATA_SIZE = FLOAT_SIZE * UNIFORM_SIZE;
     
@@ -106,18 +105,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanShaderProgram vertexShader;
     private final VulkanShaderProgram fragmentShader;
     private final VulkanAddress descriptorSetLayout;
-    private final VulkanDataBuffer< float[] > positionBuffer1;
-    private final VulkanDataBuffer< float[] > positionBuffer2;
-    private final VulkanDataBuffer< float[] > colourBuffer1;
-    private final VulkanDataBuffer< float[] > colourBuffer2;
+    private final VulkanStageableDataBuffer< float[] > positionBuffer1;
+    private final VulkanStageableDataBuffer< float[] > positionBuffer2;
+    private final VulkanStageableDataBuffer< float[] > colourBuffer1;
+    private final VulkanStageableDataBuffer< float[] > colourBuffer2;
     private final VulkanStageableDataBuffer< float[] > uvBuffer1;
     private final VulkanStageableDataBuffer< float[] > uvBuffer2;
     private final VulkanUniformBuffer uniformBuffer;
     
     private final float[] uniformBufferData = new float[UNIFORM_SIZE];
     private final Matrix4f matrix = new Matrix4f();
-    private final Vector2f trans = new Vector2f( 0.01f, 0.01f );
-    private final Vector2f scale = new Vector2f( 1, 1 );
+    private final Vector3f trans = new Vector3f( 0.01f, 0.01f, 0.01f );
+    private final Vector3f scale = new Vector3f( 1, 1.5f, 1 );
     private final VulkanAddress descriptorPool;
     private final VulkanAddress descriptorSet;
     private final VulkanTextureLoader textureLoader;
@@ -341,18 +340,22 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     void testRender() {
-        matrix.identity().scale( ThreadLocalRandom.current().nextFloat() / 10 + 1 ).rotateZ( rotate = rotate + 0.001f );
+        matrix.identity();
+            //.scale( ThreadLocalRandom.current().nextFloat() / 10 + 1 );;
+           // .rotateZ( rotate = rotate + 0.001f );
         matrix.get( uniformBufferData, 0 );
-        uniformBufferData[16] = trans.x = trans.x * 1.00001f;
-        uniformBufferData[17] = trans.y = trans.y * 1.00001f;
-        uniformBufferData[18] = scale.x = scale.x * 1.00001f;
-        uniformBufferData[19] = scale.y = scale.y * 1.00001f;
+        uniformBufferData[16] = 0 ; //trans.x = trans.x * 1.0001f;
+        uniformBufferData[17] = 0 ; //trans.y = trans.y * 1.0001f;
+        uniformBufferData[18] = 0 ; //trans.z = trans.z * 1.0001f;
+        uniformBufferData[19] = 1 ; // scale.x = scale.x * 1.00001f;
+        uniformBufferData[20] = 1 ; //scale.y = scale.y * 1.00001f;
+        uniformBufferData[21] = 1 ; //scale.z = scale.z * 1.00001f;
         uniformBuffer.load( uniformBufferData );
         
         graphicCommandPool.executeQueue( commandBuffer -> {
             commandBuffer.bindDescriptorSets( descriptorSet );
-            commandBuffer.drawVertices( positionBuffer1, colourBuffer1, uvBuffer1 );
-            commandBuffer.drawVertices( positionBuffer2, colourBuffer2, uvBuffer2 );
+            commandBuffer.drawVertices( positionBuffer1, uvBuffer1, colourBuffer1 );
+            commandBuffer.drawVertices( positionBuffer2, uvBuffer2, colourBuffer2 );
         } );
         
         if ( VulkanFramework.validationLayersAreEnabled() ) {
