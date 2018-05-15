@@ -50,14 +50,6 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     
     @Override
     public void bind( VulkanTextureData textureData ) {
-    
-//        VkDescriptorImageInfo imageInfo = VkDescriptorImageInfo.create()
-//            .imageLayout( VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
-//            .imageView( textureData.getImageView().getAddress().getValue() )
-//            .sampler( textureSampler.getValue() )
-//        ;
-//
-//        device.updateDesciptorSetsOnDevice( imageInfo );
     }
     
     @Override
@@ -102,7 +94,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     }
     
     private void copyBufferToImage( VulkanTextureData textureData ) {
-        device.getTransferCommandPool().executeQueue( commandBuffer -> {
+        device.getTextureTransferCommandPool().executeQueue( commandBuffer -> {
             VkBufferImageCopy region = VkBufferImageCopy.create()
                 .bufferOffset(0)
                 .bufferRowLength(0)
@@ -165,7 +157,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         int dstStageMask
     ) {
     
-        device.getTransferCommandPool().executeQueue( commandBuffer -> {
+        device.getTextureTransferCommandPool().executeQueue( commandBuffer -> {
             VK10.vkCmdPipelineBarrier( commandBuffer.getCommandBuffer(),
                 srcStageMask,
                 dstStageMask,

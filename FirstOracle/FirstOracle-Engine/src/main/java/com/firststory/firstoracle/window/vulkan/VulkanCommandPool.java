@@ -61,7 +61,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         Map< Integer, VulkanFrameBuffer > frameBuffers
     ) {
         disposeCommandBuffers();
-        VulkanHelper.iterate( createCommandBufferBuffer( createAllocateInfo( frameBuffers ), frameBuffers.size() ),
+        VulkanHelper.iterate( createCommandBufferBuffer( frameBuffers.size() ),
             ( index, address ) -> commandBuffers.put( index,
                 createNewCommandBuffer( index, new VulkanAddress( address ) , frameBuffers )
         ) );
@@ -102,13 +102,11 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         );
     }
     
-    private PointerBuffer createCommandBufferBuffer(
-        VkCommandBufferAllocateInfo allocateInfo, int size
-    ) {
+    PointerBuffer createCommandBufferBuffer( int size ) {
         PointerBuffer commandBuffersBuffer = MemoryUtil.memAllocPointer( size );
         VulkanHelper.assertCallOrThrow(
             () -> VK10.vkAllocateCommandBuffers(
-                device.getLogicalDevice(), allocateInfo, commandBuffersBuffer ),
+                device.getLogicalDevice(), createAllocateInfo( size ), commandBuffersBuffer ),
             resultCode -> new CannotAllocateVulkanCommandBuffersException( device, resultCode )
         );
         return commandBuffersBuffer;
@@ -119,12 +117,12 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         commandBuffers.clear();
     }
     
-    private VkCommandBufferAllocateInfo createAllocateInfo( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
+    private VkCommandBufferAllocateInfo createAllocateInfo( int size ) {
         return VkCommandBufferAllocateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO )
             .commandPool( address.getValue() )
             .level( VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY )
-            .commandBufferCount( frameBuffers.size() );
+            .commandBufferCount( size );
     }
     
     private VulkanAddress createCommandPool() {

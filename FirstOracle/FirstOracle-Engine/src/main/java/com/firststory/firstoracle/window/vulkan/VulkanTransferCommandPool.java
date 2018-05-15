@@ -27,6 +27,10 @@ class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommand
         VulkanAddress address,
         Map< Integer, VulkanFrameBuffer > frameBuffers
     ) {
+        return createNewCommandBuffer( address );
+    }
+    
+    private VulkanTransferCommandBuffer createNewCommandBuffer( VulkanAddress address ) {
         return new VulkanTransferCommandBuffer( getDevice(),
             address,
             this,
@@ -36,7 +40,7 @@ class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommand
     
     @Override
     VulkanTransferCommandBuffer extractNextCommandBuffer() {
-        return getCommandBuffer( 0 );
+        return createNewCommandBuffer( new VulkanAddress( createCommandBufferBuffer( 1 ).get( 0 ) ) );
     }
     
     @Override
