@@ -169,7 +169,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             imageAvailableSemaphore,
             renderFinishedSemaphore
         );
-        transferCommandPool = new VulkanTransferCommandPool( this, transferFamily, imageAvailableSemaphore );
+        transferCommandPool = new VulkanTransferCommandPool( this, transferFamily );
         commandPools.add( graphicCommandPool );
         commandPools.add( transferCommandPool );
         

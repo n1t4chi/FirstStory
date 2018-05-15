@@ -16,9 +16,9 @@ import java.util.Map;
 class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommandBuffer > {
     
     VulkanTransferCommandPool(
-        VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily, VulkanSemaphore imageAvailableSemaphore
+        VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily
     ) {
-        super( device, usedQueueFamily, imageAvailableSemaphore );
+        super( device, usedQueueFamily );
     }
     
     @Override
@@ -32,6 +32,11 @@ class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommand
             this,
             VK10.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
         );
+    }
+    
+    @Override
+    VulkanTransferCommandBuffer extractNextCommandBuffer() {
+        return getCommandBuffer( 0 );
     }
     
     @Override

@@ -21,6 +21,7 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
     private final VulkanSwapChain swapChain;
     private final VulkanGraphicPipeline graphicPipeline;
     private final VulkanSemaphore renderFinishedSemaphore;
+    private final VulkanSemaphore imageAvailableSemaphore;
     
     VulkanGraphicCommandPool(
         VulkanPhysicalDevice device,
@@ -30,14 +31,11 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
         VulkanSemaphore imageAvailableSemaphore,
         VulkanSemaphore renderFinishedSemaphore
     ) {
-        super(
-            device,
-            usedQueueFamily,
-            imageAvailableSemaphore
-        );
+        super( device, usedQueueFamily );
         this.swapChain = swapChain;
         this.graphicPipeline = graphicPipeline;
         this.renderFinishedSemaphore = renderFinishedSemaphore;
+        this.imageAvailableSemaphore = imageAvailableSemaphore;
     }
     
     @Override
@@ -59,6 +57,11 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
     }
     
     @Override
+    VulkanGraphicCommandBuffer extractNextCommandBuffer() {
+        return getCommandBuffer( getDevice().aquireNextImageIndex() );
+    }
+    
+    @Override
     void postExecute( VulkanGraphicCommandBuffer commandBuffer ) {
         presentQueue( swapChain, commandBuffer.getIndex() );
     }
@@ -67,6 +70,10 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
         return super.createSubmitInfo( currentCommandBuffer )
             .pSignalSemaphores( MemoryUtil.memAllocLong( 1 ).put(
                 0, renderFinishedSemaphore.getAddress().getValue() ) )
+            .waitSemaphoreCount( 1 )
+            .pWaitDstStageMask( createWaitStageMaskBuffer() )
+            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put(
+                0, imageAvailableSemaphore.getAddress().getValue() ) )
         ;
     }
     
@@ -75,7 +82,7 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
         return MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
     }
     
-    void presentQueue( VulkanSwapChain swapChain, int index ) {
+    private void presentQueue( VulkanSwapChain swapChain, int index ) {
         VkPresentInfoKHR presentInfo = VkPresentInfoKHR.create()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
             .pWaitSemaphores(

@@ -25,17 +25,11 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     private final VulkanPhysicalDevice device;
     private final VulkanQueueFamily usedQueueFamily;
     private final Map< Integer, CommandBuffer > commandBuffers = new HashMap<>(  );
-    private final VulkanSemaphore imageAvailableSemaphore;
     private VulkanAddress address;
     
-    VulkanCommandPool(
-        VulkanPhysicalDevice device,
-        VulkanQueueFamily usedQueueFamily,
-        VulkanSemaphore imageAvailableSemaphore
-    ) {
+    VulkanCommandPool( VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily ) {
         this.device = device;
         this.usedQueueFamily = usedQueueFamily;
-        this.imageAvailableSemaphore = imageAvailableSemaphore;
         address = createCommandPool();
     }
     
@@ -80,21 +74,19 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     );
     
     void executeQueue( VulkanCommands<CommandBuffer> commands ) {
-        CommandBuffer commandBuffer = getCommandBuffer( getDevice().aquireNextImageIndex() );
+        CommandBuffer commandBuffer = extractNextCommandBuffer();
         commandBuffer.fillQueue( commands );
         submitQueue( commandBuffer );
         postExecute( commandBuffer );
     }
+    
+    abstract CommandBuffer extractNextCommandBuffer();
     
     abstract void postExecute( CommandBuffer commandBuffer );
     
     VkSubmitInfo createSubmitInfo( VulkanCommandBuffer currentCommandBuffer ) {
         return VkSubmitInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
-            .waitSemaphoreCount( 1 )
-            .pWaitDstStageMask( createWaitStageMaskBuffer() )
-            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put(
-                0, imageAvailableSemaphore.getAddress().getValue() ) )
             .pCommandBuffers( MemoryUtil.memAllocPointer( 1 ).put(
                     0, currentCommandBuffer.getAddress().getValue() ) );
     }
