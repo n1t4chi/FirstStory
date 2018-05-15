@@ -7,7 +7,7 @@ package com.firststory.firstoracle.data;
 /**
  * @author n1t4chi
  */
-public interface DataBuffer<Data> extends AutoCloseable {
+public interface DataBuffer<Data> {
     
     boolean isLoaded();
     
@@ -21,7 +21,6 @@ public interface DataBuffer<Data> extends AutoCloseable {
     
     void delete() throws BufferNotCreatedException;
     
-    @Override
     default void close() throws BufferNotCreatedException {
         delete();
     }

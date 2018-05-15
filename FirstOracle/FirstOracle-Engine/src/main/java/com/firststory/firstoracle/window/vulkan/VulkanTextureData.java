@@ -10,13 +10,22 @@ package com.firststory.firstoracle.window.vulkan;
 class VulkanTextureData {
     
     private VulkanMappableBuffer buffer;
-    private VulkanAddress textureImage;
+    private VulkanAddress image;
     private int width;
     private int height;
-    private VulkanAddress imageView;
+    private VulkanImageView imageView;
     
-    void setImageView( VulkanAddress imageView ) {
+    void close() {
+        if ( buffer != null ) { buffer.close(); }
+        if ( imageView != null ) { imageView.close(); }
+    }
+    
+    void setImageView( VulkanImageView imageView ) {
         this.imageView = imageView;
+    }
+    
+    VulkanImageView getImageView() {
+        return imageView;
     }
     
     int getWidth() {
@@ -43,11 +52,11 @@ class VulkanTextureData {
         this.buffer = buffer;
     }
     
-    VulkanAddress getTextureImage() {
-        return textureImage;
+    VulkanAddress getImage() {
+        return image;
     }
     
-    void setTextureImage( VulkanAddress textureImage ) {
-        this.textureImage = textureImage;
+    void setImage( VulkanAddress mage ) {
+        this.image = mage;
     }
 }

@@ -4,7 +4,11 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
+import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanImageViewException;
 import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkComponentMapping;
+import org.lwjgl.vulkan.VkImageSubresourceRange;
+import org.lwjgl.vulkan.VkImageViewCreateInfo;
 
 /**
  * @author n1t4chi
@@ -12,18 +16,37 @@ import org.lwjgl.vulkan.VK10;
 class VulkanImageView {
     
     private final VulkanPhysicalDevice device;
-    private final VulkanSwapChain swapChain;
     private final VulkanAddress address;
-    private final int index;
     
-    VulkanImageView( VulkanPhysicalDevice device, VulkanSwapChain swapChain, VulkanAddress address, int index ) {
+    VulkanImageView( VulkanPhysicalDevice device, VulkanAddress image, int format ) {
         this.device = device;
-        this.swapChain = swapChain;
-        this.address = address;
-        this.index = index;
+        this.address = createImageView( image, format );
     }
-    VulkanImageView( VulkanPhysicalDevice device, VulkanSwapChain swapChain, long address, int index ) {
-        this( device, swapChain, new VulkanAddress( address ), index );
+    
+    
+    private VulkanAddress createImageView( VulkanAddress image, int format ) {
+        return VulkanHelper.createAddress(
+            () -> VkImageViewCreateInfo.create()
+                .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO )
+                .image( image.getValue() )
+                .viewType( VK10.VK_IMAGE_VIEW_TYPE_2D )
+                .format( format )
+                .components( VkComponentMapping.create()
+                    .a( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
+                    .r( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
+                    .g( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
+                    .b( VK10.VK_COMPONENT_SWIZZLE_IDENTITY ) )
+                .subresourceRange( VkImageSubresourceRange.create()
+                    .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
+                    .baseMipLevel( 0 )
+                    .levelCount( 1 )
+                    .baseArrayLayer( 0 )
+                    .layerCount( 1 )
+                ),
+            ( createInfo, address ) ->
+                VK10.vkCreateImageView( device.getLogicalDevice(), createInfo, null, address ),
+            resultCode -> new CannotCreateVulkanImageViewException( device, resultCode )
+        );
     }
     
     @Override
@@ -33,18 +56,14 @@ class VulkanImageView {
         
         VulkanImageView that = ( VulkanImageView ) o;
         
-        if ( index != that.index ) { return false; }
         if ( device != null ? !device.equals( that.device ) : that.device != null ) { return false; }
-        if ( swapChain != null ? !swapChain.equals( that.swapChain ) : that.swapChain != null ) { return false; }
         return address != null ? address.equals( that.address ) : that.address == null;
     }
     
     @Override
     public int hashCode() {
         int result = device != null ? device.hashCode() : 0;
-        result = 31 * result + ( swapChain != null ? swapChain.hashCode() : 0 );
         result = 31 * result + ( address != null ? address.hashCode() : 0 );
-        result = 31 * result + index;
         return result;
     }
     
@@ -54,9 +73,5 @@ class VulkanImageView {
     
     VulkanAddress getAddress() {
         return address;
-    }
-    
-    public int getIndex() {
-        return index;
     }
 }

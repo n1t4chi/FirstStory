@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * @author n1t4chi
  */
-public class OpenGLVertexAttributeLoader implements VertexAttributeLoader, AutoCloseable {
+public class OpenGLVertexAttributeLoader implements VertexAttributeLoader {
     
     private final Map< Integer, ArrayBuffer > lastBinds = new HashMap<>( 2 );
     private final OpenGlArrayBufferLoader loader;
@@ -24,9 +24,7 @@ public class OpenGLVertexAttributeLoader implements VertexAttributeLoader, AutoC
         this.loader = loader;
     }
     
-    @Override
-    public void close() {
-    }
+    public void close() {}
     
     @Override
     public OpenGlArrayBuffer createEmptyBuffer() {

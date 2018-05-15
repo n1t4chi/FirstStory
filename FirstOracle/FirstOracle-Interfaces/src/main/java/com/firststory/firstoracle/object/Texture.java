@@ -12,7 +12,10 @@ import javafx.embed.swing.SwingFXUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
@@ -42,7 +45,7 @@ import java.util.HashMap;
  *
  * @author n1t4chi
  */
-public final class Texture implements Closeable {
+public final class Texture {
     
     private static final String FRAME_KEYWORD = "#frame#";
     private static final String DIRECITON_KEYWORD = "#direction#";
@@ -291,7 +294,6 @@ public final class Texture implements Closeable {
     /**
      * Releases all texture resources associated with this object by calling {@link #releaseAll()}
      */
-    @Override
     public void close() {
         releaseAll();
     }
@@ -304,6 +306,10 @@ public final class Texture implements Closeable {
         if( textureBuffer != null ){
             textureBuffer.delete();
         }
+    }
+    
+    public <Context> TextureBuffer<Context> getBuffer( TextureBufferLoader<Context> loader ) {
+        return buffers.get( loader );
     }
     
     /**

@@ -9,9 +9,9 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 /**
  * @author n1t4chi
  */
-public class CannotCreateVulkanVertexBuffer extends CannotCreateVulkanPhysicalDeviceException {
+public class CannotCreateVulkanTextureSamplerException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanVertexBuffer( VulkanPhysicalDevice physicalDevice, Integer errorCode ) {
+    public CannotCreateVulkanTextureSamplerException( VulkanPhysicalDevice physicalDevice, Integer errorCode ) {
         super( physicalDevice, errorCode );
     }
 }

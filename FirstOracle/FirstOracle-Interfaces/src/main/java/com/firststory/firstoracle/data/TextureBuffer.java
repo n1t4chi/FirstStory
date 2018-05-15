@@ -21,6 +21,10 @@ public class TextureBuffer<Context> implements DataBuffer<TextureData > {
     private Context context;
     private boolean isLoaded;
     
+    public Context getContext() {
+        return context;
+    }
+    
     public TextureData getData() {
         return data;
     }

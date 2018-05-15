@@ -10,7 +10,7 @@ import java.util.function.Function;
 /**
  * @author n1t4chi
  */
-public class BufferMap implements AutoCloseable {
+public class BufferMap {
     private final HashMap< Long, ArrayBuffer > buffers = new HashMap<>();
     
     /**
@@ -23,7 +23,6 @@ public class BufferMap implements AutoCloseable {
         return buffers.computeIfAbsent( key, provider );
     }
     
-    @Override
     public void close() {
         buffers.forEach( ( key, arrayBuffer ) -> arrayBuffer.close() );
         buffers.clear();

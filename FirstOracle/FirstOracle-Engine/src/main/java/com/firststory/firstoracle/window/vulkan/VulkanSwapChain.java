@@ -114,12 +114,7 @@ class VulkanSwapChain {
     }
     
     private VulkanImageView createVulkanImageView( VulkanImage image ) {
-        return new VulkanImageView(
-            device,
-            this,
-            device.createImageView( image.getAddress(), usedFormat.format() ),
-            image.getIndex()
-        );
+        return new VulkanImageView( device, image.getAddress(), usedFormat.format() );
     }
     
     private void refreshVulkanImages() {

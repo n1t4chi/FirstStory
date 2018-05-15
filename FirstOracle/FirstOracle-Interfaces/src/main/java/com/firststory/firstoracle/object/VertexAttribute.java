@@ -12,7 +12,7 @@ import java.util.HashMap;
 /**
  * @author n1t4chi
  */
-public abstract class VertexAttribute implements AutoCloseable {
+public abstract class VertexAttribute {
     private final HashMap< VertexAttributeLoader, BufferMap > bufferMaps = new HashMap<>();
     private final HashMap< Long, float[] > arrays = new HashMap<>(  );
     
@@ -28,7 +28,6 @@ public abstract class VertexAttribute implements AutoCloseable {
         ;
     }
     
-    @Override
     public void close() {
         bufferMaps.forEach( ( loader, bufferMap ) -> bufferMap.close() );
         bufferMaps.clear();

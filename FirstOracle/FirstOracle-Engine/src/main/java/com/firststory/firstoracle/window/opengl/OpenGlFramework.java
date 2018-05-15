@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Code that uses methods of this instance should be via method {@link #invoke(RenderingCommands)}:
  * <code>instance.invoke{ instance-&gt; {//method calls on instance\\} }</code>
  */
-public class OpenGlFramework implements RenderingFramework {
+public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     
     private static final ReentrantLock contextLock = new ReentrantLock(true);
     private final OpenGlArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();

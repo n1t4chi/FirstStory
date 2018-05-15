@@ -6,7 +6,7 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanGraphicPipelineException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanPipelineLayoutException;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanRenderPass;
+import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanRenderPassException;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
@@ -19,11 +19,14 @@ import java.util.List;
 class VulkanGraphicPipeline {
     
     private static final int ATTRIBUTES_POSITION = 2;
+    private static final int ATTRIBUTES_UV = 2;
     private static final int ATTRIBUTES_COLOUR = 3;
+    private static final int FLOAT_SIZE = 4;
     private static final int ATTRIBUTES = ATTRIBUTES_POSITION + ATTRIBUTES_COLOUR;
-    private static final int VERTEX_DATA_SIZE = ATTRIBUTES * 4;
-    private static final int VERTEX_POSITION_DATA_SIZE = ATTRIBUTES_POSITION * 4;
-    private static final int VERTEX_COLOUR_DATA_SIZE = ATTRIBUTES_COLOUR * 4;
+    private static final int VERTEX_DATA_SIZE = ATTRIBUTES * FLOAT_SIZE;
+    private static final int VERTEX_POSITION_DATA_SIZE = ATTRIBUTES_POSITION * FLOAT_SIZE;
+    private static final int VERTEX_COLOUR_DATA_SIZE = ATTRIBUTES_COLOUR * FLOAT_SIZE;
+    private static final int VERTEX_UVMAP_DATA_SIZE = ATTRIBUTES_UV * FLOAT_SIZE;
     
     private final VulkanPhysicalDevice device;
     private final VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo;
@@ -125,7 +128,7 @@ class VulkanGraphicPipeline {
         VulkanHelper.updateAddress( renderPass,
             (address) -> VK10.vkCreateRenderPass(
                 device.getLogicalDevice(), createRenderPassCreateInfo( swapChain ), null, address ),
-            resultCode -> new CannotCreateVulkanRenderPass( device, resultCode )
+            resultCode -> new CannotCreateVulkanRenderPassException( device, resultCode )
         );
     }
     
@@ -295,6 +298,19 @@ class VulkanGraphicPipeline {
             .binding( 1 )
             .location( 1 )
             .format( VK10.VK_FORMAT_R32G32B32_SFLOAT )
+            .offset( 0 ); //todo
+    }
+    
+    /**
+     * todo: for shaders
+     * Description for uv map shader input
+     * @return position description
+     */
+    private VkVertexInputAttributeDescription createUvMapAttributeDescription() {
+        return VkVertexInputAttributeDescription.create()
+            .binding( 2 )
+            .location( 2 )
+            .format( VK10.VK_FORMAT_R32G32_SFLOAT )
             .offset( 0 ); //todo
     }
     

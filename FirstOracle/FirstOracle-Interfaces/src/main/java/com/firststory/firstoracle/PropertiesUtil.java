@@ -6,6 +6,7 @@ package com.firststory.firstoracle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -91,6 +92,16 @@ public class PropertiesUtil {
     
     public static boolean isDebugMode(){
         return Boolean.parseBoolean( System.getProperty( DEBUG_PROPERTY ) );
+    }
+    
+    public static List< String > getListFromPropertySafe( String propertyName ) {
+        try {
+            return getListFromProperty( propertyName );
+        } catch ( Exception ex ) {
+            logger.log(
+                Level.WARNING,"Cannot retrieve list for property: "+propertyName+". Returning empty list.", ex );
+            return Collections.emptyList();
+        }
     }
     
     private static String propertyNotSetMessage( String propertyName, String expectedValueInfo ) {

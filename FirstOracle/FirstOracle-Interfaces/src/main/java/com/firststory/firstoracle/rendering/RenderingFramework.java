@@ -12,7 +12,7 @@ import com.firststory.firstoracle.shader.ShaderProgram3D;
 
 import java.io.IOException;
 
-public interface RenderingFramework extends AutoCloseable {
+public interface RenderingFramework {
     
     RenderingContext getRenderingContext();
     
@@ -35,4 +35,6 @@ public interface RenderingFramework extends AutoCloseable {
     void invoke( RenderingCommands commands ) throws Exception;
     
     void compileShaders() throws IOException;
+    
+    void close();
 }

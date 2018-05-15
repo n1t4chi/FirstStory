@@ -9,7 +9,7 @@ import com.firststory.firstoracle.data.CannotCreateBufferException;
 import com.firststory.firstoracle.data.DataBuffer;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotAllocateVulkanMemoryExcpetion;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotBindVulkanMemoryException;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanVertexBuffer;
+import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanVertexBufferException;
 import org.lwjgl.vulkan.*;
 
 /**
@@ -167,7 +167,7 @@ public abstract class VulkanDataBuffer< Data > implements DataBuffer< Data > {
                 return createInfo;
             },
             ( createInfo, address ) -> VK10.vkCreateBuffer( device.getLogicalDevice(), createInfo, null, address ),
-            resultCode -> new CannotCreateVulkanVertexBuffer( device, resultCode )
+            resultCode -> new CannotCreateVulkanVertexBufferException( device, resultCode )
         );
     }
 }

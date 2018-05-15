@@ -9,9 +9,9 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 /**
  * @author n1t4chi
  */
-public class CannotCreateVulkanRenderPass extends CannotCreateVulkanPhysicalDeviceException {
+public class CannotCreateVulkanRenderPassException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotCreateVulkanRenderPass( VulkanPhysicalDevice device, int errorCode ) {
+    public CannotCreateVulkanRenderPassException( VulkanPhysicalDevice device, int errorCode ) {
         super( device, errorCode );
     }
 }

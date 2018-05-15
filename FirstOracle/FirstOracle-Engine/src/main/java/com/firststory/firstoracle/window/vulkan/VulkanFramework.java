@@ -189,7 +189,7 @@ public class VulkanFramework implements RenderingFramework {
         Set< String > layerNames = layerProperties.stream()
             .map( VkLayerProperties::layerNameString )
             .collect( Collectors.toSet() );
-        List< String > validationLayers = PropertiesUtil.getListFromProperty( PropertiesUtil.VULKAN_VALIDATION_LAYERS_LIST_PROPERTY );
+        List< String > validationLayers = PropertiesUtil.getListFromPropertySafe( PropertiesUtil.VULKAN_VALIDATION_LAYERS_LIST_PROPERTY );
         
         for ( Iterator< String > iterator = validationLayers.iterator(); iterator.hasNext(); ) {
             String layer = iterator.next();

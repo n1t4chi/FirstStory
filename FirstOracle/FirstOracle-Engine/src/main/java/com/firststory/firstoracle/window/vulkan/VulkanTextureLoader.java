@@ -15,29 +15,49 @@ import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.HashSet;
 
 /**
  * @author n1t4chi
  */
 public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureData > {
     
+    private final HashSet<VulkanTextureData> textureData = new HashSet<>(  );
     private final VulkanPhysicalDevice device;
     private final VulkanDataBufferProvider bufferLoader;
+    private final VulkanAddress textureSampler;
+    private final VulkanAddress descriptorSet;
     
-    VulkanTextureLoader( VulkanPhysicalDevice physicalDevice, VulkanDataBufferProvider bufferLoader ) {
+    VulkanTextureLoader(
+        VulkanPhysicalDevice physicalDevice,
+        VulkanDataBufferProvider bufferLoader,
+        VulkanAddress textureSampler,
+        VulkanAddress descriptorSet
+    ) {
         
         device = physicalDevice;
         this.bufferLoader = bufferLoader;
+        this.textureSampler = textureSampler;
+        this.descriptorSet = descriptorSet;
     }
     
     @Override
     public VulkanTextureData create() {
-        return new VulkanTextureData();
+        VulkanTextureData textureData = new VulkanTextureData();
+        this.textureData.add( textureData );
+        return textureData;
     }
     
     @Override
     public void bind( VulkanTextureData textureData ) {
     
+//        VkDescriptorImageInfo imageInfo = VkDescriptorImageInfo.create()
+//            .imageLayout( VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
+//            .imageView( textureData.getImageView().getAddress().getValue() )
+//            .sampler( textureSampler.getValue() )
+//        ;
+//
+//        device.updateDesciptorSetsOnDevice( imageInfo );
     }
     
     @Override
@@ -47,8 +67,8 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     }
     
     private void createTextureImageView( VulkanTextureData textureData ) {
-        textureData.setImageView(
-            device.createImageView( textureData.getTextureImage(), VK10.VK_FORMAT_R8G8B8A8_UNORM ) );
+        textureData.setImageView( new VulkanImageView( device, textureData.getImage(), VK10.VK_FORMAT_R8G8B8A8_UNORM ) );
+        
     }
     
     private void createTextureImage( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) {
@@ -79,8 +99,6 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             textureData,
             VK10.VK_FORMAT_R8G8B8A8_UNORM
         );
-        
-        textureData.getBuffer().close();
     }
     
     private void copyBufferToImage( VulkanTextureData textureData ) {
@@ -104,7 +122,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             VK10.vkCmdCopyBufferToImage(
                 commandBuffer.getCommandBuffer(),
                 textureData.getBuffer().getBufferAddress().getValue(),
-                textureData.getTextureImage().getValue(),
+                textureData.getImage().getValue(),
                 VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 regionBuffer
             );
@@ -119,9 +137,8 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             0,
             VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK10.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
-            device.getGraphicCommandPool()
+            VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT
         );
     }
     
@@ -133,8 +150,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
             VK10.VK_ACCESS_SHADER_READ_BIT,
             VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VK10.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-            device.getGraphicCommandPool()
+            VK10.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
         );
     }
     
@@ -146,17 +162,17 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         int srcAccessMask,
         int dstAccessMask,
         int srcStageMask,
-        int dstStageMask,
-        VulkanCommandPool<?> transferCommandPool
+        int dstStageMask
     ) {
     
-        transferCommandPool.executeQueue( commandBuffer -> {
-            VK10.vkCmdPipelineBarrier( commandBuffer.getCommandBuffer(), srcStageMask,//todo
-                dstStageMask,//todo
+        device.getTransferCommandPool().executeQueue( commandBuffer -> {
+            VK10.vkCmdPipelineBarrier( commandBuffer.getCommandBuffer(),
+                srcStageMask,
+                dstStageMask,
                 0,
                 null,
                 null,
-                createBarrierBuffer( oldLayout, newLayout, textureData.getTextureImage(), srcAccessMask, dstAccessMask )
+                createBarrierBuffer( oldLayout, newLayout, textureData.getImage(), srcAccessMask, dstAccessMask )
             );
         } );
     }
@@ -181,14 +197,14 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             .flags( 0 )
         ;
         
-        textureData.setTextureImage( VulkanHelper.createAddress(
+        textureData.setImage( VulkanHelper.createAddress(
             address -> VK10.vkCreateImage( device.getLogicalDevice(), imageCreateInfo, null, address ),
             resultCode -> new CannotCreateVulkanImageException( device, resultCode )
         ) );
         
         VkMemoryRequirements memoryRequirements = VkMemoryRequirements.create();
         VK10.vkGetImageMemoryRequirements(
-            device.getLogicalDevice(), textureData.getTextureImage().getValue(), memoryRequirements );
+            device.getLogicalDevice(), textureData.getImage().getValue(), memoryRequirements );
         
         VulkanMemoryType memoryType = device.selectMemoryType(
             memoryRequirements.memoryTypeBits(),
@@ -237,7 +253,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         VulkanHelper.assertCallOrThrow(
             () -> VK10.vkBindImageMemory(
                 device.getLogicalDevice(),
-                textureData.getTextureImage().getValue(),
+                textureData.getImage().getValue(),
                 textureImageMemory.getValue(),
                 0
             ), resultCode -> new CannotBindVulkanImageMemoryException( device, resultCode )
@@ -246,11 +262,13 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     
     @Override
     public void delete( VulkanTextureData textureData ) {
-    
+        this.textureData.remove( textureData );
+        textureData.close();
     }
     
     @Override
     public void close() {
-    
+        this.textureData.forEach( VulkanTextureData::close );
+        this.textureData.clear();
     }
 }
