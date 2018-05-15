@@ -269,14 +269,16 @@ class VulkanGraphicPipeline {
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO )
             .pNext( VK10.VK_NULL_HANDLE )
             .pVertexBindingDescriptions(
-                VkVertexInputBindingDescription.create( 2 )
+                VkVertexInputBindingDescription.create( 3 )
                     .put( 0, createVertexBindingDescription( 0, VERTEX_POSITION_DATA_SIZE ) )
                     .put( 1, createVertexBindingDescription( 1, VERTEX_COLOUR_DATA_SIZE ) )
+                    .put( 2, createVertexBindingDescription( 2, VERTEX_UVMAP_DATA_SIZE ) )
             )
             .pVertexAttributeDescriptions(
-                VkVertexInputAttributeDescription.create( 2 )
+                VkVertexInputAttributeDescription.create( 3 )
                     .put( createPositionAttributeDescription() )
                     .put( createColourAttributeDescription() )
+                    .put( createUvMapAttributeDescription() )
                     .flip()
             );
     }
@@ -286,6 +288,19 @@ class VulkanGraphicPipeline {
             .binding( binding )
             .stride( dataSize ) //todo
             .inputRate( VK10.VK_VERTEX_INPUT_RATE_VERTEX );
+    }
+    
+    /**
+     * todo: for shaders
+     * Description for colour shader input
+     * @return colour description
+     */
+    private VkVertexInputAttributeDescription createPositionAttributeDescription() {
+        return VkVertexInputAttributeDescription.create()
+            .binding( 0 )
+            .location( 0 )
+            .format( VK10.VK_FORMAT_R32G32_SFLOAT )
+            .offset( 0 ); //todo
     }
     
     /**
@@ -310,19 +325,6 @@ class VulkanGraphicPipeline {
         return VkVertexInputAttributeDescription.create()
             .binding( 2 )
             .location( 2 )
-            .format( VK10.VK_FORMAT_R32G32_SFLOAT )
-            .offset( 0 ); //todo
-    }
-    
-    /**
-     * todo: for shaders
-     * Description for colour shader input
-     * @return colour description
-     */
-    private VkVertexInputAttributeDescription createPositionAttributeDescription() {
-        return VkVertexInputAttributeDescription.create()
-            .binding( 0 )
-            .location( 0 )
             .format( VK10.VK_FORMAT_R32G32_SFLOAT )
             .offset( 0 ); //todo
     }

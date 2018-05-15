@@ -33,9 +33,9 @@ import java.util.stream.Collectors;
 public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > {
     
     static final float[] POSITION_1 = new float[]{
-        /*3*/ /*pos*/ 0.0f, 0.75f,
-        /*2*/ /*pos*/ 0.75f, 0.35f,
-        /*1*/ /*pos*/ 0.35f, 0.35f,
+        /*3*/ /*pos*/ 0.0f, 0.0f,
+        /*1*/ /*pos*/ 0.5f, 0.5f,
+        /*2*/ /*pos*/ 0.5f, 0.0f,
     };
     static final float[] COLOUR_1 = new float[]{
         /*1*/  /*col*/ 1.0f, 0.0f, 1.0f,
@@ -48,9 +48,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         /*1*/ /*pos*/ 1f, 0f,
     };
     static final float[] POSITION_2 = new float[]{
-        /*3*/ /*pos*/ 0.0f, 0.25f,
-        /*2*/ /*pos*/ 0.25f, -0.35f,
-        /*1*/ /*pos*/ -0.35f, -0.35f,
+        /*3*/ /*pos*/ 0.0f, 0.0f,
+        /*2*/ /*pos*/ 0.0f, 0.5f,
+        /*1*/ /*pos*/ 0.5f, 0.5f,
     };
     static final float[] COLOUR_2 = new float[]{
         /*1*/  /*col*/ 0.5f, 0.5f, 0.5f,
@@ -59,8 +59,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     };
     static final float[] UVMAP_2 = new float[]{
         /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 1f, 1f,
-        /*1*/ /*pos*/ 0f, 1f,
+        /*2*/ /*pos*/ 0f, 1f,
+        /*1*/ /*pos*/ 1f, 1f,
     };
     private static final int FLOAT_SIZE = 4;
     private static final int MATRIX_SIZE = 4 * 4;
@@ -290,31 +290,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         );
     }
     
-    VulkanAddress createImageView( VulkanAddress image, int format ) {
-        return VulkanHelper.createAddress(
-            () -> VkImageViewCreateInfo.create()
-                .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO )
-                .image( image.getValue() )
-                .viewType( VK10.VK_IMAGE_VIEW_TYPE_2D )
-                .format( format )
-                .components( VkComponentMapping.create()
-                    .a( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
-                    .r( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
-                    .g( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
-                    .b( VK10.VK_COMPONENT_SWIZZLE_IDENTITY ) )
-                .subresourceRange( VkImageSubresourceRange.create()
-                    .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
-                    .baseMipLevel( 0 )
-                    .levelCount( 1 )
-                    .baseArrayLayer( 0 )
-                    .layerCount( 1 )
-                ),
-            ( createInfo, address ) ->
-                VK10.vkCreateImageView( logicalDevice, createInfo, null, address ),
-            resultCode -> new CannotCreateVulkanImageViewException( this, resultCode )
-        );
-    }
-    
     
     private Texture createTexture() {
         Texture texture;
@@ -376,8 +351,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
         graphicCommandPool.executeQueue( commandBuffer -> {
             commandBuffer.bindDescriptorSets( descriptorSet );
-            commandBuffer.drawVertices( positionBuffer1, colourBuffer1 );
-            commandBuffer.drawVertices( positionBuffer2, colourBuffer2 );
+            commandBuffer.drawVertices( positionBuffer1, colourBuffer1, uvBuffer1 );
+            commandBuffer.drawVertices( positionBuffer2, colourBuffer2, uvBuffer2 );
         } );
         
         if ( VulkanFramework.validationLayersAreEnabled() ) {
@@ -451,7 +426,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private void updateDesciptorSetsOnDevice() {
         VK10.vkUpdateDescriptorSets( logicalDevice,
-            VkWriteDescriptorSet.create( 1 )
+            VkWriteDescriptorSet.create( 2 )
                 .put( 0, createDescriptorWrite( 0,
                     VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                     VkDescriptorBufferInfo.create( 1 ).put( 0, createBufferInfo() ),
