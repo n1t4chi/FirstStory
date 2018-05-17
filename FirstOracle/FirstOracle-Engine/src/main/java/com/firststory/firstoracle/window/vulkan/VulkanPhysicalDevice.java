@@ -196,6 +196,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
         uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, FLOAT_SIZE );
         
+        
         texture = createTexture();
         textureData = texture.getBuffer( textureLoader );
         texture.bind( textureLoader );
@@ -203,6 +204,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         updateDesciptorSetsOnDevice();
         updateRenderingContext();
     
+        // createDepthResources();
+        VulkanFormatProperty depthFormat = findDepthFormat();
+        VulkanInMemoryImage depthImage = createDepthImage( depthFormat );
+        VulkanImageView depthImageView = createDepthImageView( depthFormat, depthImage );
+    
+        depthImage.transitionImageLayout(
+            depthFormat.getFormat(),
+            VK10.VK_IMAGE_LAYOUT_UNDEFINED,
+            VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+        );
+        //emd createDepthResources();
+        
         positionBuffer1 = bufferLoader.createFloatBuffer();
         positionBuffer1.load( POSITION_1 );
         positionBuffer1.bind();
@@ -229,6 +242,59 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 "\npresentation family: " + presentationFamily + "\ntransfer family: " + transferFamily + "\nqueues: " +
                 availableQueueFamilies.size() + "\nextensions: " + availableExtensionProperties.size() +
                 "\nmemory types: " + memoryTypesToString() + "]" );
+    }
+    
+    private VulkanImageView createDepthImageView( VulkanFormatProperty depthFormat, VulkanImage depthImage ) {
+        return depthImage.createImageView(
+            depthFormat.getFormat(), VK10.VK_IMAGE_ASPECT_DEPTH_BIT );
+    }
+    
+    private VulkanInMemoryImage createDepthImage( VulkanFormatProperty depthFormat ) {
+        return new VulkanInMemoryImage(
+            this,
+            swapChain.getExtent().width(),
+            swapChain.getExtent().height(),
+            depthFormat.getFormat(),
+            VK10.VK_IMAGE_TILING_OPTIMAL,
+            new int[] { VK10.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT },
+            new int[] { VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
+        );
+    }
+    
+    private VulkanFormatProperty findDepthFormat() {
+        return findFormatProperty( new HashSet<>( Arrays.asList(
+            VK10.VK_FORMAT_D32_SFLOAT,
+            VK10.VK_FORMAT_D32_SFLOAT_S8_UINT,
+            VK10.VK_FORMAT_D24_UNORM_S8_UINT
+        ) ), VK10.VK_IMAGE_TILING_OPTIMAL, VK10.VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT );
+    }
+    
+    private VulkanFormatProperty findFormatProperty( Set< Integer > candidates, Integer tiling, Integer features ) {
+        Set< VulkanFormatProperty > properties = createFormatProperties( candidates );
+        return selectFormatProperty( tiling, features, properties );
+    }
+    
+    private VulkanFormatProperty selectFormatProperty(
+        Integer tiling, Integer features, Set< VulkanFormatProperty > properties
+    ) {
+        for ( VulkanFormatProperty property : properties ) {
+            if ( tiling == VK10.VK_IMAGE_TILING_LINEAR && ( property.linearTilingFeatures() & features ) == features ||
+                tiling == VK10.VK_IMAGE_TILING_OPTIMAL && ( property.optimalTilingFeatures() & features ) == features )
+            {
+                return property;
+            }
+        }
+        throw new CannotSelectVulkanFormatPropertyException( this );
+    }
+    
+    private Set< VulkanFormatProperty > createFormatProperties( Set< Integer > candidates ) {
+        Set< VulkanFormatProperty > properties = new HashSet<>(  );
+        for( Integer format : candidates ) {
+            VkFormatProperties property = VkFormatProperties.create();
+            VK10.vkGetPhysicalDeviceFormatProperties( physicalDevice, format, property );
+            properties.add( new VulkanFormatProperty( format, property ) );
+        }
+        return properties;
     }
     
     @Override
@@ -398,8 +464,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     long getScore() {
-        return ( ( properties.limits().maxMemoryAllocationCount() + properties.limits().maxImageDimension2D() +
-                    ( availableExtensionProperties.size() + availableQueueFamilies.size() ) * 1000
+        return ( (
+                properties.limits().maxMemoryAllocationCount() + properties.limits().maxImageDimension2D() +
+                ( availableExtensionProperties.size() + availableQueueFamilies.size() ) * 1000
             ) * typeMultiplier()
         );
     }

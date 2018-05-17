@@ -18,17 +18,16 @@ class VulkanImageView {
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;
     
-    VulkanImageView( VulkanPhysicalDevice device, VulkanAddress image, int format ) {
+    VulkanImageView( VulkanPhysicalDevice device, VulkanImage image, int format, int aspectMask ) {
         this.device = device;
-        this.address = createImageView( image, format );
+        this.address = createImageView( image, format, aspectMask );
     }
     
-    
-    private VulkanAddress createImageView( VulkanAddress image, int format ) {
+    private VulkanAddress createImageView( VulkanImage image, int format, int aspectMask ) {
         return VulkanHelper.createAddress(
             () -> VkImageViewCreateInfo.create()
                 .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO )
-                .image( image.getValue() )
+                .image( image.getAddress().getValue() )
                 .viewType( VK10.VK_IMAGE_VIEW_TYPE_2D )
                 .format( format )
                 .components( VkComponentMapping.create()
@@ -37,7 +36,7 @@ class VulkanImageView {
                     .g( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
                     .b( VK10.VK_COMPONENT_SWIZZLE_IDENTITY ) )
                 .subresourceRange( VkImageSubresourceRange.create()
-                    .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
+                    .aspectMask( aspectMask )
                     .baseMipLevel( 0 )
                     .levelCount( 1 )
                     .baseArrayLayer( 0 )

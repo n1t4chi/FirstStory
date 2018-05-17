@@ -10,7 +10,7 @@ package com.firststory.firstoracle.window.vulkan;
 class VulkanTextureData {
     
     private VulkanMappableBuffer buffer;
-    private VulkanAddress image;
+    private VulkanInMemoryImage image;
     private int width;
     private int height;
     private VulkanImageView imageView;
@@ -18,6 +18,7 @@ class VulkanTextureData {
     void close() {
         if ( buffer != null ) { buffer.close(); }
         if ( imageView != null ) { imageView.close(); }
+        if ( image!= null ) { image.close(); }
     }
     
     void setImageView( VulkanImageView imageView ) {
@@ -52,11 +53,11 @@ class VulkanTextureData {
         this.buffer = buffer;
     }
     
-    VulkanAddress getImage() {
+    VulkanInMemoryImage getImage() {
         return image;
     }
     
-    void setImage( VulkanAddress mage ) {
+    void setImage( VulkanInMemoryImage mage ) {
         this.image = mage;
     }
 }

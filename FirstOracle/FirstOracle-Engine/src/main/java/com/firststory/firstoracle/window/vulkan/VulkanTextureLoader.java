@@ -6,9 +6,6 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.data.BufferNotCreatedException;
 import com.firststory.firstoracle.data.TextureBufferLoader;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotAllocateVulkanImageMemoryException;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotBindVulkanImageMemoryException;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanImageException;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.vulkan.*;
@@ -59,7 +56,9 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     }
     
     private void createTextureImageView( VulkanTextureData textureData ) {
-        textureData.setImageView( new VulkanImageView( device, textureData.getImage(), VK10.VK_FORMAT_R8G8B8A8_UNORM ) );
+        textureData.setImageView( textureData.getImage().createImageView( VK10.VK_FORMAT_R8G8B8A8_UNORM,
+            VK10.VK_IMAGE_ASPECT_COLOR_BIT
+        ) );
         
     }
     
@@ -114,7 +113,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             VK10.vkCmdCopyBufferToImage(
                 commandBuffer.getCommandBuffer(),
                 textureData.getBuffer().getBufferAddress().getValue(),
-                textureData.getImage().getValue(),
+                textureData.getImage().getAddress().getValue(),
                 VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 regionBuffer
             );
@@ -123,133 +122,39 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     }
     
     private void initialTransitionImageLayout( VulkanTextureData textureData, int format ) {
-        transitionImageLayout( textureData,
+        textureData.getImage().transitionImageLayout(
             format,
             VK10.VK_IMAGE_LAYOUT_UNDEFINED,
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            0,
-            VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+//            0,
+//            VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
+//            VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+//            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT
         );
     }
     
     private void postCopyTransitionImageLayout( VulkanTextureData textureData, int format ) {
-        transitionImageLayout( textureData,
+        textureData.getImage().transitionImageLayout(
             format,
             VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-            VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK10.VK_ACCESS_SHADER_READ_BIT,
-            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VK10.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
+            VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+//            VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
+//            VK10.VK_ACCESS_SHADER_READ_BIT,
+//            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
+//            VK10.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
         );
-    }
-    
-    private void transitionImageLayout(
-        VulkanTextureData textureData,
-        int format,
-        int oldLayout,
-        int newLayout,
-        int srcAccessMask,
-        int dstAccessMask,
-        int srcStageMask,
-        int dstStageMask
-    ) {
-    
-        device.getTextureTransferCommandPool().executeQueue( commandBuffer -> {
-            VK10.vkCmdPipelineBarrier( commandBuffer.getCommandBuffer(),
-                srcStageMask,
-                dstStageMask,
-                0,
-                null,
-                null,
-                createBarrierBuffer( oldLayout, newLayout, textureData.getImage(), srcAccessMask, dstAccessMask )
-            );
-        } );
     }
     
     private void createImage( VulkanTextureData textureData ) {
-        VkImageCreateInfo imageCreateInfo = VkImageCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO )
-            .imageType( VK10.VK_IMAGE_TYPE_2D )
-            .extent( VkExtent3D.create().set( textureData.getWidth(), textureData.getHeight(), 1 ) )
-            .mipLevels( 1 )
-            .arrayLayers( 1 )
-            .format( VK10.VK_FORMAT_R8G8B8A8_UNORM )
-            .tiling( VK10.VK_IMAGE_TILING_OPTIMAL )
-            .initialLayout( VK10.VK_IMAGE_LAYOUT_UNDEFINED )
-            .usage( VulkanHelper.flagsToInt( VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK10.VK_IMAGE_USAGE_SAMPLED_BIT ) )
-            .sharingMode( device.isSingleCommandPoolUsed()
-                ? VK10.VK_SHARING_MODE_EXCLUSIVE
-                : VK10.VK_SHARING_MODE_CONCURRENT
-            )
-            .pQueueFamilyIndices( device.createQueueFamilyIndicesBuffer() )
-            .samples( VK10.VK_SAMPLE_COUNT_1_BIT )
-            .flags( 0 )
-        ;
-        
-        textureData.setImage( VulkanHelper.createAddress(
-            address -> VK10.vkCreateImage( device.getLogicalDevice(), imageCreateInfo, null, address ),
-            resultCode -> new CannotCreateVulkanImageException( device, resultCode )
+        textureData.setImage( new VulkanInMemoryImage(
+            this.device,
+            textureData.getWidth(),
+            textureData.getHeight(),
+            VK10.VK_FORMAT_R8G8B8A8_UNORM,
+            VK10.VK_IMAGE_TILING_OPTIMAL,
+            new int[]{ VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK10.VK_IMAGE_USAGE_SAMPLED_BIT },
+            new int[]{ VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
         ) );
-        
-        VkMemoryRequirements memoryRequirements = VkMemoryRequirements.create();
-        VK10.vkGetImageMemoryRequirements(
-            device.getLogicalDevice(), textureData.getImage().getValue(), memoryRequirements );
-        
-        VulkanMemoryType memoryType = device.selectMemoryType(
-            memoryRequirements.memoryTypeBits(),
-            VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-        );
-    
-        bindImageMemory( textureData, memoryRequirements, memoryType );
-    }
-    
-    private VkImageMemoryBarrier.Buffer createBarrierBuffer(
-        int oldLayout, int newLayout, VulkanAddress image, int srcAccessMask, int dstAccessMask
-    ) {
-        return VkImageMemoryBarrier.create( 1 ).put( 0, VkImageMemoryBarrier.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER )
-            .oldLayout( oldLayout )
-            .newLayout( newLayout )
-            .srcQueueFamilyIndex( VK10.VK_QUEUE_FAMILY_IGNORED )
-            .dstQueueFamilyIndex( VK10.VK_QUEUE_FAMILY_IGNORED )
-            .image( image.getValue() )
-            .subresourceRange( VkImageSubresourceRange.create()
-                .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
-                .baseMipLevel( 0 )
-                .levelCount( 1 )
-                .baseArrayLayer( 0 )
-                .layerCount( 1 )
-            )
-            .srcAccessMask( srcAccessMask )
-            .dstAccessMask( dstAccessMask )
-        );
-    }
-    
-    private void bindImageMemory(
-        VulkanTextureData textureData, VkMemoryRequirements memoryRequirements, VulkanMemoryType memoryType
-    ) {
-        VkMemoryAllocateInfo allocateInfo = VkMemoryAllocateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO )
-            .allocationSize( memoryRequirements.size() )
-            .memoryTypeIndex( memoryType.getIndex() )
-            ;
-        
-        VulkanAddress textureImageMemory = VulkanHelper.createAddress(
-            address -> VK10.vkAllocateMemory( device.getLogicalDevice(), allocateInfo, null, address ),
-            resultCode -> new CannotAllocateVulkanImageMemoryException( device, resultCode )
-        );
-        
-        VulkanHelper.assertCallOrThrow(
-            () -> VK10.vkBindImageMemory(
-                device.getLogicalDevice(),
-                textureData.getImage().getValue(),
-                textureImageMemory.getValue(),
-                0
-            ), resultCode -> new CannotBindVulkanImageMemoryException( device, resultCode )
-        );
     }
     
     @Override

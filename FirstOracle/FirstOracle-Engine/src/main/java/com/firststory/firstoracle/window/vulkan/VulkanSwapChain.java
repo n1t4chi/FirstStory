@@ -24,7 +24,7 @@ class VulkanSwapChain {
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanSwapChain.class );
     private final Set< VkSurfaceFormatKHR > formats = new HashSet<>();
-    private final Map< Integer, VulkanImage > images = new HashMap<>();
+    private final Map< Integer, VulkanSwapChainImage > images = new HashMap<>();
     private final Map< Integer, VulkanImageView > imageViews = new HashMap<>();
     private VkSurfaceCapabilitiesKHR capabilities;
     private VkSurfaceFormatKHR usedFormat;
@@ -41,12 +41,17 @@ class VulkanSwapChain {
     }
     
     void dispose() {
-        imageViews.values().forEach( VulkanImageView::close );
-        imageViews.clear();
+        clearImages();
+        clearImageViews();
         if ( !address.isNull() ) {
             KHRSwapchain.vkDestroySwapchainKHR( device.getLogicalDevice(), address.getValue(), null );
             address.setNull();
         }
+    }
+    
+    private void clearImageViews() {
+        imageViews.values().forEach( VulkanImageView::close );
+        imageViews.clear();
     }
     
     @Override
@@ -105,27 +110,25 @@ class VulkanSwapChain {
     }
     
     private void refreshImageViews() {
-        imageViews.forEach( ( integer, vulkanImageView ) -> imageViews.clear() );
-        imageViews.clear();
+        clearImageViews();
         images.forEach( ( index, image ) -> {
-            imageViews.put( index, createVulkanImageView( image ) );
-            
+            imageViews.put( index, image.createImageView( usedFormat.format(), VK10.VK_IMAGE_ASPECT_COLOR_BIT ) );
         } );
-    }
-    
-    private VulkanImageView createVulkanImageView( VulkanImage image ) {
-        return new VulkanImageView( device, image.getAddress(), usedFormat.format() );
     }
     
     private void refreshVulkanImages() {
         int[] count = new int[1];
         KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address.getValue(), count, null );
         long[] addresses = new long[count[0]];
-        images.clear();
+        clearImages();
         KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address.getValue(), count, addresses );
         for ( int i = 0; i < addresses.length; i++ ) {
-            images.put( i, new VulkanImage( new VulkanAddress( addresses[i] ), i ) );
+            images.put( i, new VulkanSwapChainImage( device, new VulkanAddress( addresses[i] ), i ) );
         }
+    }
+    
+    private void clearImages() {
+        images.clear();
     }
     
     private VulkanAddress updateSwapChainAddress() {
