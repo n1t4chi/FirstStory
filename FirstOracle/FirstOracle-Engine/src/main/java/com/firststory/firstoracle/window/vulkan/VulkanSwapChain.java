@@ -112,7 +112,7 @@ class VulkanSwapChain {
     private void refreshImageViews() {
         clearImageViews();
         images.forEach( ( index, image ) -> {
-            imageViews.put( index, image.createImageView( usedFormat.format(), VK10.VK_IMAGE_ASPECT_COLOR_BIT ) );
+            imageViews.put( index, image.createImageView( usedFormat.format(), VK10.VK_IMAGE_ASPECT_COLOR_BIT, 1 ) );
         } );
     }
     

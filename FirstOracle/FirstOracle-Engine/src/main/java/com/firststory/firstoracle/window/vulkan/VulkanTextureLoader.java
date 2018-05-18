@@ -126,10 +126,6 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             format,
             VK10.VK_IMAGE_LAYOUT_UNDEFINED,
             VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-//            0,
-//            VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
-//            VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-//            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT
         );
     }
     
@@ -138,10 +134,6 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             format,
             VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-//            VK10.VK_ACCESS_TRANSFER_WRITE_BIT,
-//            VK10.VK_ACCESS_SHADER_READ_BIT,
-//            VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
-//            VK10.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
         );
     }
     
@@ -152,7 +144,11 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             textureData.getHeight(),
             VK10.VK_FORMAT_R8G8B8A8_UNORM,
             VK10.VK_IMAGE_TILING_OPTIMAL,
-            new int[]{ VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK10.VK_IMAGE_USAGE_SAMPLED_BIT },
+            new int[]{
+                VK10.VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                VK10.VK_IMAGE_USAGE_SAMPLED_BIT
+            },
             new int[]{ VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
         ) );
     }

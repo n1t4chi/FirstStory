@@ -21,8 +21,8 @@ abstract class VulkanImage {
         return address;
     }
     
-    VulkanImageView createImageView( int format, int aspectMask ) {
-        return new VulkanImageView( device, this, format, aspectMask );
+    VulkanImageView createImageView( int format, int aspectMask, int mipLevels ) {
+        return new VulkanImageView( device, this, format, aspectMask, mipLevels );
     }
     
     VulkanPhysicalDevice getDevice() {

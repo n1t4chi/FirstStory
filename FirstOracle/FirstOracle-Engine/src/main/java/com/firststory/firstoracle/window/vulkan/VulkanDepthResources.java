@@ -44,7 +44,7 @@ class VulkanDepthResources {
     
     private VulkanImageView createDepthImageView( VulkanFormatProperty depthFormat, VulkanImage depthImage ) {
         return depthImage.createImageView(
-            depthFormat.getFormat(), VK10.VK_IMAGE_ASPECT_DEPTH_BIT );
+            depthFormat.getFormat(), VK10.VK_IMAGE_ASPECT_DEPTH_BIT, 1 );
     }
     
     private VulkanInMemoryImage createDepthImage( VulkanSwapChain swapChain, VulkanFormatProperty depthFormat ) {

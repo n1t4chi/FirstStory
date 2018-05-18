@@ -18,12 +18,12 @@ class VulkanImageView {
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;
     
-    VulkanImageView( VulkanPhysicalDevice device, VulkanImage image, int format, int aspectMask ) {
+    VulkanImageView( VulkanPhysicalDevice device, VulkanImage image, int format, int aspectMask, int mipLevels ) {
         this.device = device;
-        this.address = createImageView( image, format, aspectMask );
+        this.address = createImageView( image, format, aspectMask, mipLevels );
     }
     
-    private VulkanAddress createImageView( VulkanImage image, int format, int aspectMask ) {
+    private VulkanAddress createImageView( VulkanImage image, int format, int aspectMask, int mipLevels ) {
         return VulkanHelper.createAddress(
             () -> VkImageViewCreateInfo.create()
                 .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO )
@@ -38,7 +38,7 @@ class VulkanImageView {
                 .subresourceRange( VkImageSubresourceRange.create()
                     .aspectMask( aspectMask )
                     .baseMipLevel( 0 )
-                    .levelCount( 1 )
+                    .levelCount( mipLevels )
                     .baseArrayLayer( 0 )
                     .layerCount( 1 )
                 ),

@@ -28,7 +28,7 @@ public class VulkanInMemoryImage extends VulkanImage {
             .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO )
             .imageType( VK10.VK_IMAGE_TYPE_2D )
             .extent( VkExtent3D.create().set( width, height, 1 ) )
-            .mipLevels( 1 )
+            .mipLevels( calculateMipLevels( width, height ) )
             .arrayLayers( 1 )
             .format( format )
             .tiling( tiling )
@@ -57,6 +57,14 @@ public class VulkanInMemoryImage extends VulkanImage {
         
         bindImageMemory( device, image, memoryRequirements, memoryType );
         return image;
+    }
+    
+    private static int calculateMipLevels( int width, int height ) {
+        return floorLog( Math.max( width, height )) + 1;
+    }
+    
+    private static int floorLog( int number ) {
+        return 31 - Integer.numberOfLeadingZeros( number );
     }
     
     private static void bindImageMemory(
@@ -89,8 +97,19 @@ public class VulkanInMemoryImage extends VulkanImage {
         );
     }
     
-    boolean hasStencilComponent( int format ) {
+    private final int width;
+    private final int height;
+    private final int format;
+    private final int tiling;
+    private final int[] usageFlags;
+    private final int[] desiredMemoryFlags;
+    
+    private boolean hasStencilComponent( int format ) {
         return format == VK10.VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK10.VK_FORMAT_D24_UNORM_S8_UINT;
+    }
+    
+    VulkanImageView createImageView( int format, int aspectMask ) {
+        return super.createImageView( format, aspectMask, calculateMipLevels( width, height ) );
     }
     
     VulkanInMemoryImage(
@@ -103,6 +122,12 @@ public class VulkanInMemoryImage extends VulkanImage {
         int[] desiredMemoryFlags
     ) {
         super( device, createImage( device, width, height, format, tiling, usageFlags, desiredMemoryFlags ) );
+        this.width = width;
+        this.height = height;
+        this.format = format;
+        this.tiling = tiling;
+        this.usageFlags = usageFlags;
+        this.desiredMemoryFlags = desiredMemoryFlags;
     }
     
     void close() {
@@ -155,11 +180,7 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
     
     private VkImageMemoryBarrier.Buffer createBarrierBuffer(
-        int oldLayout,
-        int newLayout,
-        int format,
-        int srcAccessMask,
-        int dstAccessMask
+        int oldLayout, int newLayout, int format, int srcAccessMask, int dstAccessMask
     ) {
         int aspectColorBit = VK10.VK_IMAGE_ASPECT_COLOR_BIT;
         if (newLayout == VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
@@ -180,7 +201,7 @@ public class VulkanInMemoryImage extends VulkanImage {
             .subresourceRange( VkImageSubresourceRange.create()
                 .aspectMask( aspectColorBit )
                 .baseMipLevel( 0 )
-                .levelCount( 1 )
+                .levelCount( calculateMipLevels( width, height ) )
                 .baseArrayLayer( 0 )
                 .layerCount( 1 )
             )
