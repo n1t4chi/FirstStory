@@ -55,11 +55,13 @@ class VulkanGraphicPipeline {
     }
     
     void update(
-        VulkanSwapChain swapChain, List<VkPipelineShaderStageCreateInfo> shaderStages
+        VulkanSwapChain swapChain,
+        List< VkPipelineShaderStageCreateInfo > shaderStages,
+        VulkanDepthResources depthResources
     ) {
         dispose();
         updateVulkanPipelineLayout();
-        updateRenderPass( swapChain );
+        updateRenderPass( swapChain, depthResources );
         createGraphicPipeline( swapChain, shaderStages );
     }
     
@@ -78,13 +80,12 @@ class VulkanGraphicPipeline {
     private void createGraphicPipeline(
         VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
     ) {
-        VkGraphicsPipelineCreateInfo createInfo =
-            createGraphicPipelineCreateInfo( swapChain, shaderStages );
-
+    
         VulkanHelper.updateAddress( graphicsPipeline,
             ( address ) -> VK10.vkCreateGraphicsPipelines( device.getLogicalDevice(),
                 VK10.VK_NULL_HANDLE,
-                VkGraphicsPipelineCreateInfo.calloc( 1 ).put( createInfo ).flip(),
+                VkGraphicsPipelineCreateInfo.calloc( 1 )
+                    .put( 0, createGraphicPipelineCreateInfo( swapChain, shaderStages ) ),
                 null,
                 address
             ),
@@ -114,6 +115,21 @@ class VulkanGraphicPipeline {
         ;
     }
     
+    private VkPipelineDepthStencilStateCreateInfo createDepthStencilState() {
+        return VkPipelineDepthStencilStateCreateInfo.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO )
+            .depthTestEnable( true )
+            .depthWriteEnable( true )
+            .depthCompareOp( VK10.VK_COMPARE_OP_LESS )
+            .depthBoundsTestEnable( true )
+            .minDepthBounds( 0f )
+            .maxDepthBounds( 1f )
+            .stencilTestEnable( false )
+            .front( VkStencilOpState.create() )
+            .back( VkStencilOpState.create() )
+        ;
+    }
+    
     private VkPipelineShaderStageCreateInfo.Buffer createShaderStageCreateInfoBuffer(
         List<VkPipelineShaderStageCreateInfo> shaderStages
     ) {
@@ -124,15 +140,17 @@ class VulkanGraphicPipeline {
         return shaderStagesBuffer;
     }
     
-    private void updateRenderPass( VulkanSwapChain swapChain ) {
+    private void updateRenderPass( VulkanSwapChain swapChain, VulkanDepthResources depthResources ) {
         VulkanHelper.updateAddress( renderPass,
             (address) -> VK10.vkCreateRenderPass(
-                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain ), null, address ),
+                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain, depthResources ), null, address ),
             resultCode -> new CannotCreateVulkanRenderPassException( device, resultCode )
         );
     }
     
-    private VkRenderPassCreateInfo createRenderPassCreateInfo( VulkanSwapChain swapChain ) {
+    private VkRenderPassCreateInfo createRenderPassCreateInfo(
+        VulkanSwapChain swapChain, VulkanDepthResources depthResources
+    ) {
         return VkRenderPassCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
             .pAttachments( VkAttachmentDescription.calloc( 1 ).put( createColourAttachmentDescription( swapChain ) ).flip() )
@@ -154,23 +172,51 @@ class VulkanGraphicPipeline {
         return VkSubpassDescription.create()
             .pipelineBindPoint( VK10.VK_PIPELINE_BIND_POINT_GRAPHICS )
             .colorAttachmentCount( 1 )
-            .pColorAttachments( VkAttachmentReference.create( 1 ).put( createColourAttachmentReference() ).flip() );
+            .pColorAttachments( VkAttachmentReference.create( 1 ).put( 0, createColourAttachmentReference() ) )
+            .pDepthStencilAttachment( createDepthAttachmentReference() )
+        ;
     }
     
     private VkAttachmentReference createColourAttachmentReference() {
-        return VkAttachmentReference.create().attachment( 0 ).layout( VK10.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+        return createAttachmentReference( VK10.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+    }
+    
+    private VkAttachmentReference createDepthAttachmentReference() {
+        return createAttachmentReference(VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
+    }
+    
+    private VkAttachmentReference createAttachmentReference( int layout ) {
+        return VkAttachmentReference.create().attachment( 0 ).layout( layout );
+    }
+    
+    private VkAttachmentDescription createDepthAttachmentDescription( VulkanDepthResources depthResources ) {
+        return createAttackmentDescription( depthResources.getDepthFormat().getFormat(),
+            VK10.VK_ATTACHMENT_STORE_OP_DONT_CARE,
+            VK10.VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+            VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+        );
     }
     
     private VkAttachmentDescription createColourAttachmentDescription( VulkanSwapChain swapChain ) {
+        return createAttackmentDescription( swapChain.getImageFormat(),
+            VK10.VK_ATTACHMENT_STORE_OP_STORE,
+            VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
+            KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+        );
+    }
+    
+    private VkAttachmentDescription createAttackmentDescription(
+        int imageFormat, int storeOperation, int stencilLoadOperation, int finalLayout
+    ) {
         return VkAttachmentDescription.create()
-            .format( swapChain.getImageFormat() )
+            .format( imageFormat )
             .samples( VK10.VK_SAMPLE_COUNT_1_BIT )
             .loadOp( VK10.VK_ATTACHMENT_LOAD_OP_CLEAR )
-            .storeOp( VK10.VK_ATTACHMENT_STORE_OP_STORE )
-            .stencilLoadOp( VK10.VK_ATTACHMENT_LOAD_OP_CLEAR )
+            .storeOp( storeOperation )
+            .stencilLoadOp( stencilLoadOperation )
             .stencilStoreOp( VK10.VK_ATTACHMENT_STORE_OP_DONT_CARE )
             .initialLayout( VK10.VK_IMAGE_LAYOUT_UNDEFINED )
-            .finalLayout( KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR );
+            .finalLayout( finalLayout );
     }
     
     private VkPipelineDynamicStateCreateInfo createDynamicStateCreateInfo() {

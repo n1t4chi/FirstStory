@@ -97,13 +97,11 @@ class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     }
     
     private VkClearValue createClearColour() {
-        return VkClearValue.create()
-            .color(
-                VkClearColorValue.create()
-                    .float32( 0, 0f )
-                    .float32( 1, 0f )
-                    .float32( 2, 0f )
-                    .float32( 3, 1f )
-            );
+        return VkClearValue.create().color( VkClearColorValue.create()
+            .float32( 0, 0f )
+            .float32( 1, 0f )
+            .float32( 2, 0f )
+            .float32( 3, 1f )
+        );
     }
 }

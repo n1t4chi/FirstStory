@@ -18,10 +18,11 @@ class VulkanFrameBuffer {
         VulkanPhysicalDevice device,
         VulkanImageView imageView,
         VulkanGraphicPipeline graphicPipeline,
-        VulkanSwapChain swapChain
+        VulkanSwapChain swapChain,
+        VulkanDepthResources depthResources
     ) {
         this.device = device;
-        this.address = createFrameBuffer( imageView, graphicPipeline, swapChain );
+        this.address = createFrameBuffer( imageView, graphicPipeline, swapChain, depthResources );
     }
     
     void dispose() {
@@ -33,10 +34,13 @@ class VulkanFrameBuffer {
     }
     
     private VulkanAddress createFrameBuffer(
-        VulkanImageView imageView, VulkanGraphicPipeline graphicPipeline, VulkanSwapChain swapChain
+        VulkanImageView imageView,
+        VulkanGraphicPipeline graphicPipeline,
+        VulkanSwapChain swapChain,
+        VulkanDepthResources depthResources
     ) {
         return VulkanHelper.createAddress(
-            () -> createFrameBufferCreateInfo( imageView, graphicPipeline, swapChain ),
+            () -> createFrameBufferCreateInfo( imageView, graphicPipeline, swapChain, depthResources ),
             (createInfo, address) -> VK10.vkCreateFramebuffer(
                 device.getLogicalDevice(), createInfo, null, address ),
             resultCode -> new CannotCreateVulkanFrameBufferException( device, resultCode )
@@ -44,7 +48,10 @@ class VulkanFrameBuffer {
     }
     
     private VkFramebufferCreateInfo createFrameBufferCreateInfo(
-        VulkanImageView imageView, VulkanGraphicPipeline graphicPipeline, VulkanSwapChain swapChain
+        VulkanImageView imageView,
+        VulkanGraphicPipeline graphicPipeline,
+        VulkanSwapChain swapChain,
+        VulkanDepthResources depthResources
     ) {
         return VkFramebufferCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO )
