@@ -192,7 +192,8 @@ class VulkanGraphicPipeline {
     }
     
     private VkAttachmentReference createDepthAttachmentReference() {
-        return createAttachmentReference( 1, VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
+        return createAttachmentReference( 1,
+            VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
     }
     
     private VkAttachmentReference createAttachmentReference( int index, int layout ) {

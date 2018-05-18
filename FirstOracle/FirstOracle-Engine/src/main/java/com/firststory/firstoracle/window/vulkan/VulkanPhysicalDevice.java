@@ -61,6 +61,21 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         /*2*/ /*pos*/ 0f, 1f,
         /*1*/ /*pos*/ 1f, 1f,
     };
+    static final float[] POSITION_3 = new float[]{
+        /*1*/ /*pos*/ 1.0f, 0.0f, 0.1f,
+        /*2*/ /*pos*/ 0.0f, -1.0f, 0.1f,
+        /*3*/ /*pos*/ -1.0f, 0.0f, 0.1f,
+    };
+    static final float[] COLOUR_3 = new float[]{
+        /*1*/ /*col*/ 0.5f, 0.5f, 0.5f, 1.0f,
+        /*2*/ /*col*/ 1.0f, 1.0f, 0.5f, 1.5f,
+        /*3*/ /*col*/ 0.5f, 1.0f, 1.0f, 1.5f,
+    };
+    static final float[] UVMAP_3 = new float[]{
+        /*3*/ /*pos*/ 0f, 0f,
+        /*2*/ /*pos*/ 0f, 1f,
+        /*1*/ /*pos*/ 1f, 1f,
+    };
     private static final int FLOAT_SIZE = 4;
     private static final int MATRIX_SIZE = 4 * 4;
     private static final int VEC_SIZE = 3;
@@ -107,10 +122,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanAddress descriptorSetLayout;
     private final VulkanStageableDataBuffer< float[] > positionBuffer1;
     private final VulkanStageableDataBuffer< float[] > positionBuffer2;
+    private final VulkanStageableDataBuffer< float[] > positionBuffer3;
     private final VulkanStageableDataBuffer< float[] > colourBuffer1;
     private final VulkanStageableDataBuffer< float[] > colourBuffer2;
+    private final VulkanStageableDataBuffer< float[] > colourBuffer3;
     private final VulkanStageableDataBuffer< float[] > uvBuffer1;
     private final VulkanStageableDataBuffer< float[] > uvBuffer2;
+    private final VulkanStageableDataBuffer< float[] > uvBuffer3;
     private final VulkanUniformBuffer uniformBuffer;
     
     private final float[] uniformBufferData = new float[UNIFORM_SIZE];
@@ -217,6 +235,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         positionBuffer2 = bufferLoader.createFloatBuffer();
         positionBuffer2.load( POSITION_2 );
         positionBuffer2.bind();
+        positionBuffer3 = bufferLoader.createFloatBuffer();
+        positionBuffer3.load( POSITION_3 );
+        positionBuffer3.bind();
         
         colourBuffer1 = bufferLoader.createFloatBuffer();
         colourBuffer1.load( COLOUR_1 );
@@ -224,6 +245,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         colourBuffer2 = bufferLoader.createFloatBuffer();
         colourBuffer2.load( COLOUR_2 );
         colourBuffer2.bind();
+        colourBuffer3 = bufferLoader.createFloatBuffer();
+        colourBuffer3.load( COLOUR_3 );
+        colourBuffer3.bind();
     
         uvBuffer1 = bufferLoader.createFloatBuffer();
         uvBuffer1.load( UVMAP_1 );
@@ -231,6 +255,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         uvBuffer2 = bufferLoader.createFloatBuffer();
         uvBuffer2.load( UVMAP_2 );
         uvBuffer2.bind();
+        uvBuffer3 = bufferLoader.createFloatBuffer();
+        uvBuffer3.load( UVMAP_3 );
+        uvBuffer3.bind();
         
         logger.finer(
             "finished creating " + this + "[" + "\nscore: " + getScore() + "\ngraphic family: " + graphicFamily +
@@ -326,6 +353,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             commandBuffer.bindDescriptorSets( descriptorSet );
             commandBuffer.drawVertices( positionBuffer1, uvBuffer1, colourBuffer1 );
             commandBuffer.drawVertices( positionBuffer2, uvBuffer2, colourBuffer2 );
+            commandBuffer.drawVertices( positionBuffer3, uvBuffer3, colourBuffer3 );
         } );
         
         if ( VulkanFramework.validationLayersAreEnabled() ) {
