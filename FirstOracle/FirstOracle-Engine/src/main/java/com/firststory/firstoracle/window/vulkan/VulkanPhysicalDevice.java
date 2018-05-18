@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > {
     
     static final float[] POSITION_1 = new float[]{
-        /*3*/ /*pos*/ -0.5f, -0.5f, 0.5f,
-        /*2*/ /*pos*/ -0.5f, 0.5f, 0.5f,
-        /*1*/ /*pos*/ 0.5f, 0.5f, 0.5f,
+        /*3*/ /*pos*/ -0.5f, -0.5f, 0.0f,
+        /*2*/ /*pos*/ -0.5f, 0.5f, 0.0f,
+        /*1*/ /*pos*/ 0.5f, 0.5f, 0.0f,
     };
     static final float[] COLOUR_1 = new float[]{
         /*1*/ /*col*/ 1.0f, 0.0f, 1.0f, 1.0f,
@@ -47,9 +47,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         /*1*/ /*pos*/ 1f, 0f,
     };
     static final float[] POSITION_2 = new float[]{
-        /*3*/ /*pos*/ 1.0f, 1.0f, 0.0f,
-        /*1*/ /*pos*/ 1.0f, -1.0f, 0.0f,
-        /*2*/ /*pos*/ -1.0f, 1.0f, 0.0f,
+        /*3*/ /*pos*/ 1.0f, 1.0f, 0.5f,
+        /*1*/ /*pos*/ 1.0f, -1.0f, 0.5f,
+        /*2*/ /*pos*/ -1.0f, 1.0f, 0.5f,
     };
     static final float[] COLOUR_2 = new float[]{
         /*1*/ /*col*/ 0.5f, 0.5f, 0.5f, 1.0f,
@@ -78,7 +78,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     };
     private static final int FLOAT_SIZE = 4;
     private static final int MATRIX_SIZE = 4 * 4;
-    private static final int VEC_SIZE = 3;
+    private static final int VEC_SIZE = 4;
     private static final int UNIFORM_SIZE = MATRIX_SIZE + VEC_SIZE * 2;
     private static final int UNIFORM_DATA_SIZE = FLOAT_SIZE * UNIFORM_SIZE;
     
@@ -221,11 +221,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
         updateDesciptorSetsOnDevice();
         updateRenderingContext();
-    
-        // createDepthResources();
-        
-    
-        //emd createDepthResources();
         
         positionBuffer1 = bufferLoader.createFloatBuffer();
         positionBuffer1.load( POSITION_1 );
@@ -342,9 +337,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         uniformBufferData[16] = 0 ; //trans.x = trans.x * 1.0001f;
         uniformBufferData[17] = 0 ; //trans.y = trans.y * 1.0001f;
         uniformBufferData[18] = 0 ; //trans.z = trans.z * 1.0001f;
-        uniformBufferData[19] = 1 ; // scale.x = scale.x * 1.00001f;
-        uniformBufferData[20] = 1 ; //scale.y = scale.y * 1.00001f;
-        uniformBufferData[21] = 1 ; //scale.z = scale.z * 1.00001f;
+        uniformBufferData[20] = 1 ; // scale.x = scale.x * 1.00001f;
+        uniformBufferData[21] = 1 ; //scale.y = scale.y * 1.00001f;
+        uniformBufferData[22] = 1 ; //scale.z = scale.z * 1.00001f;
         uniformBuffer.load( uniformBufferData );
         
         graphicCommandPool.executeQueue( commandBuffer -> {

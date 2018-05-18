@@ -121,12 +121,12 @@ class VulkanGraphicPipeline {
             .depthTestEnable( true )
             .depthWriteEnable( true )
             .depthCompareOp( VK10.VK_COMPARE_OP_LESS )
-            .depthBoundsTestEnable( true )
+            .depthBoundsTestEnable( false )
             .minDepthBounds( 0f )
             .maxDepthBounds( 1f )
             .stencilTestEnable( false )
-            .front( VkStencilOpState.create() )
-            .back( VkStencilOpState.create() )
+//            .front( VkStencilOpState.create() )
+//            .back( VkStencilOpState.create() )
         ;
     }
     
