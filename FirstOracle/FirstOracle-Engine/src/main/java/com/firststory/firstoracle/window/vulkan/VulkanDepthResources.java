@@ -66,4 +66,8 @@ class VulkanDepthResources {
             VK10.VK_FORMAT_D24_UNORM_S8_UINT
         ) ), VK10.VK_IMAGE_TILING_OPTIMAL, VK10.VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT );
     }
+    
+    void close() {
+        depthImage.close();
+    }
 }

@@ -141,8 +141,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanAddress textureSampler;
     private final Texture texture;
     private final TextureBuffer<VulkanTextureData> textureData;
-    private VulkanDataBuffer textureBuffer;
-    private float rotate = 0;
     private final VulkanDepthResources depthResources;
     
     VulkanPhysicalDevice(
@@ -373,6 +371,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         swapChain.dispose();
         bufferLoader.close();
     
+        depthResources.close();
         texture.close();
         VK10.vkDestroySampler( logicalDevice, textureSampler.getValue(), null );
         
