@@ -93,7 +93,13 @@ class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     }
     
     private VkClearValue.Buffer createClearValue() {
-        return VkClearValue.create( 1 ).put( createClearColour() ).flip();
+        return VkClearValue.create( 1 )
+            .put( 0, createClearColour() )
+        ;
+    }
+    
+    private VkClearValue createDepthStencil() {
+        return VkClearValue.create().depthStencil( VkClearDepthStencilValue.create().depth( 1f ).stencil( 0 ) );
     }
     
     private VkClearValue createClearColour() {

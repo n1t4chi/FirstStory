@@ -153,9 +153,16 @@ class VulkanGraphicPipeline {
     ) {
         return VkRenderPassCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
-            .pAttachments( VkAttachmentDescription.calloc( 1 ).put( createColourAttachmentDescription( swapChain ) ).flip() )
-            .pSubpasses( VkSubpassDescription.create( 1 ).put( createSubpassDescription() ).flip() )
-            .pDependencies( VkSubpassDependency.calloc( 1 ).put( createSubpassDependency() ).flip() );
+            .pAttachments( VkAttachmentDescription.calloc( 1 )
+                .put( 0, createColourAttachmentDescription( swapChain ) )
+            )
+            .pSubpasses( VkSubpassDescription.create( 1 )
+                .put( 0, createSubpassDescription() )
+            )
+            .pDependencies( VkSubpassDependency.calloc( 1 )
+                .put( 0, createSubpassDependency() )
+            )
+        ;
     }
     
     private VkSubpassDependency createSubpassDependency() {
@@ -172,8 +179,9 @@ class VulkanGraphicPipeline {
         return VkSubpassDescription.create()
             .pipelineBindPoint( VK10.VK_PIPELINE_BIND_POINT_GRAPHICS )
             .colorAttachmentCount( 1 )
-            .pColorAttachments( VkAttachmentReference.create( 1 ).put( 0, createColourAttachmentReference() ) )
-            .pDepthStencilAttachment( createDepthAttachmentReference() )
+            .pColorAttachments( VkAttachmentReference.create( 1 )
+                .put( 0, createColourAttachmentReference() )
+            )
         ;
     }
     
@@ -322,10 +330,9 @@ class VulkanGraphicPipeline {
             )
             .pVertexAttributeDescriptions(
                 VkVertexInputAttributeDescription.create( 3 )
-                    .put( createPositionAttributeDescription() )
-                    .put( createColourAttributeDescription() )
-                    .put( createUvMapAttributeDescription() )
-                    .flip()
+                    .put( 0, createPositionAttributeDescription() )
+                    .put( 1, createColourAttributeDescription() )
+                    .put( 2, createUvMapAttributeDescription() )
             );
     }
     
