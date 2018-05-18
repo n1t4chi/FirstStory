@@ -104,14 +104,6 @@ public class VulkanInMemoryImage extends VulkanImage {
     private final int[] usageFlags;
     private final int[] desiredMemoryFlags;
     
-    private boolean hasStencilComponent( int format ) {
-        return format == VK10.VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK10.VK_FORMAT_D24_UNORM_S8_UINT;
-    }
-    
-    VulkanImageView createImageView( int format, int aspectMask ) {
-        return super.createImageView( format, aspectMask, calculateMipLevels( width, height ) );
-    }
-    
     VulkanInMemoryImage(
         VulkanPhysicalDevice device,
         int width,
@@ -128,6 +120,105 @@ public class VulkanInMemoryImage extends VulkanImage {
         this.tiling = tiling;
         this.usageFlags = usageFlags;
         this.desiredMemoryFlags = desiredMemoryFlags;
+    }
+    
+    void createMipMaps() {
+        getDevice().getTextureTransferCommandPool().executeQueue( commandBuffer -> {
+            VkImageMemoryBarrier barrier = createImageMemoryBarrier( VkImageSubresourceRange.create()
+                .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
+                .baseArrayLayer( 0 )
+                .layerCount( 1 )
+                .levelCount( 1 )
+            );
+            
+            int mipLevels = calculateMipLevels();
+            int mipWidth = width;
+            int mipHeight = height;
+            for ( int index = 1; index < mipLevels; index++ ) {
+                barrier.subresourceRange().baseMipLevel( index-1 );
+                barrier
+                    .oldLayout( VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL )
+                    .newLayout( VK10.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL )
+                    .srcAccessMask( VK10.VK_ACCESS_TRANSFER_WRITE_BIT )
+                    .dstAccessMask( VK10.VK_ACCESS_TRANSFER_READ_BIT )
+                ;
+                invokePipelineBarrier(
+                    VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
+                    VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
+                    commandBuffer,
+                    barrier
+                );
+    
+                invokeBlitImage( commandBuffer, mipWidth, mipHeight, index );
+                
+                barrier
+                    .oldLayout( VK10.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL )
+                    .newLayout( VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
+                    .srcAccessMask( VK10.VK_ACCESS_TRANSFER_READ_BIT )
+                    .dstAccessMask( VK10.VK_ACCESS_SHADER_READ_BIT )
+                ;
+                invokePipelineBarrier(
+                    VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
+                    VK10.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                    commandBuffer,
+                    barrier
+                );
+    
+                if ( mipWidth > 1 ) {
+                    mipWidth /= 2;
+                }
+                if ( mipHeight > 1 ) {
+                    mipHeight /= 2;
+                }
+            }
+    
+            barrier.subresourceRange().baseMipLevel( mipLevels-1 );
+            barrier
+                .oldLayout( VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+                .newLayout( VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
+                .srcAccessMask( VK10.VK_ACCESS_TRANSFER_WRITE_BIT )
+                .dstAccessMask( VK10.VK_ACCESS_SHADER_READ_BIT )
+            ;
+            invokePipelineBarrier(
+                VK10.VK_PIPELINE_STAGE_TRANSFER_BIT,
+                VK10.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                commandBuffer,
+                barrier
+            );
+        } );
+    }
+    
+    private void invokeBlitImage( VulkanTransferCommandBuffer commandBuffer, int mipWidth, int mipHeight, int index ) {
+        VkImageBlit blit = VkImageBlit.create()
+            .srcOffsets( 0, VkOffset3D.create().set( 0,0,0 ) )
+            .srcOffsets( 1, VkOffset3D.create().set( mipWidth, mipHeight, 1 ) )
+            .srcSubresource( VkImageSubresourceLayers.create()
+                .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
+                .mipLevel( index - 1 )
+                .baseArrayLayer( 0 )
+                .layerCount( 1 )
+            )
+            .dstOffsets( 0,  VkOffset3D.create().set( 0, 0, 0 ) )
+            .dstOffsets( 1, VkOffset3D.create().set( mipWidth / 2, mipHeight / 2, 1 ) )
+            .dstSubresource( VkImageSubresourceLayers.create()
+                .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
+                .mipLevel( index )
+                .baseArrayLayer( 0 )
+                .layerCount( 1 )
+            )
+        ;
+        VK10.vkCmdBlitImage( commandBuffer.getCommandBuffer(),
+            getAddress().getValue(),
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            getAddress().getValue(),
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VkImageBlit.create( 1 ).put( 0, blit ),
+            VK10.VK_FILTER_LINEAR
+        );
+    }
+    
+    VulkanImageView createImageView( int format, int aspectMask ) {
+        return super.createImageView( format, aspectMask, calculateMipLevels() );
     }
     
     void close() {
@@ -168,18 +259,44 @@ public class VulkanInMemoryImage extends VulkanImage {
         
         
         getDevice().getTextureTransferCommandPool().executeQueue( commandBuffer -> {
-            VK10.vkCmdPipelineBarrier( commandBuffer.getCommandBuffer(),
-                srcStageMask,
-                dstStageMask,
-                0,
-                null,
-                null,
-                createBarrierBuffer( oldLayout, newLayout, format, srcAccessMask, dstAccessMask )
-            );
+            invokePipelineBarrier( srcStageMask, dstStageMask, commandBuffer, createBarrierBuffer( oldLayout,
+                newLayout,
+                format,
+                srcAccessMask,
+                dstAccessMask
+            ) );
         } );
     }
     
-    private VkImageMemoryBarrier.Buffer createBarrierBuffer(
+    private void invokePipelineBarrier(
+        int srcStageMask,
+        int dstStageMask,
+        VulkanTransferCommandBuffer commandBuffer,
+        VkImageMemoryBarrier barrierBuffer
+    ) {
+        VK10.vkCmdPipelineBarrier( commandBuffer.getCommandBuffer(),
+            srcStageMask,
+            dstStageMask,
+            0,
+            null,
+            null,
+            createSingleMemoryBarrierBuffer( barrierBuffer )
+        );
+    }
+    
+    private VkImageMemoryBarrier.Buffer createSingleMemoryBarrierBuffer( VkImageMemoryBarrier barrier ) {
+        return VkImageMemoryBarrier.create( 1 ).put( 0, barrier );
+    }
+    
+    private int calculateMipLevels() {
+        return calculateMipLevels( width, height );
+    }
+    
+    private boolean hasStencilComponent( int format ) {
+        return format == VK10.VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK10.VK_FORMAT_D24_UNORM_S8_UINT;
+    }
+    
+    private VkImageMemoryBarrier createBarrierBuffer(
         int oldLayout, int newLayout, int format, int srcAccessMask, int dstAccessMask
     ) {
         int aspectColorBit = VK10.VK_IMAGE_ASPECT_COLOR_BIT;
@@ -191,22 +308,27 @@ public class VulkanInMemoryImage extends VulkanImage {
             }
         }
     
-        return VkImageMemoryBarrier.create( 1 ).put( 0, VkImageMemoryBarrier.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER )
-            .oldLayout( oldLayout )
-            .newLayout( newLayout )
-            .srcQueueFamilyIndex( VK10.VK_QUEUE_FAMILY_IGNORED )
-            .dstQueueFamilyIndex( VK10.VK_QUEUE_FAMILY_IGNORED )
-            .image( getAddress().getValue() )
-            .subresourceRange( VkImageSubresourceRange.create()
-                .aspectMask( aspectColorBit )
-                .baseMipLevel( 0 )
-                .levelCount( calculateMipLevels( width, height ) )
-                .baseArrayLayer( 0 )
-                .layerCount( 1 )
+        return createImageMemoryBarrier(
+                VkImageSubresourceRange.create()
+                    .aspectMask( aspectColorBit )
+                    .baseMipLevel( 0 )
+                    .levelCount( calculateMipLevels() )
+                    .baseArrayLayer( 0 )
+                    .layerCount( 1 )
             )
+            .newLayout( newLayout )
+            .oldLayout( oldLayout )
             .srcAccessMask( srcAccessMask )
             .dstAccessMask( dstAccessMask )
-        );
+        ;
+    }
+    
+    private VkImageMemoryBarrier createImageMemoryBarrier( VkImageSubresourceRange subresourceRange ) {
+        return VkImageMemoryBarrier.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER )
+            .image( getAddress().getValue() )
+            .srcQueueFamilyIndex( VK10.VK_QUEUE_FAMILY_IGNORED )
+            .dstQueueFamilyIndex( VK10.VK_QUEUE_FAMILY_IGNORED )
+            .subresourceRange( subresourceRange );
     }
 }

@@ -81,15 +81,10 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         
         createImage( textureData );
     
-        initialTransitionImageLayout(
-            textureData,
-            VK10.VK_FORMAT_R8G8B8A8_UNORM
-        );
+        initialTransitionImageLayout( textureData, VK10.VK_FORMAT_R8G8B8A8_UNORM );
         copyBufferToImage( textureData );
-        postCopyTransitionImageLayout(
-            textureData,
-            VK10.VK_FORMAT_R8G8B8A8_UNORM
-        );
+//        postCopyTransitionImageLayout( textureData, VK10.VK_FORMAT_R8G8B8A8_UNORM );
+        textureData.getImage().createMipMaps();
     }
     
     private void copyBufferToImage( VulkanTextureData textureData ) {

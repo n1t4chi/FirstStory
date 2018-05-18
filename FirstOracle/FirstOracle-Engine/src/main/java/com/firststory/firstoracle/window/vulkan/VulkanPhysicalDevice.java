@@ -465,8 +465,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .mipmapMode( VK10.VK_SAMPLER_MIPMAP_MODE_LINEAR )
             .mipLodBias( 0f )
             .minLod( 0f )
-            .maxLod( 0f )
-            ;
+            .maxLod( 0 )
+        ;
         
         return VulkanHelper.createAddress(
             address -> VK10.vkCreateSampler( logicalDevice, createInfo, null, address ),
