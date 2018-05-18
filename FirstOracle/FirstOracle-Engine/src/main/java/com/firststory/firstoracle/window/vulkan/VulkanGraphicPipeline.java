@@ -104,7 +104,7 @@ class VulkanGraphicPipeline {
             .pViewportState( createViewportStateCreateInfo( swapChain ) )
             .pRasterizationState( createRasterizationStateCreateInfo() )
             .pMultisampleState( createMultisampleStateCreateInfo() )
-            .pDepthStencilState( null )
+            .pDepthStencilState( createDepthStencilState() )
             .pColorBlendState( createColourBlendStateCreateInfo() )
             .pDynamicState( null )
             .layout( pipelineLayout.getValue() )
@@ -153,8 +153,9 @@ class VulkanGraphicPipeline {
     ) {
         return VkRenderPassCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
-            .pAttachments( VkAttachmentDescription.calloc( 1 )
+            .pAttachments( VkAttachmentDescription.calloc( 2 )
                 .put( 0, createColourAttachmentDescription( swapChain ) )
+                .put( 1, createDepthAttachmentDescription( depthResources ) )
             )
             .pSubpasses( VkSubpassDescription.create( 1 )
                 .put( 0, createSubpassDescription() )
@@ -182,19 +183,20 @@ class VulkanGraphicPipeline {
             .pColorAttachments( VkAttachmentReference.create( 1 )
                 .put( 0, createColourAttachmentReference() )
             )
+            .pDepthStencilAttachment( createDepthAttachmentReference() )
         ;
     }
     
     private VkAttachmentReference createColourAttachmentReference() {
-        return createAttachmentReference( VK10.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
+        return createAttachmentReference( 0, VK10.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
     }
     
     private VkAttachmentReference createDepthAttachmentReference() {
-        return createAttachmentReference(VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
+        return createAttachmentReference( 1, VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
     }
     
-    private VkAttachmentReference createAttachmentReference( int layout ) {
-        return VkAttachmentReference.create().attachment( 0 ).layout( layout );
+    private VkAttachmentReference createAttachmentReference( int index, int layout ) {
+        return VkAttachmentReference.create().attachment( index ).layout( layout );
     }
     
     private VkAttachmentDescription createDepthAttachmentDescription( VulkanDepthResources depthResources ) {
@@ -240,7 +242,9 @@ class VulkanGraphicPipeline {
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO )
             .logicOpEnable( false )
             .logicOp( VK10.VK_LOGIC_OP_COPY )
-            .pAttachments( VkPipelineColorBlendAttachmentState.calloc( 1 ).put( createColourBlendAttachmentState() ).flip() )
+            .pAttachments( VkPipelineColorBlendAttachmentState.calloc( 1 )
+                .put( 0, createColourBlendAttachmentState() )
+            )
             .blendConstants( 0, 0f )
             .blendConstants( 1, 0f )
             .blendConstants( 2, 0f )

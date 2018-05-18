@@ -10,7 +10,7 @@ package com.firststory.firstoracle.window.vulkan.exceptions;
 public class VulkanException extends RuntimeException {
     
     private static String errorCodeString( int errorCode ) {
-        return "Error code: " + errorCode + ". ";
+        return "Error code: " + errorCode + " ["+VulkanExceptionHelper.parseResultCode( errorCode )+"]. ";
     }
     
     VulkanException( String s, Exception ex ) {
