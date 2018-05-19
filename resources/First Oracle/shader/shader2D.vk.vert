@@ -3,14 +3,14 @@
 
 layout(binding = 0) uniform UniformBufferObject {
     mat4 camera;
-    vec3 translation;
-    vec3 scale;
-    vec3 rotation;
+    vec2 translation;
+    vec2 scale;
+    float rotation;
     vec4 overlayColour;
     float maxAlphaChannel;
 } ubo;
 
-layout(location = 0) in vec3 vertexPosition;
+layout(location = 0) in vec2 vertexPosition;
 layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec4 vertexColour;
 
@@ -28,13 +28,13 @@ float toRadians(float angle){
  }
 
 void main() {
-    float posX = vertexPosition.x*scale.x;
-    float posY = vertexPosition.y*scale.y;
+    float posX = vertexPosition.x*ubo.scale.x;
+    float posY = vertexPosition.y*ubo.scale.y;
 
-    if(rotation != 0){
+    if(ubo.rotation != 0){
         float x = posX;
         float y = posY;
-        float rot = toRadians(rotation);
+        float rot = toRadians(ubo.rotation);
         float sinZ = sin(rot);
         float cosZ = cos(rot);
 
@@ -42,10 +42,10 @@ void main() {
         posY = (x*sinZ) + (y*cosZ);
     }
     vec4 v =
-        camera *
+        ubo.camera *
         vec4(
-            translation.x+posX,
-            translation.y+posY,
+            ubo.translation.x+posX,
+            ubo.translation.y+posY,
             0,1
         );
     gl_Position = vec4(v.x,v.y,0,1);

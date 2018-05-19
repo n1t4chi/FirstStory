@@ -9,7 +9,6 @@ import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -106,7 +105,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanWindowSurface windowSurface;
     private final List< VkExtensionProperties > availableExtensionProperties;
     private final VulkanSwapChain swapChain;
-    private final List< VkPipelineShaderStageCreateInfo > shaderStages = new ArrayList<>();
     private final VulkanGraphicPipeline graphicPipeline;
     private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>();
     private final VulkanGraphicCommandPool graphicCommandPool;
@@ -119,8 +117,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
     private final Map< Integer, VulkanMemoryHeap > memoryHeaps = new HashMap<>();
-    private final VulkanShaderProgram vertexShader;
-    private final VulkanShaderProgram fragmentShader;
     private final VulkanAddress descriptorSetLayout;
     private final VulkanStageableDataBuffer< float[] > positionBuffer1;
     private final VulkanStageableDataBuffer< float[] > positionBuffer2;
@@ -135,8 +131,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private final float[] uniformBufferData = new float[UNIFORM_SIZE];
     private final Matrix4f matrix = new Matrix4f();
-    private final Vector3f trans = new Vector3f( 0.01f, 0.01f, 0.01f );
-    private final Vector3f scale = new Vector3f( 1, 1.5f, 1 );
     private final VulkanAddress descriptorPool;
     private final VulkanAddress descriptorSet;
     private final VulkanTextureLoader textureLoader;
@@ -144,6 +138,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Texture texture;
     private final TextureBuffer<VulkanTextureData> textureData;
     private final VulkanDepthResources depthResources;
+    private final VulkanShaderProgram3D shaderProgram3D;
     
     VulkanPhysicalDevice(
         long deviceAddress, VkInstance instance, PointerBuffer validationLayerNamesBuffer, VulkanWindowSurface surface
@@ -174,18 +169,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
         imageAvailableSemaphore = new VulkanSemaphore( this );
         renderFinishedSemaphore = new VulkanSemaphore( this );
-        
-        vertexShader = new VulkanShaderProgram( this, VERTEX_SHADER_FILE_PATH, ShaderType.VERTEX );
-        fragmentShader = new VulkanShaderProgram( this, FRAGMENT_SHADER_FILE_PATH, ShaderType.FRAGMENT );
+    
+        shaderProgram3D = new VulkanShaderProgram3D( this );
         
         try {
-            vertexShader.compile();
-            fragmentShader.compile();
+            shaderProgram3D.compile();
         } catch ( IOException ex ) {
             throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
         }
-        shaderStages.add( vertexShader.getStageCreateInfo() );
-        shaderStages.add( fragmentShader.getStageCreateInfo() );
         
         swapChain = new VulkanSwapChain( this );
         
@@ -331,9 +322,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         swapChain.update( windowSurface );
         depthResources.update( swapChain );
         
-        
-        graphicPipeline.update( swapChain, shaderStages, depthResources );
+        graphicPipeline.update( swapChain, shaderProgram3D.getShaderStages(), depthResources );
         refreshFrameBuffers( frameBuffers, swapChain, depthResources );
+        
         refreshCommandBuffers();
     }
     
@@ -390,8 +381,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         texture.close();
         VK10.vkDestroySampler( logicalDevice, textureSampler.getValue(), null );
         
-        vertexShader.dispose();
-        fragmentShader.dispose();
+        shaderProgram3D.dispose();
         imageAvailableSemaphore.dispose();
         renderFinishedSemaphore.dispose();
         VK10.vkDestroyDevice( logicalDevice, null );

@@ -33,11 +33,11 @@ public class OpenGlShaderProgram3D extends OpenGlShaderProgram implements Shader
     private UniformLocation overlayColourLocation;
     private UniformLocation maxAlphaChannelLocation;
     
-    public OpenGlShaderProgram3D() {
+    OpenGlShaderProgram3D() {
         super( VERTEX_SHADER_FILE_PATH, FRAGMENT_SHADER_FILE_PATH );
     }
     
-    public OpenGlShaderProgram3D( String vertex_file_path, String fragment_file_path ) {
+    OpenGlShaderProgram3D( String vertex_file_path, String fragment_file_path ) {
         super( vertex_file_path, fragment_file_path );
     }
     

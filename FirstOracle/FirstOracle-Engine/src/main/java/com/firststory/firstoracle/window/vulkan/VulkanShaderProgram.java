@@ -15,11 +15,16 @@ import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import static com.firststory.firstoracle.FirstOracleConstants.SHADER_FILES_LOCATION;
+
 /**
  * @author n1t4chi
  */
 class VulkanShaderProgram implements ShaderProgram {
     
+    static final String SHADER_FILE_PATH_VERTEX_3D = SHADER_FILES_LOCATION + "shader3D.vk.vert.spv";
+    static final String SHADER_FILE_PATH_VERTEX_2D = SHADER_FILES_LOCATION + "shader2D.vk.vert.spv";
+    static final String SHADER_FILE_PATH_FRAGMENT = SHADER_FILES_LOCATION + "shader.vk.frag.spv";
     private final String filepath;
     private final ShaderType type;
     private VulkanPhysicalDevice physicalDevice;
@@ -53,7 +58,9 @@ class VulkanShaderProgram implements ShaderProgram {
     
     @Override
     public void dispose() {
-        VK10.vkDestroyShaderModule( physicalDevice.getLogicalDevice(), address.getValue(), null );
+        if( !address.isNull() ) {
+            VK10.vkDestroyShaderModule( physicalDevice.getLogicalDevice(), address.getValue(), null );
+        }
     }
     
     private VkPipelineShaderStageCreateInfo createStageCreateInfo() {
