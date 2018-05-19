@@ -8,7 +8,6 @@ import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
-import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -77,11 +76,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         /*2*/ /*pos*/ 0f, 1f,
         /*1*/ /*pos*/ 1f, 1f,
     };
-    private static final int FLOAT_SIZE = 4;
-    private static final int MATRIX_SIZE = 4 * 4;
-    private static final int VEC_SIZE = 4;
-    private static final int UNIFORM_SIZE = MATRIX_SIZE + VEC_SIZE * 5;
-    private static final int UNIFORM_DATA_SIZE = FLOAT_SIZE * UNIFORM_SIZE;
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
     private static final Set< String > requiredExtensions = new HashSet<>();
@@ -127,10 +121,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanStageableDataBuffer< float[] > uvBuffer1;
     private final VulkanStageableDataBuffer< float[] > uvBuffer2;
     private final VulkanStageableDataBuffer< float[] > uvBuffer3;
-    private final VulkanUniformBuffer uniformBuffer;
     
-    private final float[] uniformBufferData = new float[UNIFORM_SIZE];
-    private final Matrix4f matrix = new Matrix4f();
     private final VulkanAddress descriptorPool;
     private final VulkanAddress descriptorSet;
     private final VulkanTextureLoader textureLoader;
@@ -169,14 +160,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
         imageAvailableSemaphore = new VulkanSemaphore( this );
         renderFinishedSemaphore = new VulkanSemaphore( this );
-    
-        shaderProgram3D = new VulkanShaderProgram3D( this );
-        
-        try {
-            shaderProgram3D.compile();
-        } catch ( IOException ex ) {
-            throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
-        }
         
         swapChain = new VulkanSwapChain( this );
         
@@ -205,7 +188,12 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         textureSampler = createTextureSampler();
         textureLoader = new VulkanTextureLoader( this, bufferLoader, textureSampler, descriptorSet );
         
-        uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, FLOAT_SIZE );
+        shaderProgram3D = new VulkanShaderProgram3D( this, bufferLoader );
+        try {
+            shaderProgram3D.compile();
+        } catch ( IOException ex ) {
+            throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
+        }
         
         
         texture = createTexture();
@@ -329,29 +317,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     void testRender() {
-        matrix.identity();
-            //.scale( ThreadLocalRandom.current().nextFloat() / 10 + 1 );;
-           // .rotateZ( rotate = rotate + 0.001f );
-        matrix.get( uniformBufferData, 0 );
-        uniformBufferData[16] = 0 ; //trans.x
-        uniformBufferData[17] = 0 ; //trans.y
-        uniformBufferData[18] = 0 ; //trans.z
-        
-        uniformBufferData[20] = 1 ; //scale.x
-        uniformBufferData[21] = 1 ; //scale.y
-        uniformBufferData[22] = 1 ; //scale.z
-    
-        uniformBufferData[24] = 0 ; //rotation.x
-        uniformBufferData[25] = 0 ; //rotation.y
-        uniformBufferData[26] = 90 ; //rotation.z
-        
-        uniformBufferData[28] = 0 ; //overlayColour.x
-        uniformBufferData[29] = 1 ; //overlayColour.y
-        uniformBufferData[30] = 0 ; //overlayColour.z
-        uniformBufferData[31] = 0.5f ; //overlayColour.w
-    
-        uniformBufferData[32] = 0.5f ; //maxAlphaChannel
-        uniformBuffer.load( uniformBufferData );
+        shaderProgram3D.bindUniformData();
         
         graphicCommandPool.executeQueue( commandBuffer -> {
             commandBuffer.bindDescriptorSets( descriptorSet );
@@ -373,7 +339,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         graphicPipeline.dispose();
         VK10.vkDestroyDescriptorSetLayout( logicalDevice, descriptorSetLayout.getValue(), null );
         VK10.vkDestroyDescriptorPool( logicalDevice, descriptorPool.getValue(), null );
-        uniformBuffer.close();
         swapChain.dispose();
         bufferLoader.close();
     
@@ -501,7 +466,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             VkWriteDescriptorSet.create( 2 )
                 .put( 0, createDescriptorWrite( 0,
                     VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    VkDescriptorBufferInfo.create( 1 ).put( 0, createBufferInfo() ),
+                    VkDescriptorBufferInfo.create( 1 ).put( 0, shaderProgram3D.createBufferInfo() ),
                     null
                 ) )
                 .put( 1, createDescriptorWrite( 1,
@@ -520,13 +485,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .imageView( textureData.getContext().getImageView().getAddress().getValue() )
             .sampler( textureSampler.getValue() )
         ;
-    }
-    
-    private VkDescriptorBufferInfo createBufferInfo() {
-        return VkDescriptorBufferInfo.create()
-            .buffer( uniformBuffer.getBufferAddress().getValue() )
-            .offset( 0 )
-            .range( UNIFORM_DATA_SIZE );
     }
     
     private VkWriteDescriptorSet createDescriptorWrite(
