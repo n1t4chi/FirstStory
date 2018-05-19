@@ -3,13 +3,14 @@
  */
 package com.firststory.firstoracle.window.opengl;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.shader.ShaderProgram3D;
 import com.firststory.firstoracle.shader.UniformLocation;
 import org.joml.Matrix4fc;
 import org.joml.Vector3fc;
 import org.joml.Vector4fc;
+
+import static com.firststory.firstoracle.FirstOracleConstants.SHADER_FILES_LOCATION;
 
 /**
  * @author n1t4chi
@@ -22,10 +23,8 @@ public class OpenGlShaderProgram3D extends OpenGlShaderProgram implements Shader
     private final static String UNIFORM_LOCATION_ROTATION = "rotation";
     private final static String UNIFORM_LOCATION_OVERLAY_COLOUR = "overlayColour";
     private final static String UNIFORM_LOCATION_MAX_ALPHA_CHANNEL = "maxAlphaChannel";
-    private static final String VERTEX_SHADER_FILE_PATH = FirstOracleConstants.SHADER_FILES_LOCATION +
-        "shader/shader3D.gl.vert";
-    private static final String FRAGMENT_SHADER_FILE_PATH = FirstOracleConstants.SHADER_FILES_LOCATION +
-        "shader/shader.gl.frag";
+    private static final String VERTEX_SHADER_FILE_PATH = SHADER_FILES_LOCATION + "shader3D.gl.vert";
+    private static final String FRAGMENT_SHADER_FILE_PATH = SHADER_FILES_LOCATION + "shader.gl.frag";
     
     private UniformLocation positionLocation;
     private UniformLocation cameraLocation;
