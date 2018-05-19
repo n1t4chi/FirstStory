@@ -200,7 +200,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         textureData = texture.getBuffer( textureLoader );
         texture.bind( textureLoader );
         
-        updateDesciptorSetsOnDevice();
         updateRenderingContext();
         
         positionBuffer1 = bufferLoader.createFloatBuffer();
@@ -309,7 +308,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         presentationFamily.waitForQueue();
         swapChain.update( windowSurface );
         depthResources.update( swapChain );
-        
+    
+        updateDesciptorSetsOnDevice( shaderProgram3D );
         graphicPipeline.update( swapChain, shaderProgram3D.getShaderStages(), depthResources );
         refreshFrameBuffers( frameBuffers, swapChain, depthResources );
         
@@ -461,12 +461,12 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return texture;
     }
     
-    private void updateDesciptorSetsOnDevice() {
+    private void updateDesciptorSetsOnDevice( VulkanShaderProgram3D shaderProgram ) {
         VK10.vkUpdateDescriptorSets( logicalDevice,
             VkWriteDescriptorSet.create( 2 )
                 .put( 0, createDescriptorWrite( 0,
                     VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    VkDescriptorBufferInfo.create( 1 ).put( 0, shaderProgram3D.createBufferInfo() ),
+                    VkDescriptorBufferInfo.create( 1 ).put( 0, shaderProgram.createBufferInfo() ),
                     null
                 ) )
                 .put( 1, createDescriptorWrite( 1,

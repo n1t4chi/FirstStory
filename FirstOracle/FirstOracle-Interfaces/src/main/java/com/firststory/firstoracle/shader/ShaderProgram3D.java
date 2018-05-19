@@ -16,7 +16,9 @@ public interface ShaderProgram3D extends ShaderProgram {
 
     void bindPosition( Vector3fc vector );
 
-    void bindCamera( Camera3D camera3D );
+    default void bindCamera( Camera3D camera3D ) {
+        bindCamera( camera3D.getMatrixRepresentation() );
+    }
 
     void bindCamera( Matrix4fc camera );
 

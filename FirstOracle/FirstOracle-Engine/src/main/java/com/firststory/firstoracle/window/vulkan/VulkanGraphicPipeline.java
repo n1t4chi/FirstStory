@@ -120,7 +120,7 @@ class VulkanGraphicPipeline {
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO )
             .depthTestEnable( true )
             .depthWriteEnable( true )
-            .depthCompareOp( VK10.VK_COMPARE_OP_LESS )
+            .depthCompareOp( VK10.VK_COMPARE_OP_LESS_OR_EQUAL )
             .depthBoundsTestEnable( false )
             .minDepthBounds( 0f )
             .maxDepthBounds( 1f )

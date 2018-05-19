@@ -3,7 +3,6 @@
  */
 package com.firststory.firstoracle.window.opengl;
 
-import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.shader.ShaderProgram3D;
 import com.firststory.firstoracle.shader.UniformLocation;
 import org.joml.Matrix4fc;
@@ -44,11 +43,6 @@ public class OpenGlShaderProgram3D extends OpenGlShaderProgram implements Shader
     @Override
     public void bindPosition( Vector3fc vector ) {
         positionLocation.bind( vector );
-    }
-    
-    @Override
-    public void bindCamera( Camera3D camera3D ) {
-        cameraLocation.bind( camera3D );
     }
     
     @Override

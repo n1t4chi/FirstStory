@@ -26,11 +26,20 @@ public class FirstOracleConstants {
     public static final int FIRST_ORACLE_VERSION_PATCH = 0;
     
     public static final float UV_DELTA = 0.00001f;
+    
+    public static final Matrix4fc MATRIX_4F_IDENTIFY = new Matrix4f();
+    
     public static final Vector2fc VECTOR_ZERO_2F = new Vector2f( 0, 0 );
     public static final Vector2ic VECTOR_ZERO_2I = new Vector2i( 0, 0 );
     public static final Vector3fc VECTOR_ZERO_3F = new Vector3f( 0, 0, 0 );
     public static final Vector3ic VECTOR_ZERO_3I = new Vector3i( 0, 0, 0 );
     public static final Vector4fc VECTOR_ZERO_4F = new Vector4f( 0, 0, 0, 0 );
+    
+    public static final Vector2fc VECTOR_ONES_2F = new Vector2f( 1, 1 );
+    public static final Vector2ic VECTOR_ONES_2I = new Vector2i( 1, 1 );
+    public static final Vector3fc VECTOR_ONES_3F = new Vector3f( 1, 1, 1 );
+    public static final Vector3ic VECTOR_ONES_3I = new Vector3i( 1, 1, 1 );
+    public static final Vector4fc VECTOR_ONES_4F = new Vector4f( 1, 1, 1, 1 );
     
     public static final double SQRT3_DIV2_D = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077;
     public static final float SQRT3_DIV2 = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077f;

@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
-import com.firststory.firstoracle.camera3D.Camera3D;
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.shader.ShaderProgram3D;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
@@ -25,13 +25,17 @@ import static com.firststory.firstoracle.window.vulkan.VulkanShaderProgram.SHADE
  */
 public class VulkanShaderProgram3D implements ShaderProgram3D {
     
+    protected static final int OFFSET_SCALE = 20;
+    protected static final int OFFSET_ROTATION = 24;
+    protected static final int OFFSET_COLOUR = 28;
+    protected static final int OFFSET_ALPHA_CHANNEL = 32;
     private static final int SIZE_FLOAT = 4;
     private static final int SIZE_MATRIX_4F = 4 * 4;
     private static final int SIZE_VEC_4F = 4;
-    
     private static final int UNIFORM_SIZE = SIZE_MATRIX_4F + SIZE_VEC_4F * 5;
     private static final int UNIFORM_DATA_SIZE = SIZE_FLOAT * UNIFORM_SIZE;
-    
+    private static final int OFFSET_CAMERA = 0;
+    private static final int OFFSET_POSITION = 16;
     private final VulkanShaderProgram fragmentShader;
     private final VulkanShaderProgram vertexShader;
     private final List< VkPipelineShaderStageCreateInfo > shaderStages = new ArrayList<>();
@@ -47,68 +51,47 @@ public class VulkanShaderProgram3D implements ShaderProgram3D {
         vertexShader = new VulkanShaderProgram( device, SHADER_FILE_PATH_VERTEX_3D, ShaderType.VERTEX );
         fragmentShader = new VulkanShaderProgram( device, SHADER_FILE_PATH_FRAGMENT, ShaderType.FRAGMENT );
         uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, SIZE_FLOAT );
-    }
     
-    void bindUniformData() {
-    
-        matrix.identity();
-        //.scale( ThreadLocalRandom.current().nextFloat() / 10 + 1 );;
-        // .rotateZ( rotate = rotate + 0.001f );
-        matrix.get( uniformBufferData, 0 );
-        uniformBufferData[16] = 0 ; //trans.x
-        uniformBufferData[17] = 0 ; //trans.y
-        uniformBufferData[18] = 0 ; //trans.z
-    
-        uniformBufferData[20] = 1 ; //scale.x
-        uniformBufferData[21] = 1 ; //scale.y
-        uniformBufferData[22] = 1 ; //scale.z
-    
-        uniformBufferData[24] = 0 ; //rotation.x
-        uniformBufferData[25] = 0 ; //rotation.y
-        uniformBufferData[26] = 90 ; //rotation.z
-    
-        uniformBufferData[28] = 0 ; //overlayColour.x
-        uniformBufferData[29] = 1 ; //overlayColour.y
-        uniformBufferData[30] = 0 ; //overlayColour.z
-        uniformBufferData[31] = 0.5f ; //overlayColour.w
-    
-        uniformBufferData[32] = 0.5f ; //maxAlphaChannel
-        uniformBuffer.load( uniformBufferData );
+        clearValues();
     }
     
     @Override
     public void bindPosition( Vector3fc vector ) {
-    
-    }
-    
-    @Override
-    public void bindCamera( Camera3D camera3D ) {
-    
+        uniformBufferData[OFFSET_POSITION] = vector.x();
+        uniformBufferData[OFFSET_POSITION + 1] = vector.y();
+        uniformBufferData[OFFSET_POSITION + 2] = vector.z();
     }
     
     @Override
     public void bindCamera( Matrix4fc camera ) {
-    
+        matrix.get( uniformBufferData, OFFSET_CAMERA );
     }
     
     @Override
     public void bindScale( Vector3fc vector ) {
-    
+        uniformBufferData[OFFSET_SCALE] = vector.x();
+        uniformBufferData[OFFSET_SCALE + 1] = vector.y();
+        uniformBufferData[OFFSET_SCALE + 2] = vector.z();
     }
     
     @Override
     public void bindRotation( Vector3fc vector ) {
-    
+        uniformBufferData[OFFSET_ROTATION] = vector.x();
+        uniformBufferData[OFFSET_ROTATION + 1] = vector.y();
+        uniformBufferData[OFFSET_ROTATION + 2] = vector.z();
     }
     
     @Override
     public void bindOverlayColour( Vector4fc vector ) {
-    
+        uniformBufferData[OFFSET_COLOUR] = vector.x();
+        uniformBufferData[OFFSET_COLOUR + 1] = vector.y();
+        uniformBufferData[OFFSET_COLOUR + 2] = vector.z();
+        uniformBufferData[OFFSET_COLOUR + 3] = vector.w();
     }
     
     @Override
     public void bindMaxAlphaChannel( float value ) {
-    
+        uniformBufferData[OFFSET_ALPHA_CHANNEL] = value;
     }
     
     @Override
@@ -132,6 +115,10 @@ public class VulkanShaderProgram3D implements ShaderProgram3D {
         shaderStages.clear();
     }
     
+    void bindUniformData() {
+        uniformBuffer.load( uniformBufferData );
+    }
+    
     VkDescriptorBufferInfo createBufferInfo() {
         return VkDescriptorBufferInfo.create()
             .buffer( uniformBuffer.getBufferAddress().getValue() )
@@ -141,5 +128,14 @@ public class VulkanShaderProgram3D implements ShaderProgram3D {
     
     List< VkPipelineShaderStageCreateInfo > getShaderStages() {
         return shaderStages;
+    }
+    
+    private void clearValues() {
+        bindCamera( FirstOracleConstants.MATRIX_4F_IDENTIFY );
+        bindPosition( FirstOracleConstants.VECTOR_ZERO_3F );
+        bindScale( FirstOracleConstants.VECTOR_ONES_3F );
+        bindRotation( FirstOracleConstants.VECTOR_ZERO_3F );
+        bindOverlayColour( FirstOracleConstants.VECTOR_ZERO_4F );
+        bindMaxAlphaChannel( 1f );
     }
 }
