@@ -41,8 +41,7 @@ public class WindowRenderer implements Renderer {
         SceneProvider sceneProvider,
         boolean useTexture,
         boolean drawBorder
-    )
-    {
+    ) {
         this.grid2DRenderer = grid2DRenderer;
         this.grid3DRenderer = grid3DRenderer;
         this.sceneProvider = sceneProvider;

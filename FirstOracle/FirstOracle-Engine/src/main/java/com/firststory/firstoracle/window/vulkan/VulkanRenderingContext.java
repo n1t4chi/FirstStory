@@ -4,11 +4,8 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
-import com.firststory.firstoracle.data.TextureBufferLoader;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
 import com.firststory.firstoracle.rendering.RenderingContext;
-import com.firststory.firstoracle.shader.ShaderProgram2D;
-import com.firststory.firstoracle.shader.ShaderProgram3D;
 import org.joml.Vector4fc;
 
 /**
@@ -16,14 +13,20 @@ import org.joml.Vector4fc;
  */
 class VulkanRenderingContext implements RenderingContext {
     
-    @Override
-    public ShaderProgram2D getShaderProgram2D() {
-        return null;
+    private final VulkanPhysicalDevice device;
+    
+    VulkanRenderingContext( VulkanPhysicalDevice device ) {
+        this.device = device;
     }
     
     @Override
-    public ShaderProgram3D getShaderProgram3D() {
-        return null;
+    public VulkanShaderProgram2D getShaderProgram2D() {
+        return device.getShaderProgram2D();
+    }
+    
+    @Override
+    public VulkanShaderProgram3D getShaderProgram3D() {
+        return device.getShaderProgram3D();
     }
     
     @Override
@@ -32,8 +35,8 @@ class VulkanRenderingContext implements RenderingContext {
     }
     
     @Override
-    public TextureBufferLoader getTextureLoader() {
-        return null;
+    public VulkanTextureLoader getTextureLoader() {
+        return device.getTextureLoader();
     }
     
     @Override
@@ -57,14 +60,10 @@ class VulkanRenderingContext implements RenderingContext {
     }
     
     @Override
-    public void enableVertexAttributes() {
-    
-    }
+    public void enableVertexAttributes() {}
     
     @Override
-    public void disableVertexAttributes() {
-    
-    }
+    public void disableVertexAttributes() {}
     
     @Override
     public void setBackgroundColour( Vector4fc backgroundColour ) {

@@ -3,10 +3,9 @@
  */
 package com.firststory.firstoracle.window.opengl;
 
-import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.shader.ShaderProgram2D;
 import com.firststory.firstoracle.shader.UniformLocation;
-import org.joml.Matrix3fc;
+import org.joml.Matrix4fc;
 import org.joml.Vector2fc;
 import org.joml.Vector4fc;
 
@@ -47,12 +46,7 @@ public class OpenGlShaderProgram2D extends OpenGlShaderProgram implements Shader
     }
     
     @Override
-    public void bindCamera( Camera2D camera2D ) {
-        cameraLocation.bind( camera2D );
-    }
-    
-    @Override
-    public void bindCamera( Matrix3fc camera ) {
+    public void bindCamera( Matrix4fc camera ) {
         cameraLocation.bind( camera );
     }
     

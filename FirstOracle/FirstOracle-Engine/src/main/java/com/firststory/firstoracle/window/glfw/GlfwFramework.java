@@ -96,13 +96,12 @@ public class GlfwFramework implements WindowFramework {
                 settings.getPositionY() + top[ 0 ]
             );
         }
-        GlfwWindowContext window = new GlfwWindowContext( windowId );
-        registerWindow(window);
-        window.setVerticalSync( settings.isVerticalSync() );
         
-        if( isOpenGLWindow ){
-            window.setWindowToCurrentThread();
-        }
+        GlfwWindowContext window = new GlfwWindowContext( windowId, isOpenGLWindow );
+        registerWindow(window);
+        
+        window.setVerticalSync( settings.isVerticalSync() );
+        window.setWindowToCurrentThread();
         
         return window;
     }

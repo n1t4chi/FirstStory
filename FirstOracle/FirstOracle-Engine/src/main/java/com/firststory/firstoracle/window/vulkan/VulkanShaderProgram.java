@@ -5,93 +5,86 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.shader.ShaderProgram;
-import com.firststory.firstoracle.templates.IOUtilities;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanShaderException;
-import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.vulkan.VK10;
+import org.joml.Matrix4fc;
+import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
-import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import static com.firststory.firstoracle.FirstOracleConstants.SHADER_FILES_LOCATION;
+import static com.firststory.firstoracle.window.vulkan.VulkanShader.*;
 
 /**
  * @author n1t4chi
  */
-class VulkanShaderProgram implements ShaderProgram {
+public class VulkanShaderProgram implements ShaderProgram {
     
-    static final String SHADER_FILE_PATH_VERTEX_3D = SHADER_FILES_LOCATION + "shader3D.vk.vert.spv";
-    static final String SHADER_FILE_PATH_VERTEX_2D = SHADER_FILES_LOCATION + "shader2D.vk.vert.spv";
-    static final String SHADER_FILE_PATH_FRAGMENT = SHADER_FILES_LOCATION + "shader.vk.frag.spv";
-    private final String filepath;
-    private final ShaderType type;
-    private VulkanPhysicalDevice physicalDevice;
-    private VulkanAddress address;
-    private VkPipelineShaderStageCreateInfo stageCreateInfo;
+    private static final int UNIFORM_SIZE = SIZE_MATRIX_4F + SIZE_VEC_4F * 5;
+    private static final int UNIFORM_DATA_SIZE = SIZE_FLOAT * UNIFORM_SIZE;
+    private final VulkanShader fragmentShader;
+    private final VulkanShader vertexShader;
+    private final List< VkPipelineShaderStageCreateInfo > shaderStages = new ArrayList<>();
+    private final VulkanPhysicalDevice device;
+    private final VulkanUniformBuffer uniformBuffer;
     
-    VulkanShaderProgram( VulkanPhysicalDevice physicalDevice, String filepath, ShaderType type ) {
-        this.physicalDevice = physicalDevice;
-        this.filepath = filepath;
-        this.type = type;
+    private final float[] uniformBufferData = new float[ UNIFORM_SIZE ];
+    
+    VulkanShaderProgram(
+        VulkanPhysicalDevice device, VulkanDataBufferProvider bufferLoader
+    ) {
+        this.device = device;
+        vertexShader = new VulkanShader( device, SHADER_FILE_PATH_VERTEX_3D, ShaderType.VERTEX );
+        fragmentShader = new VulkanShader( device, SHADER_FILE_PATH_FRAGMENT, ShaderType.FRAGMENT );
+        uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, SIZE_FLOAT );
     }
     
-    VulkanAddress getAddress() {
-        return address;
+    void bindData( int offset, Matrix4fc camera ) {
+        camera.get( uniformBufferData, offset );
     }
     
-    VkPipelineShaderStageCreateInfo getStageCreateInfo() {
-        return stageCreateInfo;
+    void bindData( int offset, float... data ) {
+        System.arraycopy( data, 0, uniformBufferData, offset, data.length );
     }
     
     @Override
-    public void useProgram() {
-    
-    }
+    public void useProgram() {}
     
     @Override
     public void compile() throws IOException {
-        address = createShader();
-        stageCreateInfo = createStageCreateInfo();
+        vertexShader.compile();
+        fragmentShader.compile();
+        shaderStages.add( vertexShader.getStageCreateInfo() );
+        shaderStages.add( fragmentShader.getStageCreateInfo() );
     }
     
     @Override
     public void dispose() {
-        if( !address.isNull() ) {
-            VK10.vkDestroyShaderModule( physicalDevice.getLogicalDevice(), address.getValue(), null );
-        }
+        uniformBuffer.close();
+        vertexShader.dispose();
+        fragmentShader.dispose();
+        shaderStages.clear();
     }
     
-    private VkPipelineShaderStageCreateInfo createStageCreateInfo() {
-        VkPipelineShaderStageCreateInfo stageCreateInfo = VkPipelineShaderStageCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO )
-            .module( address.getValue() )
-            .pName( MemoryUtil.memUTF8( "main" ) )
-        ;
-        int stage;
-        switch ( type ) {
-            case VERTEX:
-                stage = VK10.VK_SHADER_STAGE_VERTEX_BIT;
-                break;
-            case FRAGMENT:
-                stage = VK10.VK_SHADER_STAGE_FRAGMENT_BIT;
-                break;
-            default:
-                throw new UnsupportedOperationException( "Unknown shader type:"+type );
-        }
-        stageCreateInfo.stage( stage );
-        return stageCreateInfo;
+    void bindUniformData( VulkanAddress descriptorSet, VulkanGraphicCommandBuffer commandBuffer ) {
+        uniformBuffer.load( uniformBufferData );
+        commandBuffer.bindDescriptorSets( descriptorSet );
     }
     
-    private VulkanAddress createShader() throws IOException {
-        ByteBuffer value = IOUtilities.readBinaryResource( filepath );
-        return VulkanHelper.createAddress(
-            () -> VkShaderModuleCreateInfo.create()
-                .sType( VK10.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO )
-                .pCode( value ),
-            ( createInfo, address ) -> VK10.vkCreateShaderModule( physicalDevice.getLogicalDevice(), createInfo, null, address ),
-            resultCode -> new CannotCreateVulkanShaderException( physicalDevice, filepath )
-        );
+    VkDescriptorBufferInfo createBufferInfo() {
+        return VkDescriptorBufferInfo.create()
+            .buffer( uniformBuffer.getBufferAddress().getValue() )
+            .offset( 0 )
+            .range( UNIFORM_DATA_SIZE );
+    }
+    
+    List< VkPipelineShaderStageCreateInfo > getShaderStages() {
+        return shaderStages;
+    }
+    
+    void clearValues() {
+        Arrays.fill( uniformBufferData, 0 );
     }
 }
+

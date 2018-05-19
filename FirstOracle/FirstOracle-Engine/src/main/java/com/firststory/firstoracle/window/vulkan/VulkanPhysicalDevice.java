@@ -130,6 +130,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final TextureBuffer<VulkanTextureData> textureData;
     private final VulkanDepthResources depthResources;
     private final VulkanShaderProgram3D shaderProgram3D;
+    private final VulkanShaderProgram2D shaderProgram2D;
     
     VulkanPhysicalDevice(
         long deviceAddress, VkInstance instance, PointerBuffer validationLayerNamesBuffer, VulkanWindowSurface surface
@@ -189,8 +190,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         textureLoader = new VulkanTextureLoader( this, bufferLoader, textureSampler, descriptorSet );
         
         shaderProgram3D = new VulkanShaderProgram3D( this, bufferLoader );
+        shaderProgram2D = new VulkanShaderProgram2D( this, bufferLoader );
         try {
             shaderProgram3D.compile();
+            shaderProgram2D.compile();
         } catch ( IOException ex ) {
             throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
         }
@@ -232,6 +235,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         uvBuffer3.load( UVMAP_3 );
         uvBuffer3.bind();
         
+        
+        
         logger.finer(
             "finished creating " + this + "[" + "\nscore: " + getScore() + "\ngraphic family: " + graphicFamily +
                 "\npresentation family: " + presentationFamily + "\ntransfer family: " + transferFamily + "\nqueues: " +
@@ -261,6 +266,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         memoryTypesString.deleteCharAt( memoryTypesString.length() - 1 );
         memoryTypesString.append( " }" );
         return memoryTypesString.toString();
+    }
+    
+    VulkanShaderProgram2D getShaderProgram2D() {
+        return shaderProgram2D;
+    }
+    
+    VulkanShaderProgram3D getShaderProgram3D() {
+        return shaderProgram3D;
     }
     
     VulkanTextureLoader getTextureLoader() {
@@ -317,12 +330,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     void testRender() {
-        shaderProgram3D.bindUniformData();
         
         graphicCommandPool.executeQueue( commandBuffer -> {
-            commandBuffer.bindDescriptorSets( descriptorSet );
+            shaderProgram3D.bindUniformData( descriptorSet, commandBuffer );
             commandBuffer.drawVertices( positionBuffer1, uvBuffer1, colourBuffer1 );
             commandBuffer.drawVertices( positionBuffer2, uvBuffer2, colourBuffer2 );
+            shaderProgram3D.bindMaxAlphaChannel( 0.5f );
+            shaderProgram3D.bindUniformData( descriptorSet, commandBuffer );
             commandBuffer.drawVertices( positionBuffer3, uvBuffer3, colourBuffer3 );
         } );
         

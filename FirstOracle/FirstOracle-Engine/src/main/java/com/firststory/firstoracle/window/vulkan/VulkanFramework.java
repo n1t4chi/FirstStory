@@ -52,6 +52,7 @@ public class VulkanFramework implements RenderingFramework {
     private final WindowContext window;
     private final VulkanWindowSurface windowSurface;
     private VkDebugReportCallbackEXT callback = null;
+    private final VulkanRenderingContext renderingContext;
     
     VulkanFramework( WindowContext window ) {
         this.window = window;
@@ -89,14 +90,14 @@ public class VulkanFramework implements RenderingFramework {
         windowSurface = VulkanWindowSurface.create( instance, window );
         physicalDevices = createPhysicalDevices();
         mainPhysicalDevice = selectMainPhysicalDevice();
-    
+        renderingContext = new VulkanRenderingContext( mainPhysicalDevice );
     
         logger.finer( "Finished creating Vulkan Framework: " + this );
     }
     
     @Override
     public RenderingContext getRenderingContext() {
-        return null;
+        return renderingContext;
     }
     
     @Override

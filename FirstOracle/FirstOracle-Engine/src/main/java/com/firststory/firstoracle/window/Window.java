@@ -14,7 +14,6 @@ import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
 import com.firststory.firstoracle.window.jfxgl.JfxglContext;
 import com.firststory.firstoracle.window.vulkan.VulkanFramework;
 import javafx.application.Application;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -151,17 +150,15 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
                 @Override
                 public void render() throws Exception {
                     renderingFramework.invoke( instance -> {
-                        //indow.setUpRenderLoop();
+                        window.setUpRenderLoop();
                         renderingFramework.clearScreen();
                         notifyTimeListener( windowFramework.getTime() );
                         if( renderingFramework instanceof VulkanFramework ){
                             ((VulkanFramework)renderingFramework).testRender();
                         }
-                        //renderer.render( instance.getRenderingContext(), lastFrameUpdate );
-                        //jfxgl.render();
-                        //window.cleanAfterLoop();
-                        //GLFW.glfwSwapBuffers( address );
-                        GLFW.glfwPollEvents();
+//                        renderer.render( instance.getRenderingContext(), lastFrameUpdate );
+                        jfxgl.render();
+                        window.cleanAfterLoop();
                     } );
                 }
             };
