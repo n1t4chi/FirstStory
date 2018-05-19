@@ -14,6 +14,9 @@ public class FirstOracleConstants {
     
     private static final Logger logger = getLogger( FirstOracleConstants.class );
     
+    public static final String RESOURCES_FOLDER = "resources/";
+    public static final String RESOURCES_ORACLE_FOLDER = RESOURCES_FOLDER + "/First Oracle";
+    public static final String SHADER_FILES_LOCATION = RESOURCES_ORACLE_FOLDER + "/shader/";
     public static final String GET_FRAMEWORK_METHOD_NAME = "getFramework";
     
     public static final int NO_FLAGS = 0;

@@ -26,6 +26,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.firststory.firstoracle.FirstOracleConstants.SHADER_FILES_LOCATION;
+
 /**
  * @author n1t4chi
  */
@@ -79,13 +81,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private static final int FLOAT_SIZE = 4;
     private static final int MATRIX_SIZE = 4 * 4;
     private static final int VEC_SIZE = 4;
-    private static final int UNIFORM_SIZE = MATRIX_SIZE + VEC_SIZE * 2;
+    private static final int UNIFORM_SIZE = MATRIX_SIZE + VEC_SIZE * 5;
     private static final int UNIFORM_DATA_SIZE = FLOAT_SIZE * UNIFORM_SIZE;
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
     private static final Set< String > requiredExtensions = new HashSet<>();
-    private static final String VERTEX_SHADER_FILE_PATH = "resources/First Oracle/vert.spv";
-    private static final String FRAGMENT_SHADER_FILE_PATH = "resources/First Oracle/frag.spv";
+    private static final String VERTEX_SHADER_FILE_PATH = SHADER_FILES_LOCATION + "shader3D.vk.vert.spv";
+    private static final String FRAGMENT_SHADER_FILE_PATH = SHADER_FILES_LOCATION + "shader.vk.frag.spv";
     
     static {
         requiredExtensions.add( KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME );
@@ -283,6 +285,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return memoryTypesString.toString();
     }
     
+    VulkanTextureLoader getTextureLoader() {
+        return textureLoader;
+    }
+    
     VulkanGraphicCommandPool getGraphicCommandPool() {
         return graphicCommandPool;
     }
@@ -324,6 +330,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         presentationFamily.waitForQueue();
         swapChain.update( windowSurface );
         depthResources.update( swapChain );
+        
+        
         graphicPipeline.update( swapChain, shaderStages, depthResources );
         refreshFrameBuffers( frameBuffers, swapChain, depthResources );
         refreshCommandBuffers();
@@ -334,12 +342,24 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             //.scale( ThreadLocalRandom.current().nextFloat() / 10 + 1 );;
            // .rotateZ( rotate = rotate + 0.001f );
         matrix.get( uniformBufferData, 0 );
-        uniformBufferData[16] = 0 ; //trans.x = trans.x * 1.0001f;
-        uniformBufferData[17] = 0 ; //trans.y = trans.y * 1.0001f;
-        uniformBufferData[18] = 0 ; //trans.z = trans.z * 1.0001f;
-        uniformBufferData[20] = 1 ; // scale.x = scale.x * 1.00001f;
-        uniformBufferData[21] = 1 ; //scale.y = scale.y * 1.00001f;
-        uniformBufferData[22] = 1 ; //scale.z = scale.z * 1.00001f;
+        uniformBufferData[16] = 0 ; //trans.x
+        uniformBufferData[17] = 0 ; //trans.y
+        uniformBufferData[18] = 0 ; //trans.z
+        
+        uniformBufferData[20] = 1 ; //scale.x
+        uniformBufferData[21] = 1 ; //scale.y
+        uniformBufferData[22] = 1 ; //scale.z
+    
+        uniformBufferData[24] = 0 ; //rotation.x
+        uniformBufferData[25] = 0 ; //rotation.y
+        uniformBufferData[26] = 90 ; //rotation.z
+        
+        uniformBufferData[28] = 0 ; //overlayColour.x
+        uniformBufferData[29] = 1 ; //overlayColour.y
+        uniformBufferData[30] = 0 ; //overlayColour.z
+        uniformBufferData[31] = 0.5f ; //overlayColour.w
+    
+        uniformBufferData[32] = 0.5f ; //maxAlphaChannel
         uniformBuffer.load( uniformBufferData );
         
         graphicCommandPool.executeQueue( commandBuffer -> {

@@ -28,15 +28,15 @@ public class OpenGlRenderingContext implements RenderingContext {
     private final boolean useTexture;
     private final boolean drawBorder;
 
-    public OpenGlRenderingContext(
+    OpenGlRenderingContext(
         VertexAttributeLoader attributeLoader,
         TextureBufferLoader textureLoader,
         ShaderProgram2D shaderProgram2D,
         ShaderProgram3D shaderProgram3D,
-    
-        boolean useTexture, boolean drawBorder, Vector4f borderColour
-    )
-    {
+        boolean useTexture,
+        boolean drawBorder,
+        Vector4f borderColour
+    ) {
         this.attributeLoader = attributeLoader;
         this.textureLoader = textureLoader;
         this.shaderProgram2D = shaderProgram2D;

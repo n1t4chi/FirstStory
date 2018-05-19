@@ -111,7 +111,7 @@ public class VulkanFramework implements RenderingFramework {
     
     @Override
     public TextureBufferLoader getTextureLoader() {
-        return null;
+        return mainPhysicalDevice.getTextureLoader();
     }
     
     @Override

@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.window.opengl;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.shader.ShaderProgram2D;
 import com.firststory.firstoracle.shader.UniformLocation;
@@ -21,8 +22,10 @@ public class OpenGlShaderProgram2D extends OpenGlShaderProgram implements Shader
     private final static String UNIFORM_LOCATION_ROTATION = "rotation";
     private final static String UNIFORM_LOCATION_OVERLAY_COLOUR = "overlayColour";
     private final static String UNIFORM_LOCATION_MAX_ALPHA_CHANNEL = "maxAlphaChannel";
-    private static final String VERTEX_SHADER_FILE_PATH = "resources/First Oracle/shader2D.vert";
-    private static final String FRAGMENT_SHADER_FILE_PATH = "resources/First Oracle/shader.frag";
+    private static final String VERTEX_SHADER_FILE_PATH = FirstOracleConstants.SHADER_FILES_LOCATION +
+        "shader/shader2D.gl.vert";
+    private static final String FRAGMENT_SHADER_FILE_PATH = FirstOracleConstants.SHADER_FILES_LOCATION +
+        "shader/shader.gl.frag";
     
     private UniformLocation positionLocation;
     private UniformLocation cameraLocation;

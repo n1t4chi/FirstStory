@@ -1,33 +1,31 @@
-#version 330 core
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-// Interpolated values from the vertex shaders
-layout (location = 0) in vec2 UV;
+layout(binding = 1) uniform sampler2D textureSampler;
 
-// Ouput data
-layout (location = 0) out vec4 color;
+layout(location = 0) in vec2 UV;
+layout(location = 1) in vec4 colour;
+layout(location = 2) in vec4 overlayColour;
+layout(location = 3) in float maxAlphaChannel;
 
-// Values that stay constant for the whole mesh.
-uniform sampler2D myTextureSampler;
-uniform vec4 overlayColour;
-uniform float maxAlphaChannel;
+layout(location = 0) out vec4 outColor;
 
-void main(){
-    vec4 baseVertexColour = texture( myTextureSampler, UV ).rgba;
+void main() {
+    vec4 baseVertexColour = colour * texture( textureSampler, UV ).rgba;
     //c = base.x * base.a + overlay.x * overlay.a*(1- base.a)
     if(overlayColour.a >= 1){
-        color = overlayColour;
+        outColor = overlayColour;
     }else if(baseVertexColour.a > 0){
         float r = overlayColour.r * overlayColour.a +  baseVertexColour.r * baseVertexColour.a * (1-overlayColour.a);
         float g = overlayColour.g * overlayColour.a +  baseVertexColour.g * baseVertexColour.a * (1-overlayColour.a);
         float b = overlayColour.b * overlayColour.a +  baseVertexColour.b * baseVertexColour.a * (1-overlayColour.a);
         float a = overlayColour.a + baseVertexColour.a * (1 - overlayColour.a);
 
-        color = vec4(r/a,g/a,b/a,a);
+        outColor = vec4(r/a,g/a,b/a,a);
     }else{
-        color = vec4(0,0,0,0);
+        outColor = vec4(0,0,0,0);
     }
-    if(maxAlphaChannel < color.a){
-        color.a = maxAlphaChannel;
+    if(maxAlphaChannel < outColor.a){
+        outColor.a = maxAlphaChannel;
     }
 }
