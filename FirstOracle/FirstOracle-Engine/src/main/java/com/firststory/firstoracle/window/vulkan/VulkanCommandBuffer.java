@@ -42,7 +42,7 @@ public abstract class VulkanCommandBuffer {
         return commandBuffer;
     }
     
-    void fillQueue( VulkanCommands commands ) {
+    void fillQueue( VulkanCommand commands ) {
         fillQueueSetup();
         commands.execute( this );
         fillQueueTearDown();

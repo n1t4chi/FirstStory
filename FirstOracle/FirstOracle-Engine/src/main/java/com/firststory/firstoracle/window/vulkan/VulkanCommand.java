@@ -7,7 +7,7 @@ package com.firststory.firstoracle.window.vulkan;
 /**
  * @author n1t4chi
  */
-interface VulkanCommands<CommandBuffer extends VulkanCommandBuffer> {
+interface VulkanCommand<CommandBuffer extends VulkanCommandBuffer> {
     
     void execute( CommandBuffer commandBuffer );
 }

@@ -24,63 +24,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.firststory.firstoracle.FirstOracleConstants.SHADER_FILES_LOCATION;
-
 /**
  * @author n1t4chi
  */
 public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > {
     
-    static final float[] POSITION_1 = new float[]{
-        /*3*/ /*pos*/ -0.5f, -0.5f, 0.0f,
-        /*2*/ /*pos*/ -0.5f, 0.5f, 0.0f,
-        /*1*/ /*pos*/ 0.5f, 0.5f, 0.0f,
-    };
-    static final float[] COLOUR_1 = new float[]{
-        /*1*/ /*col*/ 1.0f, 0.0f, 1.0f, 1.0f,
-        /*2*/ /*col*/ 1.0f, 1.0f, 0.0f, 1.0f,
-        /*3*/ /*col*/ 0.0f, 1.0f, 1.0f, 1.0f,
-    };
-    static final float[] UVMAP_1 = new float[]{
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 1f, 1f,
-        /*1*/ /*pos*/ 1f, 0f,
-    };
-    static final float[] POSITION_2 = new float[]{
-        /*3*/ /*pos*/ 1.0f, 1.0f, 0.5f,
-        /*1*/ /*pos*/ 1.0f, -1.0f, 0.5f,
-        /*2*/ /*pos*/ -1.0f, 1.0f, 0.5f,
-    };
-    static final float[] COLOUR_2 = new float[]{
-        /*1*/ /*col*/ 0.5f, 0.5f, 0.5f, 1.0f,
-        /*2*/ /*col*/ 1.0f, 1.0f, 0.5f, 1.5f,
-        /*3*/ /*col*/ 0.5f, 1.0f, 1.0f, 1.5f,
-    };
-    static final float[] UVMAP_2 = new float[]{
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-    };
-    static final float[] POSITION_3 = new float[]{
-        /*1*/ /*pos*/ 1.0f, 0.0f, 0.1f,
-        /*2*/ /*pos*/ 0.0f, -1.0f, 0.1f,
-        /*3*/ /*pos*/ -1.0f, 0.0f, 0.1f,
-    };
-    static final float[] COLOUR_3 = new float[]{
-        /*1*/ /*col*/ 0.5f, 0.5f, 0.5f, 1.0f,
-        /*2*/ /*col*/ 1.0f, 1.0f, 0.5f, 1.5f,
-        /*3*/ /*col*/ 0.5f, 1.0f, 1.0f, 1.5f,
-    };
-    static final float[] UVMAP_3 = new float[]{
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-    };
-    
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
     private static final Set< String > requiredExtensions = new HashSet<>();
-    private static final String VERTEX_SHADER_FILE_PATH = SHADER_FILES_LOCATION + "shader3D.vk.vert.spv";
-    private static final String FRAGMENT_SHADER_FILE_PATH = SHADER_FILES_LOCATION + "shader.vk.frag.spv";
     
     static {
         requiredExtensions.add( KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME );
@@ -107,20 +57,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Set< VulkanCommandPool > commandPools = new HashSet<>();
     private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
-    private final VulkanDataBufferProvider bufferLoader;
+    private final VulkanDataBufferProvider bufferProvider;
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
     private final Map< Integer, VulkanMemoryHeap > memoryHeaps = new HashMap<>();
     private final VulkanAddress descriptorSetLayout;
-    private final VulkanStageableDataBuffer< float[] > positionBuffer1;
-    private final VulkanStageableDataBuffer< float[] > positionBuffer2;
-    private final VulkanStageableDataBuffer< float[] > positionBuffer3;
-    private final VulkanStageableDataBuffer< float[] > colourBuffer1;
-    private final VulkanStageableDataBuffer< float[] > colourBuffer2;
-    private final VulkanStageableDataBuffer< float[] > colourBuffer3;
-    private final VulkanStageableDataBuffer< float[] > uvBuffer1;
-    private final VulkanStageableDataBuffer< float[] > uvBuffer2;
-    private final VulkanStageableDataBuffer< float[] > uvBuffer3;
     
     private final VulkanAddress descriptorPool;
     private final VulkanAddress descriptorSet;
@@ -131,6 +72,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanDepthResources depthResources;
     private final VulkanShaderProgram3D shaderProgram3D;
     private final VulkanShaderProgram2D shaderProgram2D;
+    private final VulkanVertexAttributeLoader vertexAttributeLoader;
     
     VulkanPhysicalDevice(
         long deviceAddress, VkInstance instance, PointerBuffer validationLayerNamesBuffer, VulkanWindowSurface surface
@@ -180,17 +122,17 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.add( vertexDataTransferCommandPool );
         commandPools.add( textureTransferCommandPool );
         
-        bufferLoader = new VulkanDataBufferProvider( this );
-    
+        bufferProvider = new VulkanDataBufferProvider( this );
+        
         descriptorPool = createDescriptorPool();
         descriptorSet = createDescriptorSet();
-    
+        
         depthResources = new VulkanDepthResources( this );
         textureSampler = createTextureSampler();
-        textureLoader = new VulkanTextureLoader( this, bufferLoader, textureSampler, descriptorSet );
+        textureLoader = new VulkanTextureLoader( this, bufferProvider, textureSampler, descriptorSet );
         
-        shaderProgram3D = new VulkanShaderProgram3D( this, bufferLoader );
-        shaderProgram2D = new VulkanShaderProgram2D( this, bufferLoader );
+        shaderProgram3D = new VulkanShaderProgram3D( this, bufferProvider );
+        shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
         try {
             shaderProgram3D.compile();
             shaderProgram2D.compile();
@@ -204,36 +146,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         texture.bind( textureLoader );
         
         updateRenderingContext();
-        
-        positionBuffer1 = bufferLoader.createFloatBuffer();
-        positionBuffer1.load( POSITION_1 );
-        positionBuffer1.bind();
-        positionBuffer2 = bufferLoader.createFloatBuffer();
-        positionBuffer2.load( POSITION_2 );
-        positionBuffer2.bind();
-        positionBuffer3 = bufferLoader.createFloatBuffer();
-        positionBuffer3.load( POSITION_3 );
-        positionBuffer3.bind();
-        
-        colourBuffer1 = bufferLoader.createFloatBuffer();
-        colourBuffer1.load( COLOUR_1 );
-        colourBuffer1.bind();
-        colourBuffer2 = bufferLoader.createFloatBuffer();
-        colourBuffer2.load( COLOUR_2 );
-        colourBuffer2.bind();
-        colourBuffer3 = bufferLoader.createFloatBuffer();
-        colourBuffer3.load( COLOUR_3 );
-        colourBuffer3.bind();
     
-        uvBuffer1 = bufferLoader.createFloatBuffer();
-        uvBuffer1.load( UVMAP_1 );
-        uvBuffer1.bind();
-        uvBuffer2 = bufferLoader.createFloatBuffer();
-        uvBuffer2.load( UVMAP_2 );
-        uvBuffer2.bind();
-        uvBuffer3 = bufferLoader.createFloatBuffer();
-        uvBuffer3.load( UVMAP_3 );
-        uvBuffer3.bind();
+        vertexAttributeLoader = new VulkanVertexAttributeLoader( bufferProvider );
         
         
         
@@ -266,6 +180,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         memoryTypesString.deleteCharAt( memoryTypesString.length() - 1 );
         memoryTypesString.append( " }" );
         return memoryTypesString.toString();
+    }
+    
+    
+    VulkanVertexAttributeLoader getVertexAttributeLoader() {
+        return vertexAttributeLoader;
     }
     
     VulkanShaderProgram2D getShaderProgram2D() {
@@ -313,8 +232,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         throw new CannotSelectSuitableMemoryTypeException( this, desiredType, desiredFlags );
     }
     
-    VulkanDataBufferProvider getBufferLoader() {
-        return bufferLoader;
+    VulkanDataBufferProvider getBufferProvider() {
+        return bufferProvider;
     }
     
     void updateRenderingContext() {
@@ -329,21 +248,15 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         refreshCommandBuffers();
     }
     
-    void testRender() {
-        
-        graphicCommandPool.executeQueue( commandBuffer -> {
-            shaderProgram3D.bindUniformData( descriptorSet, commandBuffer );
-            commandBuffer.drawVertices( positionBuffer1, uvBuffer1, colourBuffer1 );
-            commandBuffer.drawVertices( positionBuffer2, uvBuffer2, colourBuffer2 );
-            shaderProgram3D.bindMaxAlphaChannel( 0.5f );
-            shaderProgram3D.bindUniformData( descriptorSet, commandBuffer );
-            commandBuffer.drawVertices( positionBuffer3, uvBuffer3, colourBuffer3 );
-        } );
-        
+    void setUpSingleRender( VulkanRenderingContext renderingContext ) {
+        renderingContext.setUpSingleRender( descriptorSet, graphicCommandPool.extractNextCommandBuffer() );
+    }
+    
+    void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
+        renderingContext.tearDownSingleRender( graphicCommandPool );
         if ( VulkanFramework.validationLayersAreEnabled() ) {
             presentationFamily.waitForQueue();
         }
-        
     }
     
     void dispose() {
@@ -354,7 +267,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VK10.vkDestroyDescriptorSetLayout( logicalDevice, descriptorSetLayout.getValue(), null );
         VK10.vkDestroyDescriptorPool( logicalDevice, descriptorPool.getValue(), null );
         swapChain.dispose();
-        bufferLoader.close();
+        bufferProvider.close();
     
         depthResources.close();
         texture.close();

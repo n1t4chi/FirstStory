@@ -26,7 +26,7 @@ public interface RenderingFramework {
     
     ArrayBufferProvider getArrayBufferProvider();
     
-    void clearScreen();
+    void setUpSingleRender();
     
     void updateViewPort( int x, int y, int width, int height );
     
@@ -37,4 +37,6 @@ public interface RenderingFramework {
     void compileShaders() throws IOException;
     
     void close();
+    
+    void tearDownSingleRender();
 }

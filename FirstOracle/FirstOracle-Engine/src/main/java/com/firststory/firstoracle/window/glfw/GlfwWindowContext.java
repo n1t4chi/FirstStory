@@ -106,13 +106,13 @@ public class GlfwWindowContext implements WindowContext {
     }
     
     @Override
-    public void setUpRenderLoop() {
+    public void setUpSingleRender() {
         setWindowToCurrentThread();
         setupVerticalSync();
     }
 
     @Override
-    public void cleanAfterLoop() {
+    public void tearDownSingleRender() {
         if( isOpenGLWindow ) {
             GLFW.glfwSwapBuffers( address );
         }

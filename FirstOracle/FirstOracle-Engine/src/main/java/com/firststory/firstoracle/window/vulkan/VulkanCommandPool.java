@@ -73,16 +73,16 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         Map< Integer, VulkanFrameBuffer > frameBuffers
     );
     
-    void executeQueue( VulkanCommands<CommandBuffer> commands ) {
+    void executeQueue( VulkanCommand<CommandBuffer> commands ) {
         CommandBuffer commandBuffer = extractNextCommandBuffer();
         commandBuffer.fillQueue( commands );
         submitQueue( commandBuffer );
-        postExecute( commandBuffer );
+        executeTearDown( commandBuffer );
     }
     
     abstract CommandBuffer extractNextCommandBuffer();
     
-    abstract void postExecute( CommandBuffer commandBuffer );
+    abstract void executeTearDown( CommandBuffer commandBuffer );
     
     VkSubmitInfo createSubmitInfo( VulkanCommandBuffer currentCommandBuffer ) {
         return VkSubmitInfo.create()
@@ -93,7 +93,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     
     abstract IntBuffer createWaitStageMaskBuffer();
     
-    private void submitQueue( CommandBuffer currentCommandBuffer ) {
+    void submitQueue( CommandBuffer currentCommandBuffer ) {
         VkSubmitInfo submitInfo = createSubmitInfo( currentCommandBuffer ) ;
         
         VulkanHelper.assertCallOrThrow(

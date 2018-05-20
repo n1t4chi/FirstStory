@@ -62,7 +62,7 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
     }
     
     @Override
-    void postExecute( VulkanGraphicCommandBuffer commandBuffer ) {
+    void executeTearDown( VulkanGraphicCommandBuffer commandBuffer ) {
         presentQueue( swapChain, commandBuffer.getIndex() );
     }
     

@@ -83,10 +83,15 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     }
     
     @Override
-    public void clearScreen() {
+    public void setUpSingleRender() {
         GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
     }
-
+    
+    @Override
+    public void tearDownSingleRender() {
+    
+    }
+    
     @Override
     public void updateViewPort( int x, int y, int width, int height ) {
         GL11.glViewport( x, y, width, height );

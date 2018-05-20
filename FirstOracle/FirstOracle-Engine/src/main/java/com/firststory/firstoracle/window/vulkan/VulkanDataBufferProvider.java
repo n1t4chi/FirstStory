@@ -10,7 +10,6 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,29 +45,8 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         );
     }
     
-    VulkanStageableDataBuffer< float[] > createFloatBuffer() {
-        return new VulkanStageableDataBuffer< float[] >( device, this ) {
-    
-            @Override
-            int extractLength( float[] data ) {
-                return data.length;
-            }
-    
-            @Override
-            int extractDataByteSize( float[] data ) {
-                return 4;
-            }
-    
-            @Override
-            ByteBuffer toByteBuffer( float[] data ) {
-                ByteBuffer vertexDataBuffer = MemoryUtil.memAlloc(
-                    extractLength( data ) * extractDataByteSize( data )
-                );
-                FloatBuffer dataBuffer = vertexDataBuffer.asFloatBuffer();
-                dataBuffer.put( data );
-                return vertexDataBuffer;
-            }
-        };
+    VulkanArrayBuffer createFloatBuffer() {
+        return new VulkanArrayBuffer( device, this );
     }
     
     VulkanStageableDataBuffer< byte[] > createByteBuffer() {

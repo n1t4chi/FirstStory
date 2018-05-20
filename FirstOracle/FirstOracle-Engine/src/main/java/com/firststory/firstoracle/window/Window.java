@@ -12,7 +12,6 @@ import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
 import com.firststory.firstoracle.window.jfxgl.JfxglContext;
-import com.firststory.firstoracle.window.vulkan.VulkanFramework;
 import javafx.application.Application;
 
 import java.util.ArrayList;
@@ -145,24 +144,6 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     
     private RenderLoopInterface createRenderLoop() {
         RenderLoopInterface renderLoop = new RenderLoop();
-        if ( PropertiesUtil.isPropertyTrue( "vulkanimpl" ) ){
-            renderLoop = new RenderLoop() {
-                @Override
-                public void render() throws Exception {
-                    renderingFramework.invoke( instance -> {
-                        window.setUpRenderLoop();
-                        renderingFramework.clearScreen();
-                        notifyTimeListener( windowFramework.getTime() );
-                        if( renderingFramework instanceof VulkanFramework ){
-                            ((VulkanFramework)renderingFramework).testRender();
-                        }
-//                        renderer.render( instance.getRenderingContext(), lastFrameUpdate );
-                        jfxgl.render();
-                        window.cleanAfterLoop();
-                    } );
-                }
-            };
-        }
         if( PropertiesUtil.isPropertyTrue( PropertiesUtil.RENDER_LOOP_PERFORMANCE_LOG_PROPERTY ) )
             renderLoop = new RenderLoopPerformanceTester( renderLoop );
         if( PropertiesUtil.isPropertyTrue( PropertiesUtil.FORCE_ONE_LOOP_CYCLE_PROPERTY ))
@@ -310,12 +291,15 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         @Override
         public void render() throws Exception {
             renderingFramework.invoke( instance -> {
-                window.setUpRenderLoop();
-                renderingFramework.clearScreen();
                 notifyTimeListener( windowFramework.getTime() );
+                window.setUpSingleRender();
+    
+                renderingFramework.setUpSingleRender();
                 renderer.render( instance.getRenderingContext(), lastFrameUpdate );
+                renderingFramework.tearDownSingleRender();
+    
                 jfxgl.render();
-                window.cleanAfterLoop();
+                window.tearDownSingleRender();
             } );
         }
     

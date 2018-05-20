@@ -44,7 +44,7 @@ class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommand
     }
     
     @Override
-    void postExecute( VulkanTransferCommandBuffer commandBuffer ) {
+    void executeTearDown( VulkanTransferCommandBuffer commandBuffer ) {
         getUsedQueueFamily().waitForQueue();
     }
     

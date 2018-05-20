@@ -34,9 +34,9 @@ public interface WindowContext {
     
     void addJoystickListener( JoystickListener listener );
     
-    void setUpRenderLoop();
+    void setUpSingleRender();
     
-    void cleanAfterLoop();
+    void tearDownSingleRender();
     
     void setupVerticalSync();
     

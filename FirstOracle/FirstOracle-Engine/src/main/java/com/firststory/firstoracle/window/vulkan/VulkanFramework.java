@@ -25,7 +25,6 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.logging.Level;
@@ -121,7 +120,7 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     public VulkanDataBufferProvider getDataBufferLoader() {
-        return mainPhysicalDevice.getBufferLoader();
+        return mainPhysicalDevice.getBufferProvider();
     }
     
     @Override
@@ -130,19 +129,12 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     @Override
-    public void clearScreen() {
-    
-    }
-    
-    @Override
     public void updateViewPort( int x, int y, int width, int height ) {
         mainPhysicalDevice.updateRenderingContext();
     }
     
     @Override
-    public void setCurrentCapabilitesToThisThread() {
-    
-    }
+    public void setCurrentCapabilitesToThisThread() {}
     
     @Override
     public void invoke( RenderingCommands commands ) throws Exception {
@@ -150,9 +142,17 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     @Override
-    public void compileShaders() throws IOException {
-        //already done in constructor
+    public void setUpSingleRender() {
+        mainPhysicalDevice.setUpSingleRender( renderingContext );
     }
+    
+    @Override
+    public void tearDownSingleRender() {
+        mainPhysicalDevice.tearDownSingleRender( renderingContext );
+    }
+    
+    @Override
+    public void compileShaders() {}
     
     @Override
     public void close() {
@@ -162,10 +162,6 @@ public class VulkanFramework implements RenderingFramework {
         physicalDevices.forEach( VulkanPhysicalDevice::dispose );
         windowSurface.dispose( instance );
         VK10.vkDestroyInstance( instance, null );
-    }
-    
-    public void testRender() {
-        mainPhysicalDevice.testRender();
     }
     
     private VulkanPhysicalDevice selectMainPhysicalDevice() {

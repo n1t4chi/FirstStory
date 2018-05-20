@@ -7,6 +7,7 @@ import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
+import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.notyfying.WindowListener;
@@ -120,8 +121,11 @@ public class GlfwApplication2D {
         
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
         cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-        cameraController.addCameraListener( ( event, source ) -> cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene
-            .getCamera2D() ) );
+        cameraController.addCameraListener(
+            ( event, source ) -> {
+                cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
+                cameraController.updateIsometricCamera3D( ( IsometricCamera3D ) renderedScene.getCamera3D() );
+            } );
         
         sceneProvider = () -> renderedScene;
         renderer = new WindowRenderer(
