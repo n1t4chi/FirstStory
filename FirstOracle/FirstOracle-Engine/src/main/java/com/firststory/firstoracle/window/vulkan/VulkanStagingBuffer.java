@@ -24,7 +24,7 @@ class VulkanStagingBuffer extends VulkanMappableBuffer {
         commandPool.executeQueue( commandBuffer -> {
             VkBufferCopy copyRegion = VkBufferCopy.create().srcOffset( 0 ) // Optional
                 .dstOffset( 0 ) // Optional
-                .size( dstBuffer.getLength() );
+                .size( dstBuffer.getDataSizeInBytes() );
     
             VK10.vkCmdCopyBuffer( commandBuffer.getCommandBuffer(),
                 this.getBufferAddress().getValue(),

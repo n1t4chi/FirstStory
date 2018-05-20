@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.shader.ShaderProgram;
 import org.joml.Matrix4fc;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
@@ -14,15 +15,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.firststory.firstoracle.window.vulkan.VulkanShader.*;
+import static com.firststory.firstoracle.window.vulkan.VulkanShader.SHADER_FILE_PATH_FRAGMENT;
+import static com.firststory.firstoracle.window.vulkan.VulkanShader.SHADER_FILE_PATH_VERTEX_3D;
 
 /**
  * @author n1t4chi
  */
 public class VulkanShaderProgram implements ShaderProgram {
     
-    private static final int UNIFORM_SIZE = SIZE_MATRIX_4F + SIZE_VEC_4F * 5;
-    private static final int UNIFORM_DATA_SIZE = SIZE_FLOAT * UNIFORM_SIZE;
+    private static final int UNIFORM_SIZE = FirstOracleConstants.SIZE_MATRIX_4F + FirstOracleConstants.SIZE_VEC_4F * 5;
+    private static final int UNIFORM_DATA_SIZE = FirstOracleConstants.SIZE_FLOAT * UNIFORM_SIZE;
     private final VulkanShader fragmentShader;
     private final VulkanShader vertexShader;
     private final List< VkPipelineShaderStageCreateInfo > shaderStages = new ArrayList<>();
@@ -37,7 +39,7 @@ public class VulkanShaderProgram implements ShaderProgram {
         this.device = device;
         vertexShader = new VulkanShader( device, SHADER_FILE_PATH_VERTEX_3D, ShaderType.VERTEX );
         fragmentShader = new VulkanShader( device, SHADER_FILE_PATH_FRAGMENT, ShaderType.FRAGMENT );
-        uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, SIZE_FLOAT );
+        uniformBuffer = bufferLoader.createUniformBuffer( UNIFORM_SIZE, FirstOracleConstants.SIZE_FLOAT );
     }
     
     void bindData( int offset, Matrix4fc camera ) {

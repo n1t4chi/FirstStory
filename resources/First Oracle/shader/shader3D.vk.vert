@@ -70,6 +70,7 @@ void main() {
             1
         )
     ;
+    gl_Position.z = (-gl_Position.z + 1) / 2;
     colour = vertexColour;
     UV = vertexUV;
     overlayColour = ubo.overlayColour;

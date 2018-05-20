@@ -73,9 +73,9 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         };
     }
     
-    VulkanUniformBuffer createUniformBuffer( int dataCount, int dataSize ) {
+    VulkanUniformBuffer createUniformBuffer( int dataLength, int dataSize ) {
         VulkanUniformBuffer uniformBuffer = new VulkanUniformBuffer( device );
-        uniformBuffer.createBuffer( dataCount, dataSize );
+        uniformBuffer.createBuffer( dataLength, dataSize );
         return uniformBuffer;
     }
     

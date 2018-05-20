@@ -27,6 +27,10 @@ public class FirstOracleConstants {
     
     public static final float UV_DELTA = 0.00001f;
     
+    public static final int SIZE_FLOAT = 4;
+    public static final int SIZE_MATRIX_4F = 4 * 4;
+    public static final int SIZE_VEC_4F = 4;
+    
     public static final Matrix4fc MATRIX_4F_IDENTIFY = new Matrix4f();
     
     public static final Vector2fc VECTOR_ZERO_2F = new Vector2f( 0, 0 );

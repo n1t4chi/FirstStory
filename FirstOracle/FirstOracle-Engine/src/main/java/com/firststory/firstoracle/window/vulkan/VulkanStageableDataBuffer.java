@@ -36,11 +36,12 @@ public abstract class VulkanStageableDataBuffer< Data > extends VulkanDataBuffer
     public void load( Data data ) throws BufferNotCreatedException {
         stagingBuffer = extractStagingBufferFromLoader( data );
         createBuffer( extractLength( data ), extractDataByteSize( data ) );
+        stagingBuffer.copyBuffer( this, getDevice().getVertexDataTransferCommandPool() );
     }
     
     @Override
     public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
-        stagingBuffer.copyBuffer( this, getDevice().getVertexDataTransferCommandPool() );
+    
     }
     
     private VulkanStagingBuffer extractStagingBufferFromLoader( Data data ) {

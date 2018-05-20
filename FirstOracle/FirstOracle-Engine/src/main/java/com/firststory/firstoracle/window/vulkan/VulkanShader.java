@@ -25,9 +25,6 @@ class VulkanShader implements ShaderProgram {
     static final String SHADER_FILE_PATH_VERTEX_3D = SHADER_FILES_LOCATION + "shader3D.vk.vert.spv";
     static final String SHADER_FILE_PATH_VERTEX_2D = SHADER_FILES_LOCATION + "shader2D.vk.vert.spv";
     static final String SHADER_FILE_PATH_FRAGMENT = SHADER_FILES_LOCATION + "shader.vk.frag.spv";
-    static final int SIZE_FLOAT = 4;
-    static final int SIZE_MATRIX_4F = 4 * 4;
-    static final int SIZE_VEC_4F = 4;
     
     private final String filepath;
     private final ShaderType type;

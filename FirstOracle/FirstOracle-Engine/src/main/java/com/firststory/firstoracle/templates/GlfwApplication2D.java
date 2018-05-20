@@ -12,8 +12,11 @@ import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.notyfying.WindowListener;
 import com.firststory.firstoracle.notyfying.WindowSizeEvent;
-import com.firststory.firstoracle.object.*;
-import com.firststory.firstoracle.object2D.*;
+import com.firststory.firstoracle.object.Renderable;
+import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.object2D.NonAnimatedRectangleGrid;
+import com.firststory.firstoracle.object2D.RectangleGrid;
+import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedObjects2D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
@@ -21,9 +24,8 @@ import com.firststory.firstoracle.window.Window;
 import org.joml.Vector2ic;
 import org.joml.Vector4f;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * Main class that initialises whole test application.
@@ -67,30 +69,30 @@ public class GlfwApplication2D {
 
         renderedScene = new RenderedSceneMutable( settings );
         Texture texture1 = new Texture( "resources/First Oracle/texture2D.png" );
-        Texture texture2 = new Texture( "resources/First Oracle/obj.png" );
-        Texture compundTexture = Texture.createCompoundTexture( "resources/First Oracle/compound/tex_#frame#_#direction#.png",
-            4,
-            6
-        );
+//        Texture texture2 = new Texture( "resources/First Oracle/obj.png" );
+//        Texture compundTexture = Texture.createCompoundTexture( "resources/First Oracle/compound/tex_#frame#_#direction#.png",
+//            4,
+//            6
+//        );
         NonAnimatedRectangleGrid terrain = new NonAnimatedRectangleGrid();
         terrain.setTexture( texture1 );
 
-        NonAnimatedRectangle object = new NonAnimatedRectangle();
-        object.setTransformations( new Mutable2DTransformations() );
-        object.setTexture( texture2 );
-
-        DirectionController directionController = new DefaultDirectionController( compundTexture.getDirections() );
-        LoopedFrameController frameController = new LoopedFrameController();
-        AnimatedRectangle compound = new AnimatedRectangle();
-        frameController.setCurrentState( compundTexture.getFrames(), 0, 1 );
-
-        compound.setDirectionController( directionController );
-        compound.setFrameController( frameController );
-        compound.setUvMap( new PlaneUvMap( compundTexture ) );
-        compound.setTexture( compundTexture );
-        compound.setTransformations( new Mutable2DTransformations() );
-        compound.getTransformations().setPosition( -4, -4 );
-        compound.getTransformations().setScale( 4, 4 );
+//        NonAnimatedRectangle object = new NonAnimatedRectangle();
+//        object.setTransformations( new Mutable2DTransformations() );
+//        object.setTexture( texture2 );
+//
+//        DirectionController directionController = new DefaultDirectionController( compundTexture.getDirections() );
+//        LoopedFrameController frameController = new LoopedFrameController();
+//        AnimatedRectangle compound = new AnimatedRectangle();
+//        frameController.setCurrentState( compundTexture.getFrames(), 0, 1 );
+//
+//        compound.setDirectionController( directionController );
+//        compound.setFrameController( frameController );
+//        compound.setUvMap( new PlaneUvMap( compundTexture ) );
+//        compound.setTexture( compundTexture );
+//        compound.setTransformations( new Mutable2DTransformations() );
+//        compound.getTransformations().setPosition( -4, -4 );
+//        compound.getTransformations().setScale( 4, 4 );
 
 
         RectangleGrid[][] array = new RectangleGrid[20][20];
@@ -100,7 +102,7 @@ public class GlfwApplication2D {
                 array[x][y] = terrain;
             }
         }
-        List<Renderable> renderables = Arrays.<Renderable>asList( compound, object );
+//        List<Renderable> renderables = Arrays.<Renderable>asList( compound, object );
         
         renderedScene.setScene2D( new RenderedObjects2D() {
             @Override
@@ -110,7 +112,8 @@ public class GlfwApplication2D {
     
             @Override
             public Collection< Renderable > getObjects() {
-                return renderables;
+                return Collections.emptyList();
+//                return renderables;
             }
     
             @Override

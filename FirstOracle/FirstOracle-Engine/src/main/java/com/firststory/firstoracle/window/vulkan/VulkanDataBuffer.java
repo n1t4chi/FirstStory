@@ -74,8 +74,12 @@ public abstract class VulkanDataBuffer< Data > implements DataBuffer< Data > {
         }
     }
     
-    public int getLength() {
+    public int getDataSizeInBytes() {
         return dataSize * dataCount;
+    }
+    
+    public int getDataLengthInArray() {
+        return dataCount;
     }
     
     void createBuffer( int dataLength, int dataSize ) {
@@ -155,7 +159,7 @@ public abstract class VulkanDataBuffer< Data > implements DataBuffer< Data > {
                 VkBufferCreateInfo createInfo = VkBufferCreateInfo.create()
                     .sType( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO )
                     .pNext( VK10.VK_NULL_HANDLE )
-                    .size( getLength() )
+                    .size( getDataSizeInBytes() )
                     .usage( VulkanHelper.flagsToInt( usageFlags ) )
                     .flags( 0 );
                 if ( device.isSingleCommandPoolUsed() ) {

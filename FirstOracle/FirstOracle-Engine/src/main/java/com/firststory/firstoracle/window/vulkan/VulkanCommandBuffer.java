@@ -43,7 +43,6 @@ public abstract class VulkanCommandBuffer {
     }
     
     void fillQueue( VulkanCommand commands ) {
-        fillQueueSetup();
         commands.execute( this );
         fillQueueTearDown();
     }
@@ -62,9 +61,7 @@ public abstract class VulkanCommandBuffer {
     }
     
     void drawVertices(
-        VulkanDataBuffer< float[] >vertexBuffer,
-        VulkanDataBuffer< float[] > uvBuffer,
-        VulkanDataBuffer< float[] > colourBuffer
+        VulkanArrayBuffer vertexBuffer, VulkanArrayBuffer uvBuffer, VulkanArrayBuffer colourBuffer, int bufferSize
     ) {
         VK10.vkCmdBindVertexBuffers( commandBuffer, 0,
             new long[]{
@@ -74,7 +71,13 @@ public abstract class VulkanCommandBuffer {
             },
             new long[]{ 0, 0, 0 }
         );
-        VK10.vkCmdDraw( commandBuffer, 3, 1, 0, 0 );
+        VK10.vkCmdDraw(
+            commandBuffer,
+            bufferSize,
+            1,
+            0,
+            0
+        );
     }
     
     VulkanAddress getAddress(){

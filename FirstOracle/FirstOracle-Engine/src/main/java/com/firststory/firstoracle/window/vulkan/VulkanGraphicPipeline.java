@@ -122,11 +122,11 @@ class VulkanGraphicPipeline {
             .depthWriteEnable( true )
             .depthCompareOp( VK10.VK_COMPARE_OP_LESS_OR_EQUAL )
             .depthBoundsTestEnable( false )
-            .minDepthBounds( 0f )
+            .minDepthBounds( -1f )
             .maxDepthBounds( 1f )
             .stencilTestEnable( false )
-//            .front( VkStencilOpState.create() )
-//            .back( VkStencilOpState.create() )
+            .front( VkStencilOpState.create() )
+            .back( VkStencilOpState.create() )
         ;
     }
     
@@ -285,6 +285,7 @@ class VulkanGraphicPipeline {
             .polygonMode( VK10.VK_POLYGON_MODE_FILL )
             .lineWidth( 1f )
             .cullMode( VK10.VK_CULL_MODE_BACK_BIT )
+            .cullMode( VK10.VK_CULL_MODE_NONE )
             .frontFace( VK10.VK_FRONT_FACE_COUNTER_CLOCKWISE )
             .depthBiasEnable( false )
             .depthBiasConstantFactor( 0f )
