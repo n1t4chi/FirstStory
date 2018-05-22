@@ -60,26 +60,6 @@ public abstract class VulkanCommandBuffer {
         VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress().getValue(), commandBuffer );
     }
     
-    void drawVertices(
-        VulkanArrayBuffer vertexBuffer, VulkanArrayBuffer uvBuffer, VulkanArrayBuffer colourBuffer, int bufferSize
-    ) {
-        VK10.vkCmdBindVertexBuffers( commandBuffer, 0,
-            new long[]{
-                vertexBuffer.getBufferAddress().getValue(),
-                uvBuffer.getBufferAddress().getValue(),
-                colourBuffer.getBufferAddress().getValue()
-            },
-            new long[]{ 0, 0, 0 }
-        );
-        VK10.vkCmdDraw(
-            commandBuffer,
-            bufferSize,
-            1,
-            0,
-            0
-        );
-    }
-    
     VulkanAddress getAddress(){
         return address;
     }

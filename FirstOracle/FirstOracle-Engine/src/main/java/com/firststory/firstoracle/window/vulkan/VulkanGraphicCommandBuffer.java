@@ -49,6 +49,26 @@ class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         super.fillQueueTearDown();
     }
     
+    void drawVertices(
+        VulkanArrayBuffer vertexBuffer, VulkanArrayBuffer uvBuffer, VulkanArrayBuffer colourBuffer, int bufferSize
+    ) {
+        VK10.vkCmdBindVertexBuffers( getCommandBuffer(), 0,
+            new long[]{
+                vertexBuffer.getBufferAddress().getValue(),
+                uvBuffer.getBufferAddress().getValue(),
+                colourBuffer.getBufferAddress().getValue()
+            },
+            new long[]{ 0, 0, 0 }
+        );
+        VK10.vkCmdDraw(
+            getCommandBuffer(),
+            bufferSize,
+            1,
+            0,
+            0
+        );
+    }
+    
     void bindDescriptorSets( VulkanAddress descriptorSet ) {
         VK10.vkCmdBindDescriptorSets( getCommandBuffer(),
             VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,

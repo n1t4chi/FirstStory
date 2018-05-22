@@ -57,7 +57,9 @@ public class VulkanShaderProgram3D extends VulkanShaderProgram implements Shader
         bindData( OFFSET_ALPHA_CHANNEL, value );
     }
     
+    @Override
     void clearValues() {
+        super.clearValues();
         bindCamera( FirstOracleConstants.MATRIX_4F_IDENTIFY );
         bindPosition( FirstOracleConstants.VECTOR_ZERO_3F );
         bindScale( FirstOracleConstants.VECTOR_ONES_3F );

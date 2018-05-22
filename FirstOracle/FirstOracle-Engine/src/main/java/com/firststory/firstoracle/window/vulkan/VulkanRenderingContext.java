@@ -4,8 +4,6 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
-import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.object3D.Vertices3D;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import org.joml.Vector4fc;
 
@@ -16,61 +14,6 @@ import java.util.LinkedList;
  * @author n1t4chi
  */
 class VulkanRenderingContext implements RenderingContext {
-    
-    
-    static final float[] POSITION_1 = new float[]{
-        /*3*/ /*pos*/ -0.5f, -0.5f, 0.0f,
-        /*2*/ /*pos*/ -0.5f, 0.5f, 0.0f,
-        /*1*/ /*pos*/ 0.5f, 0.5f, 0.0f,
-        
-        /*4*/ /*pos*/ 0.5f, -0.5f, 0.0f,
-        /*3*/ /*pos*/ -0.5f, -0.5f, 0.0f,
-        /*1*/ /*pos*/ 0.5f, 0.5f, 0.0f,
-        
-        /*3*/ /*pos*/ -0.5f, -0.5f, 1.0f,
-        /*2*/ /*pos*/ -0.5f, 0.5f, 1.0f,
-        /*1*/ /*pos*/ 0.5f, 0.5f, 1.0f,
-    
-        /*4*/ /*pos*/ 0.5f, -0.5f, 1.0f,
-        /*3*/ /*pos*/ -0.5f, -0.5f, 1.0f,
-        /*1*/ /*pos*/ 0.5f, 0.5f, 1.0f,
-    };
-    static final float[] UVMAP_1 = new float[]{
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-    
-        /*4*/ /*pos*/ 1f, 0f,
-        /*3*/ /*pos*/ 0f, 0f,
-        /*1*/ /*pos*/ 1f, 1f,
-        
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-    
-        /*4*/ /*pos*/ 1f, 0f,
-        /*3*/ /*pos*/ 0f, 0f,
-        /*1*/ /*pos*/ 1f, 1f,
-    };
-    static final float[] POSITION_2 = new float[]{
-        /*3*/ /*pos*/ 1.0f, 1.0f, 0.5f,
-        /*1*/ /*pos*/ 1.0f, -1.0f, 0.5f,
-        /*2*/ /*pos*/ -1.0f, 1.0f, 0.5f,
-        
-        /*1*/ /*pos*/ 1.0f, 0.0f, 0.1f,
-        /*2*/ /*pos*/ 0.0f, -1.0f, 0.1f,
-        /*3*/ /*pos*/ -1.0f, 0.0f, 0.1f,
-    };
-    static final float[] UVMAP_2 = new float[]{
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-        
-        
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-    };
     
     static final float[] COLOUR = new float[ 200 ];
     static {
@@ -85,12 +28,6 @@ class VulkanRenderingContext implements RenderingContext {
     private VulkanCommands commands = new VulkanCommands();
     private final VulkanArrayBuffer colourBuffer;
     
-    private final Vertices3D vertices3D_1;
-    private final UvMap uvMap_1;
-    
-    private final Vertices3D vertices3D_2;
-    private final UvMap uvMap_2;
-    
     VulkanRenderingContext( VulkanPhysicalDevice device ) {
         this.device = device;
         this.attributeLoader = device.getVertexAttributeLoader();
@@ -102,14 +39,6 @@ class VulkanRenderingContext implements RenderingContext {
         colourBuffer.load( COLOUR );
         colourBuffer.bind();
         
-        vertices3D_1 = new Vertices3D( new float[][]{ POSITION_1 } );
-        uvMap_1 = new UvMap( new float[][][]{ new float[][] { UVMAP_1 } } );
-        
-        vertices3D_2 = new Vertices3D( new float[][]{ POSITION_2 } );
-        uvMap_2 = new UvMap( new float[][][]{ new float[][] { UVMAP_2 } } );
-    
-        vertices3D_1.bind( attributeLoader, 0 );
-        uvMap_1.bind( attributeLoader, 0,0 );
     }
     
     @Override
@@ -144,14 +73,9 @@ class VulkanRenderingContext implements RenderingContext {
     
     @Override
     public void drawTriangles( int bufferSize ) {
-        vertices3D_1.bind( attributeLoader, 0 );
-        uvMap_1.bind( attributeLoader, 0, 0 );
         device.getShaderProgram3D().bindUniformData( descriptorSet, commandBuffer );
-        VulkanArrayBuffer positionBuffer = attributeLoader.getLastBoundPositionBuffer();
-        VulkanArrayBuffer uvMapBuffer = attributeLoader.getLastBoundUvMapBuffer();
-        commandBuffer.drawVertices(
-            positionBuffer,
-            uvMapBuffer,
+        device.getShaderProgram2D().bindUniformData( descriptorSet, commandBuffer );
+        commandBuffer.drawVertices( attributeLoader.getLastBoundPositionBuffer(), attributeLoader.getLastBoundUvMapBuffer(),
             colourBuffer,
             bufferSize
         );
@@ -181,7 +105,7 @@ class VulkanRenderingContext implements RenderingContext {
     
     @Override
     public boolean getUseTexture() {
-        return false;
+        return true;
     }
     
     @Override
