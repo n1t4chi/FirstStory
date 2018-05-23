@@ -50,15 +50,20 @@ class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     }
     
     void drawVertices(
-        VulkanArrayBuffer vertexBuffer, VulkanArrayBuffer uvBuffer, VulkanArrayBuffer colourBuffer, int bufferSize
+        VulkanArrayBuffer vertexBuffer,
+        VulkanArrayBuffer uvBuffer,
+        VulkanArrayBuffer colourBuffer,
+        VulkanArrayBuffer uniformBuffer,
+        int bufferSize
     ) {
         VK10.vkCmdBindVertexBuffers( getCommandBuffer(), 0,
             new long[]{
                 vertexBuffer.getBufferAddress().getValue(),
                 uvBuffer.getBufferAddress().getValue(),
-                colourBuffer.getBufferAddress().getValue()
+                colourBuffer.getBufferAddress().getValue(),
+                uniformBuffer.getBufferAddress().getValue()
             },
-            new long[]{ 0, 0, 0 }
+            new long[]{ 0, 0, 0, 0 }
         );
         VK10.vkCmdDraw(
             getCommandBuffer(),

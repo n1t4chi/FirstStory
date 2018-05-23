@@ -162,7 +162,7 @@ public abstract class VulkanDataBuffer< Data > implements DataBuffer< Data > {
                     .size( getDataSizeInBytes() )
                     .usage( VulkanHelper.flagsToInt( usageFlags ) )
                     .flags( 0 );
-                if ( device.isSingleCommandPoolUsed() ) {
+                if ( device.isSingleQueueFamilyUsed() ) {
                     createInfo.sharingMode( VK10.VK_SHARING_MODE_EXCLUSIVE );
                 } else {
                     createInfo.sharingMode( VK10.VK_SHARING_MODE_CONCURRENT )

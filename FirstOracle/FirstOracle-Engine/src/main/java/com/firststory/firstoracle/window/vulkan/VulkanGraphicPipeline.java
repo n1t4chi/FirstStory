@@ -13,6 +13,8 @@ import org.lwjgl.vulkan.*;
 import java.nio.IntBuffer;
 import java.util.List;
 
+import static com.firststory.firstoracle.FirstOracleConstants.*;
+
 /**
  * @author n1t4chi
  */
@@ -21,12 +23,12 @@ class VulkanGraphicPipeline {
     private static final int ATTRIBUTES_POSITION = 3;
     private static final int ATTRIBUTES_UV = 2;
     private static final int ATTRIBUTES_COLOUR = 4;
-    private static final int FLOAT_SIZE = 4;
-    private static final int ATTRIBUTES = ATTRIBUTES_POSITION + ATTRIBUTES_COLOUR;
-    private static final int VERTEX_DATA_SIZE = ATTRIBUTES * FLOAT_SIZE;
-    private static final int VERTEX_POSITION_DATA_SIZE = ATTRIBUTES_POSITION * FLOAT_SIZE;
-    private static final int VERTEX_UVMAP_DATA_SIZE = ATTRIBUTES_UV * FLOAT_SIZE;
-    private static final int VERTEX_COLOUR_DATA_SIZE = ATTRIBUTES_COLOUR * FLOAT_SIZE;
+    private static final int VERTEX_POSITION_DATA_SIZE = ATTRIBUTES_POSITION * SIZE_FLOAT;
+    private static final int VERTEX_UVMAP_DATA_SIZE = ATTRIBUTES_UV * SIZE_FLOAT;
+    private static final int VERTEX_COLOUR_DATA_SIZE = ATTRIBUTES_COLOUR * SIZE_FLOAT;
+    private static final int UNIFORM_SIZE = SIZE_MATRIX_4F + SIZE_VEC_4F * 5;
+    private static final int UNIFORM_DATA_SIZE = SIZE_FLOAT * UNIFORM_SIZE;
+    private static final int ATTRIBUTE_UNIFORM_SIZE = UNIFORM_SIZE / SIZE_VEC_4F;
     
     private final VulkanPhysicalDevice device;
     private final VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo;
@@ -324,22 +326,35 @@ class VulkanGraphicPipeline {
     }
     
     private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo() {
+        VkVertexInputAttributeDescription.Buffer attributeDescriptions = VkVertexInputAttributeDescription
+            .create( 3 + ATTRIBUTE_UNIFORM_SIZE )
+            .put( 0, createPositionAttributeDescription() )
+            .put( 1, createUvMapAttributeDescription() )
+            .put( 2, createColourAttributeDescription() )
+        ;
+        for( int i=0; i< ATTRIBUTE_UNIFORM_SIZE; i ++ ) {
+            attributeDescriptions.put( 3 + i, createUniformDataAttributeDescription( i ) );
+        }
+        
         
         return VkPipelineVertexInputStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO )
             .pNext( VK10.VK_NULL_HANDLE )
             .pVertexBindingDescriptions(
-                VkVertexInputBindingDescription.create( 3 )
+                VkVertexInputBindingDescription.create( 4 )
                     .put( 0, createVertexBindingDescription( 0, VERTEX_POSITION_DATA_SIZE ) )
                     .put( 1, createVertexBindingDescription( 1, VERTEX_UVMAP_DATA_SIZE ) )
                     .put( 2, createVertexBindingDescription( 2, VERTEX_COLOUR_DATA_SIZE ) )
+                    .put( 3, createInstanceBindingDescription( 3, UNIFORM_DATA_SIZE ) )
             )
-            .pVertexAttributeDescriptions(
-                VkVertexInputAttributeDescription.create( 3 )
-                    .put( 0, createPositionAttributeDescription() )
-                    .put( 1, createColourAttributeDescription() )
-                    .put( 2, createUvMapAttributeDescription() )
-            );
+            .pVertexAttributeDescriptions( attributeDescriptions );
+    }
+    
+    private VkVertexInputBindingDescription createInstanceBindingDescription( int binding, int dataSize ) {
+        return VkVertexInputBindingDescription.create()
+            .binding( binding )
+            .stride( dataSize ) //todo
+            .inputRate( VK10.VK_VERTEX_INPUT_RATE_INSTANCE );
     }
     
     private VkVertexInputBindingDescription createVertexBindingDescription( int binding, int dataSize ) {
@@ -364,6 +379,19 @@ class VulkanGraphicPipeline {
     
     /**
      * todo: for shaders
+     * Description for uv map shader input
+     * @return position description
+     */
+    private VkVertexInputAttributeDescription createUvMapAttributeDescription() {
+        return VkVertexInputAttributeDescription.create()
+            .binding( 1 )
+            .location( 1 )
+            .format( VK10.VK_FORMAT_R32G32_SFLOAT )
+            .offset( 0 ); //todo
+    }
+    
+    /**
+     * todo: for shaders
      * Description for position shader input
      * @return position description
      */
@@ -380,12 +408,12 @@ class VulkanGraphicPipeline {
      * Description for uv map shader input
      * @return position description
      */
-    private VkVertexInputAttributeDescription createUvMapAttributeDescription() {
+    private VkVertexInputAttributeDescription createUniformDataAttributeDescription( int location ) {
         return VkVertexInputAttributeDescription.create()
-            .binding( 1 )
-            .location( 1 )
-            .format( VK10.VK_FORMAT_R32G32_SFLOAT )
-            .offset( 0 ); //todo
+            .binding( 3 )
+            .location( 3 + location )
+            .format( VK10.VK_FORMAT_R32G32B32A32_SFLOAT )
+            .offset( SIZE_VEC_4F * SIZE_FLOAT * location );
     }
     
     private void updateVulkanPipelineLayout() {

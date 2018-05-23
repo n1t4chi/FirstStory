@@ -39,6 +39,10 @@ public abstract class VulkanStageableDataBuffer< Data > extends VulkanDataBuffer
         stagingBuffer.copyBuffer( this, getDevice().getVertexDataTransferCommandPool() );
     }
     
+    void copy( Data data ) {
+        stagingBuffer.load( toByteBuffer( data ) );
+    }
+    
     @Override
     public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
     
@@ -46,6 +50,15 @@ public abstract class VulkanStageableDataBuffer< Data > extends VulkanDataBuffer
     
     private VulkanStagingBuffer extractStagingBufferFromLoader( Data data ) {
         return provider.provideStagingBuffer( data, extractLength( data ), extractDataByteSize( data ), this );
+    }
+    
+    @Override
+    public void close() {
+        super.close();
+        if( stagingBuffer != null ) {
+            stagingBuffer.close();
+            stagingBuffer = null;
+        }
     }
     
     abstract int extractLength( Data data );

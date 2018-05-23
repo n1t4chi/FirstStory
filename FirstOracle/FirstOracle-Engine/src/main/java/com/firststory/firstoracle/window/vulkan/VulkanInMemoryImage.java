@@ -34,7 +34,7 @@ public class VulkanInMemoryImage extends VulkanImage {
             .tiling( tiling )
             .initialLayout( VK10.VK_IMAGE_LAYOUT_UNDEFINED )
             .usage( VulkanHelper.flagsToInt( usageFlags ) )
-            .sharingMode( device.isSingleCommandPoolUsed() ? VK10.VK_SHARING_MODE_EXCLUSIVE : VK10.VK_SHARING_MODE_CONCURRENT )
+            .sharingMode( device.isSingleQueueFamilyUsed() ? VK10.VK_SHARING_MODE_EXCLUSIVE : VK10.VK_SHARING_MODE_CONCURRENT )
             .pQueueFamilyIndices( device.createQueueFamilyIndicesBuffer() )
             .samples( VK10.VK_SAMPLE_COUNT_1_BIT )
             .flags( 0 );

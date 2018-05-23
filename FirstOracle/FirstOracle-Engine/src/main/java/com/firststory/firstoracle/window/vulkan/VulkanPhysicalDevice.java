@@ -146,7 +146,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         texture.bind( textureLoader );
         
         updateRenderingContext();
-    
+        
         vertexAttributeLoader = new VulkanVertexAttributeLoader( bufferProvider );
         
         
@@ -219,10 +219,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return textureTransferCommandPool;
     }
     
-    boolean isSingleCommandPoolUsed() {
-        return commandPools.size() == 1;
-    }
-    
     VulkanMemoryType selectMemoryType( int desiredType, int... desiredFlags ) {
         for ( VulkanMemoryType memoryType : memoryTypes.values() ) {
             if( checkMemoryTypeFlags( memoryType.getIndex(), memoryType.propertyFlags(), desiredType, desiredFlags ) ) {
@@ -240,7 +236,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         presentationFamily.waitForQueue();
         swapChain.update( windowSurface );
         depthResources.update( swapChain );
-    
+        
         updateDesciptorSetsOnDevice( shaderProgram3D );
         graphicPipeline.update( swapChain, shaderProgram3D.getShaderStages(), depthResources );
         refreshFrameBuffers( frameBuffers, swapChain, depthResources );
@@ -268,7 +264,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VK10.vkDestroyDescriptorPool( logicalDevice, descriptorPool.getValue(), null );
         swapChain.dispose();
         bufferProvider.close();
-    
+        
         depthResources.close();
         texture.close();
         VK10.vkDestroySampler( logicalDevice, textureSampler.getValue(), null );
@@ -293,9 +289,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     long getScore() {
         return ( (
-                properties.limits().maxMemoryAllocationCount() + properties.limits().maxImageDimension2D() +
+            properties.limits().maxMemoryAllocationCount() + properties.limits().maxImageDimension2D() +
                 ( availableExtensionProperties.size() + availableQueueFamilies.size() ) * 1000
-            ) * typeMultiplier()
+        ) * typeMultiplier()
         );
     }
     
@@ -368,7 +364,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .mipLodBias( 0f )
             .minLod( 0f )
             .maxLod( 0 )
-        ;
+            ;
         
         return VulkanHelper.createAddress(
             address -> VK10.vkCreateSampler( logicalDevice, createInfo, null, address ),
@@ -411,7 +407,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .imageLayout( VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
             .imageView( textureData.getContext().getImageView().getAddress().getValue() )
             .sampler( textureSampler.getValue() )
-        ;
+            ;
     }
     
     private VkWriteDescriptorSet createDescriptorWrite(
@@ -433,7 +429,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO )
             .descriptorPool( descriptorPool.getValue() )
             .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSetLayout.getValue() ) )
-        ;
+            ;
         
         return VulkanHelper.createAddress(
             address -> VK10.vkAllocateDescriptorSets( logicalDevice, allocateInfo, address ),
@@ -470,7 +466,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 .put( 1, createLayoutBinding(
                     1, VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK10.VK_SHADER_STAGE_FRAGMENT_BIT ) )
             )
-        ;
+            ;
         
         return VulkanHelper.createAddress( address ->
                 VK10.vkCreateDescriptorSetLayout( logicalDevice, createInfo, null, address ),
@@ -636,7 +632,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private VkPhysicalDeviceFeatures createDeviceFeatures() {
         VkPhysicalDeviceFeatures features = VkPhysicalDeviceFeatures.create()
             .samplerAnisotropy( true )
-        ;
+            ;
         VK10.vkGetPhysicalDeviceFeatures( physicalDevice, features );
         return features;
     }

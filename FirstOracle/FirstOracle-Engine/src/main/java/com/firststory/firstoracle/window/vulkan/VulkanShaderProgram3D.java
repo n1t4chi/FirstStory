@@ -15,12 +15,12 @@ import org.joml.Vector4fc;
  */
 public class VulkanShaderProgram3D extends VulkanShaderProgram implements ShaderProgram3D {
     
+    private static final int OFFSET_CAMERA = 0;
+    private static final int OFFSET_POSITION = 16;
     private static final int OFFSET_SCALE = 20;
     private static final int OFFSET_ROTATION = 24;
     private static final int OFFSET_COLOUR = 28;
     private static final int OFFSET_ALPHA_CHANNEL = 32;
-    private static final int OFFSET_CAMERA = 0;
-    private static final int OFFSET_POSITION = 16;
     
     VulkanShaderProgram3D( VulkanPhysicalDevice device, VulkanDataBufferProvider bufferLoader ) {
         super( device, bufferLoader );

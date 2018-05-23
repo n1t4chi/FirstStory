@@ -23,8 +23,8 @@ import static com.firststory.firstoracle.window.vulkan.VulkanShader.SHADER_FILE_
  */
 public class VulkanShaderProgram implements ShaderProgram {
     
-    private static final int UNIFORM_SIZE = FirstOracleConstants.SIZE_MATRIX_4F + FirstOracleConstants.SIZE_VEC_4F * 5;
-    private static final int UNIFORM_DATA_SIZE = FirstOracleConstants.SIZE_FLOAT * UNIFORM_SIZE;
+    static final int UNIFORM_SIZE = FirstOracleConstants.SIZE_MATRIX_4F + FirstOracleConstants.SIZE_VEC_4F * 5;
+    static final int UNIFORM_DATA_SIZE = FirstOracleConstants.SIZE_FLOAT * UNIFORM_SIZE;
     private final VulkanShader fragmentShader;
     private final VulkanShader vertexShader;
     private final List< VkPipelineShaderStageCreateInfo > shaderStages = new ArrayList<>();
@@ -69,9 +69,10 @@ public class VulkanShaderProgram implements ShaderProgram {
         shaderStages.clear();
     }
     
-    void bindUniformData( VulkanAddress descriptorSet, VulkanGraphicCommandBuffer commandBuffer ) {
+    float[] bindUniformData( VulkanAddress descriptorSet, VulkanGraphicCommandBuffer commandBuffer ) {
         uniformBuffer.load( uniformBufferData );
         commandBuffer.bindDescriptorSets( descriptorSet );
+        return uniformBufferData;
     }
     
     VkDescriptorBufferInfo createBufferInfo() {

@@ -10,6 +10,8 @@ import org.joml.Vector4fc;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import static com.firststory.firstoracle.window.vulkan.VulkanShaderProgram.UNIFORM_SIZE;
+
 /**
  * @author n1t4chi
  */
@@ -27,6 +29,8 @@ class VulkanRenderingContext implements RenderingContext {
     private VulkanGraphicCommandBuffer commandBuffer;
     private VulkanCommands commands = new VulkanCommands();
     private final VulkanArrayBuffer colourBuffer;
+    private final VulkanArrayBuffer[] uniformBuffers = new VulkanArrayBuffer[100];
+    private int iterator = 0;
     
     VulkanRenderingContext( VulkanPhysicalDevice device ) {
         this.device = device;
@@ -38,6 +42,13 @@ class VulkanRenderingContext implements RenderingContext {
         colourBuffer = bufferProvider.createFloatBuffer();
         colourBuffer.load( COLOUR );
         colourBuffer.bind();
+        float[] uniformBufferData = new float[ UNIFORM_SIZE ];
+        Arrays.fill( uniformBufferData, 10 );
+        for ( int i = 0; i < uniformBuffers.length; i++ ) {
+            uniformBuffers[ i ] = bufferProvider.createFloatBuffer();
+            uniformBuffers[ i ].load( uniformBufferData );
+            uniformBuffers[ i ].bind();
+        }
         
     }
     
@@ -73,12 +84,19 @@ class VulkanRenderingContext implements RenderingContext {
     
     @Override
     public void drawTriangles( int bufferSize ) {
-        device.getShaderProgram3D().bindUniformData( descriptorSet, commandBuffer );
-        device.getShaderProgram2D().bindUniformData( descriptorSet, commandBuffer );
-        commandBuffer.drawVertices( attributeLoader.getLastBoundPositionBuffer(), attributeLoader.getLastBoundUvMapBuffer(),
+        float[] floats = device.getShaderProgram3D().bindUniformData( descriptorSet, commandBuffer );
+//        device.getShaderProgram2D().bindUniformData( descriptorSet, commandBuffer );
+        
+//        uniformBuffers[ iterator ].copy( floats );
+        
+        commandBuffer.drawVertices(
+            attributeLoader.getLastBoundPositionBuffer(),
+            attributeLoader.getLastBoundUvMapBuffer(),
             colourBuffer,
+            uniformBuffers[ iterator ],
             bufferSize
         );
+        iterator = (iterator + 1) % uniformBuffers.length;
     }
     
     @Override
