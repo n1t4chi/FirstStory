@@ -40,7 +40,11 @@ public abstract class VulkanStageableDataBuffer< Data > extends VulkanDataBuffer
     }
     
     void copy( Data data ) {
-        stagingBuffer.load( toByteBuffer( data ) );
+        if( stagingBuffer == null ) {
+            load( data );
+        } else {
+            stagingBuffer.load( toByteBuffer( data ) );
+        }
     }
     
     @Override
@@ -49,7 +53,7 @@ public abstract class VulkanStageableDataBuffer< Data > extends VulkanDataBuffer
     }
     
     private VulkanStagingBuffer extractStagingBufferFromLoader( Data data ) {
-        return provider.provideStagingBuffer( data, extractLength( data ), extractDataByteSize( data ), this );
+        return provider.provideUniqueStagingBuffer( data, extractLength( data ), extractDataByteSize( data ), this );
     }
     
     @Override

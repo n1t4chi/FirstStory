@@ -28,7 +28,6 @@ public interface PositionableObject3D< Transformations extends Object3DTransform
         ShaderProgram3D shaderProgram3D = renderingContext.getShaderProgram3D();
         Object3DTransformations transformations = getTransformations();
     
-        shaderProgram3D.bindPosition( transformations.getPosition());
         shaderProgram3D.bindMaxAlphaChannel( 1f );
         shaderProgram3D.bindOverlayColour( FirstOracleConstants.VECTOR_ZERO_4F );
         

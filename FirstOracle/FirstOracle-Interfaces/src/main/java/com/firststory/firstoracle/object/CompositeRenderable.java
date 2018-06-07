@@ -9,9 +9,9 @@ import com.firststory.firstoracle.rendering.RenderingContext;
 
 import java.util.Collection;
 
-public interface CompositeRenderable extends Renderable {
+public interface CompositeRenderable< Type extends Renderable > extends Renderable {
     
-    Collection< Renderable > getObjectsToRender();
+    Collection< Type > getObjectsToRender();
     
     @Override
     default void render(

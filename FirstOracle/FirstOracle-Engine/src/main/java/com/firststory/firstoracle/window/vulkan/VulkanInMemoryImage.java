@@ -48,14 +48,6 @@ public class VulkanInMemoryImage extends VulkanImage {
             resultCode -> new CannotCreateVulkanImageException( device, resultCode )
         );
         
-        VkMemoryRequirements memoryRequirements = VkMemoryRequirements.create();
-        VK10.vkGetImageMemoryRequirements( device.getLogicalDevice(), image.getValue(), memoryRequirements );
-        
-        VulkanMemoryType memoryType = device.selectMemoryType( memoryRequirements.memoryTypeBits(),
-            desiredMemoryFlags
-        );
-        
-        bindImageMemory( device, image, memoryRequirements, memoryType );
         return image;
     }
     
@@ -67,7 +59,7 @@ public class VulkanInMemoryImage extends VulkanImage {
         return 31 - Integer.numberOfLeadingZeros( number );
     }
     
-    private static void bindImageMemory(
+    private static VulkanAddress bindImageMemory(
         VulkanPhysicalDevice device,
         VulkanAddress image,
         VkMemoryRequirements memoryRequirements,
@@ -95,6 +87,8 @@ public class VulkanInMemoryImage extends VulkanImage {
             ),
             resultCode -> new CannotBindVulkanImageMemoryException( device, resultCode )
         );
+        
+        return textureImageMemory;
     }
     
     private final int width;
@@ -103,6 +97,7 @@ public class VulkanInMemoryImage extends VulkanImage {
     private final int tiling;
     private final int[] usageFlags;
     private final int[] desiredMemoryFlags;
+    private final VulkanAddress memoryAddress;
     
     VulkanInMemoryImage(
         VulkanPhysicalDevice device,
@@ -114,12 +109,23 @@ public class VulkanInMemoryImage extends VulkanImage {
         int[] desiredMemoryFlags
     ) {
         super( device, createImage( device, width, height, format, tiling, usageFlags, desiredMemoryFlags ) );
+        memoryAddress = bindImageMemory( device, desiredMemoryFlags, getAddress() );
         this.width = width;
         this.height = height;
         this.format = format;
         this.tiling = tiling;
         this.usageFlags = usageFlags;
         this.desiredMemoryFlags = desiredMemoryFlags;
+    }
+    
+    private VulkanAddress bindImageMemory( VulkanPhysicalDevice device, int[] desiredMemoryFlags, VulkanAddress image ) {
+        VkMemoryRequirements memoryRequirements = VkMemoryRequirements.create();
+        VK10.vkGetImageMemoryRequirements( device.getLogicalDevice(), image.getValue(), memoryRequirements );
+        
+        VulkanMemoryType memoryType = device.selectMemoryType( memoryRequirements.memoryTypeBits(),
+            desiredMemoryFlags
+        );
+        return bindImageMemory( device, image, memoryRequirements, memoryType );
     }
     
     void createMipMaps() {
@@ -222,6 +228,7 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
     
     void close() {
+        VK10.vkFreeMemory( getDevice().getLogicalDevice(), memoryAddress.getValue(), null );
         VK10.vkDestroyImage( getDevice().getLogicalDevice(), getAddress().getValue(), null );
     }
     

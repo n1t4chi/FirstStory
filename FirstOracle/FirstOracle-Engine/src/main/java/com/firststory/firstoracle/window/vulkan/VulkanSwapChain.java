@@ -181,15 +181,15 @@ class VulkanSwapChain {
     
     private int selectPresentMode() {
         if ( isModeAvailable( KHRSurface.VK_PRESENT_MODE_MAILBOX_KHR ) ) {
-            logger.finer( device + ": Using mailbox presentation mode" );
+//            logger.finest( device + ": Using mailbox presentation mode" );
             return KHRSurface.VK_PRESENT_MODE_MAILBOX_KHR;
         }
         if ( isModeAvailable( KHRSurface.VK_PRESENT_MODE_IMMEDIATE_KHR ) ) {
-            logger.finer( device + ": Using immediate presentation mode" );
+//            logger.finest( device + ": Using immediate presentation mode" );
             return KHRSurface.VK_PRESENT_MODE_IMMEDIATE_KHR;
         }
         if ( isModeAvailable( KHRSurface.VK_PRESENT_MODE_FIFO_KHR ) ) {
-            logger.finer( device + ": Using fifo presentation mode" );
+//            logger.finest( device + ": Using fifo presentation mode" );
             return KHRSurface.VK_PRESENT_MODE_FIFO_KHR;
         }
         logger.warning( device + ": Could not select preferred mode. Using first available." );

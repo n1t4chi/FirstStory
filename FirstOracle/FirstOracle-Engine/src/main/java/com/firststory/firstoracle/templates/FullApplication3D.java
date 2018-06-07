@@ -12,11 +12,11 @@ import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.notyfying.WindowListener;
 import com.firststory.firstoracle.notyfying.WindowSizeEvent;
-import com.firststory.firstoracle.object.Renderable;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object2D.NonAnimatedRectangle;
 import com.firststory.firstoracle.object3D.CubeGrid;
 import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
+import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedObjects3D;
@@ -118,7 +118,7 @@ public class FullApplication3D {
             }
         
             @Override
-            public Collection< Renderable > getObjects() {
+            public Collection< PositionableObject3D > getObjects() {
                 return Collections.emptyList();
             }
         

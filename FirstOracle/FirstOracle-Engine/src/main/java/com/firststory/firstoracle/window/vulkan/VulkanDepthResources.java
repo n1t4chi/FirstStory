@@ -25,6 +25,7 @@ class VulkanDepthResources {
     }
     
     void update( VulkanSwapChain swapChain ) {
+        close();
         depthImage = createDepthImage( swapChain, depthFormat );
         depthImageView = createDepthImageView( depthFormat, depthImage );
         depthImage.transitionImageLayout(
@@ -68,6 +69,11 @@ class VulkanDepthResources {
     }
     
     void close() {
-        depthImage.close();
+        if( depthImage != null ) {
+            depthImage.close();
+        }
+        if( depthImageView != null ) {
+            depthImageView.close();
+        }
     }
 }

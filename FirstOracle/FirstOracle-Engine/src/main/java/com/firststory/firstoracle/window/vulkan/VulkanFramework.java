@@ -143,6 +143,7 @@ public class VulkanFramework implements RenderingFramework {
     
     @Override
     public void setUpSingleRender() {
+        
         mainPhysicalDevice.setUpSingleRender( renderingContext );
     }
     

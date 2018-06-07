@@ -7,7 +7,6 @@ import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
-import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.notyfying.WindowListener;
@@ -18,21 +17,20 @@ import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object2D.NonAnimatedRectangleGrid;
 import com.firststory.firstoracle.object2D.RectangleGrid;
 import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
-import com.firststory.firstoracle.object3D.Terrain3D;
-import com.firststory.firstoracle.object3D.Vertices3D;
+import com.firststory.firstoracle.object3D.*;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedObjects2D;
 import com.firststory.firstoracle.scene.RenderedObjects3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.Window;
 import org.joml.Vector2ic;
-import org.joml.Vector3fc;
 import org.joml.Vector3ic;
 import org.joml.Vector4f;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Main class that initialises whole test application.
@@ -135,7 +133,7 @@ public class GlfwApplication2D {
         grid3DRenderer = new DummyGrid3DRenderer();
 
         renderedScene = new RenderedSceneMutable( settings );
-        Texture texture1 = new Texture( "resources/First Oracle/texture2D.png" );
+        Texture texture1 = new Texture( "resources/First Oracle/texture3D.png" );
 //        Texture texture2 = new Texture( "resources/First Oracle/obj.png" );
 //        Texture compundTexture = Texture.createCompoundTexture( "resources/First Oracle/compound/tex_#frame#_#direction#.png",
 //            4,
@@ -167,7 +165,23 @@ public class GlfwApplication2D {
         vertices3D_2 = new Vertices3D( new float[][]{ POSITION_2 } );
         uvMap_2 = new UvMap( new float[][][]{ new float[][] { UVMAP_2 } } );
     
-        Terrain3D terr = new Terrain3D(){
+        PositionableObject3D object1 = new PositionableObject3D(){
+    
+            private Object3DTransformations transformations = new Mutable3DTransformations();
+    
+            {
+                ((Mutable3DTransformations)transformations).setPosition( -16,-16,-16 );
+            }
+    
+            @Override
+            public void setTransformations( Object3DTransformations transformations ) {
+                this.transformations = transformations;
+            }
+    
+            @Override
+            public Object3DTransformations getTransformations() {
+                return transformations;
+            }
     
             @Override
             public Texture getTexture() {
@@ -198,13 +212,25 @@ public class GlfwApplication2D {
             public int getCurrentVertexFrame( double currentTimeSnapshot ) {
                 return 0;
             }
+        };
+        
+        PositionableObject3D object2 = new PositionableObject3D(){
+    
+            private Object3DTransformations transformations = new Mutable3DTransformations();
+            
+            {
+                ((Mutable3DTransformations)transformations).setPosition( 16,16,16 );
+            }
     
             @Override
-            public Vector3fc computePosition( int x, int y, int z, Vector3ic arrayShift ) {
-                return FirstOracleConstants.VECTOR_ZERO_3F;
+            public void setTransformations( Object3DTransformations transformations ) {
+                this.transformations = transformations;
             }
-        };
-        Terrain3D terr2 = new Terrain3D(){
+    
+            @Override
+            public Object3DTransformations getTransformations() {
+                return transformations;
+            }
         
             @Override
             public Texture getTexture() {
@@ -235,17 +261,12 @@ public class GlfwApplication2D {
             public int getCurrentVertexFrame( double currentTimeSnapshot ) {
                 return 0;
             }
-        
-            @Override
-            public Vector3fc computePosition( int x, int y, int z, Vector3ic arrayShift ) {
-                return FirstOracleConstants.VECTOR_ZERO_3F;
-            }
         };
     
         RectangleGrid[][] array = new RectangleGrid[20][20];
     
         NonAnimatedCubeGrid cubeGrid = new NonAnimatedCubeGrid();
-        cubeGrid .setTexture( texture1 );
+        cubeGrid.setTexture( texture1 );
 
         for ( int x = 0; x < array.length; x++ ) {
             for ( int y = 0; y < array[x].length; y++ ) {
@@ -253,23 +274,23 @@ public class GlfwApplication2D {
             }
         }
 //        List<Renderable> renderables = Arrays.<Renderable>asList( compound, object );
+        List<PositionableObject3D> renderables = Arrays.asList( object1, object2 );
+        
+        Terrain3D[][][] terrain3DS = new Terrain3D[ 5 ][ 5 ][ 5 ];
+        for( int i = 0 ; i< 5 ; i ++ )
+            for( int j = 0 ; j< 5 ; j ++ )
+                for( int k = 0 ; k< 5 ; k ++ )
+                    terrain3DS[i][j][k] = cubeGrid;
         
         renderedScene.setScene3D( ( new RenderedObjects3D() {
             @Override
             public Terrain3D[][][] getTerrains() {
-                Terrain3D[][][] terrain3DS = new Terrain3D[ 1 ][ 2 ][ 3 ];
-                terrain3DS[0][0][0] = terr;
-                terrain3DS[0][0][1] = terr2;
-                terrain3DS[0][0][2] = cubeGrid;
-                terrain3DS[0][1][0] = cubeGrid;
-                terrain3DS[0][1][1] = cubeGrid;
-                terrain3DS[0][1][2] = cubeGrid;
                 return terrain3DS;
             }
     
             @Override
-            public Collection< Renderable > getObjects() {
-                return Collections.emptyList();
+            public Collection< PositionableObject3D > getObjects() {
+                return renderables;
             }
     
             @Override
@@ -298,10 +319,11 @@ public class GlfwApplication2D {
         
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
         cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
+        cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
         cameraController.addCameraListener(
             ( event, source ) -> {
                 cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-                cameraController.updateIsometricCamera3D( ( IsometricCamera3D ) renderedScene.getCamera3D() );
+                cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
             } );
         
         sceneProvider = () -> renderedScene;

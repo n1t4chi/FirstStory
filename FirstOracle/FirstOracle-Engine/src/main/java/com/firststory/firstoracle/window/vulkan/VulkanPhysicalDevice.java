@@ -71,7 +71,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final TextureBuffer<VulkanTextureData> textureData;
     private final VulkanDepthResources depthResources;
     private final VulkanShaderProgram3D shaderProgram3D;
-    private final VulkanShaderProgram2D shaderProgram2D;
+    //private final VulkanShaderProgram2D shaderProgram2D;
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
     
     VulkanPhysicalDevice(
@@ -132,10 +132,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         textureLoader = new VulkanTextureLoader( this, bufferProvider, textureSampler, descriptorSet );
         
         shaderProgram3D = new VulkanShaderProgram3D( this, bufferProvider );
-        shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
+        //shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
         try {
             shaderProgram3D.compile();
-            shaderProgram2D.compile();
+            //shaderProgram2D.compile();
         } catch ( IOException ex ) {
             throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
         }
@@ -187,9 +187,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return vertexAttributeLoader;
     }
     
-    VulkanShaderProgram2D getShaderProgram2D() {
-        return shaderProgram2D;
-    }
+//    VulkanShaderProgram2D getShaderProgram2D() {
+//        return shaderProgram2D;
+//    }
     
     VulkanShaderProgram3D getShaderProgram3D() {
         return shaderProgram3D;
@@ -244,12 +244,23 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         refreshCommandBuffers();
     }
     
+    
+    VulkanGraphicCommandBuffer buffer;
     void setUpSingleRender( VulkanRenderingContext renderingContext ) {
-        renderingContext.setUpSingleRender( descriptorSet, graphicCommandPool.extractNextCommandBuffer() );
+        buffer = graphicCommandPool.extractNextCommandBuffer();
+        renderingContext.setUpSingleRender(
+            descriptorSet, buffer,
+            textureTransferCommandPool.extractNextCommandBuffer()
+        );
     }
     
     void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
         renderingContext.tearDownSingleRender( graphicCommandPool );
+        
+        if( buffer.getIndex() == swapChain.getImageViews().size() - 1 ) {
+            updateRenderingContext();
+        }
+        
         if ( VulkanFramework.validationLayersAreEnabled() ) {
             presentationFamily.waitForQueue();
         }
@@ -375,7 +386,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private Texture createTexture() {
         Texture texture;
         try {
-            texture = new Texture( "resources/First Oracle/texture2D.png" );
+            texture = new Texture( "resources/First Oracle/texture3D.png" );
         } catch ( Exception ex ) {
             throw new RuntimeException( ex );
         }

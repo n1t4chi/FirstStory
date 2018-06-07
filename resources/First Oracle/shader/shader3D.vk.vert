@@ -3,16 +3,11 @@
 
 layout(binding = 0) uniform UniformBufferObject {
     mat4 camera;
-    vec3 translation;
-    vec3 scale;
-    vec3 rotation;
-    vec4 overlayColour;
-    float maxAlphaChannel;
-} ubo;
+} inUniform;
 
-layout(location = 0) in vec3 vertexPosition;
-layout(location = 1) in vec2 vertexUV;
-layout(location = 2) in vec4 vertexColour;
+layout(location = 0) in vec3 inVertexPosition;
+layout(location = 1) in vec2 inVertexUV;
+layout(location = 2) in vec4 inVertexColour;
 
 /*
     CAMERA = 0-3
@@ -24,20 +19,16 @@ layout(location = 2) in vec4 vertexColour;
 */
 //layout(location = 3) in vec4 uniformData[9];
 
-layout(location = 3) in vec4 uniformCamera0;
-layout(location = 4) in vec4 uniformCamera1;
-layout(location = 5) in vec4 uniformCamera2;
-layout(location = 6) in vec4 uniformCamera3;
-layout(location = 7) in vec4 uniformPosition;
-layout(location = 8) in vec4 uniformScale;
-layout(location = 9) in vec4 uniformRotation;
-layout(location = 10) in vec4 uniformColour;
-layout(location = 11) in vec4 uniformAlpha;
+layout(location = 3) in vec4 inTranslation;
+layout(location = 4) in vec4 inScale;
+layout(location = 5) in vec4 inRotation;
+layout(location = 6) in vec4 inOverlayColour;
+layout(location = 7) in vec4 inMaxAlphaAlpha;
 
-layout(location = 0) out vec2 UV;
-layout(location = 1) out vec4 colour;
-layout(location = 2) out vec4 overlayColour;
-layout(location = 3) out float maxAlphaChannel;
+layout(location = 0) out vec2 outUV;
+layout(location = 1) out vec4 outColour;
+layout(location = 2) out vec4 outOverlayColour;
+layout(location = 3) out float outMaxAlphaChannel;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -49,41 +40,26 @@ float toRadians(float angle){
 
 void main() {
 
-    float transX = uniformPosition.x;
-    float transY = uniformPosition.y;
-    float transZ = uniformPosition.z;
-//    float transX = uniformData[4].x;
-//    float transY = uniformData[4].y;
-//    float transZ = uniformData[4].z;
-//    float transX = ubo.translation.x;
-//    float transY = ubo.translation.y;
-//    float transZ = ubo.translation.z;
+    float transX = inTranslation.x;
+    float transY = inTranslation.y;
+    float transZ = inTranslation.z;
 
-//    float scaleX = ubo.scale.x;
-//    float scaleY = ubo.scale.y;
-//    float scaleZ = ubo.scale.z;
-//    float scaleX = uniformData[5].x;
-//    float scaleY = uniformData[5].y;
-//    float scaleZ = uniformData[5].z;
-    float scaleX = uniformScale.x;
-    float scaleY = uniformScale.y;
-    float scaleZ = uniformScale.z;
+    float scaleX = inScale.x;
+    float scaleY = inScale.y;
+    float scaleZ = inScale.z;
+
+    float rotX = inRotation.x;
+    float rotY = inRotation.y;
+    float rotZ = inRotation.z;
+
+    mat4 camera = inUniform.camera;
+    vec4 overlayColour = inOverlayColour;
+    float maxAlphaChannel = inMaxAlphaAlpha.x;
 
 
-    float rotX = uniformRotation.x;
-    float rotY = uniformRotation.y;
-    float rotZ = uniformRotation.z;
-//    float rotX = uniformData[6].x;
-//    float rotY = uniformData[6].y;
-//    float rotZ = uniformData[6].z;
-//    float rotX = ubo.rotation.x;
-//    float rotY = ubo.rotation.y;
-//    float rotZ = ubo.rotation.z;
-
-
-    float posX = vertexPosition.x*scaleX;
-    float posY = vertexPosition.y*scaleY;
-    float posZ = vertexPosition.z*scaleZ;
+    float posX = inVertexPosition.x*scaleX;
+    float posY = inVertexPosition.y*scaleY;
+    float posZ = inVertexPosition.z*scaleZ;
 
 
     if(rotX != 0){
@@ -118,7 +94,7 @@ void main() {
 
 
     gl_Position =
-        ubo.camera *
+        inUniform.camera *
         vec4(
             transX + posX,
             transY + posY,
@@ -126,9 +102,10 @@ void main() {
             1
         )
     ;
-    gl_Position.z = (-gl_Position.z + 1) / 2;
-    colour = vertexColour;
-    UV = vertexUV;
-    overlayColour = ubo.overlayColour;
-    maxAlphaChannel = ubo.maxAlphaChannel;
+    gl_Position.y = -gl_Position.y;
+    gl_Position.z = (gl_Position.z + 1) / 2;
+    outColour = inVertexColour;
+    outUV = inVertexUV;
+    outOverlayColour = overlayColour;
+    outMaxAlphaChannel = maxAlphaChannel;
 }

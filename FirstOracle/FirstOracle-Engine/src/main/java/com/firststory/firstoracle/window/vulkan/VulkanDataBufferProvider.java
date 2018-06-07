@@ -79,17 +79,28 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         return uniformBuffer;
     }
     
-    <D> VulkanStagingBuffer provideStagingBuffer( D data, int dataLength, int dataByteSize, VulkanStageableDataBuffer<D> dataBuffer ) {
+    < D > VulkanStagingBuffer provideStagingBuffer(
+        D data,
+        int dataLength,
+        int dataByteSize,
+        VulkanStageableDataBuffer< D > dataBuffer
+    ) {
         return stagingBuffers.computeIfAbsent( data, dataA -> {
-            VulkanStagingBuffer stagingBuffer = new VulkanStagingBuffer(
-                device
-            );
-            stagingBuffer.createBuffer( dataLength, dataByteSize );
-            stagingBuffer.load( dataBuffer.toByteBuffer( data ) );
-            return stagingBuffer;
+            return provideUniqueStagingBuffer( data, dataLength, dataByteSize, dataBuffer );
         } );
     }
     
+    < D > VulkanStagingBuffer provideUniqueStagingBuffer(
+        D data,
+        int dataLength,
+        int dataByteSize,
+        VulkanStageableDataBuffer< D > dataBuffer
+    ) {
+        VulkanStagingBuffer stagingBuffer = new VulkanStagingBuffer( device );
+        stagingBuffer.createBuffer( dataLength, dataByteSize );
+        stagingBuffer.load( dataBuffer.toByteBuffer( data ) );
+        return stagingBuffer;
+    }
     
     public void close() {
         stagingBuffers.values().forEach( VulkanDataBuffer::close );

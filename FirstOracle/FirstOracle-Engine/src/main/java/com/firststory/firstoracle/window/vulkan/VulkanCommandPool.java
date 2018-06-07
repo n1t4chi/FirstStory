@@ -77,6 +77,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         CommandBuffer commandBuffer = extractNextCommandBuffer();
         commandBuffer.fillQueueSetup();
         commandBuffer.fillQueue( commands );
+        commandBuffer.fillQueueTearDown();
         submitQueue( commandBuffer );
         executeTearDown( commandBuffer );
     }

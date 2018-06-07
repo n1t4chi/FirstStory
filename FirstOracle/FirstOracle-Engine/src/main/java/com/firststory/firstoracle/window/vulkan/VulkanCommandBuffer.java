@@ -44,7 +44,6 @@ public abstract class VulkanCommandBuffer {
     
     void fillQueue( VulkanCommand commands ) {
         commands.execute( this );
-        fillQueueTearDown();
     }
     
     void fillQueueSetup() {
