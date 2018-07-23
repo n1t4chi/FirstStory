@@ -85,9 +85,9 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         int dataByteSize,
         VulkanStageableDataBuffer< D > dataBuffer
     ) {
-        return stagingBuffers.computeIfAbsent( data, dataA -> {
-            return provideUniqueStagingBuffer( data, dataLength, dataByteSize, dataBuffer );
-        } );
+        return stagingBuffers.computeIfAbsent( data, dataA ->
+            provideUniqueStagingBuffer( data, dataLength, dataByteSize, dataBuffer )
+        );
     }
     
     < D > VulkanStagingBuffer provideUniqueStagingBuffer(

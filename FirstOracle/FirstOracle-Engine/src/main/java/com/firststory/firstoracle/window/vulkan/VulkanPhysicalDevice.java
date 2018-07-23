@@ -300,7 +300,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     long getScore() {
         return ( (
-            properties.limits().maxMemoryAllocationCount() + properties.limits().maxImageDimension2D() +
+            properties.limits().maxMemoryAllocationCount() +
+                properties.limits().maxImageDimension2D() +
+                properties.limits().maxDescriptorSetSamplers() +
                 ( availableExtensionProperties.size() + availableQueueFamilies.size() ) * 1000
         ) * typeMultiplier()
         );
@@ -395,7 +397,16 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return texture;
     }
     
+    private static final int SAMPLERS_COUNT = 100;
+    
     private void updateDesciptorSetsOnDevice( VulkanShaderProgram3D shaderProgram ) {
+        VkDescriptorImageInfo.Buffer imageSamplers = VkDescriptorImageInfo.create( SAMPLERS_COUNT );
+        
+        VkDescriptorImageInfo imageInfo = createImageInfo();
+        for( int i=0; i< SAMPLERS_COUNT; i++ ){
+            imageSamplers.put( i, imageInfo );
+        }
+    
         VK10.vkUpdateDescriptorSets( logicalDevice,
             VkWriteDescriptorSet.create( 2 )
                 .put( 0, createDescriptorWrite( 0,
@@ -406,7 +417,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 .put( 1, createDescriptorWrite( 1,
                     VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                     null,
-                    VkDescriptorImageInfo.create( 1 ).put( 0, createImageInfo() )
+                    imageSamplers
                 ) )
             ,
             null
@@ -418,7 +429,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .imageLayout( VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
             .imageView( textureData.getContext().getImageView().getAddress().getValue() )
             .sampler( textureSampler.getValue() )
-            ;
+        ;
     }
     
     private VkWriteDescriptorSet createDescriptorWrite(
@@ -440,7 +451,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO )
             .descriptorPool( descriptorPool.getValue() )
             .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSetLayout.getValue() ) )
-            ;
+        ;
         
         return VulkanHelper.createAddress(
             address -> VK10.vkAllocateDescriptorSets( logicalDevice, allocateInfo, address ),
@@ -465,7 +476,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private VkDescriptorPoolSize createPoolSize( int type ) {
         return VkDescriptorPoolSize.create()
             .type( type )
-            .descriptorCount( 1 );
+            .descriptorCount( SAMPLERS_COUNT );
     }
     
     private VulkanAddress createDescriptorSetLayout() {
@@ -473,11 +484,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO )
             .pBindings( VkDescriptorSetLayoutBinding.calloc( 2 )
                 .put( 0, createLayoutBinding(
-                    0, VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK10.VK_SHADER_STAGE_VERTEX_BIT ) )
+                    0, 1, VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK10.VK_SHADER_STAGE_VERTEX_BIT ) )
                 .put( 1, createLayoutBinding(
-                    1, VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK10.VK_SHADER_STAGE_FRAGMENT_BIT ) )
+                    1, SAMPLERS_COUNT, VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK10.VK_SHADER_STAGE_FRAGMENT_BIT ) )
             )
-            ;
+        ;
         
         return VulkanHelper.createAddress( address ->
                 VK10.vkCreateDescriptorSetLayout( logicalDevice, createInfo, null, address ),
@@ -485,11 +496,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         );
     }
     
-    private VkDescriptorSetLayoutBinding createLayoutBinding( int index, int type, int stageFlag ) {
+    private VkDescriptorSetLayoutBinding createLayoutBinding( int index, int count, int type, int stageFlag ) {
         return VkDescriptorSetLayoutBinding.create()
             .binding( index )
             .descriptorType( type )
-            .descriptorCount( 1 )
+            .descriptorCount( count )
             .stageFlags( stageFlag )
             .pImmutableSamplers( null );
     }
@@ -582,6 +593,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         }
         if ( properties.limits().maxMemoryAllocationCount() <= 32 ) {
             throw new DeviceHasNotEnoughMemoryException( this, properties.limits().maxMemoryAllocationCount() );
+        }
+        if( properties.limits().maxDescriptorSetSamplers() <= 95 ) {
+            throw new DeviceHasNotEnoughSamplers( this, properties.limits().maxDescriptorSetSamplers() );
         }
         if ( !features.samplerAnisotropy() ) {
             throw new CannotCreateVulkanPhysicalDeviceException( this, "Device does not support sampler anisotropy." );

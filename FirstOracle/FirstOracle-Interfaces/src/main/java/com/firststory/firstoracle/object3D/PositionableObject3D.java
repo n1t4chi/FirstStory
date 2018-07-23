@@ -24,7 +24,7 @@ public interface PositionableObject3D< Transformations extends Object3DTransform
         RenderingContext renderingContext,
         double currentRenderTime,
         CameraDataProvider cameraDataProvider
-    ){
+    ) {
         ShaderProgram3D shaderProgram3D = renderingContext.getShaderProgram3D();
         Object3DTransformations transformations = getTransformations();
     

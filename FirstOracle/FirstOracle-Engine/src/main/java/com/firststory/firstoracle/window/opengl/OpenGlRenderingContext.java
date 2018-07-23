@@ -133,6 +133,12 @@ public class OpenGlRenderingContext implements RenderingContext {
         return borderColour;
     }
     
+    @Override
+    public void endRender() {}
+    
+    @Override
+    public void beginRender() {}
+    
     private void drawObjects( int objectType, int bufferSize ) {
         GL11.glDrawArrays( objectType, 0, bufferSize );
     }

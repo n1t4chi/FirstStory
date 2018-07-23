@@ -24,11 +24,13 @@ layout(location = 4) in vec4 inScale;
 layout(location = 5) in vec4 inRotation;
 layout(location = 6) in vec4 inOverlayColour;
 layout(location = 7) in vec4 inMaxAlphaAlpha;
+layout(location = 8) in int inTextureIndex;
 
 layout(location = 0) out vec2 outUV;
 layout(location = 1) out vec4 outColour;
 layout(location = 2) out vec4 outOverlayColour;
 layout(location = 3) out float outMaxAlphaChannel;
+layout(location = 4) out int outTextureIndex;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -108,4 +110,5 @@ void main() {
     outUV = inVertexUV;
     outOverlayColour = overlayColour;
     outMaxAlphaChannel = maxAlphaChannel;
+//    outTextureIndex = inTextureIndex;
 }

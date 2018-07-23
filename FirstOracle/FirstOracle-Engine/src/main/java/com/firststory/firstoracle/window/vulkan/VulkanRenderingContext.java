@@ -132,6 +132,16 @@ class VulkanRenderingContext implements RenderingContext {
         return null;
     }
     
+    @Override
+    public void endRender() {
+    
+    }
+    
+    @Override
+    public void beginRender() {
+    
+    }
+    
     void setUpSingleRender(
         VulkanAddress descriptorSet,
         VulkanGraphicCommandBuffer commandBuffer,

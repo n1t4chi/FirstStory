@@ -15,8 +15,8 @@ public class FirstOracleConstants {
     private static final Logger logger = getLogger( FirstOracleConstants.class );
     
     public static final String RESOURCES_FOLDER = "resources/";
-    public static final String RESOURCES_ORACLE_FOLDER = RESOURCES_FOLDER + "/First Oracle";
-    public static final String SHADER_FILES_LOCATION = RESOURCES_ORACLE_FOLDER + "/shader/";
+    public static final String RESOURCES_ORACLE_FOLDER = RESOURCES_FOLDER + "First Oracle/";
+    public static final String SHADER_FILES_LOCATION = RESOURCES_ORACLE_FOLDER + "shader/";
     public static final String GET_FRAMEWORK_METHOD_NAME = "getFramework";
     
     public static final int NO_FLAGS = 0;
@@ -28,6 +28,7 @@ public class FirstOracleConstants {
     public static final float UV_DELTA = 0.00001f;
     
     public static final int SIZE_FLOAT = 4;
+    public static final int SIZE_INT = 4;
     public static final int SIZE_MATRIX_4F = 4 * 4;
     public static final int SIZE_VEC_4F = 4;
     

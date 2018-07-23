@@ -44,4 +44,14 @@ public interface RenderingContext {
     boolean getUseTexture();
     boolean getDrawBorder();
     Vector4fc getBorderColour();
+    
+    default void render( Runnable o ) {
+        beginRender();
+        o.run();
+        endRender();
+    }
+    
+    void endRender();
+    
+    void beginRender();
 }
