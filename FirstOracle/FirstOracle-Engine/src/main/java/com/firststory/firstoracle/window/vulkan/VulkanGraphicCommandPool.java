@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
+import com.firststory.firstoracle.FirstOracleConstants;
+import org.joml.Vector4fc;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.KHRSwapchain;
 import org.lwjgl.vulkan.VK10;
@@ -22,6 +24,7 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
     private final VulkanGraphicPipeline graphicPipeline;
     private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
+    private Vector4fc backgroundColour = FirstOracleConstants.VECTOR_ZERO_4F;
     
     VulkanGraphicCommandPool(
         VulkanPhysicalDevice device,
@@ -38,6 +41,10 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
         this.imageAvailableSemaphore = imageAvailableSemaphore;
     }
     
+    void setBackgroundColour( Vector4fc backgroundColour ) {
+        this.backgroundColour = backgroundColour;
+    }
+    
     @Override
     VulkanGraphicCommandBuffer createNewCommandBuffer(
         int index,
@@ -49,6 +56,7 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
             address,
             frameBuffers.get( index ),
             graphicPipeline,
+            backgroundColour,
             swapChain,
             this,
             index,

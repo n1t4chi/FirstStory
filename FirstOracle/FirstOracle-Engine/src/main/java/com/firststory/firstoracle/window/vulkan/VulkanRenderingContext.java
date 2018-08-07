@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import org.joml.Vector4fc;
 
@@ -27,8 +28,9 @@ class VulkanRenderingContext implements RenderingContext {
     private VulkanTransferCommandBuffer transferBuffer;
 //    private VulkanCommands commands = new VulkanCommands();
     private final VulkanArrayBuffer colourBuffer;
-    private final VulkanArrayBuffer[] uniformBuffers = new VulkanArrayBuffer[100];
+    private final VulkanArrayBuffer[] uniformBuffers = new VulkanArrayBuffer[500];
     private int iterator = 0;
+    private Vector4fc backgroundColour = FirstOracleConstants.VECTOR_ZERO_4F;
     
     VulkanRenderingContext( VulkanPhysicalDevice device ) {
         this.device = device;
@@ -108,7 +110,7 @@ class VulkanRenderingContext implements RenderingContext {
     
     @Override
     public void setBackgroundColour( Vector4fc backgroundColour ) {
-    
+        this.backgroundColour = backgroundColour;
     }
     
     @Override
@@ -140,6 +142,10 @@ class VulkanRenderingContext implements RenderingContext {
     @Override
     public void beginRender() {
     
+    }
+    
+    Vector4fc getBackgroundColour( ) {
+        return this.backgroundColour;
     }
     
     void setUpSingleRender(

@@ -25,7 +25,7 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
     };
     private final VulkanPhysicalDevice device;
-    private final List<VulkanDataBuffer > buffers = new ArrayList<>(  );
+    private final List< VulkanDataBuffer > buffers = new ArrayList<>(  );
     private final Map< Object, VulkanStagingBuffer > stagingBuffers = new HashMap<>();
     
     VulkanDataBufferProvider( VulkanPhysicalDevice device ) {

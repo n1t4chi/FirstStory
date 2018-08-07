@@ -8,6 +8,7 @@ import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
+import org.joml.Vector4fc;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -75,7 +76,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
     
     VulkanPhysicalDevice(
-        long deviceAddress, VkInstance instance, PointerBuffer validationLayerNamesBuffer, VulkanWindowSurface surface
+        long deviceAddress,
+        VkInstance instance,
+        PointerBuffer validationLayerNamesBuffer,
+        VulkanWindowSurface surface
     ) throws CannotCreateVulkanPhysicalDeviceException
     {
         windowSurface = surface;
@@ -182,6 +186,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return memoryTypesString.toString();
     }
     
+    void updateBackground( Vector4fc backgroundColour ) {
+        graphicCommandPool.setBackgroundColour( backgroundColour );
+    }
     
     VulkanVertexAttributeLoader getVertexAttributeLoader() {
         return vertexAttributeLoader;

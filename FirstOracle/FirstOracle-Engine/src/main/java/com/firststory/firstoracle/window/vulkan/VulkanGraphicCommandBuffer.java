@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
+import org.joml.Vector4fc;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
@@ -22,14 +23,17 @@ class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         VulkanAddress address,
         VulkanFrameBuffer frameBuffer,
         VulkanGraphicPipeline graphicsPipeline,
+        Vector4fc backgroundColour,
         VulkanSwapChain swapChain,
-        VulkanCommandPool commandPool, int index, int... usedBeginInfoFlags
+        VulkanCommandPool commandPool,
+        int index,
+        int... usedBeginInfoFlags
     ) {
         super( device, address, commandPool, usedBeginInfoFlags );
         this.frameBuffer = frameBuffer;
         this.graphicsPipeline = graphicsPipeline;
         this.index = index;
-        renderPassBeginInfo = createRenderPassBeginInfo( graphicsPipeline, swapChain );
+        renderPassBeginInfo = createRenderPassBeginInfo( graphicsPipeline, swapChain, backgroundColour );
     }
     
     public int getIndex() {
@@ -85,14 +89,16 @@ class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     }
     
     private VkRenderPassBeginInfo createRenderPassBeginInfo(
-        VulkanGraphicPipeline graphicPipeline, VulkanSwapChain swapChain
+        VulkanGraphicPipeline graphicPipeline,
+        VulkanSwapChain swapChain,
+        Vector4fc backgroundColour
     ) {
         return VkRenderPassBeginInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO )
             .renderPass( graphicPipeline.getRenderPass().getValue() )
             .framebuffer( frameBuffer.getAddress().getValue() )
             .renderArea( createRenderArea( swapChain ) )
-            .pClearValues( createClearValue() );
+            .pClearValues( createClearValue( backgroundColour ) );
     }
     
     private void beginRenderPassForCommandBuffer() {
@@ -117,9 +123,9 @@ class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
             .extent( swapChain.getExtent() );
     }
     
-    private VkClearValue.Buffer createClearValue() {
+    private VkClearValue.Buffer createClearValue( Vector4fc colour ) {
         return VkClearValue.create( 2 )
-            .put( 0, createClearColour() )
+            .put( 0, createClearColour( colour ) )
             .put( 1, createDepthStencil() )
         ;
     }
@@ -128,12 +134,12 @@ class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         return VkClearValue.create().depthStencil( VkClearDepthStencilValue.create().depth( 1f ).stencil( 0 ) );
     }
     
-    private VkClearValue createClearColour() {
+    private VkClearValue createClearColour( Vector4fc colour ) {
         return VkClearValue.create().color( VkClearColorValue.create()
-            .float32( 0, 0f )
-            .float32( 1, 0f )
-            .float32( 2, 0f )
-            .float32( 3, 1f )
+            .float32( 0, colour.x() )
+            .float32( 1, colour.y() )
+            .float32( 2, colour.z() )
+            .float32( 3, colour.w() )
         );
     }
 }

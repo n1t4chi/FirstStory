@@ -276,10 +276,10 @@ public class GlfwApplication2D {
 //        List<Renderable> renderables = Arrays.<Renderable>asList( compound, object );
         List<PositionableObject3D> renderables = Arrays.asList( object1, object2 );
         
-        Terrain3D[][][] terrain3DS = new Terrain3D[ 5 ][ 5 ][ 5 ];
-        for( int i = 0 ; i< 5 ; i ++ )
-            for( int j = 0 ; j< 5 ; j ++ )
-                for( int k = 0 ; k< 5 ; k ++ )
+        Terrain3D[][][] terrain3DS = new Terrain3D[ 6 ][ 6 ][ 6 ];
+        for( int i = 0 ; i< 6 ; i ++ )
+            for( int j = 0 ; j< 6 ; j ++ )
+                for( int k = 0 ; k< 6 ; k ++ )
                     terrain3DS[i][j][k] = cubeGrid;
         
         renderedScene.setScene3D( ( new RenderedObjects3D() {
