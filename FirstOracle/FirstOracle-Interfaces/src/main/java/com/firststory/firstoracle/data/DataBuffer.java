@@ -3,11 +3,10 @@
  */
 package com.firststory.firstoracle.data;
 
-
 /**
  * @author n1t4chi
  */
-public interface DataBuffer<Data> {
+public interface DataBuffer< Data > {
     
     boolean isLoaded();
     
@@ -15,11 +14,27 @@ public interface DataBuffer<Data> {
     
     void create() throws CannotCreateBufferException;
     
-    void bind() throws BufferNotCreatedException, BufferNotLoadedException;
+    void bindUnsafe() throws BufferNotCreatedException, BufferNotLoadedException;
     
-    void load( Data bufferData ) throws BufferNotCreatedException;
+    void loadUnsafe( Data bufferData ) throws BufferNotCreatedException;
     
-    void delete() throws BufferNotCreatedException;
+    void deleteUnsafe() throws BufferNotCreatedException;
+    
+    default void bind() throws BufferNotCreatedException, BufferNotLoadedException {
+        assertCreated();
+        assertLoaded();
+        bindUnsafe();
+    }
+    
+    default void load( Data bufferData ) throws BufferNotCreatedException {
+        assertCreated();
+        loadUnsafe( bufferData );
+    }
+    
+    default void delete() throws BufferNotCreatedException {
+        assertCreated();
+        deleteUnsafe();
+    }
     
     default void close() throws BufferNotCreatedException {
         delete();

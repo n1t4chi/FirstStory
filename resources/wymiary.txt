@@ -1,0 +1,11 @@
+1024x2640
+
+po 295 pixeli z góry i z dolu odsunac
+
+textury:
+
+w x 2.57735*w
+
+po 0.288675*w z góry i z dolu przesunac
+
+w - width

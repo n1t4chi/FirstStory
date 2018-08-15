@@ -47,15 +47,12 @@ class OpenGlArrayBuffer implements ArrayBuffer {
     }
     
     @Override
-    public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
-        assertCreated();
-        assertLoaded();
+    public void bindUnsafe() throws BufferNotCreatedException, BufferNotLoadedException {
         loader.bind( bufferID );
     }
     
     @Override
-    public void load( float[] bufferData ) throws BufferNotCreatedException {
-        assertCreated();
+    public void loadUnsafe( float[] bufferData ) throws BufferNotCreatedException {
         loader.bind( bufferID );
         loader.load( bufferID, bufferData );
         length = bufferData.length;
@@ -63,8 +60,7 @@ class OpenGlArrayBuffer implements ArrayBuffer {
     }
     
     @Override
-    public void delete() throws BufferNotCreatedException {
-        assertCreated();
+    public void deleteUnsafe() throws BufferNotCreatedException {
         loader.delete( bufferID );
         cleanUpFields();
     }

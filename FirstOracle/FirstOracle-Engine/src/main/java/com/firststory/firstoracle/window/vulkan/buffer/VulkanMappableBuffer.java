@@ -27,10 +27,10 @@ public class VulkanMappableBuffer extends VulkanDataBuffer< ByteBuffer > {
     }
     
     @Override
-    public void bind() throws BufferNotCreatedException, BufferNotLoadedException {}
+    public void bindUnsafe() throws BufferNotCreatedException, BufferNotLoadedException {}
     
     @Override
-    public void load( ByteBuffer dataBuffer ) throws BufferNotCreatedException {
+    public void loadUnsafe( ByteBuffer dataBuffer ) throws BufferNotCreatedException {
         copyMemory( dataBuffer );
         unmapMemory();
     }

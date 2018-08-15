@@ -45,14 +45,12 @@ public class TextureBuffer<Context> implements DataBuffer<TextureData > {
     }
     
     @Override
-    public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
-        assertCreated();
-        assertLoaded();
+    public void bindUnsafe() throws BufferNotCreatedException, BufferNotLoadedException {
         loader.bind( context );
     }
     
     @Override
-    public void load( TextureData data ) throws BufferNotCreatedException {
+    public void loadUnsafe( TextureData data ) throws BufferNotCreatedException {
         try {
             loader.load( context, data.getByteBuffer(), data.getName() );
             this.data = data;
@@ -63,8 +61,7 @@ public class TextureBuffer<Context> implements DataBuffer<TextureData > {
     }
     
     @Override
-    public void delete() throws BufferNotCreatedException {
-        assertLoaded();
+    public void deleteUnsafe() throws BufferNotCreatedException {
         loader.delete( context );
         context = null;
         isLoaded = false;

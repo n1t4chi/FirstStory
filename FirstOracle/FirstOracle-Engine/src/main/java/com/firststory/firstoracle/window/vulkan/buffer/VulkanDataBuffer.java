@@ -4,7 +4,6 @@
 
 package com.firststory.firstoracle.window.vulkan.buffer;
 
-import com.firststory.firstoracle.data.BufferNotCreatedException;
 import com.firststory.firstoracle.data.CannotCreateBufferException;
 import com.firststory.firstoracle.data.DataBuffer;
 import com.firststory.firstoracle.window.vulkan.VulkanAddress;
@@ -55,19 +54,8 @@ public abstract class VulkanDataBuffer< Data > implements DataBuffer< Data > {
     @Override
     public void create() throws CannotCreateBufferException {}
     
-//    @Override
-//    public void bind() throws BufferNotCreatedException, BufferNotLoadedException {
-//        assertCreated();
-//        assertLoaded();
-//        loader.bind( this );
-//    }
-    
     @Override
-    public void delete() throws BufferNotCreatedException {
-        close();
-    }
-    
-    public void close() {
+    public void deleteUnsafe() {
         if ( !bufferAddress.isNull() ) {
             VK10.vkDestroyBuffer( device.getLogicalDevice(), bufferAddress.getValue(), null );
             bufferAddress.setNull();
