@@ -15,24 +15,33 @@ import com.firststory.firstoracle.data.DataBuffer;
 public class DataBufferInLinearMemory< Data > implements DataBuffer<Data> {
     
     private final LinearMemoryLocation location;
-    private final LinearMemoryController< Data > controller;
+    private final LinearMemoryController< ?, Data > controller;
     private boolean usable = true;
     private boolean loaded = false;
     
-    public DataBufferInLinearMemory( LinearMemoryController< Data > controller, LinearMemoryLocation memoryLocation ) {
+    public DataBufferInLinearMemory(
+        LinearMemoryController< ?, Data > controller,
+        LinearMemoryLocation memoryLocation
+    ) {
         this.controller = controller;
         this.location = memoryLocation;
     }
     
-    public int length() {
+    public long length() {
         assertCreated();
         return location.getLength();
     }
     
-    public LinearMemoryLocation provideLocation() {
+    public LinearMemoryLocation getLocation() {
 //        assertCreated();
 //        assertLoaded();
         return location;
+    }
+    
+    public long getMemoryOffset() {
+//        assertCreated();
+//        assertLoaded();
+        return location.getPosition();
     }
     
     @Override

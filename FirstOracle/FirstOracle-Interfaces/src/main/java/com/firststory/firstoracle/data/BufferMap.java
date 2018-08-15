@@ -11,15 +11,10 @@ import java.util.function.Function;
  * @author n1t4chi
  */
 public class BufferMap {
-    private final HashMap< Long, ArrayBuffer > buffers = new HashMap<>();
     
-    /**
-     * Provides
-     * @param key
-     * @param provider
-     * @return
-     */
-    public ArrayBuffer get( long key, AbsentArrayBufferProvider provider ){
+    private final HashMap< Long, DataBuffer > buffers = new HashMap<>();
+    
+    public DataBuffer get( long key, AbsentArrayBufferProvider provider ) {
         return buffers.computeIfAbsent( key, provider );
     }
     
@@ -28,11 +23,12 @@ public class BufferMap {
         buffers.clear();
     }
     
-    public interface AbsentArrayBufferProvider extends Function<Long, ArrayBuffer> {
-        ArrayBuffer createNew();
+    public interface AbsentArrayBufferProvider extends Function< Long, DataBuffer > {
+        
+        DataBuffer createNew();
         
         @Override
-        default ArrayBuffer apply( Long aLong ){
+        default DataBuffer apply( Long aLong ) {
             return createNew();
         }
     }

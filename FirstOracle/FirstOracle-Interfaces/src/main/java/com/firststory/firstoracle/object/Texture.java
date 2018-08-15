@@ -308,6 +308,7 @@ public final class Texture {
         }
     }
     
+    @SuppressWarnings( "unchecked" )
     public <Context> TextureBuffer<Context> getBuffer( TextureBufferLoader<Context> loader ) {
         return buffers.get( loader );
     }
@@ -330,8 +331,8 @@ public final class Texture {
         loadNewBuffer( loader );
     }
     
-    private TextureBuffer loadNewBuffer( TextureBufferLoader loader ) {
-        TextureBuffer buffer = new TextureBuffer( loader );
+    private TextureBuffer< ? > loadNewBuffer( TextureBufferLoader< ? > loader ) {
+        TextureBuffer< ? > buffer = new TextureBuffer<>( loader );
         buffer.create();
         buffer.load( data );
         return buffer;

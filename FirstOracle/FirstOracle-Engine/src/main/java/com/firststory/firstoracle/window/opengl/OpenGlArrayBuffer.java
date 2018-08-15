@@ -4,15 +4,15 @@
 
 package com.firststory.firstoracle.window.opengl;
 
-import com.firststory.firstoracle.data.ArrayBuffer;
 import com.firststory.firstoracle.data.BufferNotCreatedException;
 import com.firststory.firstoracle.data.BufferNotLoadedException;
 import com.firststory.firstoracle.data.CannotCreateBufferException;
+import com.firststory.firstoracle.data.DataBuffer;
 
 /**
  * @author n1t4chi
  */
-class OpenGlArrayBuffer implements ArrayBuffer {
+class OpenGlArrayBuffer implements DataBuffer< float[] > {
     
     private final OpenGlArrayBufferLoader loader;
     private int bufferID = -1;

@@ -3,12 +3,14 @@
  */
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.data.ArrayBuffer;
+import com.firststory.firstoracle.data.DataBuffer;
 
 /**
  * @author n1t4chi
  */
-public interface VertexAttributeLoader<VertexBuffer extends ArrayBuffer> {
-    VertexBuffer createEmptyBuffer();
+public interface VertexAttributeLoader< VertexBuffer extends DataBuffer > {
+    
+    VertexBuffer provideBuffer( float[] array );
+    
     void bindBuffer( VertexAttribute attribute, long key );
 }

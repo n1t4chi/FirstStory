@@ -7,9 +7,9 @@ package com.firststory.firstoracle.data;
 /**
  * @author n1t4chi
  */
-public interface ArrayBufferProvider<Context extends ArrayBuffer> extends BufferProvider<Context> {
+public interface ArrayBufferProvider<Context extends DataBuffer< float[] > > extends BufferProvider<Context, float[] > {
     
-    Context create() throws CannotCreateBufferException;
+    Context create( float[] data ) throws CannotCreateBufferException;
     
     void close();
 }

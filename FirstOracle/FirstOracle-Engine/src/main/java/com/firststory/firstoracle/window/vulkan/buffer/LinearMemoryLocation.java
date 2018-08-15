@@ -13,18 +13,18 @@ public class LinearMemoryLocation {
     
     static final Comparator< LinearMemoryLocation > BY_TRUE_SIZE = LinearMemoryLocation::compareTrueLengthTo;
     static final Comparator< LinearMemoryLocation > BY_POSITION = LinearMemoryLocation::comparePositionTo;
-    private static final int MAX_BLOCK_FREE_SPACE = 1;
-    private int position;
-    private int length;
-    private int trueLength;
+    private static final int MAX_BLOCK_FREE_SPACE = 4;
+    private long position;
+    private long length;
+    private long trueLength;
     
-    public LinearMemoryLocation( int position, int length, int trueLength ) {
+    public LinearMemoryLocation( long position, long length, long trueLength ) {
         this.position = position;
         this.length = length;
         this.trueLength = trueLength;
     }
     
-    public int getPosition() {
+    public long getPosition() {
         return position;
     }
     
@@ -38,27 +38,23 @@ public class LinearMemoryLocation {
         this.position = position;
     }
     
-    public int getLength() {
+    public long getLength() {
         return length;
     }
     
-    void setLength( int length ) {
+    void setLength( long length ) {
+        if( trueLength > length ) {
+            throw new CannotResizeException( length, trueLength );
+        }
         this.length = length;
     }
     
-    public int getTrueLength() {
+    public long getTrueLength() {
         return trueLength;
     }
     
     void setTrueLength( int length ) {
         this.trueLength = length;
-    }
-    
-    @Override
-    public int hashCode() {
-        int result = position;
-        result = 31 * result + length;
-        return result;
     }
     
     @Override
@@ -73,22 +69,29 @@ public class LinearMemoryLocation {
     }
     
     @Override
+    public int hashCode() {
+        int result = ( int ) ( position ^ ( position >>> 32 ) );
+        result = 31 * result + ( int ) ( length ^ ( length >>> 32 ) );
+        return result;
+    }
+    
+    @Override
     public String toString() {
         return "MemoryLocation@" + hashCode() + "{" + "position=" + position + ", length=" + length + '}';
     }
     
     public int compareTrueLengthTo( LinearMemoryLocation o ) {
-        return Integer.compare( getTrueLength(), o.getTrueLength() );
+        return Long.compare( getTrueLength(), o.getTrueLength() );
     }
     
     public int comparePositionTo( LinearMemoryLocation o ) {
-        return Integer.compare( getPosition(), o.getPosition() );
+        return Long.compare( getPosition(), o.getPosition() );
     }
     
     /**
      * @return first index outside this location.
      */
-    public int end() {
+    public Long end() {
         return position + length;
     }
     
@@ -121,5 +124,12 @@ public class LinearMemoryLocation {
         LinearMemoryLocation newLocation = new LinearMemoryLocation( getPosition(), length, length );
         movePosition( length );
         return newLocation;
+    }
+    
+    private class CannotResizeException extends RuntimeException {
+        
+        private CannotResizeException( long length, long trueLength ) {
+            super( "Cannot resize location to " + length + " when maximum lenght is " + trueLength );
+        }
     }
 }

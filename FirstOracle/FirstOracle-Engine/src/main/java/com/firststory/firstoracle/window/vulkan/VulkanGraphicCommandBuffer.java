@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanArrayBuffer;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
 import org.joml.Vector4fc;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
@@ -55,10 +55,10 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     }
     
     void drawVertices(
-        VulkanArrayBuffer vertexBuffer,
-        VulkanArrayBuffer uvBuffer,
-        VulkanArrayBuffer colourBuffer,
-        VulkanArrayBuffer uniformBuffer,
+        VulkanDataBuffer vertexBuffer,
+        VulkanDataBuffer uvBuffer,
+        VulkanDataBuffer colourBuffer,
+        VulkanDataBuffer uniformBuffer,
         int bufferSize
     ) {
         VK10.vkCmdBindVertexBuffers( getCommandBuffer(), 0,
@@ -68,7 +68,12 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
                 colourBuffer.getBufferAddress().getValue(),
                 uniformBuffer.getBufferAddress().getValue()
             },
-            new long[]{ 0, 0, 0, 0 }
+            new long[]{
+                vertexBuffer.getMemoryOffset(),
+                uvBuffer.getMemoryOffset(),
+                colourBuffer.getMemoryOffset(),
+                uniformBuffer.getMemoryOffset(),
+            }
         );
         VK10.vkCmdDraw(
             getCommandBuffer(),

@@ -7,19 +7,17 @@ package com.firststory.firstoracle.window.vulkan.buffer;
 /**
  * @author n1t4chi
  */
-class TestableLinearMemoryController extends LinearMemoryController< char[]> {
+class TestableLinearMemoryController extends LinearMemoryController< TestableLinearMemory, char[]> {
     
     TestableLinearMemoryController( TestableLinearMemory memory ) {
         super( memory );
     }
     
     char[] read( LinearMemoryLocation location ) {
-        return ((TestableLinearMemory)getMemory()).read( location );
+        return getMemory().read( location );
     }
     
-    @Override
     TestableDataBufferInLinearMemory createBuffer( int length ) {
-        DataBufferInLinearMemory< char[] > buffer = super.createBuffer( length );
-        return new TestableDataBufferInLinearMemory( this, buffer.provideLocation() );
+        return new TestableDataBufferInLinearMemory( this, super.allocate( length ) );
     }
 }

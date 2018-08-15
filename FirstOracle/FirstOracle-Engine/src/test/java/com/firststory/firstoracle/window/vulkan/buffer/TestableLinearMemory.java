@@ -21,12 +21,12 @@ class TestableLinearMemory extends LinearMemory< char[] > {
     }
     
     protected void writeUnsafe( LinearMemoryLocation location, char[] data ) {
-        System.arraycopy( data, 0, this.data, location.getPosition(), data.length );
+        System.arraycopy( data, 0, this.data, ( int ) location.getPosition(), data.length );
     }
     
     protected char[] readUnsafe( LinearMemoryLocation location ) {
-        char[] data = new char[ location.getLength() ];
-        System.arraycopy( this.data, location.getPosition(), data, 0, location.getLength() );
+        char[] data = new char[ ( int ) location.getLength() ];
+        System.arraycopy( this.data, ( int ) location.getPosition(), data, 0, ( int ) location.getLength() );
         return data;
     }
     

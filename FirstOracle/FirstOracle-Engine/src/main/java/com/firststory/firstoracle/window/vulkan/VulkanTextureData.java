@@ -4,14 +4,14 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanMappableBuffer;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
 
 /**
  * @author n1t4chi
  */
 class VulkanTextureData {
     
-    private VulkanMappableBuffer buffer;
+    private VulkanDataBuffer buffer;
     private VulkanInMemoryImage image;
     private int width;
     private int height;
@@ -47,11 +47,11 @@ class VulkanTextureData {
         this.height = height;
     }
     
-    VulkanMappableBuffer getBuffer() {
+    VulkanDataBuffer getBuffer() {
         return buffer;
     }
     
-    void setBuffer( VulkanMappableBuffer buffer ) {
+    void setBuffer( VulkanDataBuffer buffer ) {
         this.buffer = buffer;
     }
     

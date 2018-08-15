@@ -19,9 +19,11 @@ class OpenGlArrayBufferLoader implements ArrayBufferProvider<OpenGlArrayBuffer> 
     private int lastBoundBuffer = 0;
     
     @Override
-    public OpenGlArrayBuffer create() throws CannotCreateBufferException {
+    public OpenGlArrayBuffer create( float[] array ) throws CannotCreateBufferException {
         OpenGlArrayBuffer buffer = new OpenGlArrayBuffer( this );
         buffers.add( buffer );
+        buffer.create();
+        buffer.load( array );
         return buffer;
     }
     

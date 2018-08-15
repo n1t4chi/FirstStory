@@ -7,6 +7,7 @@ package com.firststory.firstoracle.window.vulkan;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferMemory;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.joml.Vector4fc;
@@ -75,6 +76,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanShaderProgram3D shaderProgram3D;
     //private final VulkanShaderProgram2D shaderProgram2D;
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
+    private final VulkanBufferMemory bufferMemory;
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -126,8 +128,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.add( graphicCommandPool );
         commandPools.add( vertexDataTransferCommandPool );
         commandPools.add( textureTransferCommandPool );
-        
-        bufferProvider = new VulkanDataBufferProvider( this );
+    
+        bufferMemory = new VulkanBufferMemory( this, getSuitableMemoryLength() , vertexDataTransferCommandPool);
+        bufferProvider = new VulkanDataBufferProvider( bufferMemory );
         
         descriptorPool = createDescriptorPool();
         descriptorSet = createDescriptorSet();
@@ -161,6 +164,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 "\npresentation family: " + presentationFamily + "\ntransfer family: " + transferFamily + "\nqueues: " +
                 availableQueueFamilies.size() + "\nextensions: " + availableExtensionProperties.size() +
                 "\nmemory types: " + memoryTypesToString() + "]" );
+    }
+    
+    private int getSuitableMemoryLength() {
+        return 128 * 1024 * 1024;
     }
     
     @Override
@@ -282,7 +289,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VK10.vkDestroyDescriptorSetLayout( logicalDevice, descriptorSetLayout.getValue(), null );
         VK10.vkDestroyDescriptorPool( logicalDevice, descriptorPool.getValue(), null );
         swapChain.dispose();
-        bufferProvider.close();
+        bufferMemory.close();
+//        bufferProvider.close();
         
         depthResources.close();
         texture.close();

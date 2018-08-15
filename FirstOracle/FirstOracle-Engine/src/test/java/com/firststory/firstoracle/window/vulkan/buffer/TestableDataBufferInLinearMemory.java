@@ -19,7 +19,7 @@ class TestableDataBufferInLinearMemory extends DataBufferInLinearMemory< char[] 
     char[] readBuffer( ) {
         assertCreated();
         assertLoaded();
-        return controller.read( provideLocation() );
+        return controller.read( getLocation() );
     }
     
     @Override

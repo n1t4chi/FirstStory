@@ -6,7 +6,7 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.rendering.RenderingContext;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanArrayBuffer;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 import org.joml.Vector4fc;
 
@@ -29,8 +29,8 @@ class VulkanRenderingContext implements RenderingContext {
     private VulkanGraphicCommandBuffer commandBuffer;
     private VulkanTransferCommandBuffer transferBuffer;
 //    private VulkanCommands commands = new VulkanCommands();
-    private final VulkanArrayBuffer colourBuffer;
-    private final VulkanArrayBuffer[] uniformBuffers = new VulkanArrayBuffer[500];
+    private final VulkanDataBuffer colourBuffer;
+    private final VulkanDataBuffer[] uniformBuffers = new VulkanDataBuffer[500];
     private int iterator = 0;
     private Vector4fc backgroundColour = FirstOracleConstants.VECTOR_ZERO_4F;
     
@@ -40,12 +40,12 @@ class VulkanRenderingContext implements RenderingContext {
     
         
         VulkanDataBufferProvider bufferProvider = device.getBufferProvider();
+    
+        float[] floats = getShaderProgram3D().getInputData();
         
-        colourBuffer = bufferProvider.createFloatBuffer();
-        colourBuffer.load( COLOUR );
-        colourBuffer.bind();
+        colourBuffer = bufferProvider.create( COLOUR );
         for ( int i = 0; i < uniformBuffers.length; i++ ) {
-            uniformBuffers[ i ] = bufferProvider.createFloatBuffer();
+            uniformBuffers[ i ] = bufferProvider.create( floats );
         }
         
     }
@@ -82,11 +82,11 @@ class VulkanRenderingContext implements RenderingContext {
     
     @Override
     public void drawTriangles( int bufferSize ) {
-        float[] floats = device.getShaderProgram3D().getInputData();
-        device.getShaderProgram3D().bindUniformData( descriptorSet, commandBuffer );
+        float[] floats = getShaderProgram3D().getInputData();
+        getShaderProgram3D().bindUniformData( descriptorSet, commandBuffer );
         
         final int currentIterator = iterator;
-        uniformBuffers[ currentIterator ].copy( floats );
+        uniformBuffers[ currentIterator ].load( floats );
 //        commands.add( commandBuffer1 -> {
         commandBuffer.drawVertices(
             attributeLoader.getLastBoundPositionBuffer(),

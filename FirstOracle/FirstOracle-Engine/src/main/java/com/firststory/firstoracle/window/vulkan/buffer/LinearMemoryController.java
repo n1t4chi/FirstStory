@@ -13,18 +13,18 @@ import static com.firststory.firstoracle.window.vulkan.buffer.LinearMemoryLocati
 /**
  * @author n1t4chi
  */
-class LinearMemoryController< Data > {
+class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
     
-    private final LinearMemory< Data > memory;
+    private final Memory memory;
     private PriorityQueue< LinearMemoryLocation > freeSpace = new PriorityQueue<>( BY_TRUE_SIZE );
     
-    LinearMemoryController( LinearMemory< Data > memory ) {
+    LinearMemoryController( Memory memory ) {
         this.memory = memory;
         LinearMemoryLocation location = newLoc( 0, memory.length(), memory.length() );
         addLocation( location );
     }
     
-    protected LinearMemory< Data > getMemory() {
+    protected Memory getMemory() {
         return memory;
     }
     
@@ -53,7 +53,7 @@ class LinearMemoryController< Data > {
         addLocation( location );
     }
     
-    DataBufferInLinearMemory< Data > createBuffer( int length ) {
+    LinearMemoryLocation allocate( int length ) {
         LinearMemoryLocation memoryLocation = freeSpace.stream()
             .sorted( LinearMemoryLocation::compareTrueLengthTo )
             .filter( Location -> Location.getLength() >= length )
@@ -69,7 +69,7 @@ class LinearMemoryController< Data > {
             newLocation = memoryLocation;
         }
         
-        return new DataBufferInLinearMemory<>( this, newLocation );
+        return newLocation;
     }
     
     private LinearMemoryLocation newLoc( int offset, int length, int trueLength ) {

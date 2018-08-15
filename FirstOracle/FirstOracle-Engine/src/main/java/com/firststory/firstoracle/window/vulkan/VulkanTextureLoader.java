@@ -75,11 +75,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         int height = h.get( 0 );
         textureData.setWidth( width );
         textureData.setHeight( height );
-        textureData.setBuffer( bufferLoader.createMappableBuffer() );
-        textureData.getBuffer().createBuffer( pixels.capacity(), 1 );
-        textureData.getBuffer().load( pixels );
-        textureData.getBuffer().bind();
-        
+        textureData.setBuffer( bufferLoader.create( pixels ) );
         createImage( textureData );
     
         initialTransitionImageLayout( textureData, VK10.VK_FORMAT_R8G8B8A8_UNORM );

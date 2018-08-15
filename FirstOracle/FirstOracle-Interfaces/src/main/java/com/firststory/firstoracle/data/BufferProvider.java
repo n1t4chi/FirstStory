@@ -7,7 +7,7 @@ package com.firststory.firstoracle.data;
 /**
  * @author n1t4chi
  */
-public interface BufferProvider< Context > {
+public interface BufferProvider< Context, Data > {
     
-    Context create() throws CannotCreateBufferException;
+    <Type> Context create( Data data ) throws CannotCreateBufferException;
 }

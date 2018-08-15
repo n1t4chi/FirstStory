@@ -15,9 +15,7 @@ import java.util.Map;
  */
 public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommandBuffer > {
     
-    VulkanTransferCommandPool(
-        VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily
-    ) {
+    VulkanTransferCommandPool( VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily ) {
         super( device, usedQueueFamily );
     }
     

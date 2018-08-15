@@ -4,8 +4,8 @@
 
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.data.ArrayBuffer;
 import com.firststory.firstoracle.data.BufferMap;
+import com.firststory.firstoracle.data.DataBuffer;
 
 import java.util.HashMap;
 
@@ -17,14 +17,9 @@ public abstract class VertexAttribute {
     private final HashMap< Long, float[] > arrays = new HashMap<>(  );
     
     
-    public ArrayBuffer getBuffer( long key, VertexAttributeLoader loader ) {
+    public DataBuffer getBuffer( long key, VertexAttributeLoader loader ) {
         return bufferMaps.computeIfAbsent( loader, ignored -> new BufferMap() )
-            .get(key, () -> {
-                ArrayBuffer newBuffer = loader.createEmptyBuffer();
-                newBuffer.create();
-                newBuffer.load( getArray( key ) );
-                return newBuffer;
-            } )
+            .get(key, () -> loader.provideBuffer( getArray( key ) ) )
         ;
     }
     
@@ -39,7 +34,7 @@ public abstract class VertexAttribute {
     
     public abstract float[] getArray( long key );
     
-    public int getVertexLength( long key ) {
+    int getVertexLength( long key ) {
         return getArray( key ).length / getVertexSize();
     }
 }
