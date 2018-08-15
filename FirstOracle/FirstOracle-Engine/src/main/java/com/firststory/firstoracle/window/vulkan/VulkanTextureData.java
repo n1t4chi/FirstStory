@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanMappableBuffer;
+
 /**
  * @author n1t4chi
  */

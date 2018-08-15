@@ -73,7 +73,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         Map< Integer, VulkanFrameBuffer > frameBuffers
     );
     
-    void executeQueue( VulkanCommand<CommandBuffer> commands ) {
+    public void executeQueue( VulkanCommand<CommandBuffer> commands ) {
         CommandBuffer commandBuffer = extractNextCommandBuffer();
         commandBuffer.fillQueueSetup();
         commandBuffer.fillQueue( commands );

@@ -6,6 +6,7 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.data.BufferNotCreatedException;
 import com.firststory.firstoracle.data.TextureBufferLoader;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.vulkan.*;

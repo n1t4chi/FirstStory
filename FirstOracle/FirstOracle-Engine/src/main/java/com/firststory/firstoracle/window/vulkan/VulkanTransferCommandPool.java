@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * @author n1t4chi
  */
-class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommandBuffer > {
+public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommandBuffer > {
     
     VulkanTransferCommandPool(
         VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily

@@ -6,6 +6,8 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.rendering.RenderingContext;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanArrayBuffer;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 import org.joml.Vector4fc;
 
 import java.util.Arrays;

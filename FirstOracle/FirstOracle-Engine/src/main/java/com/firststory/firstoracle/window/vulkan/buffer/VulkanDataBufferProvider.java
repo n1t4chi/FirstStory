@@ -2,10 +2,11 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.buffer;
 
 import com.firststory.firstoracle.data.BufferProvider;
 import com.firststory.firstoracle.data.CannotCreateBufferException;
+import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 
@@ -28,7 +29,7 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
     private final List< VulkanDataBuffer > buffers = new ArrayList<>(  );
     private final Map< Object, VulkanStagingBuffer > stagingBuffers = new HashMap<>();
     
-    VulkanDataBufferProvider( VulkanPhysicalDevice device ) {
+    public VulkanDataBufferProvider( VulkanPhysicalDevice device ) {
         this.device = device;
     }
     
@@ -37,7 +38,7 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         throw new UnsupportedOperationException( "use dedicated method" );
     }
     
-    VulkanMappableBuffer createMappableBuffer() {
+    public VulkanMappableBuffer createMappableBuffer() {
         return new VulkanMappableBuffer(
             device,
             MAPPABLE_BUFFER_USAGE_FLAGS,
@@ -45,11 +46,11 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         );
     }
     
-    VulkanArrayBuffer createFloatBuffer() {
+    public VulkanArrayBuffer createFloatBuffer() {
         return new VulkanArrayBuffer( device, this );
     }
     
-    VulkanStageableDataBuffer< byte[] > createByteBuffer() {
+    public VulkanStageableDataBuffer< byte[] > createByteBuffer() {
         return new VulkanStageableDataBuffer< byte[] >( device, this ) {
             
             @Override
@@ -73,13 +74,13 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         };
     }
     
-    VulkanUniformBuffer createUniformBuffer( int dataLength, int dataSize ) {
+    public VulkanUniformBuffer createUniformBuffer( int dataLength, int dataSize ) {
         VulkanUniformBuffer uniformBuffer = new VulkanUniformBuffer( device );
         uniformBuffer.createBuffer( dataLength, dataSize );
         return uniformBuffer;
     }
     
-    < D > VulkanStagingBuffer provideStagingBuffer(
+    public < D > VulkanStagingBuffer provideStagingBuffer(
         D data,
         int dataLength,
         int dataByteSize,
@@ -90,7 +91,7 @@ public class VulkanDataBufferProvider implements BufferProvider< VulkanDataBuffe
         );
     }
     
-    < D > VulkanStagingBuffer provideUniqueStagingBuffer(
+    public < D > VulkanStagingBuffer provideUniqueStagingBuffer(
         D data,
         int dataLength,
         int dataByteSize,

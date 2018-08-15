@@ -9,24 +9,47 @@ package com.firststory.firstoracle.window.vulkan.buffer;
  */
 public class DataBuffer {
     
-    private final Memory block;
     private final MemoryLocation location;
+    private final MemoryController controller;
+    private boolean usable = true;
     
-    public DataBuffer( Memory memory, MemoryLocation memoryLocation ) {
-        this.block = memory;
+    public DataBuffer( MemoryController controller, MemoryLocation memoryLocation ) {
+        this.controller = controller;
         this.location = memoryLocation;
     }
     
     public int length() {
+        assertUsable();
         return location.getLength();
     }
     
     public char[] read() {
-        return block.read( location );
+        assertUsable();
+        return controller.read( location );
     }
     
     public void write( char[] data ) {
-        block.write( location, data );
+        assertUsable();
+        controller.write( location, data );
     }
     
+    public void free() {
+        assertUsable();
+        usable = false;
+        controller.free( location );
+    }
+    
+    private void assertUsable() {
+        if ( usable ) {
+            return;
+        }
+        throw new BufferClosedException();
+    }
+    
+    class BufferClosedException extends RuntimeException {
+        
+        private BufferClosedException() {
+            super( "Buffer is already closed." );
+        }
+    }
 }

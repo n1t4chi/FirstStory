@@ -6,6 +6,8 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.shader.ShaderProgram;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanUniformBuffer;
 import org.joml.Matrix4fc;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;

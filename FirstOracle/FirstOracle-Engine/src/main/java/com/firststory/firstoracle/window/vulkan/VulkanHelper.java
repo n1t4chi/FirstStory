@@ -16,9 +16,9 @@ import java.util.function.*;
  */
 public class VulkanHelper {
     
-    static final FailTest VK_SUCCESS_TEST = resultCode -> resultCode != VK10.VK_SUCCESS;
+    public static final FailTest VK_SUCCESS_TEST = resultCode -> resultCode != VK10.VK_SUCCESS;
     
-    static < CreateInfo > VulkanAddress createAddress(
+    public static < CreateInfo > VulkanAddress createAddress(
         CreateInfoSupplier< CreateInfo > supplier,
         CreateInfoArrayCreator< CreateInfo > creator,
         ExceptionThrower thrower
@@ -26,7 +26,7 @@ public class VulkanHelper {
         return createAddress( supplier, creator, VK_SUCCESS_TEST, thrower );
     }
     
-    static < CreateInfo > VulkanAddress createAddress(
+    public static < CreateInfo > VulkanAddress createAddress(
         CreateInfoSupplier< CreateInfo > supplier,
         CreateInfoArrayCreator< CreateInfo > creator,
         FailTest test,
@@ -35,19 +35,19 @@ public class VulkanHelper {
         return createAddress( address -> creator.create( supplier.get(), address ), test, thrower );
     }
     
-    static VulkanAddress createAddress(
+    public static VulkanAddress createAddress(
         ArrayCreator creator, ExceptionThrower thrower
     ) {
         return createAddress( creator, VK_SUCCESS_TEST, thrower );
     }
     
-    static VulkanAddress createAddress(
+    public static VulkanAddress createAddress(
         ArrayCreator creator, FailTest test, ExceptionThrower thrower
     ) {
         return updateAddress( new VulkanAddress(), creator, test, thrower );
     }
     
-    static < CreateInfo > VulkanAddress updateAddress(
+    public static < CreateInfo > VulkanAddress updateAddress(
         VulkanAddress address,
         CreateInfoSupplier< CreateInfo > supplier,
         CreateInfoArrayCreator< CreateInfo > creator,
@@ -56,7 +56,7 @@ public class VulkanHelper {
         return updateAddress( address, supplier, creator, VK_SUCCESS_TEST, thrower );
     }
     
-    static < CreateInfo > VulkanAddress updateAddress(
+    public static < CreateInfo > VulkanAddress updateAddress(
         VulkanAddress addres,
         CreateInfoSupplier< CreateInfo > supplier,
         CreateInfoArrayCreator< CreateInfo > creator,
@@ -66,14 +66,14 @@ public class VulkanHelper {
         return updateAddress( addres, addressA -> creator.create( supplier.get(), addressA ), test, thrower );
     }
     
-    static VulkanAddress updateAddress(
+    public static VulkanAddress updateAddress(
         VulkanAddress address,
         ArrayCreator creator, ExceptionThrower thrower
     ) {
         return updateAddress( address, creator, VK_SUCCESS_TEST, thrower );
     }
     
-    static VulkanAddress updateAddress(
+    public static VulkanAddress updateAddress(
         VulkanAddress address,
         ArrayCreator creator, FailTest test, ExceptionThrower thrower
     ) {
@@ -83,7 +83,7 @@ public class VulkanHelper {
     }
     
     
-    static < CreateInfo > VulkanAddress createAddressViaBuffer(
+    public static < CreateInfo > VulkanAddress createAddressViaBuffer(
         CreateInfoSupplier< CreateInfo > supplier,
         CreateInfoBufferCreator< CreateInfo > creator,
         ExceptionThrower thrower
@@ -91,7 +91,7 @@ public class VulkanHelper {
         return createAddressViaBuffer( supplier, creator, VK_SUCCESS_TEST, thrower );
     }
     
-    static < CreateInfo > VulkanAddress createAddressViaBuffer(
+    public static < CreateInfo > VulkanAddress createAddressViaBuffer(
         CreateInfoSupplier< CreateInfo > supplier,
         CreateInfoBufferCreator< CreateInfo > creator,
         FailTest test,
@@ -100,26 +100,26 @@ public class VulkanHelper {
         return createAddressViaBuffer( address -> creator.create( supplier.get(), address ), test, thrower );
     }
     
-    static VulkanAddress createAddressViaBuffer(
+    public static VulkanAddress createAddressViaBuffer(
         PointerBufferCreator creator, ExceptionThrower thrower
     ) {
         return createAddressViaBuffer( creator, VK_SUCCESS_TEST, thrower );
     }
     
-    static VulkanAddress createAddressViaBuffer(
+    public static VulkanAddress createAddressViaBuffer(
         PointerBufferCreator creator, FailTest test, ExceptionThrower thrower
     ) {
         return updateAddressViaBuffer( new VulkanAddress(), creator, test, thrower );
     }
     
-    static VulkanAddress updateAddressViaBuffer(
+    public static VulkanAddress updateAddressViaBuffer(
         VulkanAddress address,
         PointerBufferCreator creator, ExceptionThrower thrower
     ) {
         return updateAddressViaBuffer( address, creator, VK_SUCCESS_TEST, thrower );
     }
     
-    static VulkanAddress updateAddressViaBuffer(
+    public static VulkanAddress updateAddressViaBuffer(
         VulkanAddress address,
         PointerBufferCreator creator, FailTest test, ExceptionThrower thrower
     ) {
@@ -130,25 +130,25 @@ public class VulkanHelper {
         return address.setAddress( value );
     }
     
-    static void assertCallOrThrow(
+    public static void assertCallOrThrow(
         ResultCodeSupplier supplier, ExceptionThrower thrower
     ) {
         assertCallOrThrow( supplier, VK_SUCCESS_TEST, thrower );
     }
     
-    static void assertCall(
+    public static void assertCall(
         ResultCodeSupplier supplier, FailAction action
     ) {
         assertCall( supplier, VK_SUCCESS_TEST, action );
     }
     
-    static void assertCallOrThrow(
+    public static void assertCallOrThrow(
         ResultCodeSupplier supplier, FailTest test, ExceptionThrower thrower
     ) {
         assertCall( supplier, test, resultCode -> { throw thrower.create( resultCode ); } );
     }
     
-    static void assertCall(
+    public static void assertCall(
         ResultCodeSupplier supplier, FailTest test, FailAction action
     ) {
         int resultCode;
@@ -157,7 +157,7 @@ public class VulkanHelper {
         }
     }
     
-    static < Product > void iterate(
+    public static < Product > void iterate(
         Iterable< Product > products,
         IterationAction< Product > action
     ) {
@@ -167,7 +167,7 @@ public class VulkanHelper {
         }
     }
     
-    static void iterate(
+    public static void iterate(
         PointerBuffer products,
         IterationAction< Long > action
     ) {
@@ -177,7 +177,7 @@ public class VulkanHelper {
         }
     }
     
-    static int flagsToInt( int... flags ) {
+    public static int flagsToInt( int... flags ) {
         int returnedFlag = 0;
         for ( int flag : flags ) {
             returnedFlag |= flag;
@@ -185,12 +185,12 @@ public class VulkanHelper {
         return returnedFlag;
     }
     
-    interface IterationAction< Product > extends BiConsumer< Integer, Product > {
+    public interface IterationAction< Product > extends BiConsumer< Integer, Product > {
         @Override
         void accept( Integer index, Product product );
     }
     
-    interface FailTest extends Predicate< Integer > {
+    public interface FailTest extends Predicate< Integer > {
         
         boolean isFailure( Integer resultCode );
         
@@ -200,7 +200,7 @@ public class VulkanHelper {
         }
     }
     
-    interface PointerBufferCreator extends Function< PointerBuffer, Integer > {
+    public interface PointerBufferCreator extends Function< PointerBuffer, Integer > {
 
         Integer create( PointerBuffer address );
 
@@ -210,7 +210,7 @@ public class VulkanHelper {
         }
     }
     
-    interface ArrayCreator extends Function< long[], Integer > {
+    public interface ArrayCreator extends Function< long[], Integer > {
         
         Integer create( long[] address );
         
@@ -220,7 +220,7 @@ public class VulkanHelper {
         }
     }
     
-    interface CreateInfoBufferCreator< CreateInfo > extends BiFunction< CreateInfo, PointerBuffer, Integer > {
+    public interface CreateInfoBufferCreator< CreateInfo > extends BiFunction< CreateInfo, PointerBuffer, Integer > {
         
         Integer create( CreateInfo createInfo, PointerBuffer address );
         
@@ -230,7 +230,7 @@ public class VulkanHelper {
         }
     }
     
-    interface CreateInfoArrayCreator< CreateInfo > extends BiFunction< CreateInfo, long[], Integer > {
+    public interface CreateInfoArrayCreator< CreateInfo > extends BiFunction< CreateInfo, long[], Integer > {
         
         Integer create( CreateInfo createInfo, long[] address );
         
@@ -240,7 +240,7 @@ public class VulkanHelper {
         }
     }
     
-    interface ResultCodeSupplier extends Supplier< Integer > {
+    public interface ResultCodeSupplier extends Supplier< Integer > {
         
         Integer create();
         
@@ -250,7 +250,7 @@ public class VulkanHelper {
         }
     }
     
-    interface CreateInfoSupplier< CreateInfo > extends Supplier< CreateInfo > {
+    public interface CreateInfoSupplier< CreateInfo > extends Supplier< CreateInfo > {
     
         CreateInfo create();
     
@@ -260,7 +260,7 @@ public class VulkanHelper {
         }
     }
     
-    interface ExceptionThrower extends FailAction {
+    public interface ExceptionThrower extends FailAction {
         
         VulkanException create( Integer resultCode );
         
@@ -270,7 +270,7 @@ public class VulkanHelper {
         }
     }
     
-    interface FailAction extends Consumer< Integer > {
+    public interface FailAction extends Consumer< Integer > {
         
         void perform( Integer resultCode );
         

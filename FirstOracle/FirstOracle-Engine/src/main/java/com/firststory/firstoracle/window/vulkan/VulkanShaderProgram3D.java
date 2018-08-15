@@ -6,6 +6,7 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.shader.ShaderProgram2D;
 import com.firststory.firstoracle.shader.ShaderProgram3D;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 import org.joml.Matrix4fc;
 import org.joml.Vector2fc;
 import org.joml.Vector3fc;
@@ -36,7 +37,6 @@ public class VulkanShaderProgram3D extends VulkanShaderProgram implements Shader
     public void bindPosition( Vector2fc vector ) {
         putInputData( OFFSET_POSITION, vector.x(), vector.y(), 0 );
     }
-    
     
     @Override
     public void bindCamera( Matrix4fc camera ) {
@@ -71,16 +71,5 @@ public class VulkanShaderProgram3D extends VulkanShaderProgram implements Shader
     @Override
     public void bindMaxAlphaChannel( float value ) {
         putInputData( OFFSET_ALPHA_CHANNEL, value );
-    }
-    
-    @Override
-    void clearValues() {
-        super.clearValues();
-//        bindCamera( FirstOracleConstants.MATRIX_4F_IDENTIFY );
-//        bindPosition( FirstOracleConstants.VECTOR_ZERO_3F );
-//        bindScale( FirstOracleConstants.VECTOR_ONES_3F );
-//        bindRotation( FirstOracleConstants.VECTOR_ZERO_3F );
-//        bindOverlayColour( FirstOracleConstants.VECTOR_ONES_4F );
-//        bindMaxAlphaChannel( 1f );
     }
 }

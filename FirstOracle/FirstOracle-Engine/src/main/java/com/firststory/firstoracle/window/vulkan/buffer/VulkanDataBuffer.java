@@ -2,11 +2,15 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.buffer;
 
 import com.firststory.firstoracle.data.BufferNotCreatedException;
 import com.firststory.firstoracle.data.CannotCreateBufferException;
 import com.firststory.firstoracle.data.DataBuffer;
+import com.firststory.firstoracle.window.vulkan.VulkanAddress;
+import com.firststory.firstoracle.window.vulkan.VulkanHelper;
+import com.firststory.firstoracle.window.vulkan.VulkanMemoryType;
+import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotAllocateVulkanMemoryExcpetion;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotBindVulkanMemoryException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanVertexBufferException;
@@ -82,7 +86,7 @@ public abstract class VulkanDataBuffer< Data > implements DataBuffer< Data > {
         return dataCount;
     }
     
-    void createBuffer( int dataLength, int dataSize ) {
+    public void createBuffer( int dataLength, int dataSize ) {
         this.dataCount = dataLength;
         this.dataSize = dataSize;
 //        vertexBuffer = createVertexDataBuffer();
@@ -96,7 +100,7 @@ public abstract class VulkanDataBuffer< Data > implements DataBuffer< Data > {
         bindMemoryToBuffer();
     }
     
-    VulkanAddress getBufferAddress() {
+    public VulkanAddress getBufferAddress() {
         return bufferAddress;
     }
     

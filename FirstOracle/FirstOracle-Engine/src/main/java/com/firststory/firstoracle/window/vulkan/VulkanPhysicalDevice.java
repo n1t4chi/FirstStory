@@ -7,6 +7,7 @@ package com.firststory.firstoracle.window.vulkan;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.joml.Vector4fc;
 import org.lwjgl.BufferUtils;
@@ -218,7 +219,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return memoryTypes;
     }
     
-    VulkanTransferCommandPool getVertexDataTransferCommandPool() {
+    public VulkanTransferCommandPool getVertexDataTransferCommandPool() {
         return vertexDataTransferCommandPool;
     }
     
@@ -226,7 +227,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return textureTransferCommandPool;
     }
     
-    VulkanMemoryType selectMemoryType( int desiredType, int... desiredFlags ) {
+    public VulkanMemoryType selectMemoryType( int desiredType, int... desiredFlags ) {
         for ( VulkanMemoryType memoryType : memoryTypes.values() ) {
             if( checkMemoryTypeFlags( memoryType.getIndex(), memoryType.propertyFlags(), desiredType, desiredFlags ) ) {
                 return memoryType;
@@ -293,15 +294,15 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VK10.vkDestroyDevice( logicalDevice, null );
     }
     
-    VkDevice getLogicalDevice() {
+    public VkDevice getLogicalDevice() {
         return logicalDevice;
     }
     
-    boolean isSingleQueueFamilyUsed() {
+    public boolean isSingleQueueFamilyUsed() {
         return usedQueueFamilies.size() == 1;
     }
     
-    VkPhysicalDevice getPhysicalDevice() {
+    public VkPhysicalDevice getPhysicalDevice() {
         return physicalDevice;
     }
     
@@ -315,7 +316,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         );
     }
     
-    IntBuffer createQueueFamilyIndicesBuffer() {
+    public IntBuffer createQueueFamilyIndicesBuffer() {
         IntBuffer buffer = MemoryUtil.memAllocInt( usedQueueFamilies.size() );
         usedQueueFamilies.forEach( family -> buffer.put( family.getIndex() ) );
         buffer.flip();

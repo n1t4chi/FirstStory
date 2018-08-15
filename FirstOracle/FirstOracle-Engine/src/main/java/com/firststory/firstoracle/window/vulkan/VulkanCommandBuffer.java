@@ -24,7 +24,7 @@ public abstract class VulkanCommandBuffer {
     private final VulkanCommandPool commandPool;
     private final int[] usedBeginInfoFlags;
     
-    VulkanCommandBuffer(
+    public VulkanCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
         VulkanCommandPool commandPool,
@@ -38,28 +38,28 @@ public abstract class VulkanCommandBuffer {
         beginInfo = createBeginInfo();
     }
     
-    VkCommandBuffer getCommandBuffer() {
+    public VkCommandBuffer getCommandBuffer() {
         return commandBuffer;
     }
     
-    void fillQueue( VulkanCommand commands ) {
+    public void fillQueue( VulkanCommand commands ) {
         commands.execute( this );
     }
     
-    void fillQueueSetup() {
+    public void fillQueueSetup() {
         resetCommandBuffer();
         beginRecordingCommandBuffer();
     }
     
-    void fillQueueTearDown() {
+    public void fillQueueTearDown() {
         endCommandBuffer();
     }
     
-    void close() {
+    public void close() {
         VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress().getValue(), commandBuffer );
     }
     
-    VulkanAddress getAddress(){
+    public VulkanAddress getAddress(){
         return address;
     }
     

@@ -6,6 +6,8 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.object.VertexAttribute;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanArrayBuffer;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 
 import java.util.HashMap;
 import java.util.Map;

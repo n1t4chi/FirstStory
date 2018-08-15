@@ -2,10 +2,11 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.buffer;
 
 import com.firststory.firstoracle.data.BufferNotCreatedException;
 import com.firststory.firstoracle.data.BufferNotLoadedException;
+import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 import org.lwjgl.vulkan.VK10;
 
 import java.nio.ByteBuffer;
@@ -39,7 +40,7 @@ public abstract class VulkanStageableDataBuffer< Data > extends VulkanDataBuffer
         stagingBuffer.copyBuffer( this, getDevice().getVertexDataTransferCommandPool() );
     }
     
-    void copy( Data data ) {
+    public void copy( Data data ) {
         if( stagingBuffer == null ) {
             load( data );
         } else {

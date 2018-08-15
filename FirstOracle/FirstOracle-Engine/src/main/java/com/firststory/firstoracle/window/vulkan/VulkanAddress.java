@@ -9,20 +9,20 @@ import org.lwjgl.vulkan.VK10;
 /**
  * @author n1t4chi
  */
-class VulkanAddress {
+public class VulkanAddress {
     
     private static final VulkanAddress NULL = createNull();
     private static final long NULL_HANDLE = VK10.VK_NULL_HANDLE;
     
-    static VulkanAddress createNull() { return new VulkanAddress(); }
+    public static VulkanAddress createNull() { return new VulkanAddress(); }
     
     private long value;
     
-    VulkanAddress( long value ) {
+    public VulkanAddress( long value ) {
         this.value = value;
     }
     
-    VulkanAddress() {
+    public VulkanAddress() {
         this( NULL_HANDLE );
     }
     
@@ -41,21 +41,21 @@ class VulkanAddress {
         return value == that.value;
     }
     
-    VulkanAddress setNull() {
+    public VulkanAddress setNull() {
         value = NULL_HANDLE;
         return this;
     }
     
-    long getValue() {
+    public long getValue() {
         return value;
     }
     
-    VulkanAddress setAddress( long value ) {
+    public VulkanAddress setAddress( long value ) {
         this.value = value;
         return this;
     }
     
-    boolean isNull() {
+    public boolean isNull() {
         return value == NULL_HANDLE;
     }
 }

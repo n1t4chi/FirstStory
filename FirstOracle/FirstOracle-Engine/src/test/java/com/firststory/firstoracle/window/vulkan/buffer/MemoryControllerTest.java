@@ -10,14 +10,15 @@ import org.junit.Test;
 public class MemoryControllerTest {
     
     @Test
-    public void singleBufferTest() {
+    public void singleSimpleBufferTest() {
         int outOfMemoryLength = 15;
         char[] outOfBoundsData = "aeiouaeiouaeiou".toCharArray();
         
         int length = 5;
-        char[] data = "aeiou".toCharArray();
+        char[] data1 = "aeiou".toCharArray();
+        char[] data2 = "qwert".toCharArray();
         
-        MemoryController controller = new MemoryController( 10 );
+        MemoryController controller = new MemoryController( new TestMemory( 10 ) );
         
         assertException( MemoryController.OutOfMemoryException.class,
             () -> controller.createBuffer( outOfMemoryLength )
@@ -25,14 +26,80 @@ public class MemoryControllerTest {
         DataBuffer buffer = controller.createBuffer( length );
         Assert.assertEquals( length, buffer.length() );
         
-        assertException( Memory.WriteMemoryOutOfBoundException.class, () -> buffer.write( outOfBoundsData )
+        assertException( TestMemory.WriteMemoryOutOfBoundException.class, () -> buffer.write( outOfBoundsData )
         );
-        buffer.write( data );
+        buffer.write( data1 );
         
-        assertException( Memory.ReadMemoryOutOfBoundException.class,
-            () -> ( new DataBuffer( controller.getMemory(), new MemoryLocation( 0, outOfMemoryLength ) ) ).read()
+        assertException( TestMemory.ReadMemoryOutOfBoundException.class,
+            () -> ( new DataBuffer( controller, new MemoryLocation( 0, outOfMemoryLength, outOfMemoryLength ) ) ).read()
         );
-        Assert.assertArrayEquals( data, buffer.read() );
+        Assert.assertArrayEquals( data1, buffer.read() );
+        
+        buffer.write( data2 );
+        Assert.assertArrayEquals( data2, buffer.read() );
+    }
+    
+    @Test
+    public void multipleSimpleBufferTest() {
+        
+        int length = 5;
+        char[] data1 = "aeiou".toCharArray();
+        char[] data2 = "zxcvb".toCharArray();
+        
+        MemoryController controller = new MemoryController( new TestMemory( 10 ) );
+    
+        DataBuffer buffer1 = controller.createBuffer( length );
+        DataBuffer buffer2 = controller.createBuffer( length );
+        assertException( MemoryController.OutOfMemoryException.class,
+            () -> controller.createBuffer( length )
+        );
+    
+        buffer1.write( data1 );
+        buffer2.write( data2 );
+        
+        Assert.assertArrayEquals( data1, buffer1.read() );
+        Assert.assertArrayEquals( data2, buffer2.read() );
+    }
+    
+    @Test
+    public void simpleReassignmentBufferTest() {
+        
+        int length = 5;
+        char[] data1 = "aeiou".toCharArray();
+        char[] data2 = "zxcvb".toCharArray();
+        char[] data3 = "qwert".toCharArray();
+        char[] data4 = "asdfg".toCharArray();
+        
+        MemoryController controller = new MemoryController( new TestMemory( 10 ) );
+        
+        DataBuffer buffer1 = controller.createBuffer( length );
+        buffer1.write( data1 );
+        Assert.assertArrayEquals( data1, buffer1.read() );
+        
+        DataBuffer buffer2 = controller.createBuffer( length );
+        buffer2.write( data2 );
+        Assert.assertArrayEquals( data1, buffer1.read() );
+        Assert.assertArrayEquals( data2, buffer2.read() );
+        
+        buffer2.free();
+        assertException( DataBuffer.BufferClosedException.class, buffer2::free );
+        
+        DataBuffer buffer3 = controller.createBuffer( length );
+        buffer3.write( data3 );
+        
+        Assert.assertArrayEquals( data1, buffer1.read() );
+        assertException( DataBuffer.BufferClosedException.class, buffer2::read );
+        Assert.assertArrayEquals( data3, buffer3.read() );
+        
+        buffer1.free();
+    
+        DataBuffer buffer4 = controller.createBuffer( length );
+        buffer4.write( data4 );
+    
+        assertException( DataBuffer.BufferClosedException.class, buffer1::read );
+        assertException( DataBuffer.BufferClosedException.class, buffer2::read );
+        Assert.assertArrayEquals( data3, buffer3.read() );
+        Assert.assertArrayEquals( data4, buffer4.read() );
     }
     
     private void assertException( Class< ? extends Exception > aClass, Failable test ) {

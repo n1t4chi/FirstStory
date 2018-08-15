@@ -9,7 +9,7 @@ import org.lwjgl.vulkan.VkMemoryType;
 /**
  * @author n1t4chi
  */
-class VulkanMemoryType {
+public class VulkanMemoryType {
     
     private final Integer index;
     private final VkMemoryType memoryType;

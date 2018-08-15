@@ -7,36 +7,22 @@ package com.firststory.firstoracle.window.vulkan.buffer;
 /**
  * @author n1t4chi
  */
-public class Memory {
+public abstract class Memory {
     
-    private final char[] data;
+    public abstract int length();
     
-    public Memory( int length ) {
-        data = new char[ length ];
-    }
+    protected abstract void writeUnsafe( MemoryLocation location, char[] data );
     
-    public int length() {
-        return data.length;
-    }
+    protected abstract char[] readUnsafe( MemoryLocation location );
     
     public void write( MemoryLocation location, char[] data ) {
         assertWriteLength( location, data );
-        write( location.getPosition(), data );
+        writeUnsafe( location, data );
     }
     
     public char[] read( MemoryLocation location ) {
         asserReadLength( location );
-        return read( location.getPosition(), location.getLength() );
-    }
-    
-    private void write( int position, char[] data ) {
-        System.arraycopy( data, 0, this.data, position, data.length );
-    }
-    
-    private char[] read( int position, int length ) {
-        char[] data = new char[ length ];
-        System.arraycopy( this.data, position, data, 0, length );
-        return data;
+        return readUnsafe( location );
     }
     
     private void assertWriteLength( MemoryLocation location, char[] data ) {
@@ -46,7 +32,7 @@ public class Memory {
     }
     
     private void asserReadLength( MemoryLocation location ) {
-        if ( location.getLength() + location.getPosition() > data.length ) {
+        if ( location.getLength() + location.getPosition() > length() ) {
             throw new ReadMemoryOutOfBoundException( location );
         }
     }
@@ -57,7 +43,7 @@ public class Memory {
         }
     }
     class WriteMemoryOutOfBoundException extends RuntimeException {
-    
+        
         private WriteMemoryOutOfBoundException( MemoryLocation location, int length ) {
             super( "Provided data length: " + length + ", Maximum buffer length: " + location.getLength() );
         }

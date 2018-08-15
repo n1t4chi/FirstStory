@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanArrayBuffer;
 import org.joml.Vector4fc;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
@@ -11,14 +12,14 @@ import org.lwjgl.vulkan.*;
 /**
  * @author n1t4chi
  */
-class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
+public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     
     private final VulkanGraphicPipeline graphicsPipeline;
     private final VkRenderPassBeginInfo renderPassBeginInfo;
     private final VulkanFrameBuffer frameBuffer;
     private final int index;
     
-    VulkanGraphicCommandBuffer(
+    public VulkanGraphicCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
         VulkanFrameBuffer frameBuffer,
@@ -41,14 +42,14 @@ class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     }
     
     @Override
-    void fillQueueSetup() {
+    public void fillQueueSetup() {
         super.fillQueueSetup();
         beginRenderPassForCommandBuffer();
         bindPipeline( graphicsPipeline );
     }
     
     @Override
-    void fillQueueTearDown() {
+    public void fillQueueTearDown() {
         endRenderPass();
         super.fillQueueTearDown();
     }
