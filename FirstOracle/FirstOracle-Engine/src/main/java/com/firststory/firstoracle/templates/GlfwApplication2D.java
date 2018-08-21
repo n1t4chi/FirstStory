@@ -13,11 +13,12 @@ import com.firststory.firstoracle.notyfying.WindowListener;
 import com.firststory.firstoracle.notyfying.WindowSizeEvent;
 import com.firststory.firstoracle.object.Renderable;
 import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object2D.NonAnimatedRectangleGrid;
 import com.firststory.firstoracle.object2D.RectangleGrid;
 import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object3D.*;
+import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
+import com.firststory.firstoracle.object3D.PositionableObject3D;
+import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedObjects2D;
 import com.firststory.firstoracle.scene.RenderedObjects3D;
@@ -27,7 +28,6 @@ import org.joml.Vector2ic;
 import org.joml.Vector3ic;
 import org.joml.Vector4f;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -51,66 +51,6 @@ public class GlfwApplication2D {
     private Grid3DRenderer grid3DRenderer;
     private Grid2DRenderer grid2DRenderer;
     private WindowSettings settings;
-    
-    static final float[] POSITION_1 = new float[]{
-        /*3*/ /*pos*/ -2.5f, -2.5f, 2.0f,
-        /*2*/ /*pos*/ -2.5f, 2.5f, 2.0f,
-        /*1*/ /*pos*/ 2.5f, 2.5f, 2.0f,
-        
-        /*4*/ /*pos*/ 2.5f, -2.5f, 2.0f,
-        /*3*/ /*pos*/ -2.5f, -2.5f, 2.0f,
-        /*1*/ /*pos*/ 2.5f, 2.5f, 2.0f,
-        
-        /*3*/ /*pos*/ -2.5f, -2.5f, 1.0f,
-        /*2*/ /*pos*/ -2.5f, 2.5f, 1.0f,
-        /*1*/ /*pos*/ 2.5f, 2.5f, 1.0f,
-        
-        /*4*/ /*pos*/ 2.5f, -2.5f, 1.0f,
-        /*3*/ /*pos*/ -2.5f, -2.5f, 1.0f,
-        /*1*/ /*pos*/ 2.5f, 2.5f, 1.0f,
-    };
-    static final float[] UVMAP_1 = new float[]{
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-        
-        /*4*/ /*pos*/ 1f, 0f,
-        /*3*/ /*pos*/ 0f, 0f,
-        /*1*/ /*pos*/ 1f, 1f,
-        
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-        
-        /*4*/ /*pos*/ 1f, 0f,
-        /*3*/ /*pos*/ 0f, 0f,
-        /*1*/ /*pos*/ 1f, 1f,
-    };
-    static final float[] POSITION_2 = new float[]{
-        /*3*/ /*pos*/ 1.0f, 1.0f, 2.5f,
-        /*1*/ /*pos*/ 1.0f, -1.0f, 2.5f,
-        /*2*/ /*pos*/ -1.0f, 1.0f, 2.5f,
-        
-        /*1*/ /*pos*/ 1.0f, 2.0f, 2.1f,
-        /*2*/ /*pos*/ 2.0f, -1.0f, 2.1f,
-        /*3*/ /*pos*/ -1.0f, 2.0f, 2.1f,
-    };
-    static final float[] UVMAP_2 = new float[]{
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-        
-        
-        /*3*/ /*pos*/ 0f, 0f,
-        /*2*/ /*pos*/ 0f, 1f,
-        /*1*/ /*pos*/ 1f, 1f,
-    };
-    
-    private static Vertices3D vertices3D_1;
-    private static UvMap uvMap_1;
-    
-    private static Vertices3D vertices3D_2;
-    private static UvMap uvMap_2;
     
     public void run( String[] args ) throws Exception{
         int width = 300;
@@ -159,114 +99,10 @@ public class GlfwApplication2D {
 //        compound.getTransformations().setPosition( -4, -4 );
 //        compound.getTransformations().setScale( 4, 4 );
     
-        vertices3D_1 = new Vertices3D( new float[][]{ POSITION_1 } );
-        uvMap_1 = new UvMap( new float[][][]{ new float[][] { UVMAP_1 } } );
-    
-        vertices3D_2 = new Vertices3D( new float[][]{ POSITION_2 } );
-        uvMap_2 = new UvMap( new float[][][]{ new float[][] { UVMAP_2 } } );
-    
-        PositionableObject3D object1 = new PositionableObject3D(){
-    
-            private Object3DTransformations transformations = new Mutable3DTransformations();
-    
-            {
-                ((Mutable3DTransformations)transformations).setPosition( -16,-16,-16 );
-            }
-    
-            @Override
-            public void setTransformations( Object3DTransformations transformations ) {
-                this.transformations = transformations;
-            }
-    
-            @Override
-            public Object3DTransformations getTransformations() {
-                return transformations;
-            }
-    
-            @Override
-            public Texture getTexture() {
-                return texture1;
-            }
-    
-            @Override
-            public int getCurrentUvMapDirection( double currentCameraRotation ) {
-                return 0;
-            }
-    
-            @Override
-            public UvMap getUvMap() {
-                return uvMap_1;
-            }
-    
-            @Override
-            public int getCurrentUvMapFrame( double currentTimeSnapshot ) {
-                return 0;
-            }
-    
-            @Override
-            public Vertices3D getVertices() {
-                return vertices3D_1;
-            }
-    
-            @Override
-            public int getCurrentVertexFrame( double currentTimeSnapshot ) {
-                return 0;
-            }
-        };
-        
-        PositionableObject3D object2 = new PositionableObject3D(){
-    
-            private Object3DTransformations transformations = new Mutable3DTransformations();
-            
-            {
-                ((Mutable3DTransformations)transformations).setPosition( 16,16,16 );
-            }
-    
-            @Override
-            public void setTransformations( Object3DTransformations transformations ) {
-                this.transformations = transformations;
-            }
-    
-            @Override
-            public Object3DTransformations getTransformations() {
-                return transformations;
-            }
-        
-            @Override
-            public Texture getTexture() {
-                return texture1;
-            }
-        
-            @Override
-            public int getCurrentUvMapDirection( double currentCameraRotation ) {
-                return 0;
-            }
-        
-            @Override
-            public UvMap getUvMap() {
-                return uvMap_2;
-            }
-        
-            @Override
-            public int getCurrentUvMapFrame( double currentTimeSnapshot ) {
-                return 0;
-            }
-        
-            @Override
-            public Vertices3D getVertices() {
-                return vertices3D_2;
-            }
-        
-            @Override
-            public int getCurrentVertexFrame( double currentTimeSnapshot ) {
-                return 0;
-            }
-        };
-    
-        RectangleGrid[][] array = new RectangleGrid[20][20];
-    
-        NonAnimatedCubeGrid cubeGrid = new NonAnimatedCubeGrid();
-        cubeGrid.setTexture( texture1 );
+        RectangleGrid[][] array = new RectangleGrid[0][0];
+        NonAnimatedCubeGrid[][][] terrain3DS = new NonAnimatedCubeGrid[1][1][1];
+        terrain3DS[0][0][0] = new NonAnimatedCubeGrid();
+        terrain3DS[0][0][0].setTexture( texture1 );
 
         for ( int x = 0; x < array.length; x++ ) {
             for ( int y = 0; y < array[x].length; y++ ) {
@@ -274,13 +110,7 @@ public class GlfwApplication2D {
             }
         }
 //        List<Renderable> renderables = Arrays.<Renderable>asList( compound, object );
-        List<PositionableObject3D> renderables = Arrays.asList( object1, object2 );
-        
-        Terrain3D[][][] terrain3DS = new Terrain3D[ 6 ][ 6 ][ 6 ];
-        for( int i = 0 ; i< 6 ; i ++ )
-            for( int j = 0 ; j< 6 ; j ++ )
-                for( int k = 0 ; k< 6 ; k ++ )
-                    terrain3DS[i][j][k] = cubeGrid;
+        List<PositionableObject3D> renderables = Collections.emptyList();
         
         renderedScene.setScene3D( ( new RenderedObjects3D() {
             @Override
@@ -301,8 +131,7 @@ public class GlfwApplication2D {
         renderedScene.setScene2D( new RenderedObjects2D() {
             @Override
             public Terrain2D[][] getTerrains() {
-                return new Terrain2D[0][0];
-//                return array;
+                return array;
             }
     
             @Override

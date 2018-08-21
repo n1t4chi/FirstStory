@@ -44,7 +44,6 @@ public interface RenderedObjects3D extends CompositeRenderable< PositionableObje
             }
         }
         getObjectsToRender().forEach( object -> {
-            terrains[0][0][0].bindPosition( renderingContext, 6, 6, 6, getTerrainShift() );
             object.render( renderingContext, currentRenderTime, cameraDataProvider );
         } );
     }

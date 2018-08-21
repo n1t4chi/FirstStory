@@ -36,9 +36,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     private final VulkanTransferCommandPool commandPool;
     private final VulkanBuffer memoryBuffer;
     
-    public VulkanBufferMemory(
-        VulkanPhysicalDevice device, int byteLength, VulkanTransferCommandPool commandPool
-    ) {
+    public VulkanBufferMemory( VulkanPhysicalDevice device, int byteLength, VulkanTransferCommandPool commandPool ) {
         this.device = device;
         this.byteLength = byteLength;
         this.commandPool = commandPool;
@@ -54,18 +52,28 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         return memoryBuffer.bufferAddress;
     }
     
+    private VulkanBuffer copyBuffer = null;
+    
     @Override
     protected void writeUnsafe( LinearMemoryLocation location, ByteBuffer byteBuffer ) {
         location.setLength( byteBuffer.remaining() );
-        VulkanBuffer copyBuffer = new VulkanBuffer(
-            COPY_BUFFER_USAGE_FLAGS,
-            COPY_BUFFER_MEMORY_FLAGS,
-            location.getLength()
-        );
+        
+        if( copyBuffer != null && copyBuffer.length < location.getLength() ) {
+            copyBuffer.delete();
+            copyBuffer = null;
+        }
+        
+        if( copyBuffer == null ) {
+            copyBuffer = new VulkanBuffer(
+                COPY_BUFFER_USAGE_FLAGS,
+                COPY_BUFFER_MEMORY_FLAGS,
+                location.getLength()
+            );
+        }
+        
         copyMemory( byteBuffer, copyBuffer, location );
         copyBuffer.unmapMemory();
         copyBuffer.copyBuffer( memoryBuffer, commandPool, location );
-        copyBuffer.delete();
     }
     
     public void close() {
@@ -81,7 +89,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         MemoryUtil.memCopy(
             MemoryUtil.memAddress( dataBuffer ),
             copyBuffer.mapMemory().getValue(),
-            location.getLength()
+            location.getLength()+1
         );
 //        MemoryUtil.memFree( dataBuffer );
     }

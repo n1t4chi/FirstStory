@@ -167,7 +167,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private int getSuitableMemoryLength() {
-        return 128 * 1024 * 1024;
+        return 256 * 1024 * 1024;
     }
     
     @Override
@@ -404,7 +404,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private Texture createTexture() {
         Texture texture;
         try {
-            texture = new Texture( "resources/First Oracle/texture3D.png" );
+            texture = new Texture( "resources/First Oracle/texture3Dc.png" );
         } catch ( Exception ex ) {
             throw new RuntimeException( ex );
         }
