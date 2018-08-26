@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 1) uniform sampler2D textureSampler[ 10 ];
+layout(binding = 1) uniform sampler2D textureSampler;
 
 layout(location = 0) in vec2 UV;
 layout(location = 1) in vec4 colour;
@@ -12,7 +12,7 @@ layout(location = 4) flat in int textureIndex;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    vec4 baseVertexColour = colour * texture( textureSampler[ textureIndex ], UV ).rgba;
+    vec4 baseVertexColour = colour * texture( textureSampler, UV ).rgba;
     //c = base.x * base.a + overlay.x * overlay.a*(1- base.a)
     if(overlayColour.a >= 1){
         outColor = overlayColour;

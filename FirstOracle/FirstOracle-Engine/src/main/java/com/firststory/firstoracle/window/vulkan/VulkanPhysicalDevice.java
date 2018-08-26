@@ -413,7 +413,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return texture;
     }
     
-    private static final int SAMPLERS_COUNT = 10;
+    private static final int SAMPLERS_COUNT = 1;
     
     private void updateDesciptorSetsOnDevice( VulkanShaderProgram3D shaderProgram ) {
         VkDescriptorImageInfo.Buffer imageSamplers = VkDescriptorImageInfo.create( SAMPLERS_COUNT );
