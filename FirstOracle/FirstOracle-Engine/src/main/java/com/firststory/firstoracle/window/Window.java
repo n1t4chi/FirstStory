@@ -135,7 +135,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
             createRenderLoop().loop();
             notifyQuitListeners();
         } catch ( Exception ex ) {
-            ex.printStackTrace();
+//            ex.printStackTrace();
             throw new RuntimeException( ex );
         } finally {
             close();

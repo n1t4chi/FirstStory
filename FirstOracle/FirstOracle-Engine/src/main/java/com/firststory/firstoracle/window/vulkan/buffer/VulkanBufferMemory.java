@@ -89,7 +89,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         MemoryUtil.memCopy(
             MemoryUtil.memAddress( dataBuffer ),
             copyBuffer.mapMemory().getValue(),
-            location.getLength()+1
+            location.getLength()
         );
 //        MemoryUtil.memFree( dataBuffer );
     }
