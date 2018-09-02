@@ -19,12 +19,12 @@ layout(location = 2) in vec4 inVertexColour;
 */
 //layout(location = 3) in vec4 uniformData[9];
 
-layout(location = 3) in vec4 inTranslation;
-layout(location = 4) in vec4 inScale;
-layout(location = 5) in vec4 inRotation;
-layout(location = 6) in vec4 inOverlayColour;
-layout(location = 7) in vec4 inMaxAlphaAlpha;
-layout(location = 8) in int inTextureIndex;
+layout(location = 4) in vec4 inTranslation;
+layout(location = 5) in vec4 inScale;
+layout(location = 6) in vec4 inRotation;
+layout(location = 7) in vec4 inOverlayColour;
+layout(location = 8) in vec4 inMaxAlphaAlpha;
+layout(location = 9) in int inTextureIndex;
 
 layout(location = 0) out vec2 outUV;
 layout(location = 1) out vec4 outColour;
@@ -106,6 +106,7 @@ void main() {
     ;
     gl_Position.y = -gl_Position.y;
     gl_Position.z = (gl_Position.z + 1) / 2;
+
     outColour = inVertexColour;
     outUV = inVertexUV;
     outOverlayColour = overlayColour;

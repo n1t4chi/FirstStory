@@ -15,7 +15,7 @@ import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.shader.ShaderProgram2D;
 import com.firststory.firstoracle.shader.ShaderProgram3D;
 import com.firststory.firstoracle.window.WindowContext;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanInstanceException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanPhysicalDeviceException;
 import com.firststory.firstoracle.window.vulkan.exceptions.NoDeviceSupportingVulkanEnoughException;
@@ -120,7 +120,7 @@ public class VulkanFramework implements RenderingFramework {
         return null;
     }
     
-    public VulkanDataBufferProvider getDataBufferLoader() {
+    public VulkanBufferProvider getDataBufferLoader() {
         return mainPhysicalDevice.getBufferProvider();
     }
     

@@ -6,8 +6,8 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.shader.ShaderProgram;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 import org.joml.Matrix4fc;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
@@ -38,12 +38,12 @@ public class VulkanShaderProgram implements ShaderProgram {
     private final float[] inBufferData = new float[ INPUT_SIZE ];
     
     VulkanShaderProgram(
-        VulkanPhysicalDevice device, VulkanDataBufferProvider bufferLoader
+        VulkanPhysicalDevice device, VulkanBufferProvider bufferLoader
     ) {
         this.device = device;
         vertexShader = new VulkanShader( device, SHADER_FILE_PATH_VERTEX_3D, ShaderType.VERTEX );
         fragmentShader = new VulkanShader( device, SHADER_FILE_PATH_FRAGMENT, ShaderType.FRAGMENT );
-        uniformBuffer = bufferLoader.create( uniformBufferData );
+        uniformBuffer = bufferLoader.createUniformBuffer( uniformBufferData );
     }
     
     void bindUniformData( VulkanAddress descriptorSet, VulkanGraphicCommandBuffer commandBuffer ) {

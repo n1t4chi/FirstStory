@@ -287,7 +287,7 @@ class VulkanGraphicPipeline {
             .rasterizerDiscardEnable( false )
             .polygonMode( VK10.VK_POLYGON_MODE_FILL )
             .lineWidth( 1f )
-//            .cullMode( VK10.VK_CULL_MODE_BACK_BIT )
+            .cullMode( VK10.VK_CULL_MODE_BACK_BIT )
             .cullMode( VK10.VK_CULL_MODE_NONE )
             .frontFace( VK10.VK_FRONT_FACE_COUNTER_CLOCKWISE )
             .depthBiasEnable( false )
@@ -415,7 +415,7 @@ class VulkanGraphicPipeline {
     private VkVertexInputAttributeDescription createVec4UniformDataAttributeDescription( int location ) {
         return VkVertexInputAttributeDescription.create()
             .binding( 3 )
-            .location( 3 + location )
+            .location( 4 + location )
             .format( VK10.VK_FORMAT_R32G32B32A32_SFLOAT )
             .offset( SIZE_VEC_4F * SIZE_FLOAT * location );
     }
@@ -428,9 +428,9 @@ class VulkanGraphicPipeline {
     private VkVertexInputAttributeDescription createIntUniformDataAttributeDescription( int location ) {
         return VkVertexInputAttributeDescription.create()
             .binding( 3 )
-            .location( 3 + UNIFORM_COUNT_VEC4 + location )
+            .location( 4 + UNIFORM_COUNT_VEC4 + location )
             .format( VK10.VK_FORMAT_R32_SINT )
-            .offset( SIZE_VEC_4F * SIZE_FLOAT * UNIFORM_COUNT_VEC4 + location );
+            .offset( SIZE_VEC_4F * SIZE_FLOAT * ( UNIFORM_COUNT_VEC4 + location ) );
     }
     
     private void updateVulkanPipelineLayout() {

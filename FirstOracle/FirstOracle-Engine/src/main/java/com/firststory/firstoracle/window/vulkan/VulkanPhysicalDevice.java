@@ -7,8 +7,7 @@ package com.firststory.firstoracle.window.vulkan;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferMemory;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
 import org.joml.Vector4fc;
 import org.lwjgl.BufferUtils;
@@ -60,7 +59,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Set< VulkanCommandPool > commandPools = new HashSet<>();
     private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
-    private final VulkanDataBufferProvider bufferProvider;
+    private final VulkanBufferProvider bufferProvider;
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
     private final Map< Integer, VulkanMemoryHeap > memoryHeaps = new HashMap<>();
@@ -76,7 +75,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanShaderProgram3D shaderProgram3D;
     //private final VulkanShaderProgram2D shaderProgram2D;
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
-    private final VulkanBufferMemory bufferMemory;
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -129,8 +127,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.add( vertexDataTransferCommandPool );
         commandPools.add( textureTransferCommandPool );
     
-        bufferMemory = new VulkanBufferMemory( this, getSuitableMemoryLength() , vertexDataTransferCommandPool);
-        bufferProvider = new VulkanDataBufferProvider( bufferMemory );
+        bufferProvider = VulkanBufferProvider.createProvider(
+            this, vertexDataTransferCommandPool, textureTransferCommandPool );
         
         descriptorPool = createDescriptorPool();
         descriptorSet = createDescriptorSet();
@@ -164,10 +162,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 "\npresentation family: " + presentationFamily + "\ntransfer family: " + transferFamily + "\nqueues: " +
                 availableQueueFamilies.size() + "\nextensions: " + availableExtensionProperties.size() +
                 "\nmemory types: " + memoryTypesToString() + "]" );
-    }
-    
-    private int getSuitableMemoryLength() {
-        return 256 * 1024 * 1024;
     }
     
     @Override
@@ -243,7 +237,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         throw new CannotSelectSuitableMemoryTypeException( this, desiredType, desiredFlags );
     }
     
-    VulkanDataBufferProvider getBufferProvider() {
+    VulkanBufferProvider getBufferProvider() {
         return bufferProvider;
     }
     
@@ -289,7 +283,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VK10.vkDestroyDescriptorSetLayout( logicalDevice, descriptorSetLayout.getValue(), null );
         VK10.vkDestroyDescriptorPool( logicalDevice, descriptorPool.getValue(), null );
         swapChain.dispose();
-        bufferMemory.close();
+        bufferProvider.dispose();
 //        bufferProvider.close();
         
         depthResources.close();

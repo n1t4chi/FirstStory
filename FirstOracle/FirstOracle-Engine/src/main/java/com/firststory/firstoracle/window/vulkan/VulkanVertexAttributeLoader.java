@@ -6,8 +6,8 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.object.VertexAttribute;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,17 +17,17 @@ import java.util.Map;
  */
 class VulkanVertexAttributeLoader implements VertexAttributeLoader< VulkanDataBuffer > {
     
-    private final VulkanDataBufferProvider bufferProvider;
+    private final VulkanBufferProvider bufferProvider;
     
     private final Map<Integer, VulkanDataBuffer> bufferMap = new HashMap<>();
     
-    VulkanVertexAttributeLoader( VulkanDataBufferProvider bufferProvider ) {
+    VulkanVertexAttributeLoader( VulkanBufferProvider bufferProvider ) {
         this.bufferProvider = bufferProvider;
     }
     
     @Override
     public VulkanDataBuffer provideBuffer( float[] array ) {
-        return bufferProvider.create( array );
+        return bufferProvider.createFloatBuffer( array );
     }
     
     @Override

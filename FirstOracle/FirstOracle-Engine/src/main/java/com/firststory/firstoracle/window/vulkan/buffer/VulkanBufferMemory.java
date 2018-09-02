@@ -13,6 +13,7 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * @author n1t4chi
@@ -74,6 +75,56 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         copyMemory( byteBuffer, copyBuffer, location );
         copyBuffer.unmapMemory();
         copyBuffer.copyBuffer( memoryBuffer, commandPool, location );
+    
+        checkData( location );
+        
+    }
+    
+    public static boolean once = true;
+    
+    private void checkData( LinearMemoryLocation location ) {
+        if( once ) {
+            return;
+        }
+        once = true;
+    
+        LinearMemoryLocation location1 = new LinearMemoryLocation(
+            location.getPosition(),
+            location.getLength(),
+            location.getTrueLength()
+        );
+        
+        try {
+            Thread.sleep( 5000 );
+        } catch ( InterruptedException e ) {
+            e.printStackTrace();
+        }
+        
+        VulkanBuffer readGpuMemoryBuffer = new VulkanBuffer( new int[]{
+            VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT
+        }, new int[]{
+            VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        }, location1.getLength() );
+
+        memoryBuffer.copyBuffer( readGpuMemoryBuffer, commandPool, location1 );
+
+        ByteBuffer readLocalMemory = MemoryUtil.memAlloc( ( int ) location1.getLength() );
+        MemoryUtil.memCopy(
+            readGpuMemoryBuffer.mapMemory().getValue(),
+            MemoryUtil.memAddress( readLocalMemory ),
+            location1.getLength()
+        );
+        readGpuMemoryBuffer.unmapMemory();
+
+        byte[] dst = new byte[ ( int ) location1.getLength() ];
+        readLocalMemory.get( dst );
+        System.out.println( " byte gpu: " + Arrays.toString( dst ) );
+    
+        float[] fdst = new float[ ( int ) location1.getLength()/4 ];
+        readLocalMemory.asFloatBuffer().get( fdst );
+    
+        System.out.println( " float gpu: " + Arrays.toString( fdst ) );
+    
     }
     
     public void close() {

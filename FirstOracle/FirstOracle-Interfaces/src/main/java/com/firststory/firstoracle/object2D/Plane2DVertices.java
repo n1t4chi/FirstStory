@@ -49,12 +49,13 @@ public class Plane2DVertices extends FramelessVertices2D {
             0, 1, 2, 0, 2, 3
         };
         
-        float[] rtrn = new float[points.length * 2];
+        float[] rtrn = new float[points.length * 3];
         
         for ( int j = 0; j < points.length; j++ ) {
-            rtrn[j * 2] = pointData[2 * points[j]];
-            rtrn[j * 2 + 1] = pointData[2 * points[j] + 1];
-        }
+            rtrn[j * 3] = pointData[2 * points[j]];
+            rtrn[j * 3 + 1] = pointData[2 * points[j] + 1];
+            rtrn[j * 3 + 2] = 0;
+    }
         return rtrn;
     }
     

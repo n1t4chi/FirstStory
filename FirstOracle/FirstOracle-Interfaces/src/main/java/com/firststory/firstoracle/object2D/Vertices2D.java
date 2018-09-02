@@ -16,6 +16,6 @@ public class Vertices2D extends Vertices< BoundingBox2D > {
     
     @Override
     public int getVertexSize() {
-        return 2;
+        return 3;
     }
 }

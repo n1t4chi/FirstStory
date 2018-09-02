@@ -12,6 +12,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 
 /**
  * @author n1t4chi
@@ -45,7 +46,17 @@ public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
         load( data.length, () -> byteBuffer.put( data ) );
     }
     
+    
     public void load( float[] data ) throws CannotCreateBufferException {
+        if( false ) {
+            ByteBuffer bb = MemoryUtil.memAlloc( data.length * 4 );
+            bb.asFloatBuffer().put( data );
+            byte[] ba = new byte[ data.length * 4];
+            bb.get( ba );
+            System.out.println( " float local: " + Arrays.toString( data ) );
+            System.out.println( " byte local: " + Arrays.toString( ba ) );
+        }
+        
         load( data.length*4, () -> byteBuffer.asFloatBuffer().put( data ) );
     }
     

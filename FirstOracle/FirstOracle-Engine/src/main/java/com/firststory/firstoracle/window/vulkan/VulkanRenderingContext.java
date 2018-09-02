@@ -6,8 +6,8 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.rendering.RenderingContext;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
 import org.joml.Vector4fc;
 
 import java.util.Arrays;
@@ -17,9 +17,9 @@ import java.util.Arrays;
  */
 class VulkanRenderingContext implements RenderingContext {
     
-    static final float[] COLOUR = new float[ 200 ];
+    static final float[] COLOUR = new float[ 400 ];
     static {
-        Arrays.fill( COLOUR, 1 );
+        Arrays.fill( COLOUR, 0 );
     }
     
     
@@ -30,7 +30,7 @@ class VulkanRenderingContext implements RenderingContext {
     private VulkanTransferCommandBuffer transferBuffer;
 //    private VulkanCommands commands = new VulkanCommands();
     private final VulkanDataBuffer colourBuffer;
-    private final VulkanDataBuffer[] uniformBuffers = new VulkanDataBuffer[500];
+    private final VulkanDataBuffer[] dataBuffers = new VulkanDataBuffer[500];
     private int iterator = 0;
     private Vector4fc backgroundColour = FirstOracleConstants.VECTOR_ZERO_4F;
     
@@ -39,13 +39,13 @@ class VulkanRenderingContext implements RenderingContext {
         this.attributeLoader = device.getVertexAttributeLoader();
     
         
-        VulkanDataBufferProvider bufferProvider = device.getBufferProvider();
+        VulkanBufferProvider bufferProvider = device.getBufferProvider();
     
         float[] floats = getShaderProgram3D().getInputData();
         
-        colourBuffer = bufferProvider.create( COLOUR );
-        for ( int i = 0; i < uniformBuffers.length; i++ ) {
-            uniformBuffers[ i ] = bufferProvider.create( floats );
+        colourBuffer = bufferProvider.createFloatBuffer( COLOUR );
+        for ( int i = 0; i < dataBuffers.length; i++ ) {
+            dataBuffers[ i ] = bufferProvider.createUniformBuffer( floats );
         }
         
     }
@@ -86,17 +86,17 @@ class VulkanRenderingContext implements RenderingContext {
         getShaderProgram3D().bindUniformData( descriptorSet, commandBuffer );
         
         final int currentIterator = iterator;
-        uniformBuffers[ currentIterator ].load( floats );
+        dataBuffers[ currentIterator ].load( floats );
 //        commands.add( commandBuffer1 -> {
         commandBuffer.drawVertices(
             attributeLoader.getLastBoundPositionBuffer(),
             attributeLoader.getLastBoundUvMapBuffer(),
             colourBuffer,
-            uniformBuffers[ currentIterator ],
+            dataBuffers[ currentIterator ],
             bufferSize
         );
 //        } );
-        iterator = (iterator + 1) % uniformBuffers.length;
+        iterator = (iterator + 1) % dataBuffers.length;
     }
     
     @Override

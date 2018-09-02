@@ -6,7 +6,7 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.shader.ShaderProgram2D;
 import com.firststory.firstoracle.shader.ShaderProgram3D;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import org.joml.Matrix4fc;
 import org.joml.Vector2fc;
 import org.joml.Vector3fc;
@@ -23,7 +23,7 @@ public class VulkanShaderProgram3D extends VulkanShaderProgram implements Shader
     private static final int OFFSET_COLOUR = 12;
     private static final int OFFSET_ALPHA_CHANNEL = 16;
     
-    VulkanShaderProgram3D( VulkanPhysicalDevice device, VulkanDataBufferProvider bufferLoader ) {
+    VulkanShaderProgram3D( VulkanPhysicalDevice device, VulkanBufferProvider bufferLoader ) {
         super( device, bufferLoader );
         clearValues();
     }

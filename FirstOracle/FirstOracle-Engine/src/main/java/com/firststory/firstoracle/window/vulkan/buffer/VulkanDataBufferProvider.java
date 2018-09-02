@@ -31,23 +31,23 @@ public class VulkanDataBufferProvider extends LinearMemoryController< VulkanBuff
         return buffer;
     }
     
-    public VulkanDataBuffer create( FloatBuffer data ) throws CannotCreateBufferException {
-        return create( MemoryUtil.memByteBuffer( MemoryUtil.memAddress( data ), data.remaining() ) );
-    }
-    
-    public VulkanDataBuffer create( IntBuffer data ) throws CannotCreateBufferException {
-        return create( MemoryUtil.memByteBuffer( MemoryUtil.memAddress( data ), data.remaining() ) );
-    }
-    
-    public VulkanDataBuffer create( byte[] data ) throws CannotCreateBufferException {
-        VulkanDataBuffer buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length ) );
+    public VulkanDataBuffer create( float[] data ) throws CannotCreateBufferException {
+        VulkanDataBuffer buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
         buffer.create();
         buffer.load( data );
         return buffer;
     }
     
-    public VulkanDataBuffer create( float[] data ) throws CannotCreateBufferException {
-        VulkanDataBuffer buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
+    public VulkanDataBuffer create( FloatBuffer data ) throws CannotCreateBufferException {
+        return create( MemoryUtil.memByteBuffer( MemoryUtil.memAddress( data ), data.remaining()*4 ) );
+    }
+    
+    public VulkanDataBuffer create( IntBuffer data ) throws CannotCreateBufferException {
+        return create( MemoryUtil.memByteBuffer( MemoryUtil.memAddress( data ), data.remaining()*4 ) );
+    }
+    
+    public VulkanDataBuffer create( byte[] data ) throws CannotCreateBufferException {
+        VulkanDataBuffer buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length ) );
         buffer.create();
         buffer.load( data );
         return buffer;

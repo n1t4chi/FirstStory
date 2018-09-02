@@ -1,7 +1,7 @@
 #version 330 core
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (location = 0) in vec2 vertexPosition;
+layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec2 vertexUV;
 
 layout (location = 0) out vec2 UV;

@@ -6,7 +6,7 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.data.BufferNotCreatedException;
 import com.firststory.firstoracle.data.TextureBufferLoader;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBufferProvider;
+import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.vulkan.*;
@@ -22,13 +22,13 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     
     private final HashSet<VulkanTextureData> textureData = new HashSet<>(  );
     private final VulkanPhysicalDevice device;
-    private final VulkanDataBufferProvider bufferLoader;
+    private final VulkanBufferProvider bufferLoader;
     private final VulkanAddress textureSampler;
     private final VulkanAddress descriptorSet;
     
     VulkanTextureLoader(
         VulkanPhysicalDevice physicalDevice,
-        VulkanDataBufferProvider bufferLoader,
+        VulkanBufferProvider bufferLoader,
         VulkanAddress textureSampler,
         VulkanAddress descriptorSet
     ) {
@@ -75,7 +75,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         int height = h.get( 0 );
         textureData.setWidth( width );
         textureData.setHeight( height );
-        textureData.setBuffer( bufferLoader.create( pixels ) );
+        textureData.setBuffer( bufferLoader.createTextureBuffer( pixels ) );
         createImage( textureData );
     
         initialTransitionImageLayout( textureData, VK10.VK_FORMAT_R8G8B8A8_UNORM );
