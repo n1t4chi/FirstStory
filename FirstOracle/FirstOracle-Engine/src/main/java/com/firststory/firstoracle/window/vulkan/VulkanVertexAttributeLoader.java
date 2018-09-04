@@ -27,7 +27,7 @@ class VulkanVertexAttributeLoader implements VertexAttributeLoader< VulkanDataBu
     
     @Override
     public VulkanDataBuffer provideBuffer( float[] array ) {
-        return bufferProvider.createFloatBuffer( array );
+        return bufferProvider.createVertexBuffer( array );
     }
     
     @Override

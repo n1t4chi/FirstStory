@@ -48,6 +48,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     
     @Override
     public void bind( VulkanTextureData textureData ) {
+    
     }
     
     @Override

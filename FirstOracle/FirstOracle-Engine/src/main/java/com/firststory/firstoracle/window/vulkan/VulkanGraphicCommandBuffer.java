@@ -58,7 +58,7 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         VulkanDataBuffer vertexBuffer,
         VulkanDataBuffer uvBuffer,
         VulkanDataBuffer colourBuffer,
-        VulkanDataBuffer uniformBuffer,
+        VulkanDataBuffer dataBuffer,
         int bufferSize
     ) {
         VK10.vkCmdBindVertexBuffers( getCommandBuffer(), 0,
@@ -66,13 +66,13 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
                 vertexBuffer.getBufferAddress().getValue(),
                 uvBuffer.getBufferAddress().getValue(),
                 colourBuffer.getBufferAddress().getValue(),
-                uniformBuffer.getBufferAddress().getValue()
+                dataBuffer.getBufferAddress().getValue()
             },
             new long[]{
                 vertexBuffer.getMemoryOffset(),
                 uvBuffer.getMemoryOffset(),
                 colourBuffer.getMemoryOffset(),
-                uniformBuffer.getMemoryOffset(),
+                dataBuffer.getMemoryOffset(),
             }
         );
         VK10.vkCmdDraw(

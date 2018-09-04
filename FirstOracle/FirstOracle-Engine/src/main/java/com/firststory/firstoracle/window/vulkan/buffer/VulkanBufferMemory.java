@@ -20,28 +20,83 @@ import java.util.Arrays;
  */
 public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     
-    private static final int[] MEMORY_BUFFER_USAGE_FLAGS = {
-        VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK10.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
+    private static final int[] TEXTURE_MEMORY_BUFFER_USAGE_FLAGS = {
+        VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT
     };
-    private static final int[] MEMORY_BUFFER_MEMORY_FLAGS = { VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT };
+    private static final int[] UNIFORM_MEMORY_BUFFER_USAGE_FLAGS = {
+        VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK10.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    };
+    private static final int[] VERTEX_MEMORY_BUFFER_USAGE_FLAGS = {
+        VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    };
+    
+    private static final int[] MEMORY_BUFFER_MEMORY_FLAGS = {
+        VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+    };
+    
     private static final int[] COPY_BUFFER_USAGE_FLAGS = {
         VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT
     };
+    
     private static final int[] COPY_BUFFER_MEMORY_FLAGS = {
         VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
     };
+    
+    public static boolean once = true;
+    
+    static VulkanBufferMemory createUniformMemory(
+        VulkanPhysicalDevice device,
+        int byteLength,
+        VulkanTransferCommandPool dataTransferCommandPool
+    ) {
+        return create( device, byteLength, dataTransferCommandPool, UNIFORM_MEMORY_BUFFER_USAGE_FLAGS );
+    }
+    
+    static VulkanBufferMemory createTextureMemory(
+        VulkanPhysicalDevice device,
+        int byteLength,
+        VulkanTransferCommandPool dataTransferCommandPool
+    ) {
+        return create( device, byteLength, dataTransferCommandPool, TEXTURE_MEMORY_BUFFER_USAGE_FLAGS );
+    }
+    
+    static VulkanBufferMemory createVertexMemory(
+        VulkanPhysicalDevice device,
+        int byteLength,
+        VulkanTransferCommandPool dataTransferCommandPool
+    ) {
+        return create( device, byteLength, dataTransferCommandPool, VERTEX_MEMORY_BUFFER_USAGE_FLAGS );
+    }
+    
+    private static VulkanBufferMemory create(
+        VulkanPhysicalDevice device,
+        int byteLength,
+        VulkanTransferCommandPool commandPool,
+        int[] usageFlags
+    ) {
+        return new VulkanBufferMemory( device, byteLength, commandPool, usageFlags, MEMORY_BUFFER_MEMORY_FLAGS );
+    }
     
     private final VulkanPhysicalDevice device;
     private final int byteLength;
     private final VulkanTransferCommandPool commandPool;
     private final VulkanBuffer memoryBuffer;
+    private VulkanBuffer copyBuffer = null;
     
-    public VulkanBufferMemory( VulkanPhysicalDevice device, int byteLength, VulkanTransferCommandPool commandPool ) {
+    private VulkanBufferMemory(
+        VulkanPhysicalDevice device,
+        int byteLength,
+        VulkanTransferCommandPool commandPool,
+        int[] usageFlags,
+        int[] memoryFlags
+    )
+    {
         this.device = device;
         this.byteLength = byteLength;
         this.commandPool = commandPool;
-        memoryBuffer = new VulkanBuffer( MEMORY_BUFFER_USAGE_FLAGS, MEMORY_BUFFER_MEMORY_FLAGS, length() );
+        memoryBuffer = new VulkanBuffer( usageFlags, memoryFlags, length() );
     }
     
     @Override
@@ -49,47 +104,47 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         return byteLength;
     }
     
-    public VulkanAddress getAddress() {
-        return memoryBuffer.bufferAddress;
-    }
-    
-    private VulkanBuffer copyBuffer = null;
-    
     @Override
     protected void writeUnsafe( LinearMemoryLocation location, ByteBuffer byteBuffer ) {
         location.setLength( byteBuffer.remaining() );
         
-        if( copyBuffer != null && copyBuffer.length < location.getLength() ) {
+        if ( copyBuffer != null && copyBuffer.length < location.getLength() ) {
             copyBuffer.delete();
             copyBuffer = null;
         }
         
-        if( copyBuffer == null ) {
-            copyBuffer = new VulkanBuffer(
-                COPY_BUFFER_USAGE_FLAGS,
-                COPY_BUFFER_MEMORY_FLAGS,
-                location.getLength()
-            );
+        if ( copyBuffer == null ) {
+            copyBuffer = new VulkanBuffer( COPY_BUFFER_USAGE_FLAGS, COPY_BUFFER_MEMORY_FLAGS, location.getLength() );
         }
         
         copyMemory( byteBuffer, copyBuffer, location );
         copyBuffer.unmapMemory();
         copyBuffer.copyBuffer( memoryBuffer, commandPool, location );
-    
+        
         checkData( location );
         
     }
     
-    public static boolean once = true;
+    @Override
+    protected int getDataLength( ByteBuffer byteBuffer ) {
+        return byteBuffer.remaining();
+    }
+    
+    public VulkanAddress getAddress() {
+        return memoryBuffer.bufferAddress;
+    }
+    
+    public void close() {
+        memoryBuffer.delete();
+    }
     
     private void checkData( LinearMemoryLocation location ) {
-        if( once ) {
+        if ( once ) {
             return;
         }
         once = true;
-    
-        LinearMemoryLocation location1 = new LinearMemoryLocation(
-            location.getPosition(),
+        
+        LinearMemoryLocation location1 = new LinearMemoryLocation( location.getPosition(),
             location.getLength(),
             location.getTrueLength()
         );
@@ -105,40 +160,29 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         }, new int[]{
             VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
         }, location1.getLength() );
-
+        
         memoryBuffer.copyBuffer( readGpuMemoryBuffer, commandPool, location1 );
-
+        
         ByteBuffer readLocalMemory = MemoryUtil.memAlloc( ( int ) location1.getLength() );
-        MemoryUtil.memCopy(
-            readGpuMemoryBuffer.mapMemory().getValue(),
+        MemoryUtil.memCopy( readGpuMemoryBuffer.mapMemory().getValue(),
             MemoryUtil.memAddress( readLocalMemory ),
             location1.getLength()
         );
         readGpuMemoryBuffer.unmapMemory();
-
+        
         byte[] dst = new byte[ ( int ) location1.getLength() ];
         readLocalMemory.get( dst );
         System.out.println( " byte gpu: " + Arrays.toString( dst ) );
-    
-        float[] fdst = new float[ ( int ) location1.getLength()/4 ];
+        
+        float[] fdst = new float[ ( int ) location1.getLength() / 4 ];
         readLocalMemory.asFloatBuffer().get( fdst );
-    
+        
         System.out.println( " float gpu: " + Arrays.toString( fdst ) );
-    
-    }
-    
-    public void close() {
-        memoryBuffer.delete();
-    }
-    
-    @Override
-    protected int getDataLength( ByteBuffer byteBuffer ) {
-        return byteBuffer.remaining();
+        
     }
     
     private void copyMemory( ByteBuffer dataBuffer, VulkanBuffer copyBuffer, LinearMemoryLocation location ) {
-        MemoryUtil.memCopy(
-            MemoryUtil.memAddress( dataBuffer ),
+        MemoryUtil.memCopy( MemoryUtil.memAddress( dataBuffer ),
             copyBuffer.mapMemory().getValue(),
             location.getLength()
         );
@@ -166,10 +210,10 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         
         private void copyBuffer(
             VulkanBuffer dstBuffer, VulkanTransferCommandPool commandPool, LinearMemoryLocation location
-        ) {
+        )
+        {
             commandPool.executeQueue( commandBuffer -> {
-                VkBufferCopy copyRegion = VkBufferCopy.create()
-                    .srcOffset( 0 ) // Optional
+                VkBufferCopy copyRegion = VkBufferCopy.create().srcOffset( 0 ) // Optional
                     .dstOffset( location.getPosition() ) // Optional
                     .size( location.getLength() );
                 

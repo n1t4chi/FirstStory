@@ -43,9 +43,9 @@ class VulkanRenderingContext implements RenderingContext {
     
         float[] floats = getShaderProgram3D().getInputData();
         
-        colourBuffer = bufferProvider.createFloatBuffer( COLOUR );
+        colourBuffer = bufferProvider.createVertexBuffer( COLOUR );
         for ( int i = 0; i < dataBuffers.length; i++ ) {
-            dataBuffers[ i ] = bufferProvider.createUniformBuffer( floats );
+            dataBuffers[ i ] = bufferProvider.createVertexBuffer( floats );
         }
         
     }
