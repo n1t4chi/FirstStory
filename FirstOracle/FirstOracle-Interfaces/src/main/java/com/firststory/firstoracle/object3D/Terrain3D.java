@@ -33,6 +33,7 @@ public interface Terrain3D< Vertices extends Vertices3D >
      */
     Vector3fc computePosition( int x, int y, int z, Vector3ic arrayShift );
     
+    //todo: delete start
     
     default void bindPosition(
         RenderingContext renderingContext, int x, int y, int z, Vector3ic arrayShift
@@ -77,4 +78,6 @@ public interface Terrain3D< Vertices extends Vertices3D >
             }
         } );
     }
+    
+    //todo: delete end
 }

@@ -24,6 +24,8 @@ public interface PositionableObject2D< Transformations extends PositionableObjec
         return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations(), getTransformations().getPosition() );
     }
     
+    //todo: delete start
+    
     default void render(
         RenderingContext renderingContext,
         double currentRenderTime,
@@ -59,4 +61,6 @@ public interface PositionableObject2D< Transformations extends PositionableObjec
             renderingContext.drawLineLoop( bufferSize );
         }
     }
+    
+    //todo: delete end
 }

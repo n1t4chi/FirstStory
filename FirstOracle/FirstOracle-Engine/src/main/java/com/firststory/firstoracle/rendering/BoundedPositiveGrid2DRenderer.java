@@ -3,8 +3,8 @@
  */
 package com.firststory.firstoracle.rendering;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object2D.Vertices2D;
-import com.firststory.firstoracle.shader.ShaderProgram2D;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
@@ -12,6 +12,9 @@ import org.joml.Vector4f;
  * @author n1t4chi
  */
 public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
+    private static final LineData LINES_MAIN = new LineData( 1f, 1, 0f, 0f, 1f );
+    private static final LineData LINES_INTER = new LineData( 0.5f, 0f, 0f, 1f, 0.75f );
+    private static final LineData LINES_SMALL = new LineData( 0.1f, 0.25f, 1f, 0.25f, 0.5f );
 
     private final Vector2f zeros = new Vector2f( 0, 0 );
     private final Vector2f ones = new Vector2f( 1, 1 );
@@ -98,9 +101,9 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     public void render( RenderingContext renderingContext, double currentRenderTime ) {
         init();
         if( render ) {
-            renderGridArray( renderingContext, mainAxes, 1f, 1, 0f, 0f, 1f );
-            renderGridArray( renderingContext, interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
-            renderGridArray( renderingContext, smallAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
+            renderGridArray( renderingContext, mainAxes, LINES_MAIN );
+            renderGridArray( renderingContext, interAxes, LINES_INTER );
+            renderGridArray( renderingContext, smallAxes, LINES_SMALL );
         }
     }
     
@@ -155,21 +158,19 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
         return new float[]{ i, 0, i, gridHeight };
     }
     
-    private void renderGridArray( RenderingContext renderingContext,
-        Vertices2D buffer, float width, float red, float green, float blue, float alpha
-    ) {
-        colour.set( red, green, blue, alpha );
-        bindUniformData( renderingContext.getShaderProgram2D() );
-        int length = buffer.bind( renderingContext.getVertexAttributeLoader(), 0 );
-        renderingContext.setLineWidth( width );
-        renderingContext.drawLines( length );
-    }
     
-    private void bindUniformData( ShaderProgram2D shaderProgram ) {
-        shaderProgram.bindPosition( zeros );
-        shaderProgram.bindScale( ones );
-        shaderProgram.bindRotation( 0 );
-        shaderProgram.bindOverlayColour( colour );
-        shaderProgram.bindMaxAlphaChannel( 0.75f );
+    private void renderGridArray(
+        RenderingContext renderingContext, Vertices2D buffer, LineData lineData
+    ) {
+        renderingContext.render2D( renderer ->
+            renderer.renderVerticesAsLines(
+                buffer,
+                0,
+                FirstOracleConstants.VECTOR_ZERO_2F,
+                FirstOracleConstants.VECTOR_ONES_2F,
+                0f,
+                lineData
+            )
+        );
     }
 }

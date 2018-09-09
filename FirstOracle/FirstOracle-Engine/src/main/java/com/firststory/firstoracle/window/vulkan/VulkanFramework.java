@@ -9,7 +9,8 @@ import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.data.TextureBufferLoader;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
-import com.firststory.firstoracle.rendering.RenderingCommands;
+import com.firststory.firstoracle.rendering.FrameworkCommands;
+import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.shader.ShaderProgram2D;
@@ -135,10 +136,7 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     @Override
-    public void setCurrentCapabilitesToThisThread() {}
-    
-    @Override
-    public void invoke( RenderingCommands commands ) throws Exception {
+    public void invoke( FrameworkCommands commands ) throws Exception {
         mainPhysicalDevice.updateBackground( renderingContext.getBackgroundColour() );
         commands.execute( this );
     }
@@ -165,6 +163,18 @@ public class VulkanFramework implements RenderingFramework {
         physicalDevices.forEach( VulkanPhysicalDevice::dispose );
         windowSurface.dispose( instance );
         VK10.vkDestroyInstance( instance, null );
+    }
+    
+    @Override
+    public void setCurrentCapabilitesToThisThread() {
+    
+    }
+    
+    @Override
+    public void render( Renderer renderer, double lastFrameUpdate ) {
+        mainPhysicalDevice.setUpSingleRender( renderingContext );
+        renderer.render( renderingContext, lastFrameUpdate );
+        mainPhysicalDevice.tearDownSingleRender( renderingContext );
     }
     
     private VulkanPhysicalDevice selectMainPhysicalDevice() {

@@ -14,7 +14,8 @@ import static com.firststory.firstoracle.FirstOracleConstants.SHADER_FILES_LOCAT
 /**
  * @author n1t4chi
  */
-public class OpenGlShaderProgram3D extends OpenGlShaderProgram implements ShaderProgram3D {
+class OpenGlShaderProgram3D extends OpenGlShaderProgram implements ShaderProgram3D
+{
     
     private final static String UNIFORM_LOCATION_POSITION = "translation";
     private final static String UNIFORM_LOCATION_CAMERA = "camera";
@@ -40,33 +41,33 @@ public class OpenGlShaderProgram3D extends OpenGlShaderProgram implements Shader
         super( vertex_file_path, fragment_file_path );
     }
     
-    @Override
-    public void bindPosition( Vector3fc vector ) {
+    public
+    void bindPosition( Vector3fc vector ) {
         positionLocation.bind( vector );
     }
     
-    @Override
-    public void bindCamera( Matrix4fc camera ) {
+    public
+    void bindCamera( Matrix4fc camera ) {
         cameraLocation.bind( camera );
     }
     
-    @Override
-    public void bindScale( Vector3fc vector ) {
+    public
+    void bindScale( Vector3fc vector ) {
         scaleLocation.bind( vector );
     }
     
-    @Override
-    public void bindRotation( Vector3fc vector ) {
+    public
+    void bindRotation( Vector3fc vector ) {
         rotationLocation.bind( vector );
     }
     
-    @Override
-    public void bindOverlayColour( Vector4fc vector ) {
+    public
+    void bindOverlayColour( Vector4fc vector ) {
         overlayColourLocation.bind( vector );
     }
     
-    @Override
-    public void bindMaxAlphaChannel( float value ) {
+    public
+    void bindMaxAlphaChannel( float value ) {
         maxAlphaChannelLocation.bind( value );
     }
     

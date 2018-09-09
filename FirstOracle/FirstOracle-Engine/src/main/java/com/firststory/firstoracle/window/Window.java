@@ -294,9 +294,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
                 notifyTimeListener( windowFramework.getTime() );
                 window.setUpSingleRender();
     
-                renderingFramework.setUpSingleRender();
-                renderer.render( instance.getRenderingContext(), lastFrameUpdate );
-                renderingFramework.tearDownSingleRender();
+                instance.render( renderer, lastFrameUpdate );
     
                 jfxgl.render();
                 window.tearDownSingleRender();

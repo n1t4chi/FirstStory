@@ -16,6 +16,19 @@ public interface RenderingFramework {
     
     RenderingContext getRenderingContext();
     
+    void updateViewPort( int x, int y, int width, int height );
+    
+    void invoke( FrameworkCommands commands ) throws Exception;
+    
+    void compileShaders() throws IOException;
+    
+    void close();
+    
+    //todo: delete start
+    void setCurrentCapabilitesToThisThread();
+    
+    void render( Renderer renderer, double lastFrameUpdate );
+    
     ShaderProgram2D getShader2D();
     
     ShaderProgram3D getShader3D();
@@ -28,15 +41,6 @@ public interface RenderingFramework {
     
     void setUpSingleRender();
     
-    void updateViewPort( int x, int y, int width, int height );
-    
-    void setCurrentCapabilitesToThisThread();
-    
-    void invoke( RenderingCommands commands ) throws Exception;
-    
-    void compileShaders() throws IOException;
-    
-    void close();
-    
     void tearDownSingleRender();
+    //todo: delete end
 }

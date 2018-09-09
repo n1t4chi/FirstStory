@@ -28,6 +28,8 @@ public interface PositionableObject3D<
             .getTransformedBoundingBox( getTransformations(), getTransformations().getPosition() );
     }
     
+    //todo: delete start
+    
     default void render(
         RenderingContext renderingContext,
         double currentRenderTime,
@@ -63,4 +65,6 @@ public interface PositionableObject3D<
             renderingContext.drawLineLoop( bufferSize );
         }
     }
+    
+    //todo: delete end
 }

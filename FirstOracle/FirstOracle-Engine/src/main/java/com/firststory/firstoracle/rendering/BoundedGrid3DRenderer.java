@@ -3,8 +3,8 @@
  */
 package com.firststory.firstoracle.rendering;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object3D.Vertices3D;
-import com.firststory.firstoracle.shader.ShaderProgram3D;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -12,7 +12,11 @@ import org.joml.Vector4f;
  * @author n1t4chi
  */
 public class BoundedGrid3DRenderer implements Grid3DRenderer {
-
+    
+    private static final LineData LINES_MAIN = new LineData( 1f, 1, 0f, 0f, 1f );
+    private static final LineData LINES_INTER = new LineData( 0.5f, 0f, 0f, 1f, 0.75f );
+    private static final LineData LINES_POSITIVE = new LineData( 0.1f, 0.25f, 1f, 0.25f, 0.5f );
+    private static final LineData LINES_NEGATIVE = new LineData( 0.1f, 1f, 0.25f, 0.25f, 0.5f );
     private final Vertices3D mainAxes;
     private final Vertices3D interAxes;
     private final Vertices3D smallPositiveAxes;
@@ -93,10 +97,10 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     
     @Override
     public void render( RenderingContext renderingContext, double currentRenderTime ) {
-        renderGridArray( renderingContext, mainAxes, 1f, 1, 0f, 0f, 1f );
-        renderGridArray( renderingContext, interAxes, 0.5f, 0f, 0f, 1f, 0.75f );
-        renderGridArray( renderingContext, smallPositiveAxes, 0.1f, 0.25f, 1f, 0.25f, 0.5f );
-        renderGridArray( renderingContext, smallNegativeAxes, 0.1f, 1f, 0.25f, 0.25f, 0.5f );
+        renderGridArray( renderingContext, mainAxes, LINES_MAIN );
+        renderGridArray( renderingContext, interAxes, LINES_INTER );
+        renderGridArray( renderingContext, smallPositiveAxes, LINES_POSITIVE );
+        renderGridArray( renderingContext, smallNegativeAxes, LINES_NEGATIVE );
     }
     
     private float[] createAxes( int gridSize, int i ) {
@@ -118,21 +122,18 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         };
     }
     
-    private void renderGridArray( RenderingContext renderingContext,
-        Vertices3D buffer, float width, float red, float green, float blue, float alpha
+    private void renderGridArray(
+        RenderingContext renderingContext, Vertices3D buffer, LineData lineData
     ) {
-        colour.set( red, green, blue, alpha );
-        bindUniformData( renderingContext.getShaderProgram3D() );
-        int length = buffer.bind( renderingContext.getVertexAttributeLoader(),0 );
-        renderingContext.setLineWidth( width );
-        renderingContext.drawLines( length );
-    }
-    
-    private void bindUniformData( ShaderProgram3D shaderProgram ) {
-        shaderProgram.bindPosition( zeros );
-        shaderProgram.bindScale( ones );
-        shaderProgram.bindRotation( zeros );
-        shaderProgram.bindOverlayColour( colour );
-        shaderProgram.bindMaxAlphaChannel( 0.75f );
+        renderingContext.render3D( renderer ->
+            renderer.renderVerticesAsLines(
+                buffer,
+                0,
+                FirstOracleConstants.VECTOR_ZERO_3F,
+                FirstOracleConstants.VECTOR_ONES_3F,
+                FirstOracleConstants.VECTOR_ZERO_3F,
+                lineData
+            )
+        );
     }
 }

@@ -5,6 +5,10 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.camera2D.Camera2D;
+import com.firststory.firstoracle.camera3D.Camera3D;
+import com.firststory.firstoracle.rendering.Object2DRenderingContext;
+import com.firststory.firstoracle.rendering.Object3DRenderingContext;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
@@ -28,11 +32,12 @@ class VulkanRenderingContext implements RenderingContext {
     private VulkanAddress descriptorSet;
     private VulkanGraphicCommandBuffer commandBuffer;
     private VulkanTransferCommandBuffer transferBuffer;
-//    private VulkanCommands commands = new VulkanCommands();
     private final VulkanDataBuffer colourBuffer;
     private final VulkanDataBuffer[] dataBuffers = new VulkanDataBuffer[500];
     private int iterator = 0;
     private Vector4fc backgroundColour = FirstOracleConstants.VECTOR_ZERO_4F;
+    private final VulkanObject2DRenderingContext context2D;
+    private final VulkanObject3DRenderingContext context3D;
     
     VulkanRenderingContext( VulkanPhysicalDevice device ) {
         this.device = device;
@@ -47,32 +52,13 @@ class VulkanRenderingContext implements RenderingContext {
         for ( int i = 0; i < dataBuffers.length; i++ ) {
             dataBuffers[ i ] = bufferProvider.createVertexBuffer( floats );
         }
-        
+    
+        context2D = new VulkanObject2DRenderingContext( this );
+        context3D = new VulkanObject3DRenderingContext( this );
     }
     
-    @Override
-    public VulkanShaderProgram3D getShaderProgram2D() {
-        return device.getShaderProgram3D();
-    }
-    
-    @Override
-    public VulkanShaderProgram3D getShaderProgram3D() {
-        return device.getShaderProgram3D();
-    }
-    
-    @Override
-    public VulkanVertexAttributeLoader getVertexAttributeLoader() {
-        return device.getVertexAttributeLoader();
-    }
-    
-    @Override
-    public VulkanTextureLoader getTextureLoader() {
-        return device.getTextureLoader();
-    }
-    
-    @Override
-    public void setLineWidth( float width ) {
-    
+    public
+    void setLineWidth( float width ) {
     }
     
     @Override
@@ -80,7 +66,26 @@ class VulkanRenderingContext implements RenderingContext {
     
     }
     
-    @Override
+    public
+    VulkanShaderProgram3D getShaderProgram2D() {
+        return device.getShaderProgram3D();
+    }
+    
+    public
+    VulkanShaderProgram3D getShaderProgram3D() {
+        return device.getShaderProgram3D();
+    }
+    
+    public
+    VulkanVertexAttributeLoader getVertexAttributeLoader() {
+        return device.getVertexAttributeLoader();
+    }
+    
+    public
+    VulkanTextureLoader getTextureLoader() {
+        return device.getTextureLoader();
+    }
+    
     public void drawTriangles( int bufferSize ) {
         float[] floats = getShaderProgram3D().getInputData();
         getShaderProgram3D().bindUniformData( descriptorSet, commandBuffer );
@@ -99,16 +104,19 @@ class VulkanRenderingContext implements RenderingContext {
         iterator = (iterator + 1) % dataBuffers.length;
     }
     
-    @Override
     public void drawLineLoop( int bufferSize ) {
     
     }
     
     @Override
-    public void enableVertexAttributes() {}
+    public void enableVertexAttributes() {
+    
+    }
     
     @Override
-    public void disableVertexAttributes() {}
+    public void disableVertexAttributes() {
+    
+    }
     
     @Override
     public void setBackgroundColour( Vector4fc backgroundColour ) {
@@ -116,23 +124,45 @@ class VulkanRenderingContext implements RenderingContext {
     }
     
     @Override
-    public void disableDepth() {}
+    public void render2D( Render< Object2DRenderingContext > context ) {
+        context.render( context2D );
+    }
     
     @Override
-    public void enableDepth() {}
+    public void render3D( Render< Object3DRenderingContext > context ) {
+        context.render( context3D );
+    }
+    
+    @Override
+    public void useRendering2D( Camera2D camera, boolean useDepth ) {
+        getShaderProgram2D().bindCamera( camera.getMatrixRepresentation() );
+    }
+    
+    @Override
+    public void useRendering3D( Camera3D camera, boolean useDepth ) {
+        getShaderProgram3D().bindCamera( camera.getMatrixRepresentation() );
+    }
     
     @Override
     public boolean getUseTexture() {
-        return true;
+        return shouldUseTextures();
     }
     
     @Override
     public boolean getDrawBorder() {
+        return shouldDrawBorder();
+    }
+    
+    boolean shouldUseTextures() {
+        return true;
+    }
+    
+    boolean shouldDrawBorder() {
         return false;
     }
     
-    @Override
-    public Vector4fc getBorderColour() {
+    public
+    Vector4fc getBorderColour() {
         return null;
     }
     
@@ -164,41 +194,8 @@ class VulkanRenderingContext implements RenderingContext {
     
     void tearDownSingleRender( VulkanGraphicCommandPool graphicCommandPool ) {
     
-//        commands.add( commandBuffer -> {
-//            device.getShaderProgram3D().bindUniformData( descriptorSet, commandBuffer );
-//            vertices3D_1.bind( attributeLoader, 0 );
-//            uvMap_1.bind( attributeLoader, 0, 0 );
-//            drawTriangles2( vertices3D_1.getVertexSize() );
-//        });
-//        commands.add( commandBuffer -> {
-//            vertices3D_2.bind( attributeLoader, 0 );
-//            uvMap_2.bind( attributeLoader, 0, 0 );
-//            drawTriangles2( vertices3D_2.getVertexSize() );
-//        });
-//        commandBuffer.fillQueue( commands );
         commandBuffer.fillQueueTearDown();
         graphicCommandPool.submitQueue( commandBuffer );
         graphicCommandPool.executeTearDown( commandBuffer );
     }
-    
-//    private class VulkanCommands implements VulkanCommand< VulkanGraphicCommandBuffer > {
-//
-//        private final LinkedList< VulkanCommand< VulkanGraphicCommandBuffer > > commands = new LinkedList<>();
-//
-//        @Override
-//        public void execute( VulkanGraphicCommandBuffer commandBuffer ) {
-//            VulkanCommand< VulkanGraphicCommandBuffer > command;
-//            while ( ( command  = commands.poll() ) != null ) {
-//                command.execute( commandBuffer );
-//            }
-//        }
-//
-//        public void clear() {
-//            commands.clear();
-//        }
-//
-//        void add( VulkanCommand< VulkanGraphicCommandBuffer > command ) {
-//            commands.addFirst( command );
-//        }
-//    }
 }

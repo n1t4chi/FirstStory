@@ -28,47 +28,38 @@ public class VulkanShaderProgram3D extends VulkanShaderProgram implements Shader
         clearValues();
     }
     
-    @Override
     public void bindPosition( Vector3fc vector ) {
         putInputData( OFFSET_POSITION, vector.x(), vector.y(), vector.z() );
     }
     
-    @Override
     public void bindPosition( Vector2fc vector ) {
         putInputData( OFFSET_POSITION, vector.x(), vector.y(), 0 );
     }
     
-    @Override
     public void bindCamera( Matrix4fc camera ) {
         putUniformData( camera );
     }
     
-    @Override
     public void bindScale( Vector2fc vector ) {
         putInputData( OFFSET_SCALE, vector.x(), vector.y(), 0 );
     }
     
-    @Override
     public void bindScale( Vector3fc vector ) {
         putInputData( OFFSET_SCALE, vector.x(), vector.y(), vector.z() );
     }
     
-    @Override
     public void bindRotation( float rotation ) {
         putInputData( OFFSET_ROTATION, 0 , 0, rotation );
     }
     
-    @Override
     public void bindRotation( Vector3fc vector ) {
         putInputData( OFFSET_ROTATION, vector.x(), vector.y(), vector.z() );
     }
     
-    @Override
     public void bindOverlayColour( Vector4fc vector ) {
         putInputData( OFFSET_COLOUR, vector.x(), vector.y(), vector.z(), vector.w() );
     }
     
-    @Override
     public void bindMaxAlphaChannel( float value ) {
         putInputData( OFFSET_ALPHA_CHANNEL, value );
     }

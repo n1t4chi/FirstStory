@@ -13,7 +13,7 @@ import org.joml.Vector4fc;
  * @author n1t4chi
  */
 public interface ShaderProgram2D extends ShaderProgram {
-
+    //todo: delete start
     void bindPosition( Vector2fc vector );
 
     default void bindCamera( Camera2D camera2D ) {
@@ -29,4 +29,5 @@ public interface ShaderProgram2D extends ShaderProgram {
     void bindOverlayColour( Vector4fc vector );
 
     void bindMaxAlphaChannel( float value );
+    //todo: delete end
 }

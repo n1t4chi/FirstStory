@@ -6,7 +6,8 @@ package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.data.ArrayBufferProvider;
-import com.firststory.firstoracle.rendering.RenderingCommands;
+import com.firststory.firstoracle.rendering.FrameworkCommands;
+import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.ARBVertexArrayObject;
@@ -19,14 +20,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class is used to invoke OpenGL that (may) need synchronisation across all instances like rendering etc.
- * Code that uses methods of this instance should be via method {@link #invoke(RenderingCommands)}:
+ * Code that uses methods of this instance should be via method {@link #invoke(FrameworkCommands)}:
  * <code>instance.invoke{ instance-&gt; {//method calls on instance\\} }</code>
  */
 public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     
     private static final ReentrantLock contextLock = new ReentrantLock(true);
     private final OpenGlArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
-    private final OpenGLVertexAttributeLoader attributeLoader = new OpenGLVertexAttributeLoader( bufferLoader );
+    private final OpenGlVertexAttributeLoader attributeLoader = new OpenGlVertexAttributeLoader( bufferLoader );
     private final OpenGlTextureLoader textureLoader = new OpenGlTextureLoader();
     private final OpenGlShaderProgram2D shader2D = new OpenGlShaderProgram2D(  );
     private final OpenGlShaderProgram3D shader3D = new OpenGlShaderProgram3D(  );
@@ -73,7 +74,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     }
     
     @Override
-    public OpenGLVertexAttributeLoader getAttributeLoader() {
+    public OpenGlVertexAttributeLoader getAttributeLoader() {
         return attributeLoader;
     }
     
@@ -112,9 +113,21 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     }
     
     @Override
-    public void invoke( RenderingCommands renderingCommands ) throws Exception{
+    public void render( Renderer renderer, double lastFrameUpdate ) {
+        clearCanvas();
+        renderer.render( getRenderingContext(), lastFrameUpdate );
+    }
+    
+    private void clearCanvas() {
+        GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
+    }
+    
+    @Override
+    public void invoke( FrameworkCommands renderingCommands ) throws Exception{
         try(OpenGlFramework instance = aquireLock()){
+//            renderingContext.enableVertexAttributes();
             renderingCommands.execute( instance );
+//            renderingContext.disableVertexAttributes();
         }
     }
 

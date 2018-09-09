@@ -15,12 +15,12 @@ import java.util.Map;
 /**
  * @author n1t4chi
  */
-public class OpenGLVertexAttributeLoader implements VertexAttributeLoader {
+public class OpenGlVertexAttributeLoader implements VertexAttributeLoader {
     
     private final Map< Integer, DataBuffer > lastBinds = new HashMap<>( 2 );
     private final OpenGlArrayBufferLoader loader;
     
-    OpenGLVertexAttributeLoader( OpenGlArrayBufferLoader loader ) {
+    OpenGlVertexAttributeLoader( OpenGlArrayBufferLoader loader ) {
         this.loader = loader;
     }
     

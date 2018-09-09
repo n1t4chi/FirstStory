@@ -31,7 +31,9 @@ public interface Terrain2D< Vertices extends Vertices2D >
      * @return position in space
      */
     Vector2fc computePosition( int x, int y, Vector2ic arrayShift );
-
+    
+    //todo: delete start
+    
     default void bindPosition(
         RenderingContext renderingContext, int x, int y, Vector2ic arrayShift
     ) {
@@ -69,5 +71,7 @@ public interface Terrain2D< Vertices extends Vertices2D >
             renderingContext.drawLineLoop( bufferSize );
         }
     }
+    
+    //todo: delete end
     
 }
