@@ -4,7 +4,6 @@
 
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object3D.*;
 import org.joml.Vector3fc;
 
@@ -18,7 +17,7 @@ public interface Object3DRenderingContext extends ObjectRenderingContext<
     Object3DTransformations,
     Vertices3D,
     Object3D< ? extends Object3DTransformations, ? extends Vertices3D >
-    > {
+> {
     
     
     default void render(
@@ -26,26 +25,12 @@ public interface Object3DRenderingContext extends ObjectRenderingContext<
         double timeSnapshot,
         double cameraRotation
     ) {
-        renderVerticesAsTriangles(
-            object.getVertices(),
-            0,
-            object.getUvMap(),
-            0,
-            0,
-            object.getColours(),
-            FirstOracleConstants.VECTOR_ONES_3F,
-            FirstOracleConstants.VECTOR_ONES_3F,
-            FirstOracleConstants.VECTOR_ONES_3F,
-            object.getTexture(),
-            FirstOracleConstants.RED,
-            1f
+        render(
+            object,
+            object.getTransformations().getPosition(),
+            timeSnapshot,
+            cameraRotation
         );
-//        render(
-//            object,
-//            object.getTransformations().getPosition(),
-//            timeSnapshot,
-//            cameraRotation
-//        );
     }
     
 }

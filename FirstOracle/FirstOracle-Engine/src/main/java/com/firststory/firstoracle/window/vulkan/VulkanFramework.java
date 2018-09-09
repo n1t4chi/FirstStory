@@ -6,17 +6,11 @@ package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.PropertiesUtil;
-import com.firststory.firstoracle.data.ArrayBufferProvider;
-import com.firststory.firstoracle.data.TextureBufferLoader;
-import com.firststory.firstoracle.object.VertexAttributeLoader;
 import com.firststory.firstoracle.rendering.FrameworkCommands;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.rendering.RenderingFramework;
-import com.firststory.firstoracle.shader.ShaderProgram2D;
-import com.firststory.firstoracle.shader.ShaderProgram3D;
 import com.firststory.firstoracle.window.WindowContext;
-import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanInstanceException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanPhysicalDeviceException;
 import com.firststory.firstoracle.window.vulkan.exceptions.NoDeviceSupportingVulkanEnoughException;
@@ -102,35 +96,6 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     @Override
-    public ShaderProgram2D getShader2D() {
-        return null;
-    }
-    
-    @Override
-    public ShaderProgram3D getShader3D() {
-        return null;
-    }
-    
-    @Override
-    public TextureBufferLoader getTextureLoader() {
-        return mainPhysicalDevice.getTextureLoader();
-    }
-    
-    @Override
-    public VertexAttributeLoader getAttributeLoader() {
-        return null;
-    }
-    
-    public VulkanBufferProvider getDataBufferLoader() {
-        return mainPhysicalDevice.getBufferProvider();
-    }
-    
-    @Override
-    public ArrayBufferProvider getArrayBufferProvider() {
-        return null;
-    }
-    
-    @Override
     public void updateViewPort( int x, int y, int width, int height ) {
         mainPhysicalDevice.updateRenderingContext();
     }
@@ -139,17 +104,6 @@ public class VulkanFramework implements RenderingFramework {
     public void invoke( FrameworkCommands commands ) throws Exception {
         mainPhysicalDevice.updateBackground( renderingContext.getBackgroundColour() );
         commands.execute( this );
-    }
-    
-    @Override
-    public void setUpSingleRender() {
-        
-        mainPhysicalDevice.setUpSingleRender( renderingContext );
-    }
-    
-    @Override
-    public void tearDownSingleRender() {
-        mainPhysicalDevice.tearDownSingleRender( renderingContext );
     }
     
     @Override
@@ -163,11 +117,6 @@ public class VulkanFramework implements RenderingFramework {
         physicalDevices.forEach( VulkanPhysicalDevice::dispose );
         windowSurface.dispose( instance );
         VK10.vkDestroyInstance( instance, null );
-    }
-    
-    @Override
-    public void setCurrentCapabilitesToThisThread() {
-    
     }
     
     @Override

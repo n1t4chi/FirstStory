@@ -5,7 +5,6 @@
 package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.PropertiesUtil;
-import com.firststory.firstoracle.data.ArrayBufferProvider;
 import com.firststory.firstoracle.rendering.FrameworkCommands;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFramework;
@@ -57,50 +56,10 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     public OpenGlRenderingContext getRenderingContext() {
         return renderingContext;
     }
-
-    @Override
-    public OpenGlShaderProgram2D getShader2D() {
-        return shader2D;
-    }
-
-    @Override
-    public OpenGlShaderProgram3D getShader3D() {
-        return shader3D;
-    }
-    
-    @Override
-    public OpenGlTextureLoader getTextureLoader() {
-        return textureLoader;
-    }
-    
-    @Override
-    public OpenGlVertexAttributeLoader getAttributeLoader() {
-        return attributeLoader;
-    }
-    
-    @Override
-    public ArrayBufferProvider getArrayBufferProvider() {
-        return bufferLoader;
-    }
-    
-    @Override
-    public void setUpSingleRender() {
-        GL11.glClear( GL11.GL_COLOR_BUFFER_BIT );
-    }
-    
-    @Override
-    public void tearDownSingleRender() {
-    
-    }
     
     @Override
     public void updateViewPort( int x, int y, int width, int height ) {
         GL11.glViewport( x, y, width, height );
-    }
-    
-    @Override
-    public void setCurrentCapabilitesToThisThread(){
-        GL.setCapabilities( capabilities );
     }
     
     /**
@@ -115,7 +74,9 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     @Override
     public void render( Renderer renderer, double lastFrameUpdate ) {
         clearCanvas();
+        renderingContext.enableVertexAttributes();
         renderer.render( getRenderingContext(), lastFrameUpdate );
+        renderingContext.disableVertexAttributes();
     }
     
     private void clearCanvas() {
@@ -124,10 +85,9 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     
     @Override
     public void invoke( FrameworkCommands renderingCommands ) throws Exception{
+        clearCanvas();
         try(OpenGlFramework instance = aquireLock()){
-//            renderingContext.enableVertexAttributes();
             renderingCommands.execute( instance );
-//            renderingContext.disableVertexAttributes();
         }
     }
 

@@ -4,12 +4,6 @@
 
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.data.ArrayBufferProvider;
-import com.firststory.firstoracle.data.TextureBufferLoader;
-import com.firststory.firstoracle.object.VertexAttributeLoader;
-import com.firststory.firstoracle.shader.ShaderProgram2D;
-import com.firststory.firstoracle.shader.ShaderProgram3D;
-
 import java.io.IOException;
 
 public interface RenderingFramework {
@@ -24,23 +18,5 @@ public interface RenderingFramework {
     
     void close();
     
-    //todo: delete start
-    void setCurrentCapabilitesToThisThread();
-    
     void render( Renderer renderer, double lastFrameUpdate );
-    
-    ShaderProgram2D getShader2D();
-    
-    ShaderProgram3D getShader3D();
-    
-    TextureBufferLoader getTextureLoader();
-    
-    VertexAttributeLoader getAttributeLoader();
-    
-    ArrayBufferProvider getArrayBufferProvider();
-    
-    void setUpSingleRender();
-    
-    void tearDownSingleRender();
-    //todo: delete end
 }

@@ -52,8 +52,6 @@ public class WindowRenderer implements Renderer {
     public void render( RenderingContext renderingContext, double currentRenderTime ) {
         this.renderingContext = renderingContext;
         this.currentRenderTime = currentRenderTime;
-
-        renderingContext.enableVertexAttributes();
         
         RenderedScene scene = sceneProvider.getNextScene();
         cameraDataProvider.setRotations( scene );
@@ -62,8 +60,6 @@ public class WindowRenderer implements Renderer {
         renderBackgroundAnd2dScene( scene );
         render3dScene( scene );
         renderOverlay( scene );
-        
-        renderingContext.disableVertexAttributes();
     }
     
     private void setBackgroundColour( RenderedScene scene ) {

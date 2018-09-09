@@ -57,36 +57,27 @@ class VulkanRenderingContext implements RenderingContext {
         context3D = new VulkanObject3DRenderingContext( this );
     }
     
-    public
     void setLineWidth( float width ) {
-    }
-    
-    @Override
-    public void drawLines( int bufferedAmount ) {
     
     }
     
-    public
     VulkanShaderProgram3D getShaderProgram2D() {
         return device.getShaderProgram3D();
     }
     
-    public
     VulkanShaderProgram3D getShaderProgram3D() {
         return device.getShaderProgram3D();
     }
     
-    public
     VulkanVertexAttributeLoader getVertexAttributeLoader() {
         return device.getVertexAttributeLoader();
     }
     
-    public
     VulkanTextureLoader getTextureLoader() {
         return device.getTextureLoader();
     }
     
-    public void drawTriangles( int bufferSize ) {
+    void drawTriangles( int bufferSize ) {
         float[] floats = getShaderProgram3D().getInputData();
         getShaderProgram3D().bindUniformData( descriptorSet, commandBuffer );
         
@@ -104,17 +95,7 @@ class VulkanRenderingContext implements RenderingContext {
         iterator = (iterator + 1) % dataBuffers.length;
     }
     
-    public void drawLineLoop( int bufferSize ) {
-    
-    }
-    
-    @Override
-    public void enableVertexAttributes() {
-    
-    }
-    
-    @Override
-    public void disableVertexAttributes() {
+    void drawLineLoop( int bufferSize ) {
     
     }
     
@@ -143,37 +124,12 @@ class VulkanRenderingContext implements RenderingContext {
         getShaderProgram3D().bindCamera( camera.getMatrixRepresentation() );
     }
     
-    @Override
-    public boolean getUseTexture() {
-        return shouldUseTextures();
-    }
-    
-    @Override
-    public boolean getDrawBorder() {
-        return shouldDrawBorder();
-    }
-    
     boolean shouldUseTextures() {
         return true;
     }
     
     boolean shouldDrawBorder() {
         return false;
-    }
-    
-    public
-    Vector4fc getBorderColour() {
-        return null;
-    }
-    
-    @Override
-    public void endRender() {
-    
-    }
-    
-    @Override
-    public void beginRender() {
-    
     }
     
     Vector4fc getBackgroundColour( ) {

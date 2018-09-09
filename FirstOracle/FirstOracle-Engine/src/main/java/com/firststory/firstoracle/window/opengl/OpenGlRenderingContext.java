@@ -53,52 +53,44 @@ public class OpenGlRenderingContext implements RenderingContext {
         context3D = new OpenGLObject3DRenderingContext( this );
     }
     
-    public
     OpenGlShaderProgram2D getShaderProgram2D() {
         return shaderProgram2D;
     }
     
-    public
     OpenGlShaderProgram3D getShaderProgram3D() {
         return shaderProgram3D;
     }
     
-    public
     VertexAttributeLoader getVertexAttributeLoader() {
         return attributeLoader;
     }
     
-    public
     TextureBufferLoader getTextureLoader() {
         return textureLoader;
     }
     
-    public
     void setLineWidth( float width ) {
         GL11.glLineWidth( width );
     }
     
-    public
     void drawLines( int bufferedAmount ) {
         drawObjects( GL11.GL_LINES, bufferedAmount );
     }
     
-    public
     void drawTriangles( int bufferSize ) {
         drawObjects( GL11.GL_TRIANGLES, bufferSize );
     }
     
-    public
     void drawLineLoop( int bufferSize ) {
         drawObjects( GL11.GL_LINE_LOOP, bufferSize );
     }
     
-    public void enableVertexAttributes() {
+    void enableVertexAttributes() {
         GL20.glEnableVertexAttribArray( 0 );
         GL20.glEnableVertexAttribArray( 1 );
     }
     
-    public void disableVertexAttributes() {
+    void disableVertexAttributes() {
         GL20.glDisableVertexAttribArray( 0 );
         GL20.glDisableVertexAttribArray( 1 );
     }
@@ -151,16 +143,6 @@ public class OpenGlRenderingContext implements RenderingContext {
         }
     }
     
-    @Override
-    public boolean getUseTexture() {
-        return shouldUseTextures();
-    }
-    
-    @Override
-    public boolean getDrawBorder() {
-        return shouldDrawBorder();
-    }
-    
     boolean shouldUseTextures() {
         return useTexture;
     }
@@ -168,17 +150,6 @@ public class OpenGlRenderingContext implements RenderingContext {
     boolean shouldDrawBorder() {
         return drawBorder;
     }
-    
-    @Override
-    public Vector4fc getBorderColour() {
-        return borderColour;
-    }
-    
-    @Override
-    public void endRender() {}
-    
-    @Override
-    public void beginRender() {}
     
     private void drawObjects( int objectType, int bufferSize ) {
         GL11.glDrawArrays( objectType, 0, bufferSize );
