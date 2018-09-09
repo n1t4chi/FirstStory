@@ -40,7 +40,6 @@ public interface Terrain3D< Vertices extends Vertices3D >
         renderingContext.getShaderProgram3D().bindPosition( computePosition( x, y, z, arrayShift ) );
     }
     
-    @Override
     default void render(
         RenderingContext renderingContext,
         double currentRenderTime,

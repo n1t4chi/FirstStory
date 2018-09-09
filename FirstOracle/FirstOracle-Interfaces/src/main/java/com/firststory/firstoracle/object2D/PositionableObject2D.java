@@ -13,38 +13,45 @@ import com.firststory.firstoracle.shader.ShaderProgram2D;
  *
  * @author n1t4chi
  */
-public interface PositionableObject2D< Transformations extends Object2DTransformations, Vertices extends Vertices2D >
+public interface PositionableObject2D< Transformations extends PositionableObject2DTransformations, Vertices extends Vertices2D >
     extends Object2D< Transformations, Vertices >
 {
     
     void setTransformations( Transformations transformations );
     
     @Override
+    default BoundingBox2D getBBO() {
+        return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations(), getTransformations().getPosition() );
+    }
+    
     default void render(
         RenderingContext renderingContext,
         double currentRenderTime,
         CameraDataProvider cameraDataProvider
-    ){
+    ) {
         ShaderProgram2D shaderProgram2D = renderingContext.getShaderProgram2D();
-        Object2DTransformations transformations = getTransformations();
-        
-        shaderProgram2D.bindPosition( transformations.getPosition());
+        PositionableObject2DTransformations transformations = getTransformations();
+    
+        shaderProgram2D.bindPosition( transformations.getPosition() );
         shaderProgram2D.bindMaxAlphaChannel( 1f );
         shaderProgram2D.bindOverlayColour( FirstOracleConstants.VECTOR_ZERO_4F );
-        
+    
         shaderProgram2D.bindRotation( transformations.getRotation() );
         shaderProgram2D.bindScale( transformations.getScale() );
-        
+    
         int bufferSize = bindCurrentVerticesAndGetSize(
             renderingContext.getVertexAttributeLoader(), currentRenderTime );
-        bindCurrentUvMap( renderingContext.getVertexAttributeLoader(), currentRenderTime, cameraDataProvider.getCameraRotation2D() );
-        
+        bindCurrentUvMap( renderingContext.getVertexAttributeLoader(),
+            currentRenderTime,
+            cameraDataProvider.getCameraRotation2D()
+        );
+    
         if ( renderingContext.getUseTexture() ) {
             getTexture().bind( renderingContext.getTextureLoader() );
         }
-        
+    
         renderingContext.drawTriangles( bufferSize );
-        
+    
         if ( renderingContext.getDrawBorder() ) {
             shaderProgram2D.bindMaxAlphaChannel( 1 );
             shaderProgram2D.bindOverlayColour( renderingContext.getBorderColour() );

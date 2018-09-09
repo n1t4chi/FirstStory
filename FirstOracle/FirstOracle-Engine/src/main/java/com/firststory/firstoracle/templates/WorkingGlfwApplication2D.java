@@ -15,7 +15,7 @@ import com.firststory.firstoracle.notyfying.WindowSizeEvent;
 import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.rendering.*;
-import com.firststory.firstoracle.scene.RenderedObjects2D;
+import com.firststory.firstoracle.scene.RenderedScene2D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.Window;
 import org.joml.Vector2ic;
@@ -33,9 +33,10 @@ import java.util.List;
  */
 public class WorkingGlfwApplication2D {
     
-    public static void main( String[] args ) throws Exception{
+    public static void main( String[] args ) throws Exception {
         new WorkingGlfwApplication2D().run( args );
     }
+    
     private Window window;
     private WindowRenderer renderer;
     private SceneProvider sceneProvider;
@@ -45,11 +46,10 @@ public class WorkingGlfwApplication2D {
     private Grid2DRenderer grid2DRenderer;
     private WindowSettings settings;
     
-    public void run( String[] args ) throws Exception{
+    public void run( String[] args ) throws Exception {
         int width = 300;
         int height = 300;
-        settings = new WindowSettings.WindowSettingsBuilder()
-            .setVerticalSync( false )
+        settings = new WindowSettings.WindowSettingsBuilder().setVerticalSync( false )
             .setResizeable( true )
             .setWindowMode( WindowMode.WINDOWED )
             .setWidth( width )
@@ -64,7 +64,7 @@ public class WorkingGlfwApplication2D {
 //                1
 //            );
         grid3DRenderer = new DummyGrid3DRenderer();
-
+        
         renderedScene = new RenderedSceneMutable( settings );
         Texture texture1 = new Texture( "resources/First Oracle/texture2D.png" );
         Texture texture2 = new Texture( "resources/First Oracle/obj.png" );
@@ -74,16 +74,16 @@ public class WorkingGlfwApplication2D {
         );
         NonAnimatedRectangleGrid terrain = new NonAnimatedRectangleGrid();
         terrain.setTexture( texture1 );
-
+        
         NonAnimatedRectangle object = new NonAnimatedRectangle();
         object.setTransformations( new Mutable2DTransformations() );
         object.setTexture( texture2 );
-
+        
         DirectionController directionController = new DefaultDirectionController( compundTexture.getDirections() );
         LoopedFrameController frameController = new LoopedFrameController();
         AnimatedRectangle compound = new AnimatedRectangle();
         frameController.setCurrentState( compundTexture.getFrames(), 0, 1 );
-
+        
         compound.setDirectionController( directionController );
         compound.setFrameController( frameController );
         compound.setUvMap( new PlaneUvMap( compundTexture ) );
@@ -91,28 +91,27 @@ public class WorkingGlfwApplication2D {
         compound.setTransformations( new Mutable2DTransformations() );
         compound.getTransformations().setPosition( -4, -4 );
         compound.getTransformations().setScale( 4, 4 );
-
-
-        RectangleGrid[][] array = new RectangleGrid[20][20];
-
+        
+        RectangleGrid[][] array = new RectangleGrid[ 20 ][ 20 ];
+        
         for ( int x = 0; x < array.length; x++ ) {
-            for ( int y = 0; y < array[x].length; y++ ) {
-                array[x][y] = terrain;
+            for ( int y = 0; y < array[ x ].length; y++ ) {
+                array[ x ][ y ] = terrain;
             }
         }
-        List<Renderable> renderables = Arrays.asList( compound, object );
+        List< PositionableObject2D > renderables = Arrays.asList( compound, object );
         
-        renderedScene.setScene2D( new RenderedObjects2D() {
+        renderedScene.setScene2D( new RenderedScene2D() {
             @Override
             public Terrain2D[][] getTerrains() {
                 return array;
             }
-    
+            
             @Override
-            public Collection< Renderable > getObjects() {
+            public Collection< PositionableObject2D > getObjects() {
                 return renderables;
             }
-    
+            
             @Override
             public Vector2ic getTerrainShift() {
                 return FirstOracleConstants.VECTOR_ZERO_2I;
@@ -121,15 +120,13 @@ public class WorkingGlfwApplication2D {
         
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
         cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-        cameraController.addCameraListener(
-            ( event, source ) -> {
-                cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-                cameraController.updateIsometricCamera3D( ( IsometricCamera3D ) renderedScene.getCamera3D() );
-            } );
+        cameraController.addCameraListener( ( event, source ) -> {
+            cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
+            cameraController.updateIsometricCamera3D( ( IsometricCamera3D ) renderedScene.getCamera3D() );
+        } );
         
         sceneProvider = () -> renderedScene;
-        renderer = new WindowRenderer(
-            grid2DRenderer,
+        renderer = new WindowRenderer( grid2DRenderer,
             grid3DRenderer,
             sceneProvider,
             settings.isUseTexture(),
@@ -138,7 +135,7 @@ public class WorkingGlfwApplication2D {
         window = Window.createWindow( settings, renderer );
         window.init();
         renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
-    
+        
         window.addTimeListener( cameraController );
         
         window.addQuitListener( cameraController );
@@ -152,7 +149,7 @@ public class WorkingGlfwApplication2D {
             }
         } );
         cameraController.start();
-    
+        
         window.run();
     }
     

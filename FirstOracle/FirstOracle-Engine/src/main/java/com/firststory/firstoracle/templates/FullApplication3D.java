@@ -19,7 +19,7 @@ import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.*;
-import com.firststory.firstoracle.scene.RenderedObjects3D;
+import com.firststory.firstoracle.scene.RenderedScene3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
@@ -61,10 +61,7 @@ public class FullApplication3D {
         settings = new WindowSettings.WindowSettingsBuilder()
 //            .setWindowMode( WindowMode.FULLSCREEN )
 //            .setWindowMode( WindowMode.BORDERLESS )
-            .setWindowMode( WindowMode.WINDOWED )
-            .setMonitorIndex( 1 )
-            .setDrawBorder( true )
-            .setResizeable( true )
+            .setWindowMode( WindowMode.WINDOWED ).setMonitorIndex( 1 ).setDrawBorder( true ).setResizeable( true )
 //            .setPositionX( -1920 )
 //            .setWidth( -1 )
 //            .setHeight( -1 )
@@ -78,11 +75,11 @@ public class FullApplication3D {
         renderedScene.setIsometricCamera3D( new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 ) );
         renderedScene.setCamera2D( new MovableCamera2D( settings, 1, 1, 0, 0 ) );
         renderedScene.setBackgroundColour( new Vector4f( 1f, 1f, 1f, 1 ) );
-    
+        
         //it's used for rendering, not necessary here
         Vector4f colour = new Vector4f( 0, 0, 0, 0 );
         float maxFloat = 1;
-    
+        
         //try is for Texture loading.
         //Does not work ATM but graphic objects can be created like that,
         //Here mostlikely we will only use Rectangle for objects like bullets and characters and RectangleGrid for terrain
@@ -93,35 +90,35 @@ public class FullApplication3D {
         NonAnimatedRectangle overlay = new NonAnimatedRectangle();
         overlay.setTexture( texture1 );
         //overlay is rendered last, good for UI
-        renderedScene.setOverlay( overlay );
+        renderedScene.setOverlay( () -> Collections.singletonList( overlay ) );
         
         //Example initialisation of map
         NonAnimatedCubeGrid terrain = new NonAnimatedCubeGrid();
         terrain.setTexture( texture2 );
-
-        CubeGrid[][][] array = new CubeGrid[20][10][20];
-
+        
+        CubeGrid[][][] array = new CubeGrid[ 20 ][ 10 ][ 20 ];
+        
         for ( int x = 0; x < 20; x++ ) {
             for ( int y = 0; y < 10; y++ ) {
                 for ( int z = 0; z < 20; z++ ) {
-                    array[x][y][z] = terrain;
+                    array[ x ][ y ][ z ] = terrain;
                 }
             }
         }
         //setScene2D is very similar but you are providing Objects2D instead of 3D
         //here it's best place to renderObject all game objects
-    
-        renderedScene.setScene3D( new RenderedObjects3D() {
+        
+        renderedScene.setScene3D( new RenderedScene3D() {
             @Override
             public Terrain3D[][][] getTerrains() {
                 return array;
             }
-        
+            
             @Override
             public Collection< PositionableObject3D > getObjects() {
                 return Collections.emptyList();
             }
-        
+            
             @Override
             public Vector3ic getTerrainShift() {
                 return FirstOracleConstants.VECTOR_ZERO_3I;
@@ -130,9 +127,7 @@ public class FullApplication3D {
         //SceneProvider is object which provides all next scenes for renderer below
         //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
         //Most likely you would want to create your own SceneProvider that implements this interface
-        cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(),
-            10, 15
-        );
+        cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15 );
         sceneProvider = () -> {
             cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
             cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
@@ -140,7 +135,8 @@ public class FullApplication3D {
             return renderedScene;
         };
         //Renderer renders all openGL content in Window, nothing to add much here
-        renderer = new WindowRenderer( grid2DRenderer, grid3DRenderer,
+        renderer = new WindowRenderer( grid2DRenderer,
+            grid3DRenderer,
             sceneProvider,
             settings.isUseTexture(),
             settings.isDrawBorder()
@@ -157,15 +153,13 @@ public class FullApplication3D {
         //You could use JfxglContext.runOnEventsThread( () -> {}) to create and modify JavaFX content but
         //it does not look so good but I'm not stopping you from creating another thread for example
         contentManager = new MyOverlayContentManager();
-
+        
         //WindowApplication is JavaFX application that
         application = new WindowApplication( contentManager );
         //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
         //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
         //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
-        window = Window.createWindow( settings, application,
-            renderer
-        );
+        window = Window.createWindow( settings, application, renderer );
         window.addFpsListener( application );
         window.addTimeListener( application );
         window.addTimeListener( cameraController );
@@ -184,7 +178,7 @@ public class FullApplication3D {
         
         //Now it's place to spawn all other threads like game thread or controller thread.
         cameraController.start();
-
+        
         //At last the window loop is run in this thread..
         window.run();
     }
@@ -195,6 +189,8 @@ public class FullApplication3D {
         Label timeLabel;
         Label positionLabel;
         BorderPane overlayPanel;
+        private String positionText = "";
+        private volatile boolean update = false;
         
         @Override
         public Pane createOverlayPanel() {
@@ -210,7 +206,7 @@ public class FullApplication3D {
             overlayPanel.setBottom( timeLabel );
             overlayPanel.setLeft( positionLabel );
         }
-    
+        
         @Override
         public void update( double currentTime, int currentFps ) {
             fpsLabel.setText( "FPS:" + currentFps );
@@ -221,12 +217,9 @@ public class FullApplication3D {
             }
         }
         
-        private String positionText = "";
-        private volatile boolean update = false;
-        
-        public synchronized void updatePositionLabel(Vector3fc position){
-            positionText = "Position: ("+position.x()+","+position.y()+","+position.z()+")";
-            update=true;
+        public synchronized void updatePositionLabel( Vector3fc position ) {
+            positionText = "Position: (" + position.x() + "," + position.y() + "," + position.z() + ")";
+            update = true;
         }
     }
 }

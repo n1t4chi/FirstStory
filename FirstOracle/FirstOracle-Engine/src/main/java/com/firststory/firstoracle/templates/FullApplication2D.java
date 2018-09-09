@@ -14,7 +14,7 @@ import com.firststory.firstoracle.notyfying.WindowSizeEvent;
 import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.rendering.*;
-import com.firststory.firstoracle.scene.RenderedObjects2D;
+import com.firststory.firstoracle.scene.RenderedScene2D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
@@ -53,11 +53,10 @@ public class FullApplication2D {
     private static WindowSettings settings;
     private static WindowApplication application;
     
-    public static void main( String[] args ) throws Exception{
+    public static void main( String[] args ) throws Exception {
         int width = 300;
         int height = 300;
-        settings = new WindowSettings.WindowSettingsBuilder()
-            .setVerticalSync( false )
+        settings = new WindowSettings.WindowSettingsBuilder().setVerticalSync( false )
             .setResizeable( true )
             .setWindowMode( WindowMode.WINDOWED )
             .setWidth( width )
@@ -71,7 +70,7 @@ public class FullApplication2D {
 //                1
 //            );
         grid3DRenderer = new DummyGrid3DRenderer();
-
+        
         renderedScene = new RenderedSceneMutable( settings );
         Texture texture1 = new Texture( "resources/First Oracle/texture2D.png" );
         Texture texture2 = new Texture( "resources/First Oracle/obj.png" );
@@ -81,16 +80,16 @@ public class FullApplication2D {
         );
         NonAnimatedRectangleGrid terrain = new NonAnimatedRectangleGrid();
         terrain.setTexture( texture1 );
-
+        
         NonAnimatedRectangle object = new NonAnimatedRectangle();
         object.setTransformations( new Mutable2DTransformations() );
         object.setTexture( texture2 );
-
+        
         DirectionController directionController = new DefaultDirectionController( compundTexture.getDirections() );
         LoopedFrameController frameController = new LoopedFrameController();
         AnimatedRectangle compound = new AnimatedRectangle();
         frameController.setCurrentState( compundTexture.getFrames(), 0, 1 );
-
+        
         compound.setDirectionController( directionController );
         compound.setFrameController( frameController );
         compound.setUvMap( new PlaneUvMap( compundTexture ) );
@@ -99,30 +98,29 @@ public class FullApplication2D {
         compound.getTransformations().setPosition( -4, -4 );
         compound.getTransformations().setScale( 4, 4 );
         
-        
-        RectangleGrid[][] array = new RectangleGrid[20][20];
+        RectangleGrid[][] array = new RectangleGrid[ 20 ][ 20 ];
         
         for ( int x = 0; x < array.length; x++ ) {
-            for ( int y = 0; y < array[x].length; y++ ) {
-                array[x][y] = terrain;
+            for ( int y = 0; y < array[ x ].length; y++ ) {
+                array[ x ][ y ] = terrain;
             }
         }
-        List<Renderable> renderables = Arrays.<Renderable>asList( compound, object );
-    
-        renderedScene.setScene2D( new RenderedObjects2D() {
+        List< PositionableObject2D > renderables = Arrays.asList( compound, object );
+        
+        renderedScene.setScene2D( new RenderedScene2D() {
             @Override
             public Terrain2D[][] getTerrains() {
                 return array;
             }
-        
-            @Override
-            public Collection< Renderable > getObjects() {
-                return renderables;
-            }
-        
+            
             @Override
             public Vector2ic getTerrainShift() {
                 return FirstOracleConstants.VECTOR_ZERO_2I;
+            }
+            
+            @Override
+            public Collection< PositionableObject2D > getObjects() {
+                return renderables;
             }
         } );
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
@@ -131,8 +129,7 @@ public class FullApplication2D {
             .getCamera2D() ) );
         
         sceneProvider = () -> renderedScene;
-        renderer = new WindowRenderer(
-            grid2DRenderer,
+        renderer = new WindowRenderer( grid2DRenderer,
             grid3DRenderer,
             sceneProvider,
             settings.isUseTexture(),
@@ -145,12 +142,12 @@ public class FullApplication2D {
             Label timeLabel;
             Label mouseLabel;
             BorderPane pane;
-
+            
             @Override
             public Pane createOverlayPanel() {
                 return pane = new BorderPane();
             }
-
+            
             @Override
             public void init( Stage stage, Scene scene ) {
                 fpsLabel = new Label();
@@ -196,7 +193,7 @@ public class FullApplication2D {
                     }
                 } );
             }
-
+            
             @Override
             public void update( double currentTime, int currentFps ) {
                 fpsLabel.setText( "FPS:" + currentFps );
@@ -210,7 +207,7 @@ public class FullApplication2D {
         window.addTimeListener( application );
         window.addTimeListener( cameraController );
         renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
-
+        
         window.addQuitListener( cameraController );
         window.addKeyListener( cameraController );
         window.addMouseListener( cameraController );
@@ -221,9 +218,9 @@ public class FullApplication2D {
                 renderedScene.getCamera3D().forceUpdate();
             }
         } );
-
+        
         cameraController.start();
-    
+        
         window.run();
     }
     

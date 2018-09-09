@@ -9,7 +9,7 @@ import org.joml.Vector2fc;
 /**
  * @author n1t4chi
  */
-public class Mutable2DTransformations implements Object2DTransformations {
+public class Mutable2DTransformations implements PositionableObject2DTransformations {
     
     private final Vector2f position;
     private final Vector2f scale;

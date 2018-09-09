@@ -3,71 +3,107 @@
  */
 package com.firststory.firstoracle;
 
+import com.firststory.firstoracle.object.Colour;
+import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.rendering.LineData;
 import org.joml.*;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
  * @author n1t4chi
  */
-public class FirstOracleConstants {
+public interface FirstOracleConstants {
     
-    private static final Logger logger = getLogger( FirstOracleConstants.class );
+    Logger logger = getLogger( FirstOracleConstants.class );
     
-    public static final String RESOURCES_FOLDER = "resources/";
-    public static final String RESOURCES_ORACLE_FOLDER = RESOURCES_FOLDER + "First Oracle/";
-    public static final String SHADER_FILES_LOCATION = RESOURCES_ORACLE_FOLDER + "shader/";
-    public static final String GET_FRAMEWORK_METHOD_NAME = "getFramework";
+    String RESOURCES_FOLDER = "resources/";
+    String RESOURCES_ORACLE_FOLDER = RESOURCES_FOLDER + "First Oracle/";
+    String SHADER_FILES_LOCATION = RESOURCES_ORACLE_FOLDER + "shader/";
+    String GET_FRAMEWORK_METHOD_NAME = "getFramework";
     
-    public static final int NO_FLAGS = 0;
-    public static final String FIRST_ORACLE = "FirstOracle";
-    public static final int FIRST_ORACLE_VERSION_MAJOR = 0;
-    public static final int FIRST_ORACLE_VERSION_MINOR = 4;
-    public static final int FIRST_ORACLE_VERSION_PATCH = 0;
+    int NO_FLAGS = 0;
+    String FIRST_ORACLE = "FirstOracle";
+    int FIRST_ORACLE_VERSION_MAJOR = 0;
+    int FIRST_ORACLE_VERSION_MINOR = 4;
+    int FIRST_ORACLE_VERSION_PATCH = 0;
     
-    public static final float UV_DELTA = 0.00001f;
+    float UV_DELTA = 0.00001f;
     
-    public static final int SIZE_FLOAT = 4;
-    public static final int SIZE_INT = 4;
-    public static final int SIZE_MATRIX_4F = 4 * 4;
-    public static final int SIZE_VEC_4F = 4;
+    int SIZE_FLOAT = 4;
+    int SIZE_INT = 4;
+    int SIZE_MATRIX_4F = 4 * 4;
+    int SIZE_VEC_4F = 4;
     
-    public static final Matrix4fc MATRIX_4F_IDENTIFY = new Matrix4f();
+    Matrix4fc MATRIX_4F_IDENTIFY = new Matrix4f();
     
-    public static final Vector2fc VECTOR_ZERO_2F = new Vector2f( 0, 0 );
-    public static final Vector2ic VECTOR_ZERO_2I = new Vector2i( 0, 0 );
-    public static final Vector3fc VECTOR_ZERO_3F = new Vector3f( 0, 0, 0 );
-    public static final Vector3ic VECTOR_ZERO_3I = new Vector3i( 0, 0, 0 );
-    public static final Vector4fc VECTOR_ZERO_4F = new Vector4f( 0, 0, 0, 0 );
+    Vector2fc VECTOR_ZERO_2F = new Vector2f( 0, 0 );
+    Vector2ic VECTOR_ZERO_2I = new Vector2i( 0, 0 );
+    Vector3fc VECTOR_ZERO_3F = new Vector3f( 0, 0, 0 );
+    Vector3ic VECTOR_ZERO_3I = new Vector3i( 0, 0, 0 );
+    Vector4fc VECTOR_ZERO_4F = new Vector4f( 0, 0, 0, 0 );
     
-    public static final Vector2fc VECTOR_ONES_2F = new Vector2f( 1, 1 );
-    public static final Vector2ic VECTOR_ONES_2I = new Vector2i( 1, 1 );
-    public static final Vector3fc VECTOR_ONES_3F = new Vector3f( 1, 1, 1 );
-    public static final Vector3ic VECTOR_ONES_3I = new Vector3i( 1, 1, 1 );
-    public static final Vector4fc VECTOR_ONES_4F = new Vector4f( 1, 1, 1, 1 );
+    Vector2fc VECTOR_ONES_2F = new Vector2f( 1, 1 );
+    Vector2ic VECTOR_ONES_2I = new Vector2i( 1, 1 );
+    Vector3fc VECTOR_ONES_3F = new Vector3f( 1, 1, 1 );
+    Vector3ic VECTOR_ONES_3I = new Vector3i( 1, 1, 1 );
+    Vector4fc VECTOR_ONES_4F = new Vector4f( 1, 1, 1, 1 );
     
-    public static final double SQRT3_DIV2_D = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077;
-    public static final float SQRT3_DIV2 = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077f;
+    Vector4fc TRANSPARENT = new Vector4f( 0, 0, 0, 0 );
+    Vector4fc RED = new Vector4f( 1, 0, 0, 1 );
+    Vector4fc GREEN = new Vector4f( 0, 1, 0, 1 );
+    Vector4fc BLUE = new Vector4f( 0, 0, 1, 1 );
+    Vector4fc WHITE = new Vector4f( 1, 1, 1, 1 );
+    Vector4fc BLACK = new Vector4f( 0, 0, 0, 1 );
+    Vector4fc GRAY = new Vector4f( 0.5f, 0.5f, 0.5f, 1 );
     
-    public static float transCubeDiscreteToSpace( float coordinate, float terrainShift ) {
+    LineData RED_LINE = new LineData( 1, FirstOracleConstants.RED );
+    LineData NONE = null;
+    
+    Colour EMPTY_COLOUR = new Colour( new float[]{ 0, 0, 0, 0 } );
+    UvMap EMPTY_UV_MAP = new UvMap( new float[ 1 ][ 1 ][ 3 ] );
+    Texture EMPTY_TEXTURE = createEmptyTexture();
+    double SQRT3_DIV2_D = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077;
+    float SQRT3_DIV2 = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077f;
+    
+    static Texture createEmptyTexture() {
+        BufferedImage image = new BufferedImage( 50, 50, BufferedImage.TYPE_INT_ARGB );
+        Graphics graphics = image.getGraphics();
+        graphics.fillRect( 0, 0, 50, 50 );
+        graphics.dispose();
+        Texture texture;
+        try {
+            texture = new Texture( image );
+        } catch ( IOException e ) {
+            throw new RuntimeException( "Cannot create empty texture!", e );
+        }
+        return texture;
+    }
+    
+    static float transCubeDiscreteToSpace( float coordinate, float terrainShift ) {
         return 2 * ( coordinate + terrainShift );
     }
     
-    public static float transPlaneDiscreteToSpace( float coordinate, float terrainShift ) {
+    static float transPlaneDiscreteToSpace( float coordinate, float terrainShift ) {
         return 2 * ( coordinate + terrainShift );
     }
     
-    public static float transAbsolutePlaneDiscreteToSpace( float coordinate, float terrainShift ) {
+    static float transAbsolutePlaneDiscreteToSpace( float coordinate, float terrainShift ) {
         return ( coordinate + terrainShift );
     }
     
-    public static float transHexXDiscreteToSpace( float x, float terrainShift ) {
+    static float transHexXDiscreteToSpace( float x, float terrainShift ) {
         return ( x + terrainShift ) * 1.5f;
     }
     
-    public static float transHexYDiscreteToSpace(
+    static float transHexYDiscreteToSpace(
         float x, float y, float terrainShiftX, float terrainShiftY
-    ) {
+    )
+    {
         float x_sum = x + terrainShiftX;
         double modulo = x_sum % 2;
         
@@ -81,17 +117,18 @@ public class FirstOracleConstants {
         return ( float ) finalProduct;
     }
     
-    public static float transHexPrismXDiscreteToSpace( float x, float terrainShift ) {
+    static float transHexPrismXDiscreteToSpace( float x, float terrainShift ) {
         return ( x + terrainShift ) * 1.5f;
     }
     
-    public static float transHexPrismYDiscreteToSpace( float y, float terrainShift ) {
+    static float transHexPrismYDiscreteToSpace( float y, float terrainShift ) {
         return ( y + terrainShift ) * 2;
     }
     
-    public static float transHexPrismZDiscreteToSpace(
+    static float transHexPrismZDiscreteToSpace(
         float x, float z, float terrainShiftX, float terrainShiftZ
-    ) {
+    )
+    {
         float x_sum = x + terrainShiftX;
         double modulo = x_sum % 2;
         
@@ -107,23 +144,25 @@ public class FirstOracleConstants {
         return ( float ) finalProduct;
     }
     
-    public static float transCubeSpaceToDiscrete( float coordinate, float terrainShift ) {
+    static float transCubeSpaceToDiscrete( float coordinate, float terrainShift ) {
         return coordinate / 2 - terrainShift;
     }
     
-    public static float transPlaneSpaceToDiscrete( float coordinate, float terrainShift ) {
+    static float transPlaneSpaceToDiscrete( float coordinate, float terrainShift ) {
         return coordinate / 2 - terrainShift;
     }
     
-    public static float transAbsolutePlaneSpaceToDiscrete(
+    static float transAbsolutePlaneSpaceToDiscrete(
         float coordinate, float terrainShift
-    ) {
+    )
+    {
         return coordinate - terrainShift;
     }
     
-    public static float transHexYSpaceToDiscrete(
+    static float transHexYSpaceToDiscrete(
         float x, float y, float terrainShiftX, float terrainShiftY
-    ) {
+    )
+    {
         float x_sub = transHexXSpaceToDiscrete( x, terrainShiftX );
         double modulo = x_sub % 2;
         
@@ -139,21 +178,22 @@ public class FirstOracleConstants {
         return ( float ) finalTranslation;
     }
     
-    public static float transHexXSpaceToDiscrete( float x, float terrainShift ) {
+    static float transHexXSpaceToDiscrete( float x, float terrainShift ) {
         return x / 1.5f - terrainShift;
     }
     
-    public static float transHexPrismXSpaceToDiscrete( float x, float terrainShift ) {
+    static float transHexPrismXSpaceToDiscrete( float x, float terrainShift ) {
         return x / 1.5f - terrainShift;
     }
     
-    public static float transHexPrismYSpaceToDiscrete( float y, float terrainShift ) {
+    static float transHexPrismYSpaceToDiscrete( float y, float terrainShift ) {
         return y / 2 - terrainShift;
     }
     
-    public static float transHexPrismZSpaceToDiscrete(
+    static float transHexPrismZSpaceToDiscrete(
         float x, float z, float terrainShiftX, float terrainShiftZ
-    ) {
+    )
+    {
         float x_sub = transHexXSpaceToDiscrete( x, terrainShiftX );
         double modulo = x_sub % 2;
         
@@ -169,7 +209,7 @@ public class FirstOracleConstants {
         return ( float ) finalTranslation;
     }
     
-    public static Logger getLogger( Class classObject ) {
+    static Logger getLogger( Class classObject ) {
         return Logger.getLogger( classObject.getName() );
     }
     

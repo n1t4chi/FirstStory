@@ -9,7 +9,7 @@ import org.joml.Vector3fc;
 /**
  * @author n1t4chi
  */
-public class Mutable3DTransformations implements Object3DTransformations {
+public class Mutable3DTransformations implements PositionableObject3DTransformations {
     
     private final Vector3f position;
     private final Vector3f scale;

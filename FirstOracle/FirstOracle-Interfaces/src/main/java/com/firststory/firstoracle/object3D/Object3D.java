@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.GraphicObject;
 
 /**
@@ -20,6 +21,6 @@ public interface Object3D< Transformations extends Object3DTransformations, Vert
     
     @Override
     default BoundingBox3D getBBO() {
-        return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations() );
+        return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations(), FirstOracleConstants.VECTOR_ZERO_3F );
     }
 }

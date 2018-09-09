@@ -38,7 +38,6 @@ public interface Terrain2D< Vertices extends Vertices2D >
         renderingContext.getShaderProgram2D().bindPosition( computePosition( x, y, arrayShift ) );
     }
 
-    @Override
     default void render(
         RenderingContext renderingContext,
         double currentRenderTime,
@@ -46,23 +45,23 @@ public interface Terrain2D< Vertices extends Vertices2D >
     ){
         ShaderProgram2D shaderProgram2D = renderingContext.getShaderProgram2D();
         Object2DTransformations transformations = getTransformations();
-
+        
         shaderProgram2D.bindMaxAlphaChannel( 1f );
         shaderProgram2D.bindOverlayColour( FirstOracleConstants.VECTOR_ZERO_4F );
-
+        
         shaderProgram2D.bindRotation( transformations.getRotation() );
         shaderProgram2D.bindScale( transformations.getScale() );
-
+        
         int bufferSize = bindCurrentVerticesAndGetSize(
             renderingContext.getVertexAttributeLoader(), currentRenderTime );
         bindCurrentUvMap( renderingContext.getVertexAttributeLoader(), currentRenderTime, cameraDataProvider.getCameraRotation2D() );
-
+        
         if ( renderingContext.getUseTexture() ) {
             getTexture().bind( renderingContext.getTextureLoader() );
         }
-
+        
         renderingContext.drawTriangles( bufferSize );
-
+        
         if ( renderingContext.getDrawBorder() ) {
             shaderProgram2D.bindMaxAlphaChannel( 1 );
             shaderProgram2D.bindOverlayColour( renderingContext.getBorderColour() );
@@ -70,4 +69,5 @@ public interface Terrain2D< Vertices extends Vertices2D >
             renderingContext.drawLineLoop( bufferSize );
         }
     }
+    
 }

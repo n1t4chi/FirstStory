@@ -3,15 +3,15 @@
  */
 package com.firststory.firstoracle.camera3D;
 
+import com.firststory.firstoracle.Camera;
 import com.firststory.firstoracle.object3D.BoundingBox3D;
 import com.firststory.firstoracle.object3D.Object3D;
-import org.joml.Matrix4fc;
 import org.joml.Vector3fc;
 
 /**
  * @author n1t4chi
  */
-public abstract class Camera3D {
+public abstract class Camera3D implements Camera {
     
     private boolean update = true;
     
@@ -39,8 +39,6 @@ public abstract class Camera3D {
     public boolean contains( float X, float Y, float Z ) {
         return contains( X, X, Y, Y, Z, Z );
     }
-    
-    public abstract Matrix4fc getMatrixRepresentation();
     
     public abstract Vector3fc getCenterPoint();
     

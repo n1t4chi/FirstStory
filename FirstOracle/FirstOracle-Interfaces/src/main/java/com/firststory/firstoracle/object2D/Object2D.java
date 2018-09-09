@@ -3,6 +3,7 @@
  */
 package com.firststory.firstoracle.object2D;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.GraphicObject;
 
 /**
@@ -14,7 +15,7 @@ public interface Object2D< Transformations extends Object2DTransformations, Vert
     
     @Override
     default BoundingBox2D getBBO() {
-        return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations() );
+        return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations(), FirstOracleConstants.VECTOR_ZERO_2F );
     }
     
     @Override

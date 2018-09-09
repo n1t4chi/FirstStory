@@ -6,7 +6,7 @@ package com.firststory.firstoracle.object2D;
 /**
  * @author n1t4chi
  */
-public class Identity2DTransformations implements Object2DTransformations {
+public class Identity2DTransformations implements PositionableObject2DTransformations {
     
     private final static Identity2DTransformations IDENTITY_TRANSFORMATION = new Identity2DTransformations();
     

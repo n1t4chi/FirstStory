@@ -11,7 +11,7 @@ import static java.lang.Math.*;
 /**
  * @author n1t4chi
  */
-public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransformations > {
+public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransformations, Vector2fc > {
     
     public static BoundingBox2D getBoundingBox2D( float[] vertices ) {
         float minX, maxX, minY, maxY;
@@ -82,14 +82,16 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
         return minY;
     }
     
-    public BoundingBox2D getTransformedBoundingBox( Object2DTransformations transformations ) {
+    public BoundingBox2D getTransformedBoundingBox( PositionableObject2DTransformations transformations ) {
+        return getTransformedBoundingBox( transformations, transformations.getPosition() );
+    }
+    public BoundingBox2D getTransformedBoundingBox( Object2DTransformations transformations, Vector2fc position ) {
         float minX, maxX, minY, maxY;
         minX = this.minX;
         maxX = this.maxX;
         minY = this.minY;
         maxY = this.maxY;
         Float rotation = transformations.getRotation();
-        Vector2fc position = transformations.getPosition();
         Vector2fc scale = transformations.getScale();
         
         minX *= scale.x();

@@ -11,17 +11,17 @@ import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.notyfying.WindowListener;
 import com.firststory.firstoracle.notyfying.WindowSizeEvent;
-import com.firststory.firstoracle.object.Renderable;
 import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object2D.NonAnimatedRectangleGrid;
+import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.object2D.RectangleGrid;
 import com.firststory.firstoracle.object2D.Terrain2D;
+import com.firststory.firstoracle.object3D.NonAnimatedCube;
 import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.*;
-import com.firststory.firstoracle.scene.RenderedObjects2D;
-import com.firststory.firstoracle.scene.RenderedObjects3D;
+import com.firststory.firstoracle.scene.RenderedScene2D;
+import com.firststory.firstoracle.scene.RenderedScene3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.Window;
 import org.joml.Vector2ic;
@@ -79,8 +79,8 @@ public class GlfwApplication2D {
 //            4,
 //            6
 //        );
-        NonAnimatedRectangleGrid terrain = new NonAnimatedRectangleGrid();
-        terrain.setTexture( texture1 );
+        NonAnimatedCube cube = new NonAnimatedCube();
+        cube.setTexture( texture1 );
 
 //        NonAnimatedRectangle object = new NonAnimatedRectangle();
 //        object.setTransformations( new Mutable2DTransformations() );
@@ -100,19 +100,19 @@ public class GlfwApplication2D {
 //        compound.getTransformations().setScale( 4, 4 );
     
         RectangleGrid[][] array = new RectangleGrid[0][0];
-        NonAnimatedCubeGrid[][][] terrain3DS = new NonAnimatedCubeGrid[1][1][1];
-        terrain3DS[0][0][0] = new NonAnimatedCubeGrid();
-        terrain3DS[0][0][0].setTexture( texture1 );
+        NonAnimatedCubeGrid[][][] terrain3DS = new NonAnimatedCubeGrid[0][0][0];
+//        terrain3DS[0][0][0] = new NonAnimatedCubeGrid();
+//        terrain3DS[0][0][0].setTexture( texture1 );
 
-        for ( int x = 0; x < array.length; x++ ) {
-            for ( int y = 0; y < array[x].length; y++ ) {
-                array[x][y] = terrain;
-            }
-        }
+//        for ( int x = 0; x < array.length; x++ ) {
+//            for ( int y = 0; y < array[x].length; y++ ) {
+//                array[x][y] = terrain;
+//            }
+//        }
 //        List<Renderable> renderables = Arrays.<Renderable>asList( compound, object );
-        List<PositionableObject3D> renderables = Collections.emptyList();
+        List<PositionableObject3D> renderables = Collections.singletonList( cube );
         
-        renderedScene.setScene3D( ( new RenderedObjects3D() {
+        renderedScene.setScene3D( ( new RenderedScene3D() {
             @Override
             public Terrain3D[][][] getTerrains() {
                 return terrain3DS;
@@ -128,14 +128,14 @@ public class GlfwApplication2D {
                 return FirstOracleConstants.VECTOR_ZERO_3I;
             }
         } ) );
-        renderedScene.setScene2D( new RenderedObjects2D() {
+        renderedScene.setScene2D( new RenderedScene2D() {
             @Override
             public Terrain2D[][] getTerrains() {
                 return array;
             }
     
             @Override
-            public Collection< Renderable > getObjects() {
+            public Collection< PositionableObject2D > getObjects() {
                 return Collections.emptyList();
 //                return renderables;
             }
@@ -165,7 +165,7 @@ public class GlfwApplication2D {
         );
         window = Window.createWindow( settings, renderer );
         window.init();
-        renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
+        renderedScene.setBackgroundColour( new Vector4f( 0, 0, 0, 1 ) );
     
         window.addTimeListener( cameraController );
         
