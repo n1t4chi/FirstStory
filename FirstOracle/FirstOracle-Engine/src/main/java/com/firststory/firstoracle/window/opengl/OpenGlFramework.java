@@ -28,8 +28,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     private final OpenGlArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
     private final OpenGlVertexAttributeLoader attributeLoader = new OpenGlVertexAttributeLoader( bufferLoader );
     private final OpenGlTextureLoader textureLoader = new OpenGlTextureLoader();
-    private final OpenGlShaderProgram2D shader2D = new OpenGlShaderProgram2D(  );
-    private final OpenGlShaderProgram3D shader3D = new OpenGlShaderProgram3D(  );
+    private final OpenGlShaderProgram3D shader = new OpenGlShaderProgram3D();
     private final OpenGlRenderingContext renderingContext;
     private GLCapabilities capabilities;
 
@@ -44,8 +43,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
         renderingContext = new OpenGlRenderingContext(
             attributeLoader,
             textureLoader,
-            shader2D,
-            shader3D,
+            shader,
             !PropertiesUtil.isPropertyTrue( PropertiesUtil.DISABLE_TEXTURES_PROPERTY ),
             drawBorder,
             new Vector4f( 1,0,0,1 )
@@ -86,6 +84,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     @Override
     public void invoke( FrameworkCommands renderingCommands ) throws Exception{
         clearCanvas();
+        shader.useProgram();
         try(OpenGlFramework instance = aquireLock()){
             renderingCommands.execute( instance );
         }
@@ -93,8 +92,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
 
     @Override
         public void compileShaders() throws IOException {
-        shader2D.compile();
-        shader3D.compile();
+        shader.compile();
     }
     
     /**

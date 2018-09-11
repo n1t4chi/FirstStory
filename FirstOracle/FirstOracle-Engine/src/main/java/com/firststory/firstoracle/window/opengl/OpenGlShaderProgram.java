@@ -5,7 +5,6 @@ package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.shader.ShaderException;
 import com.firststory.firstoracle.shader.ShaderProgram;
-import com.firststory.firstoracle.shader.UniformLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
@@ -36,12 +35,12 @@ public abstract class OpenGlShaderProgram implements ShaderProgram {
     }
     private final String vertexFilePath;
     private final String fragmentFilePath;
-    private final HashMap< String, UniformLocation > uniformLocations = new HashMap<>( 6 );
+    private final HashMap< String, OpenGlUniformLocation > uniformLocations = new HashMap<>( 6 );
     private int vertexShader;
     private int fragmentShader;
     private int program;
     
-    public OpenGlShaderProgram( String vertexFilePath, String fragmentFilePath ) {
+    OpenGlShaderProgram( String vertexFilePath, String fragmentFilePath ) {
         this.vertexFilePath = vertexFilePath;
         this.fragmentFilePath = fragmentFilePath;
     }
@@ -74,9 +73,9 @@ public abstract class OpenGlShaderProgram implements ShaderProgram {
     
     protected abstract void initUniformLocations();
     
-    protected UniformLocation createUniformLocation( String locationName ) {
+    OpenGlUniformLocation createUniformLocation( String locationName ) {
         if ( !uniformLocations.containsKey( locationName ) ) {
-            UniformLocation uniformLocation = new OpenGlUniformLocation( program, locationName );
+            OpenGlUniformLocation uniformLocation = new OpenGlUniformLocation( program, locationName );
             uniformLocations.put( locationName, uniformLocation );
             return uniformLocation;
         } else {

@@ -23,8 +23,7 @@ public class OpenGlRenderingContext implements RenderingContext {
 
     private final VertexAttributeLoader attributeLoader;
     private final TextureBufferLoader textureLoader;
-    private final OpenGlShaderProgram2D shaderProgram2D;
-    private final OpenGlShaderProgram3D shaderProgram3D;
+    private final OpenGlShaderProgram3D shaderProgram;
     
     private final Vector4f borderColour;
     private final boolean useTexture;
@@ -35,7 +34,6 @@ public class OpenGlRenderingContext implements RenderingContext {
     OpenGlRenderingContext(
         VertexAttributeLoader attributeLoader,
         TextureBufferLoader textureLoader,
-        OpenGlShaderProgram2D shaderProgram2D,
         OpenGlShaderProgram3D shaderProgram3D,
         boolean useTexture,
         boolean drawBorder,
@@ -43,8 +41,7 @@ public class OpenGlRenderingContext implements RenderingContext {
     ) {
         this.attributeLoader = attributeLoader;
         this.textureLoader = textureLoader;
-        this.shaderProgram2D = shaderProgram2D;
-        this.shaderProgram3D = shaderProgram3D;
+        this.shaderProgram = shaderProgram3D;
         this.useTexture = useTexture;
         this.drawBorder = drawBorder;
         this.borderColour = borderColour;
@@ -53,12 +50,8 @@ public class OpenGlRenderingContext implements RenderingContext {
         context3D = new OpenGLObject3DRenderingContext( this );
     }
     
-    OpenGlShaderProgram2D getShaderProgram2D() {
-        return shaderProgram2D;
-    }
-    
-    OpenGlShaderProgram3D getShaderProgram3D() {
-        return shaderProgram3D;
+    OpenGlShaderProgram3D getShaderProgram() {
+        return shaderProgram;
     }
     
     VertexAttributeLoader getVertexAttributeLoader() {
@@ -125,8 +118,7 @@ public class OpenGlRenderingContext implements RenderingContext {
     
     @Override
     public void useRendering2D( Camera2D camera, boolean useDepth ) {
-        shaderProgram2D.useProgram();
-        shaderProgram2D.bindCamera( camera.getMatrixRepresentation() );
+        shaderProgram.bindCamera( camera.getMatrixRepresentation() );
         disableDepth();
         if( useDepth ) {
             enableDepth();
@@ -135,8 +127,7 @@ public class OpenGlRenderingContext implements RenderingContext {
     
     @Override
     public void useRendering3D( Camera3D camera, boolean useDepth ) {
-        shaderProgram3D.useProgram();
-        shaderProgram3D.bindCamera( camera.getMatrixRepresentation() );
+        shaderProgram.bindCamera( camera.getMatrixRepresentation() );
         disableDepth();
         if( useDepth ) {
             enableDepth();

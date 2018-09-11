@@ -49,7 +49,7 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
         Vector4fc overlayColour,
         Float maxAlphaChannel
     ) {
-        OpenGlShaderProgram2D  shaderProgram2D = context.getShaderProgram2D();
+        OpenGlShaderProgram3D  shaderProgram2D = context.getShaderProgram();
     
         shaderProgram2D.bindPosition( position );
         shaderProgram2D.bindRotation( rotation );
@@ -78,7 +78,7 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
         Float rotation,
         LineData lineLoop
     ) {
-        OpenGlShaderProgram2D shaderProgram2D = context.getShaderProgram2D();
+        OpenGlShaderProgram3D shaderProgram2D = context.getShaderProgram();
     
         shaderProgram2D.bindPosition( position );
         shaderProgram2D.bindRotation( rotation );

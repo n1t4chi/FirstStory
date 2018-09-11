@@ -3,9 +3,9 @@
  */
 package com.firststory.firstoracle.window.opengl;
 
-import com.firststory.firstoracle.shader.ShaderProgram3D;
-import com.firststory.firstoracle.shader.UniformLocation;
+import com.firststory.firstoracle.shader.ShaderProgram;
 import org.joml.Matrix4fc;
+import org.joml.Vector2fc;
 import org.joml.Vector3fc;
 import org.joml.Vector4fc;
 
@@ -14,8 +14,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.SHADER_FILES_LOCAT
 /**
  * @author n1t4chi
  */
-class OpenGlShaderProgram3D extends OpenGlShaderProgram implements ShaderProgram3D
-{
+class OpenGlShaderProgram3D extends OpenGlShaderProgram implements ShaderProgram {
     
     private final static String UNIFORM_LOCATION_POSITION = "translation";
     private final static String UNIFORM_LOCATION_CAMERA = "camera";
@@ -26,12 +25,12 @@ class OpenGlShaderProgram3D extends OpenGlShaderProgram implements ShaderProgram
     private static final String VERTEX_SHADER_FILE_PATH = SHADER_FILES_LOCATION + "shader3D.gl.vert";
     private static final String FRAGMENT_SHADER_FILE_PATH = SHADER_FILES_LOCATION + "shader.gl.frag";
     
-    private UniformLocation positionLocation;
-    private UniformLocation cameraLocation;
-    private UniformLocation scaleLocation;
-    private UniformLocation rotationLocation;
-    private UniformLocation overlayColourLocation;
-    private UniformLocation maxAlphaChannelLocation;
+    private OpenGlUniformLocation positionLocation;
+    private OpenGlUniformLocation cameraLocation;
+    private OpenGlUniformLocation scaleLocation;
+    private OpenGlUniformLocation rotationLocation;
+    private OpenGlUniformLocation overlayColourLocation;
+    private OpenGlUniformLocation maxAlphaChannelLocation;
     
     OpenGlShaderProgram3D() {
         super( VERTEX_SHADER_FILE_PATH, FRAGMENT_SHADER_FILE_PATH );
@@ -41,34 +40,40 @@ class OpenGlShaderProgram3D extends OpenGlShaderProgram implements ShaderProgram
         super( vertex_file_path, fragment_file_path );
     }
     
-    public
     void bindPosition( Vector3fc vector ) {
         positionLocation.bind( vector );
     }
     
-    public
     void bindCamera( Matrix4fc camera ) {
         cameraLocation.bind( camera );
     }
     
-    public
     void bindScale( Vector3fc vector ) {
         scaleLocation.bind( vector );
     }
     
-    public
     void bindRotation( Vector3fc vector ) {
         rotationLocation.bind( vector );
     }
     
-    public
     void bindOverlayColour( Vector4fc vector ) {
         overlayColourLocation.bind( vector );
     }
     
-    public
     void bindMaxAlphaChannel( float value ) {
         maxAlphaChannelLocation.bind( value );
+    }
+    
+    void bindPosition( Vector2fc vector ) {
+        positionLocation.bindPosition( vector );
+    }
+    
+    void bindScale( Vector2fc vector ) {
+        scaleLocation.bindScale( vector );
+    }
+    
+    void bindRotation( float rotation ) {
+        rotationLocation.bindRotation( rotation );
     }
     
     @Override

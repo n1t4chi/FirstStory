@@ -49,7 +49,7 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         Vector4fc overlayColour,
         Float maxAlphaChannel
     ) {
-        OpenGlShaderProgram3D shaderProgram3D = context.getShaderProgram3D();
+        OpenGlShaderProgram3D shaderProgram3D = context.getShaderProgram();
     
         shaderProgram3D.bindPosition( position );
         shaderProgram3D.bindRotation( rotation );
@@ -78,7 +78,7 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         Vector3fc rotation,
         LineData lineLoop
     ) {
-        OpenGlShaderProgram3D shaderProgram3D = context.getShaderProgram3D();
+        OpenGlShaderProgram3D shaderProgram3D = context.getShaderProgram();
     
         shaderProgram3D.bindPosition( position );
         shaderProgram3D.bindRotation( rotation );

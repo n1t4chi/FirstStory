@@ -4,8 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
-import com.firststory.firstoracle.shader.ShaderProgram2D;
-import com.firststory.firstoracle.shader.ShaderProgram3D;
+import com.firststory.firstoracle.shader.ShaderProgram;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import org.joml.Matrix4fc;
 import org.joml.Vector2fc;
@@ -15,7 +14,7 @@ import org.joml.Vector4fc;
 /**
  * @author n1t4chi
  */
-public class VulkanShaderProgram3D extends VulkanShaderProgram implements ShaderProgram3D , ShaderProgram2D {
+class VulkanShaderProgram3D extends VulkanShaderProgram implements ShaderProgram {
     
     private static final int OFFSET_POSITION = 0;
     private static final int OFFSET_SCALE = 4;
@@ -28,39 +27,39 @@ public class VulkanShaderProgram3D extends VulkanShaderProgram implements Shader
         clearValues();
     }
     
-    public void bindPosition( Vector3fc vector ) {
+    void bindPosition( Vector3fc vector ) {
         putInputData( OFFSET_POSITION, vector.x(), vector.y(), vector.z() );
     }
     
-    public void bindPosition( Vector2fc vector ) {
+    void bindPosition( Vector2fc vector ) {
         putInputData( OFFSET_POSITION, vector.x(), vector.y(), 0 );
     }
     
-    public void bindCamera( Matrix4fc camera ) {
+    void bindCamera( Matrix4fc camera ) {
         putUniformData( camera );
     }
     
-    public void bindScale( Vector2fc vector ) {
+    void bindScale( Vector2fc vector ) {
         putInputData( OFFSET_SCALE, vector.x(), vector.y(), 0 );
     }
     
-    public void bindScale( Vector3fc vector ) {
+    void bindScale( Vector3fc vector ) {
         putInputData( OFFSET_SCALE, vector.x(), vector.y(), vector.z() );
     }
     
-    public void bindRotation( float rotation ) {
+    void bindRotation( float rotation ) {
         putInputData( OFFSET_ROTATION, 0 , 0, rotation );
     }
     
-    public void bindRotation( Vector3fc vector ) {
+    void bindRotation( Vector3fc vector ) {
         putInputData( OFFSET_ROTATION, vector.x(), vector.y(), vector.z() );
     }
     
-    public void bindOverlayColour( Vector4fc vector ) {
+    void bindOverlayColour( Vector4fc vector ) {
         putInputData( OFFSET_COLOUR, vector.x(), vector.y(), vector.z(), vector.w() );
     }
     
-    public void bindMaxAlphaChannel( float value ) {
+    void bindMaxAlphaChannel( float value ) {
         putInputData( OFFSET_ALPHA_CHANNEL, value );
     }
 }

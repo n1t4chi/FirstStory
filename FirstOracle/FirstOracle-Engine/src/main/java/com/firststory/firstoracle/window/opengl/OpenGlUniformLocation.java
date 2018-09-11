@@ -6,7 +6,6 @@ package com.firststory.firstoracle.window.opengl;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.shader.CannotCreateUniformLocationException;
-import com.firststory.firstoracle.shader.UniformLocation;
 import org.joml.*;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;
@@ -16,7 +15,7 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 /**
  * @author n1t4chi
  */
-public class OpenGlUniformLocation implements UniformLocation {
+class OpenGlUniformLocation {
     
     private final int locationID;
     private final Vector2f VEC_2 = new Vector2f();
@@ -26,7 +25,7 @@ public class OpenGlUniformLocation implements UniformLocation {
     private final Matrix4f MAT_4 = new Matrix4f();
     private Object lastBind = null;
     
-    public OpenGlUniformLocation( int program, String locationName ) throws CannotCreateUniformLocationException {
+    OpenGlUniformLocation( int program, String locationName ) throws CannotCreateUniformLocationException {
         int locationID = GL20.glGetUniformLocation( program, locationName );
         if ( locationID < 0 ) {
             throw new CannotCreateUniformLocationException( locationName );
@@ -34,45 +33,60 @@ public class OpenGlUniformLocation implements UniformLocation {
         this.locationID = locationID;
     }
     
-    @Override
-    public void bind( Vector2fc vector ) {
+    void bindRotation( float rotation ) {
+        if ( !( ( ( Float ) rotation ).equals( lastBind ) ) ) {
+            GL20.glUniform3f( locationID, 0, 0, rotation );
+            lastBind = rotation;
+        }
+    }
+    
+    void bindScale( Vector2fc vector ) {
+        if ( !vector.equals( lastBind ) ) {
+            GL20.glUniform3f( locationID, vector.x(), vector.y(), 1 );
+            lastBind = VEC_2.set( vector );
+        }
+    }
+    
+    void bindPosition( Vector2fc vector ) {
+        if ( !vector.equals( lastBind ) ) {
+            GL20.glUniform3f( locationID, vector.x(), vector.y(), 0 );
+            lastBind = VEC_2.set( vector );
+        }
+    }
+    
+    void bind( Vector2fc vector ) {
         if ( !vector.equals( lastBind ) ) {
             GL20.glUniform2f( locationID, vector.x(), vector.y() );
             lastBind = VEC_2.set( vector );
         }
     }
     
-    @Override
-    public void bind( Vector3fc vector ) {
+    void bind( Vector3fc vector ) {
         if ( !vector.equals( lastBind ) ) {
             GL20.glUniform3f( locationID, vector.x(), vector.y(), vector.z() );
             lastBind = VEC_3.set( vector );
         }
     }
     
-    @Override
-    public void bind( Vector4fc vector ) {
+    void bind( Vector4fc vector ) {
         if ( !vector.equals( lastBind ) ) {
             GL20.glUniform4f( locationID, vector.x(), vector.y(), vector.z(), vector.w() );
             lastBind = VEC_4.set( vector );
         }
     }
     
-    @Override
-    public void bind( float value ) {
+    void bind( float value ) {
         if ( !( ( ( Float ) value ).equals( lastBind ) ) ) {
             GL20.glUniform1f( locationID, value );
             lastBind = value;
         }
     }
     
-    @Override
-    public void bind( Camera3D camera3D ) {
+     void bind( Camera3D camera3D ) {
         bind( camera3D.getMatrixRepresentation() );
     }
     
-    @Override
-    public void bind( Matrix4fc camera ) {
+     void bind( Matrix4fc camera ) {
         if ( !camera.equals( lastBind ) ) {
             try ( MemoryStack stack = stackPush() ) {
                 GL20.glUniformMatrix4fv(
@@ -85,13 +99,11 @@ public class OpenGlUniformLocation implements UniformLocation {
         }
     }
     
-    @Override
-    public void bind( Camera2D camera2D ) {
+     void bind( Camera2D camera2D ) {
         bind( camera2D.getMatrixRepresentation() );
     }
     
-    @Override
-    public void bind( Matrix3fc camera ) {
+     void bind( Matrix3fc camera ) {
         if ( !camera.equals( lastBind ) ) {
             try ( MemoryStack stack = stackPush() ) {
                 GL20.glUniformMatrix3fv(
