@@ -27,17 +27,17 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     private final Map< Integer, CommandBuffer > commandBuffers = new HashMap<>(  );
     private VulkanAddress address;
     
-    VulkanCommandPool( VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily ) {
+    public VulkanCommandPool( VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily ) {
         this.device = device;
         this.usedQueueFamily = usedQueueFamily;
         address = createCommandPool();
     }
     
-    VulkanPhysicalDevice getDevice() {
+    public VulkanPhysicalDevice getDevice() {
         return device;
     }
     
-    VulkanQueueFamily getUsedQueueFamily() {
+    public VulkanQueueFamily getUsedQueueFamily() {
         return usedQueueFamily;
     }
     
@@ -53,7 +53,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         return address;
     }
     
-    CommandBuffer getCommandBuffer( int index ) {
+    public CommandBuffer getCommandBuffer( int index ) {
         return commandBuffers.get( index );
     }
     
@@ -67,7 +67,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         ) );
     }
     
-    abstract CommandBuffer createNewCommandBuffer(
+    public abstract CommandBuffer createNewCommandBuffer(
         int index,
         VulkanAddress address,
         Map< Integer, VulkanFrameBuffer > frameBuffers
@@ -82,21 +82,27 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         executeTearDown( commandBuffer );
     }
     
-    abstract CommandBuffer extractNextCommandBuffer();
+    public abstract CommandBuffer extractNextCommandBuffer();
     
-    abstract void executeTearDown( CommandBuffer commandBuffer );
+    public abstract void executeTearDown( CommandBuffer commandBuffer );
     
-    VkSubmitInfo createSubmitInfo( VulkanCommandBuffer currentCommandBuffer ) {
+    public VkSubmitInfo createSubmitInfo( VulkanCommandBuffer... commandBuffers ) {
+    
+        PointerBuffer commandBuffersPointer = MemoryUtil.memAllocPointer( commandBuffers.length );
+        for ( int i = 0; i < commandBuffers.length; i++ ) {
+            commandBuffersPointer.put( i, commandBuffers[ i ].getAddress().getValue() );
+        }
+    
         return VkSubmitInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
-            .pCommandBuffers( MemoryUtil.memAllocPointer( 1 ).put(
-                    0, currentCommandBuffer.getAddress().getValue() ) );
+            .pCommandBuffers( commandBuffersPointer );
     }
     
-    abstract IntBuffer createWaitStageMaskBuffer();
+    public abstract IntBuffer createWaitStageMaskBuffer();
     
-    void submitQueue( CommandBuffer currentCommandBuffer ) {
-        VkSubmitInfo submitInfo = createSubmitInfo( currentCommandBuffer ) ;
+    @SafeVarargs
+    public final void submitQueue( CommandBuffer... currentCommandBuffers ) {
+        VkSubmitInfo submitInfo = createSubmitInfo( currentCommandBuffers ) ;
         
         VulkanHelper.assertCallOrThrow(
             ()-> VK10.vkQueueSubmit( usedQueueFamily.getQueue(), submitInfo, VK10.VK_NULL_HANDLE ),

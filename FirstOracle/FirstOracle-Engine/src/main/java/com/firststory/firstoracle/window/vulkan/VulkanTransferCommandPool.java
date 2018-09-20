@@ -20,7 +20,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
     }
     
     @Override
-    VulkanTransferCommandBuffer createNewCommandBuffer(
+    public VulkanTransferCommandBuffer createNewCommandBuffer(
         int index,
         VulkanAddress address,
         Map< Integer, VulkanFrameBuffer > frameBuffers
@@ -37,17 +37,17 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
     }
     
     @Override
-    VulkanTransferCommandBuffer extractNextCommandBuffer() {
+    public VulkanTransferCommandBuffer extractNextCommandBuffer() {
         return createNewCommandBuffer( new VulkanAddress( createCommandBufferBuffer( 1 ).get( 0 ) ) );
     }
     
     @Override
-    void executeTearDown( VulkanTransferCommandBuffer commandBuffer ) {
+    public void executeTearDown( VulkanTransferCommandBuffer commandBuffer ) {
         getUsedQueueFamily().waitForQueue();
     }
     
     @Override
-    IntBuffer createWaitStageMaskBuffer() {
+    public IntBuffer createWaitStageMaskBuffer() {
         return MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT );
     }
 }

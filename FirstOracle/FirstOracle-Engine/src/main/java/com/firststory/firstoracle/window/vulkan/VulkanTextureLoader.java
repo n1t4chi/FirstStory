@@ -18,25 +18,21 @@ import java.util.HashSet;
 /**
  * @author n1t4chi
  */
-public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureData > {
+public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureData > {
     
-    private final HashSet<VulkanTextureData> textureData = new HashSet<>(  );
+    private final HashSet< VulkanTextureData > textureData = new HashSet<>();
     private final VulkanPhysicalDevice device;
     private final VulkanBufferProvider bufferLoader;
-    private final VulkanAddress textureSampler;
-    private final VulkanAddress descriptorSet;
+    private VulkanTextureData lastTexture = null;
     
     VulkanTextureLoader(
         VulkanPhysicalDevice physicalDevice,
-        VulkanBufferProvider bufferLoader,
-        VulkanAddress textureSampler,
-        VulkanAddress descriptorSet
-    ) {
+        VulkanBufferProvider bufferLoader
+    )
+    {
         
         device = physicalDevice;
         this.bufferLoader = bufferLoader;
-        this.textureSampler = textureSampler;
-        this.descriptorSet = descriptorSet;
     }
     
     @Override
@@ -48,7 +44,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     
     @Override
     public void bind( VulkanTextureData textureData ) {
-    
+        lastTexture = textureData;
     }
     
     @Override
@@ -57,11 +53,25 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         createTextureImageView( textureData );
     }
     
+    @Override
+    public void delete( VulkanTextureData textureData ) {
+        this.textureData.remove( textureData );
+        textureData.close();
+    }
+    
+    @Override
+    public void close() {
+        this.textureData.forEach( VulkanTextureData::close );
+        this.textureData.clear();
+    }
+    
+    public VulkanTextureData getLastTexture() {
+        return lastTexture;
+    }
+    
     private void createTextureImageView( VulkanTextureData textureData ) {
-        textureData.setImageView( textureData.getImage().createImageView( VK10.VK_FORMAT_R8G8B8A8_UNORM,
-            VK10.VK_IMAGE_ASPECT_COLOR_BIT
-        ) );
-        
+        textureData.setImageView(
+            textureData.getImage().createImageView( VK10.VK_FORMAT_R8G8B8A8_UNORM, VK10.VK_IMAGE_ASPECT_COLOR_BIT ) );
     }
     
     private void createTextureImage( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) {
@@ -78,7 +88,7 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
         textureData.setHeight( height );
         textureData.setBuffer( bufferLoader.createTextureBuffer( pixels ) );
         createImage( textureData );
-    
+        
         initialTransitionImageLayout( textureData, VK10.VK_FORMAT_R8G8B8A8_UNORM );
         copyBufferToImage( textureData );
 //        postCopyTransitionImageLayout( textureData, VK10.VK_FORMAT_R8G8B8A8_UNORM );
@@ -88,21 +98,19 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     private void copyBufferToImage( VulkanTextureData textureData ) {
         device.getTextureTransferCommandPool().executeQueue( commandBuffer -> {
             VkBufferImageCopy region = VkBufferImageCopy.create()
-                .bufferOffset(0)
-                .bufferRowLength(0)
-                .bufferImageHeight(0)
+                .bufferOffset( 0 )
+                .bufferRowLength( 0 )
+                .bufferImageHeight( 0 )
                 .imageSubresource( VkImageSubresourceLayers.create()
                     .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
-                    .mipLevel(0)
-                    .baseArrayLayer(0)
-                    .layerCount(1)
-                )
-                .imageOffset( VkOffset3D.create().set( 0,0,0 ) )
-                .imageExtent( VkExtent3D.create().set( textureData.getWidth(), textureData.getHeight(), 1 ) )
-            ;
-    
+                    .mipLevel( 0 )
+                    .baseArrayLayer( 0 )
+                    .layerCount( 1 ) )
+                .imageOffset( VkOffset3D.create().set( 0, 0, 0 ) )
+                .imageExtent( VkExtent3D.create().set( textureData.getWidth(), textureData.getHeight(), 1 ) );
+            
             VkBufferImageCopy.Buffer regionBuffer = VkBufferImageCopy.calloc( 1 ).put( 0, region );
-    
+            
             VK10.vkCmdCopyBufferToImage(
                 commandBuffer.getCommandBuffer(),
                 textureData.getBuffer().getBufferAddress().getValue(),
@@ -115,16 +123,12 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
     }
     
     private void initialTransitionImageLayout( VulkanTextureData textureData, int format ) {
-        textureData.getImage().transitionImageLayout(
-            format,
-            VK10.VK_IMAGE_LAYOUT_UNDEFINED,
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-        );
+        textureData.getImage()
+            .transitionImageLayout( format, VK10.VK_IMAGE_LAYOUT_UNDEFINED, VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
     }
     
     private void postCopyTransitionImageLayout( VulkanTextureData textureData, int format ) {
-        textureData.getImage().transitionImageLayout(
-            format,
+        textureData.getImage().transitionImageLayout( format,
             VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         );
@@ -138,23 +142,10 @@ public class VulkanTextureLoader implements TextureBufferLoader<VulkanTextureDat
             VK10.VK_FORMAT_R8G8B8A8_UNORM,
             VK10.VK_IMAGE_TILING_OPTIMAL,
             new int[]{
-                VK10.VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-                VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                VK10.VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                 VK10.VK_IMAGE_USAGE_SAMPLED_BIT
             },
             new int[]{ VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
         ) );
-    }
-    
-    @Override
-    public void delete( VulkanTextureData textureData ) {
-        this.textureData.remove( textureData );
-        textureData.close();
-    }
-    
-    @Override
-    public void close() {
-        this.textureData.forEach( VulkanTextureData::close );
-        this.textureData.clear();
     }
 }

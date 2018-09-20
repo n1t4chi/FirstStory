@@ -9,7 +9,7 @@ import org.lwjgl.vulkan.VkFormatProperties;
 /**
  * @author n1t4chi
  */
-class VulkanFormatProperty {
+public class VulkanFormatProperty {
     private final int format;
     private final VkFormatProperties property;
     
@@ -18,7 +18,7 @@ class VulkanFormatProperty {
         this.property = property;
     }
     
-    int getFormat() {
+    public int getFormat() {
         return format;
     }
     

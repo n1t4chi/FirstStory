@@ -12,7 +12,7 @@ import java.util.HashSet;
 /**
  * @author n1t4chi
  */
-class VulkanDepthResources {
+public class VulkanDepthResources {
     
     private final VulkanFormatProperty depthFormat;
     private VulkanInMemoryImage depthImage;
@@ -39,7 +39,7 @@ class VulkanDepthResources {
         return depthImageView;
     }
     
-    VulkanFormatProperty getDepthFormat() {
+    public VulkanFormatProperty getDepthFormat() {
         return depthFormat;
     }
     

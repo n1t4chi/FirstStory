@@ -2,14 +2,15 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.rendering;
 
+import com.firststory.firstoracle.window.vulkan.*;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanGraphicPipelineException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanPipelineLayoutException;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanRenderPassException;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.*;
 /**
  * @author n1t4chi
  */
-class VulkanGraphicPipeline {
+public class VulkanGraphicPipeline {
     
     private static final int ATTRIBUTES_POSITION = 3;
     private static final int ATTRIBUTES_UV = 2;
@@ -30,19 +31,21 @@ class VulkanGraphicPipeline {
     private static final int UNIFORM_COUNT_INT = 1;
     private static final int UNIFORM_DATA_SIZE = SIZE_FLOAT * SIZE_VEC_4F * UNIFORM_COUNT_VEC4 + SIZE_INT * UNIFORM_COUNT_INT ;
     private static final int ATTRIBUTE_UNIFORM_SIZE = UNIFORM_COUNT_VEC4 + UNIFORM_COUNT_INT;
+    private static final int[] DYNAMIC_STATE_FLAGS = new int[]{ VK10.VK_DYNAMIC_STATE_LINE_WIDTH };
     
     private final VulkanPhysicalDevice device;
-    private final VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo;
-    private VulkanAddress pipelineLayout = VulkanAddress.createNull();
-    private VulkanAddress renderPass = VulkanAddress.createNull();
-    private VulkanAddress graphicsPipeline = VulkanAddress.createNull();
+    private final VulkanRenderPass renderPass;
+    private final VulkanAddress pipelineLayout = VulkanAddress.createNull();
+    private final VulkanAddress graphicsPipeline = VulkanAddress.createNull();
+    private final int topologyType;
     
-    VulkanGraphicPipeline(  VulkanPhysicalDevice device ) {
+    public VulkanGraphicPipeline(  VulkanPhysicalDevice device, int topologyType ) {
         this.device = device;
-        dynamicStateCreateInfo = createDynamicStateCreateInfo();
+        renderPass = new VulkanRenderPass( device );
+        this.topologyType = topologyType;
     }
     
-    void dispose() {
+    public void dispose() {
         if( !graphicsPipeline.isNull() ) {
             VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipeline.getValue(), null );
             graphicsPipeline.setNull();
@@ -51,21 +54,22 @@ class VulkanGraphicPipeline {
             VK10.vkDestroyPipelineLayout( device.getLogicalDevice(), pipelineLayout.getValue(), null );
             pipelineLayout.setNull();
         }
-        if( !renderPass.isNull() ) {
-            VK10.vkDestroyRenderPass( device.getLogicalDevice(), renderPass.getValue(), null );
-            renderPass.setNull();
-        }
     }
     
-    void update(
+    public void update(
         VulkanSwapChain swapChain,
         List< VkPipelineShaderStageCreateInfo > shaderStages,
-        VulkanDepthResources depthResources
+        VulkanDepthResources depthResources,
+        VulkanAddress descriptorSet
     ) {
         dispose();
-        updateVulkanPipelineLayout();
-        updateRenderPass( swapChain, depthResources );
+        updateVulkanPipelineLayout( descriptorSet );
+        renderPass.updateRenderPass( swapChain, depthResources );
         createGraphicPipeline( swapChain, shaderStages );
+    }
+    
+    public VulkanRenderPass getRenderPass() {
+        return renderPass;
     }
     
     VulkanAddress getPipelineLayout() {
@@ -74,10 +78,6 @@ class VulkanGraphicPipeline {
     
     VulkanAddress getGraphicPipeline() {
         return graphicsPipeline;
-    }
-    
-    VulkanAddress getRenderPass() {
-        return renderPass;
     }
     
     private void createGraphicPipeline(
@@ -109,9 +109,9 @@ class VulkanGraphicPipeline {
             .pMultisampleState( createMultisampleStateCreateInfo() )
             .pDepthStencilState( createDepthStencilState() )
             .pColorBlendState( createColourBlendStateCreateInfo() )
-            .pDynamicState( null )
+            .pDynamicState( createDynamicStateCreateInfo() )
             .layout( pipelineLayout.getValue() )
-            .renderPass( renderPass.getValue() )
+            .renderPass( renderPass.getAddress().getValue() )
             .subpass( 0 )
             .basePipelineHandle( VK10.VK_NULL_HANDLE )
             .basePipelineIndex( -1 )
@@ -143,102 +143,12 @@ class VulkanGraphicPipeline {
         return shaderStagesBuffer;
     }
     
-    private void updateRenderPass( VulkanSwapChain swapChain, VulkanDepthResources depthResources ) {
-        VulkanHelper.updateAddress( renderPass,
-            (address) -> VK10.vkCreateRenderPass(
-                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain, depthResources ), null, address ),
-            resultCode -> new CannotCreateVulkanRenderPassException( device, resultCode )
-        );
-    }
-    
-    private VkRenderPassCreateInfo createRenderPassCreateInfo(
-        VulkanSwapChain swapChain, VulkanDepthResources depthResources
-    ) {
-        return VkRenderPassCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
-            .pAttachments( VkAttachmentDescription.calloc( 2 )
-                .put( 0, createColourAttachmentDescription( swapChain ) )
-                .put( 1, createDepthAttachmentDescription( depthResources ) )
-            )
-            .pSubpasses( VkSubpassDescription.create( 1 )
-                .put( 0, createSubpassDescription() )
-            )
-            .pDependencies( VkSubpassDependency.calloc( 1 )
-                .put( 0, createSubpassDependency() )
-            )
-        ;
-    }
-    
-    private VkSubpassDependency createSubpassDependency() {
-        return VkSubpassDependency.create()
-            .srcSubpass( VK10.VK_SUBPASS_EXTERNAL )
-            .dstSubpass( 0 )
-            .srcStageMask( VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT )
-            .dstStageMask( VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT )
-            .srcAccessMask( 0 )
-            .dstAccessMask( VK10.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK10.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT );
-    }
-    
-    private VkSubpassDescription createSubpassDescription() {
-        return VkSubpassDescription.create()
-            .pipelineBindPoint( VK10.VK_PIPELINE_BIND_POINT_GRAPHICS )
-            .colorAttachmentCount( 1 )
-            .pColorAttachments( VkAttachmentReference.create( 1 )
-                .put( 0, createColourAttachmentReference() )
-            )
-            .pDepthStencilAttachment( createDepthAttachmentReference() )
-        ;
-    }
-    
-    private VkAttachmentReference createColourAttachmentReference() {
-        return createAttachmentReference( 0, VK10.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL );
-    }
-    
-    private VkAttachmentReference createDepthAttachmentReference() {
-        return createAttachmentReference( 1,
-            VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL );
-    }
-    
-    private VkAttachmentReference createAttachmentReference( int index, int layout ) {
-        return VkAttachmentReference.create().attachment( index ).layout( layout );
-    }
-    
-    private VkAttachmentDescription createDepthAttachmentDescription( VulkanDepthResources depthResources ) {
-        return createAttackmentDescription( depthResources.getDepthFormat().getFormat(),
-            VK10.VK_ATTACHMENT_STORE_OP_DONT_CARE,
-            VK10.VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-            VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-        );
-    }
-    
-    private VkAttachmentDescription createColourAttachmentDescription( VulkanSwapChain swapChain ) {
-        return createAttackmentDescription( swapChain.getImageFormat(),
-            VK10.VK_ATTACHMENT_STORE_OP_STORE,
-            VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
-            KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-        );
-    }
-    
-    private VkAttachmentDescription createAttackmentDescription(
-        int imageFormat, int storeOperation, int stencilLoadOperation, int finalLayout
-    ) {
-        return VkAttachmentDescription.create()
-            .format( imageFormat )
-            .samples( VK10.VK_SAMPLE_COUNT_1_BIT )
-            .loadOp( VK10.VK_ATTACHMENT_LOAD_OP_CLEAR )
-            .storeOp( storeOperation )
-            .stencilLoadOp( stencilLoadOperation )
-            .stencilStoreOp( VK10.VK_ATTACHMENT_STORE_OP_DONT_CARE )
-            .initialLayout( VK10.VK_IMAGE_LAYOUT_UNDEFINED )
-            .finalLayout( finalLayout );
-    }
-    
     private VkPipelineDynamicStateCreateInfo createDynamicStateCreateInfo() {
+        IntBuffer flagsBuffer = MemoryUtil.memAllocInt( DYNAMIC_STATE_FLAGS.length );
+        flagsBuffer.put( DYNAMIC_STATE_FLAGS ).flip();
         return VkPipelineDynamicStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO )
-            .pDynamicStates( IntBuffer.wrap( new int[]{
-                VK10.VK_DYNAMIC_STATE_VIEWPORT, VK10.VK_DYNAMIC_STATE_LINE_WIDTH
-            } ) );
+            .pDynamicStates( flagsBuffer);
     }
     
     private VkPipelineColorBlendStateCreateInfo createColourBlendStateCreateInfo() {
@@ -322,7 +232,7 @@ class VulkanGraphicPipeline {
     private VkPipelineInputAssemblyStateCreateInfo createInputAssemblyStateCreateInfo() {
         return VkPipelineInputAssemblyStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO )
-            .topology( VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST )
+            .topology( topologyType )
             .primitiveRestartEnable( false );
     }
     
@@ -433,10 +343,10 @@ class VulkanGraphicPipeline {
             .offset( SIZE_VEC_4F * SIZE_FLOAT * ( UNIFORM_COUNT_VEC4 + location ) );
     }
     
-    private void updateVulkanPipelineLayout() {
+    private void updateVulkanPipelineLayout( VulkanAddress descriptorSet ) {
         VkPipelineLayoutCreateInfo createInfo = VkPipelineLayoutCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO )
-            .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, device.getDescriptorSetLayout().getValue() ) )
+            .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getValue() ) )
             .pPushConstantRanges( null );
         
         VulkanHelper.updateAddress( pipelineLayout,

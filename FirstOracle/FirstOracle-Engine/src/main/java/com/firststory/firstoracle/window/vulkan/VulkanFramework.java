@@ -15,6 +15,7 @@ import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanIns
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanPhysicalDeviceException;
 import com.firststory.firstoracle.window.vulkan.exceptions.NoDeviceSupportingVulkanEnoughException;
 import com.firststory.firstoracle.window.vulkan.exceptions.NoDeviceSupportingVulkanException;
+import com.firststory.firstoracle.window.vulkan.rendering.VulkanRenderingContext;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -85,7 +86,7 @@ public class VulkanFramework implements RenderingFramework {
         windowSurface = VulkanWindowSurface.create( instance, window );
         physicalDevices = createPhysicalDevices();
         mainPhysicalDevice = selectMainPhysicalDevice();
-        renderingContext = new VulkanRenderingContext( mainPhysicalDevice );
+        renderingContext = new VulkanRenderingContext( mainPhysicalDevice, mainPhysicalDevice.getDescriptorPool() );
     
         logger.finer( "Finished creating Vulkan Framework: " + this );
     }

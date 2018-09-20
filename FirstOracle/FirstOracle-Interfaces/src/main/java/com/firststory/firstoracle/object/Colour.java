@@ -20,11 +20,11 @@ public class Colour extends VertexAttribute {
     }
     
     public int getIndex() {
-        return 1;
+        return 2;
     }
     
     public int getVertexSize() {
-        return 2;
+        return 4;
     }
     
     @Override

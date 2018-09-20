@@ -5,10 +5,9 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.TextureBuffer;
-import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.exceptions.*;
+import com.firststory.firstoracle.window.vulkan.rendering.*;
 import org.joml.Vector4fc;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
@@ -51,30 +50,31 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanWindowSurface windowSurface;
     private final List< VkExtensionProperties > availableExtensionProperties;
     private final VulkanSwapChain swapChain;
-    private final VulkanGraphicPipeline graphicPipeline;
-    private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>();
-    private final VulkanGraphicCommandPool graphicCommandPool;
+    private final VulkanGraphicPipeline trianglePipeline;
+    private final VulkanGraphicPipeline linePipeline;
+    private final Map< Integer, VulkanFrameBuffer > triangleBuffers = new HashMap<>();
+    private final Map< Integer, VulkanFrameBuffer > lineBuffers = new HashMap<>();
+    
+    private final VulkanGraphicCommandPool triangleCommandPool;
+    private final VulkanGraphicCommandPool lineCommandPool;
     private final VulkanTransferCommandPool vertexDataTransferCommandPool;
     private final VulkanTransferCommandPool textureTransferCommandPool;
     private final Set< VulkanCommandPool > commandPools = new HashSet<>();
-    private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
     private final VulkanBufferProvider bufferProvider;
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
     private final Map< Integer, VulkanMemoryHeap > memoryHeaps = new HashMap<>();
-    private final VulkanAddress descriptorSetLayout;
     
-    private final VulkanAddress descriptorPool;
-    private final VulkanAddress descriptorSet;
+    private final VulkanDescriptor descriptorPool;
     private final VulkanTextureLoader textureLoader;
-    private final VulkanAddress textureSampler;
-    private final Texture texture;
-    private final TextureBuffer<VulkanTextureData> textureData;
+    private final VulkanTextureSampler textureSampler;
     private final VulkanDepthResources depthResources;
     private final VulkanShaderProgram3D shaderProgram3D;
     //private final VulkanShaderProgram2D shaderProgram2D;
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
+    
+    private int currentImageIndex;
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -107,35 +107,40 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         fillMemoryHeaps();
         
         imageAvailableSemaphore = new VulkanSemaphore( this );
-        renderFinishedSemaphore = new VulkanSemaphore( this );
         
         swapChain = new VulkanSwapChain( this );
-        
-        this.descriptorSetLayout = createDescriptorSetLayout();
-        
-        graphicPipeline = new VulkanGraphicPipeline( this );
-        graphicCommandPool = new VulkanGraphicCommandPool( this,
+    
+        trianglePipeline = new VulkanGraphicPipeline( this, VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
+        linePipeline = new VulkanGraphicPipeline( this, VK10.VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
+        triangleCommandPool = new VulkanGraphicCommandPool(
+            this,
             graphicFamily,
             swapChain,
-            graphicPipeline,
-            imageAvailableSemaphore,
-            renderFinishedSemaphore
+            trianglePipeline,
+            imageAvailableSemaphore
+        );
+        lineCommandPool = new VulkanGraphicCommandPool(
+            this,
+            graphicFamily,
+            swapChain,
+            linePipeline,
+            imageAvailableSemaphore
         );
         vertexDataTransferCommandPool = new VulkanTransferCommandPool( this, transferFamily );
         textureTransferCommandPool = new VulkanTransferCommandPool( this, graphicFamily );
-        commandPools.add( graphicCommandPool );
+        commandPools.add( triangleCommandPool );
+        commandPools.add( lineCommandPool );
         commandPools.add( vertexDataTransferCommandPool );
         commandPools.add( textureTransferCommandPool );
     
         bufferProvider = VulkanBufferProvider.createProvider(
             this, vertexDataTransferCommandPool, textureTransferCommandPool );
-        
-        descriptorPool = createDescriptorPool();
-        descriptorSet = createDescriptorSet();
-        
+    
+    
         depthResources = new VulkanDepthResources( this );
-        textureSampler = createTextureSampler();
-        textureLoader = new VulkanTextureLoader( this, bufferProvider, textureSampler, descriptorSet );
+        textureSampler = new VulkanTextureSampler( this );
+        descriptorPool = new VulkanDescriptor( textureSampler, this );
+        textureLoader = new VulkanTextureLoader( this, bufferProvider );
         
         shaderProgram3D = new VulkanShaderProgram3D( this, bufferProvider );
         //shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
@@ -145,11 +150,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         } catch ( IOException ex ) {
             throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
         }
-        
-        
-        texture = createTexture();
-        textureData = texture.getBuffer( textureLoader );
-        texture.bind( textureLoader );
         
         updateRenderingContext();
         
@@ -189,10 +189,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     void updateBackground( Vector4fc backgroundColour ) {
-        graphicCommandPool.setBackgroundColour( backgroundColour );
+        triangleCommandPool.setBackgroundColour( backgroundColour );
+        lineCommandPool.setBackgroundColour( backgroundColour );
     }
     
-    VulkanVertexAttributeLoader getVertexAttributeLoader() {
+    public VulkanVertexAttributeLoader getVertexAttributeLoader() {
         return vertexAttributeLoader;
     }
     
@@ -200,20 +201,16 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
 //        return shaderProgram2D;
 //    }
     
-    VulkanShaderProgram3D getShaderProgram3D() {
+    public VulkanShaderProgram3D getShaderProgram3D() {
         return shaderProgram3D;
     }
     
-    VulkanTextureLoader getTextureLoader() {
+    public VulkanTextureLoader getTextureLoader() {
         return textureLoader;
     }
     
-    VulkanGraphicCommandPool getGraphicCommandPool() {
-        return graphicCommandPool;
-    }
-    
-    VulkanAddress getDescriptorSetLayout() {
-        return descriptorSetLayout;
+    VulkanDescriptor getDescriptorPool() {
+        return descriptorPool;
     }
     
     Map< Integer, VulkanMemoryType > getMemoryTypes() {
@@ -237,7 +234,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         throw new CannotSelectSuitableMemoryTypeException( this, desiredType, desiredFlags );
     }
     
-    VulkanBufferProvider getBufferProvider() {
+    public VulkanBufferProvider getBufferProvider() {
         return bufferProvider;
     }
     
@@ -246,27 +243,33 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         swapChain.update( windowSurface );
         depthResources.update( swapChain );
         
-        updateDesciptorSetsOnDevice( shaderProgram3D );
-        graphicPipeline.update( swapChain, shaderProgram3D.getShaderStages(), depthResources );
-        refreshFrameBuffers( frameBuffers, swapChain, depthResources );
+        trianglePipeline.update(
+            swapChain,
+            shaderProgram3D.getShaderStages(),
+            depthResources,
+            descriptorPool.getDescriptorSetLayout()
+        );
+        linePipeline.update(
+            swapChain,
+            shaderProgram3D.getShaderStages(),
+            depthResources,
+            descriptorPool.getDescriptorSetLayout()
+        );
+        refreshFrameBuffers( triangleBuffers, swapChain, trianglePipeline.getRenderPass(), depthResources );
+        refreshFrameBuffers( lineBuffers, swapChain, linePipeline.getRenderPass(), depthResources );
         
         refreshCommandBuffers();
     }
     
-    
-    VulkanGraphicCommandBuffer buffer;
     void setUpSingleRender( VulkanRenderingContext renderingContext ) {
-        buffer = graphicCommandPool.extractNextCommandBuffer();
-        renderingContext.setUpSingleRender(
-            descriptorSet, buffer,
-            textureTransferCommandPool.extractNextCommandBuffer()
-        );
+        renderingContext.setUpSingleRender();
     }
     
     void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
-        renderingContext.tearDownSingleRender( graphicCommandPool );
-        
-        if( buffer.getIndex() == swapChain.getImageViews().size() - 1 ) {
+        currentImageIndex = aquireNextImageIndex();
+        renderingContext.tearDownSingleRender( triangleCommandPool, lineCommandPool );
+    
+        if( currentImageIndex == swapChain.getImageViews().size() - 1 ) {
             updateRenderingContext();
         }
         
@@ -277,22 +280,24 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     void dispose() {
         presentationFamily.waitForQueue();
-        disposeFrameBuffers( frameBuffers );
+        disposeFrameBuffers( triangleBuffers );
+        disposeFrameBuffers( lineBuffers );
         commandPools.forEach( VulkanCommandPool::dispose );
-        graphicPipeline.dispose();
-        VK10.vkDestroyDescriptorSetLayout( logicalDevice, descriptorSetLayout.getValue(), null );
-        VK10.vkDestroyDescriptorPool( logicalDevice, descriptorPool.getValue(), null );
+        trianglePipeline.dispose();
+        linePipeline.dispose();
+        triangleCommandPool.dispose();
+        lineCommandPool.dispose();
+        descriptorPool.dispose();
         swapChain.dispose();
         bufferProvider.dispose();
 //        bufferProvider.close();
         
         depthResources.close();
-        texture.close();
-        VK10.vkDestroySampler( logicalDevice, textureSampler.getValue(), null );
+    
+        textureSampler.dispose();
         
         shaderProgram3D.dispose();
         imageAvailableSemaphore.dispose();
-        renderFinishedSemaphore.dispose();
         VK10.vkDestroyDevice( logicalDevice, null );
     }
     
@@ -325,7 +330,12 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return buffer;
     }
     
-    int aquireNextImageIndex() {
+    public int aquireCurrentImageIndex() {
+        return currentImageIndex;
+    }
+    
+    
+    private int aquireNextImageIndex() {
         try {
             return tryToAquireNextImageIndex();
         } catch ( VulkanNextImageIndexException ex1 ) {
@@ -369,152 +379,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return properties;
     }
     
-    private VulkanAddress createTextureSampler() {
-        VkSamplerCreateInfo createInfo = VkSamplerCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO )
-            .magFilter( VK10.VK_FILTER_LINEAR )
-            .minFilter( VK10.VK_FILTER_LINEAR )
-            .addressModeU( VK10.VK_SAMPLER_ADDRESS_MODE_REPEAT )
-            .addressModeV( VK10.VK_SAMPLER_ADDRESS_MODE_REPEAT )
-            .addressModeW( VK10.VK_SAMPLER_ADDRESS_MODE_REPEAT )
-            .anisotropyEnable( true )
-            .maxAnisotropy( 16 )
-            .borderColor( VK10.VK_BORDER_COLOR_INT_OPAQUE_BLACK )
-            .unnormalizedCoordinates( false )
-            .compareEnable( false )
-            .compareOp( VK10.VK_COMPARE_OP_ALWAYS )
-            .mipmapMode( VK10.VK_SAMPLER_MIPMAP_MODE_LINEAR )
-            .mipLodBias( 0f )
-            .minLod( 0f )
-            .maxLod( 0 )
-        ;
-        
-        return VulkanHelper.createAddress(
-            address -> VK10.vkCreateSampler( logicalDevice, createInfo, null, address ),
-            resultCode -> new CannotCreateVulkanTextureSamplerException( this, resultCode )
-        );
-    }
-    
-    private Texture createTexture() {
-        Texture texture;
-        try {
-            texture = new Texture( "resources/First Oracle/texture3Dc.png" );
-        } catch ( Exception ex ) {
-            throw new RuntimeException( ex );
-        }
-        texture.load( textureLoader );
-        texture.bind( textureLoader );
-        return texture;
-    }
-    
-    private static final int SAMPLERS_COUNT = 1;
-    
-    private void updateDesciptorSetsOnDevice( VulkanShaderProgram3D shaderProgram ) {
-        VkDescriptorImageInfo.Buffer imageSamplers = VkDescriptorImageInfo.create( SAMPLERS_COUNT );
-        
-        VkDescriptorImageInfo imageInfo = createImageInfo();
-        for( int i=0; i< SAMPLERS_COUNT; i++ ){
-            imageSamplers.put( i, imageInfo );
-        }
-    
-        VK10.vkUpdateDescriptorSets( logicalDevice,
-            VkWriteDescriptorSet.create( 2 )
-                .put( 0, createDescriptorWrite( 0,
-                    VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    VkDescriptorBufferInfo.create( 1 ).put( 0, shaderProgram.createBufferInfo() ),
-                    null
-                ) )
-                .put( 1, createDescriptorWrite( 1,
-                    VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                    null,
-                    imageSamplers
-                ) )
-            ,
-            null
-        );
-    }
-    
-    private VkDescriptorImageInfo createImageInfo() {
-        return VkDescriptorImageInfo.create()
-            .imageLayout( VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
-            .imageView( textureData.getContext().getImageView().getAddress().getValue() )
-            .sampler( textureSampler.getValue() )
-        ;
-    }
-    
-    private VkWriteDescriptorSet createDescriptorWrite(
-        int bindingIndex, int type, VkDescriptorBufferInfo.Buffer bufferInfos, VkDescriptorImageInfo.Buffer imageInfos
-    ) {
-        return VkWriteDescriptorSet.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET )
-            .dstSet( descriptorSet.getValue() )
-            .dstBinding( bindingIndex )
-            .descriptorType( type )
-            .dstArrayElement( 0 )
-            .pBufferInfo( bufferInfos )
-            .pImageInfo( imageInfos )
-            .pTexelBufferView( null );
-    }
-    
-    private VulkanAddress createDescriptorSet() {
-        VkDescriptorSetAllocateInfo allocateInfo = VkDescriptorSetAllocateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO )
-            .descriptorPool( descriptorPool.getValue() )
-            .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSetLayout.getValue() ) )
-        ;
-        
-        return VulkanHelper.createAddress(
-            address -> VK10.vkAllocateDescriptorSets( logicalDevice, allocateInfo, address ),
-            resultCode -> new CannotCreateVulkanDescriptorSetException( this, resultCode )
-        );
-    }
-    
-    private VulkanAddress createDescriptorPool() {
-        VkDescriptorPoolCreateInfo createInfo = VkDescriptorPoolCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO )
-            .pPoolSizes( VkDescriptorPoolSize.create( 2 )
-                .put( 0, createPoolSize( VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ) )
-                .put( 1, createPoolSize( VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ) )
-            )
-            .maxSets( 1 );
-        return VulkanHelper.createAddress(
-            address -> VK10.vkCreateDescriptorPool( logicalDevice, createInfo, null, address ),
-            resultCode -> new CannotCreateVulkanDescriptorPoolException( this, resultCode )
-        );
-    }
-    
-    private VkDescriptorPoolSize createPoolSize( int type ) {
-        return VkDescriptorPoolSize.create()
-            .type( type )
-            .descriptorCount( SAMPLERS_COUNT );
-    }
-    
-    private VulkanAddress createDescriptorSetLayout() {
-        VkDescriptorSetLayoutCreateInfo createInfo = VkDescriptorSetLayoutCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO )
-            .pBindings( VkDescriptorSetLayoutBinding.calloc( 2 )
-                .put( 0, createLayoutBinding(
-                    0, 1, VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK10.VK_SHADER_STAGE_VERTEX_BIT ) )
-                .put( 1, createLayoutBinding(
-                    1, SAMPLERS_COUNT, VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK10.VK_SHADER_STAGE_FRAGMENT_BIT ) )
-            )
-        ;
-        
-        return VulkanHelper.createAddress( address ->
-                VK10.vkCreateDescriptorSetLayout( logicalDevice, createInfo, null, address ),
-            resultCode -> new CannotCreateVulkanDescriptorSetLayoutException( this, resultCode )
-        );
-    }
-    
-    private VkDescriptorSetLayoutBinding createLayoutBinding( int index, int count, int type, int stageFlag ) {
-        return VkDescriptorSetLayoutBinding.create()
-            .binding( index )
-            .descriptorType( type )
-            .descriptorCount( count )
-            .stageFlags( stageFlag )
-            .pImmutableSamplers( null );
-    }
-    
     private boolean checkMemoryTypeFlags( int index, int memoryFlags, int desiredType, int... desiredFlags ) {
         if ( ( desiredType & ( 1 << index ) ) == 0 ) {
             return false;
@@ -526,7 +390,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VulkanHelper.iterate( memoryProperties.memoryHeaps(),
             ( index, memoryHeap ) -> memoryHeaps.put( index, new VulkanMemoryHeap( index, memoryHeap ) )
         );
-    }
+}
     
     private void fillMemoryTypes() {
         VulkanHelper.iterate( memoryProperties.memoryTypes(),
@@ -541,12 +405,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private void refreshCommandBuffers() {
-        commandPools.forEach( pool -> pool.refreshCommandBuffers( frameBuffers ) );
+        commandPools.forEach( pool -> pool.refreshCommandBuffers( triangleBuffers ) );
+        commandPools.forEach( pool -> pool.refreshCommandBuffers( triangleBuffers ) );
     }
     
     private int tryToAquireNextImageIndex() {
         int[] imageIndex = new int[1];
-        int result = KHRSwapchain.vkAcquireNextImageKHR( logicalDevice,
+        int result = KHRSwapchain.vkAcquireNextImageKHR(
+            logicalDevice,
             swapChain.getAddress().getValue(),
             Long.MAX_VALUE,
             imageAvailableSemaphore.getAddress().getValue(),
@@ -570,12 +436,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private void refreshFrameBuffers(
         Map< Integer, VulkanFrameBuffer > frameBuffers,
         VulkanSwapChain swapChain,
+        VulkanRenderPass renderPass,
         VulkanDepthResources depthResources
     ) {
         disposeFrameBuffers( frameBuffers );
         for ( Map.Entry< Integer, VulkanImageView > entry : swapChain.getImageViews().entrySet() ) {
             frameBuffers.put( entry.getKey(),
-                new VulkanFrameBuffer( this, entry.getValue(), graphicPipeline, swapChain, depthResources )
+                new VulkanFrameBuffer( this, entry.getValue(), renderPass, swapChain, depthResources )
             );
         }
     }

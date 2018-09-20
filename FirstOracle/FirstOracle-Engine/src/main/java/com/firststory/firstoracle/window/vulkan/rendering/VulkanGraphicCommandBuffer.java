@@ -2,8 +2,9 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.rendering;
 
+import com.firststory.firstoracle.window.vulkan.*;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
 import org.joml.Vector4fc;
 import org.lwjgl.system.MemoryUtil;
@@ -19,7 +20,7 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     private final VulkanFrameBuffer frameBuffer;
     private final int index;
     
-    public VulkanGraphicCommandBuffer(
+    VulkanGraphicCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
         VulkanFrameBuffer frameBuffer,
@@ -34,7 +35,7 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         this.frameBuffer = frameBuffer;
         this.graphicsPipeline = graphicsPipeline;
         this.index = index;
-        renderPassBeginInfo = createRenderPassBeginInfo( graphicsPipeline, swapChain, backgroundColour );
+        renderPassBeginInfo = createRenderPassBeginInfo( graphicsPipeline.getRenderPass(), swapChain, backgroundColour );
     }
     
     public int getIndex() {
@@ -54,7 +55,11 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         super.fillQueueTearDown();
     }
     
-    void drawVertices(
+    void setLineWidth( Float lineWidth ) {
+        VK10.vkCmdSetLineWidth( getCommandBuffer(), lineWidth );
+    }
+    
+    void draw(
         VulkanDataBuffer vertexBuffer,
         VulkanDataBuffer uvBuffer,
         VulkanDataBuffer colourBuffer,
@@ -75,6 +80,7 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
                 dataBuffer.getMemoryOffset(),
             }
         );
+        
         VK10.vkCmdDraw(
             getCommandBuffer(),
             bufferSize,
@@ -84,24 +90,24 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         );
     }
     
-    void bindDescriptorSets( VulkanAddress descriptorSet ) {
+    void bindDescriptorSets( VulkanDescriptorSet descriptorSet ) {
         VK10.vkCmdBindDescriptorSets( getCommandBuffer(),
             VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
             graphicsPipeline.getPipelineLayout().getValue(),
             0,
-            MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getValue() ),
+            MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getAddress().getValue() ),
             null
         );
     }
     
     private VkRenderPassBeginInfo createRenderPassBeginInfo(
-        VulkanGraphicPipeline graphicPipeline,
+        VulkanRenderPass renderPass,
         VulkanSwapChain swapChain,
         Vector4fc backgroundColour
     ) {
         return VkRenderPassBeginInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO )
-            .renderPass( graphicPipeline.getRenderPass().getValue() )
+            .renderPass( renderPass.getAddress().getValue() )
             .framebuffer( frameBuffer.getAddress().getValue() )
             .renderArea( createRenderArea( swapChain ) )
             .pClearValues( createClearValue( backgroundColour ) );

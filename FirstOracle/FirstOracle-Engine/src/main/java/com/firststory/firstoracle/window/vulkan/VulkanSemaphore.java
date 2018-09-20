@@ -11,18 +11,17 @@ import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 /**
  * @author n1t4chi
  */
-class VulkanSemaphore {
+public class VulkanSemaphore {
     
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;
     
-    VulkanSemaphore( VulkanPhysicalDevice device ) {
+    public VulkanSemaphore( VulkanPhysicalDevice device ) {
         this.device = device;
-        
         this.address = createSemaphore( device );
     }
     
-    void dispose() {
+    public void dispose() {
         VK10.vkDestroySemaphore( device.getLogicalDevice(), address.getValue(), null );
     }
     

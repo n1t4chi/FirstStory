@@ -63,13 +63,13 @@ public class GlfwApplication2D {
             .setHeight( height )
             .setDrawBorder( true )
             .build();
-        grid2DRenderer = new DummyGrid2DRenderer();
-//        grid2DRenderer = new BoundedPositiveGrid2DRenderer( 20, 30, 10 );
-//            Grid2DRenderer grid2DRenderer = new BoundedGrid2DRenderer( shaderProgram2D,
-//                100,
-//                10,
-//                1
-//            );
+//        grid2DRenderer = new DummyGrid2DRenderer();
+        grid2DRenderer = new BoundedPositiveGrid2DRenderer( 20, 30, 10 );
+            Grid2DRenderer grid2DRenderer = new BoundedGrid2DRenderer(
+                100,
+                10,
+                1
+            );
         grid3DRenderer = new DummyGrid3DRenderer();
 
         renderedScene = new RenderedSceneMutable( settings );
@@ -100,9 +100,21 @@ public class GlfwApplication2D {
 //        compound.getTransformations().setScale( 4, 4 );
     
         RectangleGrid[][] array = new RectangleGrid[0][0];
-        NonAnimatedCubeGrid[][][] terrain3DS = new NonAnimatedCubeGrid[0][0][0];
-//        terrain3DS[0][0][0] = new NonAnimatedCubeGrid();
-//        terrain3DS[0][0][0].setTexture( texture1 );
+    
+        NonAnimatedCubeGrid grid = new NonAnimatedCubeGrid();
+        grid.setTexture( texture1 );
+        
+        NonAnimatedCubeGrid[][][] terrain3DS = new NonAnimatedCubeGrid[3][3][3];
+        for ( int x = 0; x < terrain3DS.length; x++ ) {
+            for ( int y = 0; y < terrain3DS[x].length; y++ ) {
+                for ( int z = 0; z < terrain3DS[x][y].length; z++ ) {
+                    terrain3DS[ x ][ y ][ z ] = grid;
+                }
+            }
+        }
+        
+        terrain3DS[0][0][0] = new NonAnimatedCubeGrid();
+        terrain3DS[0][0][0].setTexture( texture1 );
 
 //        for ( int x = 0; x < array.length; x++ ) {
 //            for ( int y = 0; y < array[x].length; y++ ) {

@@ -2,9 +2,10 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.window.vulkan.*;
 import org.joml.Vector4fc;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.KHRSwapchain;
@@ -18,7 +19,7 @@ import java.util.Map;
 /**
  * @author n1t4chi
  */
-class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBuffer > {
+public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBuffer > {
     
     private final VulkanSwapChain swapChain;
     private final VulkanGraphicPipeline graphicPipeline;
@@ -26,27 +27,30 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
     private final VulkanSemaphore imageAvailableSemaphore;
     private Vector4fc backgroundColour = FirstOracleConstants.VECTOR_ZERO_4F;
     
-    VulkanGraphicCommandPool(
+    public VulkanGraphicCommandPool(
         VulkanPhysicalDevice device,
         VulkanQueueFamily usedQueueFamily,
         VulkanSwapChain swapChain,
         VulkanGraphicPipeline graphicPipeline,
-        VulkanSemaphore imageAvailableSemaphore,
-        VulkanSemaphore renderFinishedSemaphore
+        VulkanSemaphore imageAvailableSemaphore
     ) {
         super( device, usedQueueFamily );
         this.swapChain = swapChain;
         this.graphicPipeline = graphicPipeline;
-        this.renderFinishedSemaphore = renderFinishedSemaphore;
+        renderFinishedSemaphore = new VulkanSemaphore( device );
         this.imageAvailableSemaphore = imageAvailableSemaphore;
     }
     
-    void setBackgroundColour( Vector4fc backgroundColour ) {
+    public void dispose() {
+        renderFinishedSemaphore.dispose();
+    }
+    
+    public void setBackgroundColour( Vector4fc backgroundColour ) {
         this.backgroundColour = backgroundColour;
     }
     
     @Override
-    VulkanGraphicCommandBuffer createNewCommandBuffer(
+    public VulkanGraphicCommandBuffer createNewCommandBuffer(
         int index,
         VulkanAddress address,
         Map< Integer, VulkanFrameBuffer > frameBuffers
@@ -65,16 +69,17 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
     }
     
     @Override
-    VulkanGraphicCommandBuffer extractNextCommandBuffer() {
-        return getCommandBuffer( getDevice().aquireNextImageIndex() );
+    public VulkanGraphicCommandBuffer extractNextCommandBuffer() {
+        return getCommandBuffer( getDevice().aquireCurrentImageIndex() );
     }
     
     @Override
-    void executeTearDown( VulkanGraphicCommandBuffer commandBuffer ) {
+    public void executeTearDown( VulkanGraphicCommandBuffer commandBuffer ) {
         presentQueue( swapChain, commandBuffer.getIndex() );
     }
     
-    VkSubmitInfo createSubmitInfo( VulkanCommandBuffer currentCommandBuffer ) {
+    @Override
+    public VkSubmitInfo createSubmitInfo( VulkanCommandBuffer... currentCommandBuffer ) {
         return super.createSubmitInfo( currentCommandBuffer )
             .pSignalSemaphores( MemoryUtil.memAllocLong( 1 ).put(
                 0, renderFinishedSemaphore.getAddress().getValue() ) )
@@ -86,7 +91,7 @@ class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBu
     }
     
     @Override
-    IntBuffer createWaitStageMaskBuffer() {
+    public IntBuffer createWaitStageMaskBuffer() {
         return MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
     }
     

@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.Colour;
@@ -51,24 +51,20 @@ public class VulkanObject2DRenderingContext implements Object2DRenderingContext 
         Vector4fc overlayColour,
         Float maxAlphaChannel
     ) {
-        VulkanShaderProgram3D shaderProgram2D = context.getShaderProgram2D();
-        
-        shaderProgram2D.bindPosition( position );
-        shaderProgram2D.bindRotation( rotation );
-        shaderProgram2D.bindScale( scale );
-        
-        shaderProgram2D.bindMaxAlphaChannel( maxAlphaChannel );
-        shaderProgram2D.bindOverlayColour( overlayColour );
-        
-        int bufferSize = vertices.bind(
-            context.getVertexAttributeLoader(),
-            vertexFrame
+        context.draw( RenderData.build( RenderType.TRIANGLES )
+            .setPosition( position )
+            .setRotation( rotation )
+            .setScale( scale )
+            .setMaxAlphaChannel( maxAlphaChannel )
+            .setOverlayColour( overlayColour )
+            .setVertices( vertices )
+            .setVertexFrame( vertexFrame )
+            .setTexture( texture )
+            .setUvMap( uvMap )
+            .setUvDirection( uvDirection )
+            .setUvFrame( uvFrame )
+            .finish()
         );
-        uvMap.bind( context.getVertexAttributeLoader(), uvDirection, uvFrame );
-        
-        texture.bind( context.getTextureLoader() );
-        
-        context.drawTriangles( bufferSize );
     }
     
     @Override
@@ -80,24 +76,15 @@ public class VulkanObject2DRenderingContext implements Object2DRenderingContext 
         Float rotation,
         LineData lineLoop
     ) {
-        VulkanShaderProgram3D shaderProgram2D = context.getShaderProgram2D();
-        
-        shaderProgram2D.bindPosition( position );
-        shaderProgram2D.bindRotation( rotation );
-        shaderProgram2D.bindScale( scale );
-        
-        shaderProgram2D.bindMaxAlphaChannel( 1f );
-        shaderProgram2D.bindOverlayColour( lineLoop.getColour() );
-        
-        int bufferSize = vertices.bind(
-            context.getVertexAttributeLoader(),
-            vertexFrame
+        context.draw( RenderData.build( RenderType.LINE_LOOP )
+            .setPosition( position )
+            .setRotation( rotation )
+            .setScale( scale )
+            .setOverlayColour( lineLoop.getColour() )
+            .setVertices( vertices )
+            .setVertexFrame( vertexFrame )
+            .setLineWidth( lineLoop.getWidth() )
+            .finish()
         );
-        FirstOracleConstants.EMPTY_UV_MAP.bind( context.getVertexAttributeLoader(), 0, 0 );
-        
-        FirstOracleConstants.EMPTY_TEXTURE.bind( context.getTextureLoader() );
-        
-        context.setLineWidth( lineLoop.getWidth() );
-        context.drawLineLoop( bufferSize );
     }
 }

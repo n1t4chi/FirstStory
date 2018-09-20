@@ -13,7 +13,7 @@ import org.lwjgl.vulkan.VkImageViewCreateInfo;
 /**
  * @author n1t4chi
  */
-class VulkanImageView {
+public class VulkanImageView {
     
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;
@@ -21,6 +21,32 @@ class VulkanImageView {
     VulkanImageView( VulkanPhysicalDevice device, VulkanImage image, int format, int aspectMask, int mipLevels ) {
         this.device = device;
         this.address = createImageView( image, format, aspectMask, mipLevels );
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = device != null ? device.hashCode() : 0;
+        result = 31 * result + ( address != null ? address.hashCode() : 0 );
+        return result;
+    }
+    
+    @Override
+    public boolean equals( Object o ) {
+        if ( this == o ) { return true; }
+        if ( o == null || getClass() != o.getClass() ) { return false; }
+        
+        VulkanImageView that = ( VulkanImageView ) o;
+        
+        if ( device != null ? !device.equals( that.device ) : that.device != null ) { return false; }
+        return address != null ? address.equals( that.address ) : that.address == null;
+    }
+    
+    public VulkanAddress getAddress() {
+        return address;
+    }
+    
+    void close() {
+        VK10.vkDestroyImageView( device.getLogicalDevice(), address.getValue(), null );
     }
     
     private VulkanAddress createImageView( VulkanImage image, int format, int aspectMask, int mipLevels ) {
@@ -40,37 +66,9 @@ class VulkanImageView {
                     .baseMipLevel( 0 )
                     .levelCount( mipLevels )
                     .baseArrayLayer( 0 )
-                    .layerCount( 1 )
-                ),
-            ( createInfo, address ) ->
-                VK10.vkCreateImageView( device.getLogicalDevice(), createInfo, null, address ),
+                    .layerCount( 1 ) ),
+            ( createInfo, address ) -> VK10.vkCreateImageView( device.getLogicalDevice(), createInfo, null, address ),
             resultCode -> new CannotCreateVulkanImageViewException( device, resultCode )
         );
-    }
-    
-    @Override
-    public boolean equals( Object o ) {
-        if ( this == o ) { return true; }
-        if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        VulkanImageView that = ( VulkanImageView ) o;
-        
-        if ( device != null ? !device.equals( that.device ) : that.device != null ) { return false; }
-        return address != null ? address.equals( that.address ) : that.address == null;
-    }
-    
-    @Override
-    public int hashCode() {
-        int result = device != null ? device.hashCode() : 0;
-        result = 31 * result + ( address != null ? address.hashCode() : 0 );
-        return result;
-    }
-    
-    void close() {
-        VK10.vkDestroyImageView( device.getLogicalDevice(), address.getValue(), null );
-    }
-    
-    VulkanAddress getAddress() {
-        return address;
     }
 }

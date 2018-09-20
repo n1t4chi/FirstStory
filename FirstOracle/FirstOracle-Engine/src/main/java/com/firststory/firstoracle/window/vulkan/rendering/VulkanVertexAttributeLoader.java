@@ -2,10 +2,11 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.rendering;
 
 import com.firststory.firstoracle.object.VertexAttribute;
 import com.firststory.firstoracle.object.VertexAttributeLoader;
+import com.firststory.firstoracle.object.Vertices;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
 
@@ -15,13 +16,13 @@ import java.util.Map;
 /**
  * @author n1t4chi
  */
-class VulkanVertexAttributeLoader implements VertexAttributeLoader< VulkanDataBuffer > {
+public class VulkanVertexAttributeLoader implements VertexAttributeLoader< VulkanDataBuffer > {
     
     private final VulkanBufferProvider bufferProvider;
     
     private final Map<Integer, VulkanDataBuffer> bufferMap = new HashMap<>();
     
-    VulkanVertexAttributeLoader( VulkanBufferProvider bufferProvider ) {
+    public VulkanVertexAttributeLoader( VulkanBufferProvider bufferProvider ) {
         this.bufferProvider = bufferProvider;
     }
     
@@ -39,11 +40,15 @@ class VulkanVertexAttributeLoader implements VertexAttributeLoader< VulkanDataBu
         buffer.bind();
     }
     
-    VulkanDataBuffer getLastBoundPositionBuffer() {
+    VulkanDataBuffer getLastBoundVertexBuffer() {
         return bufferMap.get( 0 );
     }
     
     VulkanDataBuffer getLastBoundUvMapBuffer() {
         return bufferMap.get( 1 );
+    }
+    
+    VulkanDataBuffer getLastBoundColourBuffer() {
+        return bufferMap.get( 2 );
     }
 }

@@ -10,7 +10,7 @@ import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 
-class VulkanQueueFamily {
+public class VulkanQueueFamily {
     
     private final VulkanPhysicalDevice device;
     private final VkQueueFamilyProperties properties;
@@ -23,7 +23,7 @@ class VulkanQueueFamily {
         this.index = index;
     }
     
-    VkQueue getQueue() {
+    public VkQueue getQueue() {
         if( queue == null ) {
             queue = extractQueue();
         }

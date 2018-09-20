@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * @author n1t4chi
  */
-class VulkanSwapChain {
+public class VulkanSwapChain {
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanSwapChain.class );
     private final Set< VkSurfaceFormatKHR > formats = new HashSet<>();
@@ -85,23 +85,23 @@ class VulkanSwapChain {
         return imageViews;
     }
     
-    float getWidth() {
+    public float getWidth() {
         return extent.width();
     }
     
-    float getHeight() {
+    public float getHeight() {
         return extent.height();
     }
     
-    VkExtent2D getExtent() {
+    public VkExtent2D getExtent() {
         return extent;
     }
     
-    int getImageFormat() {
+    public int getImageFormat() {
         return usedFormat.format();
     }
     
-    VulkanAddress getAddress() {
+    public VulkanAddress getAddress() {
         return address;
     }
     

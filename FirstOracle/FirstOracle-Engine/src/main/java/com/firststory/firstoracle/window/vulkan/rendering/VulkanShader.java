@@ -2,10 +2,14 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.rendering;
 
 import com.firststory.firstoracle.shader.ShaderProgram;
 import com.firststory.firstoracle.templates.IOUtilities;
+import com.firststory.firstoracle.window.vulkan.ShaderType;
+import com.firststory.firstoracle.window.vulkan.VulkanAddress;
+import com.firststory.firstoracle.window.vulkan.VulkanHelper;
+import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanShaderException;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;

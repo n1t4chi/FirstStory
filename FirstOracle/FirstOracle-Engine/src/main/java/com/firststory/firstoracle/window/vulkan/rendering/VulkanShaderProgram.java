@@ -2,12 +2,17 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.window.vulkan;
+package com.firststory.firstoracle.window.vulkan.rendering;
 
+import com.firststory.firstoracle.Camera;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.shader.ShaderProgram;
+import com.firststory.firstoracle.window.vulkan.ShaderType;
+import com.firststory.firstoracle.window.vulkan.VulkanAddress;
+import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
+import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
@@ -17,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.firststory.firstoracle.window.vulkan.VulkanShader.SHADER_FILE_PATH_FRAGMENT;
-import static com.firststory.firstoracle.window.vulkan.VulkanShader.SHADER_FILE_PATH_VERTEX_3D;
+import static com.firststory.firstoracle.window.vulkan.rendering.VulkanShader.SHADER_FILE_PATH_FRAGMENT;
+import static com.firststory.firstoracle.window.vulkan.rendering.VulkanShader.SHADER_FILE_PATH_VERTEX_3D;
 
 /**
  * @author n1t4chi
@@ -26,7 +31,6 @@ import static com.firststory.firstoracle.window.vulkan.VulkanShader.SHADER_FILE_
 public class VulkanShaderProgram implements ShaderProgram {
     
     private static final int UNIFORM_SIZE = FirstOracleConstants.SIZE_MATRIX_4F;
-    private static final int INPUT_SIZE = FirstOracleConstants.SIZE_VEC_4F * 5 + FirstOracleConstants.SIZE_INT;
     private static final int UNIFORM_DATA_SIZE = FirstOracleConstants.SIZE_FLOAT * UNIFORM_SIZE;
     private final VulkanShader fragmentShader;
     private final VulkanShader vertexShader;
@@ -35,7 +39,9 @@ public class VulkanShaderProgram implements ShaderProgram {
     private final VulkanDataBuffer uniformBuffer;
     
     private final float[] uniformBufferData = new float[ UNIFORM_SIZE ];
-    private final float[] inBufferData = new float[ INPUT_SIZE ];
+    private Matrix4fc camera = null;
+    private boolean cameraChanged = true;
+    private final VkDescriptorBufferInfo descriptorBufferInfo;
     
     VulkanShaderProgram(
         VulkanPhysicalDevice device, VulkanBufferProvider bufferLoader
@@ -44,22 +50,36 @@ public class VulkanShaderProgram implements ShaderProgram {
         vertexShader = new VulkanShader( device, SHADER_FILE_PATH_VERTEX_3D, ShaderType.VERTEX );
         fragmentShader = new VulkanShader( device, SHADER_FILE_PATH_FRAGMENT, ShaderType.FRAGMENT );
         uniformBuffer = bufferLoader.createUniformBuffer( uniformBufferData );
+        descriptorBufferInfo = createDescriptorBufferInfo();
     }
     
-    void bindUniformData( VulkanAddress descriptorSet, VulkanGraphicCommandBuffer commandBuffer ) {
+    VkDescriptorBufferInfo getBufferInfo() {
+        return descriptorBufferInfo;
+    }
+    
+    private VkDescriptorBufferInfo createDescriptorBufferInfo() {
+        return VkDescriptorBufferInfo.create()
+            .buffer( uniformBuffer.getBufferAddress().getValue() )
+            .offset( 0 )
+            .range( UNIFORM_DATA_SIZE );
+    }
+    
+    void bindUniformData() {
         uniformBuffer.load( uniformBufferData );
-        commandBuffer.bindDescriptorSets( descriptorSet );
     }
     
-    float[] getInputData(  ) {
-        return inBufferData;
+    Matrix4fc getCamera() {
+        cameraChanged = false;
+        return camera;
     }
     
-    void putInputData( int offset, float... data ) {
-        System.arraycopy( data, 0, inBufferData, offset, data.length );
+    boolean didCameraChange() {
+        return cameraChanged;
     }
     
     void putUniformData( Matrix4fc camera ) {
+        this.camera = new Matrix4f( camera );
+        cameraChanged = true;
         camera.get( uniformBufferData );
     }
     
@@ -82,14 +102,7 @@ public class VulkanShaderProgram implements ShaderProgram {
         shaderStages.clear();
     }
     
-    VkDescriptorBufferInfo createBufferInfo() {
-        return VkDescriptorBufferInfo.create()
-            .buffer( uniformBuffer.getBufferAddress().getValue() )
-            .offset( 0 )
-            .range( UNIFORM_DATA_SIZE );
-    }
-    
-    List< VkPipelineShaderStageCreateInfo > getShaderStages() {
+    public List< VkPipelineShaderStageCreateInfo > getShaderStages() {
         return shaderStages;
     }
     
