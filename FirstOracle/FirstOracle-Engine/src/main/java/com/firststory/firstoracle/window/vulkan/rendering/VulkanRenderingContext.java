@@ -47,20 +47,20 @@ public class VulkanRenderingContext implements RenderingContext {
                 ( texture, renderDataList ) -> renderDataList.clear() )
         );
     }
+    private VulkanGraphicPipeline lastPipeline = null;
     
     public void tearDownSingleRender(
-        VulkanGraphicCommandPool triangleCommandPool,
-        VulkanGraphicCommandPool lineCommandPool
+        VulkanGraphicPipeline trianglePipeline,
+        VulkanGraphicPipeline linePipeline,
+        VulkanGraphicCommandPool graphicCommandPool
     ) {
-    
+        lastPipeline = null;
         Deque< VulkanDataBuffer > availableBuffers = new LinkedList<>( dataBuffers );
         
         descriptor.resetDescriptors();
     
-        VulkanGraphicCommandBuffer triangleBuffer = triangleCommandPool.extractNextCommandBuffer();
-        VulkanGraphicCommandBuffer lineBuffer = lineCommandPool.extractNextCommandBuffer();
-        triangleBuffer.fillQueueSetup();
-        lineBuffer.fillQueueSetup();
+        VulkanGraphicCommandBuffer buffer = graphicCommandPool.extractNextCommandBuffer();
+        buffer.fillQueueSetup();
         
         VulkanShaderProgram3D shader = getShaderProgram3D();
         renderDataByCamera.forEach( ( camera, renderDataByTexture ) -> {
@@ -71,8 +71,6 @@ public class VulkanRenderingContext implements RenderingContext {
                 }
     
                 VulkanDescriptorSet descriptorSet = getNextDescriptorSet( texture );
-                triangleBuffer.bindDescriptorSets( descriptorSet );
-                lineBuffer.bindDescriptorSets( descriptorSet );
     
                 //bind data
                 renderDataList.forEach( renderData -> {
@@ -84,21 +82,26 @@ public class VulkanRenderingContext implements RenderingContext {
                     renderData.getColours().bind( loader );
                     
                     
-                    triangleBuffer.setLineWidth( renderData.getLineWidth() );
-                    lineBuffer.setLineWidth( renderData.getLineWidth() );
+                    buffer.setLineWidth( renderData.getLineWidth() );
                     //todo:
                     //renderData.getType()
                     // VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
                     //triangles -> triangle pipeline, liines -> line pipeline
-                    VulkanGraphicCommandBuffer buffer;
+                    VulkanGraphicPipeline pipeline;
                     switch ( renderData.getType() ) {
                         case LINE_LOOP:
-                            buffer = lineBuffer;
+                            pipeline = linePipeline;
                             break;
                         case TRIANGLES:
                         default:
-                            buffer = triangleBuffer;
+                            pipeline = trianglePipeline;
                             break;
+                    }
+                    if( lastPipeline != pipeline ) {
+                        buffer.beginRenderPass( pipeline.getRenderPass() );
+                        buffer.bindDescriptorSets( pipeline, descriptorSet );
+                        buffer.bindPipeline( pipeline );
+                        lastPipeline = pipeline;
                     }
     
                     buffer.draw(
@@ -115,12 +118,9 @@ public class VulkanRenderingContext implements RenderingContext {
             } );
         } );
         
-        triangleBuffer.fillQueueTearDown();
-        lineBuffer.fillQueueTearDown();
-        triangleCommandPool.submitQueue( triangleBuffer, lineBuffer );
-        
-        triangleCommandPool.executeTearDown( triangleBuffer );
-//        lineCommandPool.executeTearDown( lineBuffer );
+        buffer.fillQueueTearDown();
+        graphicCommandPool.submitQueue( buffer, buffer );
+        graphicCommandPool.executeTearDown( buffer );
     }
     
     private VulkanDataBuffer loadObjectData( Deque< VulkanDataBuffer > availableBuffers, RenderData renderData ) {

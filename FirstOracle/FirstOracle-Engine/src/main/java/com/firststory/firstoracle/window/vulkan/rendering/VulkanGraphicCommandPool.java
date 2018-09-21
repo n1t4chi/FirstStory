@@ -22,7 +22,6 @@ import java.util.Map;
 public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBuffer > {
     
     private final VulkanSwapChain swapChain;
-    private final VulkanGraphicPipeline graphicPipeline;
     private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
     private Vector4fc backgroundColour = FirstOracleConstants.VECTOR_ZERO_4F;
@@ -31,12 +30,10 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
         VulkanPhysicalDevice device,
         VulkanQueueFamily usedQueueFamily,
         VulkanSwapChain swapChain,
-        VulkanGraphicPipeline graphicPipeline,
         VulkanSemaphore imageAvailableSemaphore
     ) {
         super( device, usedQueueFamily );
         this.swapChain = swapChain;
-        this.graphicPipeline = graphicPipeline;
         renderFinishedSemaphore = new VulkanSemaphore( device );
         this.imageAvailableSemaphore = imageAvailableSemaphore;
     }
@@ -59,7 +56,6 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
             getDevice(),
             address,
             frameBuffers.get( index ),
-            graphicPipeline,
             backgroundColour,
             swapChain,
             this,

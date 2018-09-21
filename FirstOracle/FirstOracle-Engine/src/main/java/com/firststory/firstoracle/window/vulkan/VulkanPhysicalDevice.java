@@ -55,8 +55,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Map< Integer, VulkanFrameBuffer > triangleBuffers = new HashMap<>();
     private final Map< Integer, VulkanFrameBuffer > lineBuffers = new HashMap<>();
     
-    private final VulkanGraphicCommandPool triangleCommandPool;
-    private final VulkanGraphicCommandPool lineCommandPool;
+    private final VulkanGraphicCommandPool graphicCommandPool;
     private final VulkanTransferCommandPool vertexDataTransferCommandPool;
     private final VulkanTransferCommandPool textureTransferCommandPool;
     private final Set< VulkanCommandPool > commandPools = new HashSet<>();
@@ -112,24 +111,15 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
         trianglePipeline = new VulkanGraphicPipeline( this, VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
         linePipeline = new VulkanGraphicPipeline( this, VK10.VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
-        triangleCommandPool = new VulkanGraphicCommandPool(
+        graphicCommandPool = new VulkanGraphicCommandPool(
             this,
             graphicFamily,
             swapChain,
-            trianglePipeline,
-            imageAvailableSemaphore
-        );
-        lineCommandPool = new VulkanGraphicCommandPool(
-            this,
-            graphicFamily,
-            swapChain,
-            linePipeline,
             imageAvailableSemaphore
         );
         vertexDataTransferCommandPool = new VulkanTransferCommandPool( this, transferFamily );
         textureTransferCommandPool = new VulkanTransferCommandPool( this, graphicFamily );
-        commandPools.add( triangleCommandPool );
-        commandPools.add( lineCommandPool );
+        commandPools.add( graphicCommandPool );
         commandPools.add( vertexDataTransferCommandPool );
         commandPools.add( textureTransferCommandPool );
     
@@ -189,8 +179,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     void updateBackground( Vector4fc backgroundColour ) {
-        triangleCommandPool.setBackgroundColour( backgroundColour );
-        lineCommandPool.setBackgroundColour( backgroundColour );
+        graphicCommandPool.setBackgroundColour( backgroundColour );
     }
     
     public VulkanVertexAttributeLoader getVertexAttributeLoader() {
@@ -267,7 +256,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
         currentImageIndex = aquireNextImageIndex();
-        renderingContext.tearDownSingleRender( triangleCommandPool, lineCommandPool );
+        renderingContext.tearDownSingleRender( trianglePipeline, linePipeline, graphicCommandPool );
     
         if( currentImageIndex == swapChain.getImageViews().size() - 1 ) {
             updateRenderingContext();
@@ -285,8 +274,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.forEach( VulkanCommandPool::dispose );
         trianglePipeline.dispose();
         linePipeline.dispose();
-        triangleCommandPool.dispose();
-        lineCommandPool.dispose();
+        graphicCommandPool.dispose();
         descriptorPool.dispose();
         swapChain.dispose();
         bufferProvider.dispose();

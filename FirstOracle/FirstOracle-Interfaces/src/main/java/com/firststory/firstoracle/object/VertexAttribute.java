@@ -14,7 +14,6 @@ import java.util.HashMap;
  */
 public abstract class VertexAttribute {
     private final HashMap< VertexAttributeLoader, BufferMap > bufferMaps = new HashMap<>();
-    private final HashMap< Long, float[] > arrays = new HashMap<>(  );
     
     
     public DataBuffer getBuffer( long key, VertexAttributeLoader loader ) {

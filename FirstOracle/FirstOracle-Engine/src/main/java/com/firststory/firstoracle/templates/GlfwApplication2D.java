@@ -104,7 +104,7 @@ public class GlfwApplication2D {
         NonAnimatedCubeGrid grid = new NonAnimatedCubeGrid();
         grid.setTexture( texture1 );
         
-        NonAnimatedCubeGrid[][][] terrain3DS = new NonAnimatedCubeGrid[3][3][3];
+        NonAnimatedCubeGrid[][][] terrain3DS = new NonAnimatedCubeGrid[0][0][0];
         for ( int x = 0; x < terrain3DS.length; x++ ) {
             for ( int y = 0; y < terrain3DS[x].length; y++ ) {
                 for ( int z = 0; z < terrain3DS[x][y].length; z++ ) {
@@ -112,9 +112,6 @@ public class GlfwApplication2D {
                 }
             }
         }
-        
-        terrain3DS[0][0][0] = new NonAnimatedCubeGrid();
-        terrain3DS[0][0][0].setTexture( texture1 );
 
 //        for ( int x = 0; x < array.length; x++ ) {
 //            for ( int y = 0; y < array[x].length; y++ ) {

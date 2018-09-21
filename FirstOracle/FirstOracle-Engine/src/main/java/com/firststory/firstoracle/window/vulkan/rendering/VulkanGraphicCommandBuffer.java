@@ -14,17 +14,15 @@ import org.lwjgl.vulkan.*;
  * @author n1t4chi
  */
 public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
-    
-    private final VulkanGraphicPipeline graphicsPipeline;
-    private final VkRenderPassBeginInfo renderPassBeginInfo;
     private final VulkanFrameBuffer frameBuffer;
+    private final Vector4fc backgroundColour;
+    private final VulkanSwapChain swapChain;
     private final int index;
     
     VulkanGraphicCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
         VulkanFrameBuffer frameBuffer,
-        VulkanGraphicPipeline graphicsPipeline,
         Vector4fc backgroundColour,
         VulkanSwapChain swapChain,
         VulkanCommandPool commandPool,
@@ -33,20 +31,13 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     ) {
         super( device, address, commandPool, usedBeginInfoFlags );
         this.frameBuffer = frameBuffer;
-        this.graphicsPipeline = graphicsPipeline;
+        this.backgroundColour = backgroundColour;
+        this.swapChain = swapChain;
         this.index = index;
-        renderPassBeginInfo = createRenderPassBeginInfo( graphicsPipeline.getRenderPass(), swapChain, backgroundColour );
     }
     
     public int getIndex() {
         return index;
-    }
-    
-    @Override
-    public void fillQueueSetup() {
-        super.fillQueueSetup();
-        beginRenderPassForCommandBuffer();
-        bindPipeline( graphicsPipeline );
     }
     
     @Override
@@ -90,13 +81,37 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         );
     }
     
-    void bindDescriptorSets( VulkanDescriptorSet descriptorSet ) {
+    void bindDescriptorSets( VulkanGraphicPipeline graphicPipeline, VulkanDescriptorSet descriptorSet ) {
         VK10.vkCmdBindDescriptorSets( getCommandBuffer(),
             VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphicsPipeline.getPipelineLayout().getValue(),
+            graphicPipeline.getPipelineLayout().getValue(),
             0,
             MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getAddress().getValue() ),
             null
+        );
+    }
+    
+    private boolean activeRenderPass = false;
+    
+    void beginRenderPass( VulkanRenderPass renderPass ) {
+        if( activeRenderPass ) {
+            endRenderPass();
+        }
+        activeRenderPass = true;
+        VkRenderPassBeginInfo renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, backgroundColour );
+        VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_INLINE );
+    }
+    
+    private void endRenderPass() {
+        activeRenderPass = false;
+        VK10.vkCmdEndRenderPass( getCommandBuffer() );
+    }
+    
+    void bindPipeline( VulkanGraphicPipeline graphicPipeline ) {
+        VK10.vkCmdBindPipeline(
+            getCommandBuffer(),
+            VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
+            graphicPipeline.getGraphicPipeline().getValue()
         );
     }
     
@@ -111,22 +126,6 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
             .framebuffer( frameBuffer.getAddress().getValue() )
             .renderArea( createRenderArea( swapChain ) )
             .pClearValues( createClearValue( backgroundColour ) );
-    }
-    
-    private void beginRenderPassForCommandBuffer() {
-        VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_INLINE );
-    }
-    
-    private void endRenderPass() {
-        VK10.vkCmdEndRenderPass( getCommandBuffer() );
-    }
-    
-    private void bindPipeline( VulkanGraphicPipeline graphicPipeline ) {
-        VK10.vkCmdBindPipeline(
-            getCommandBuffer(),
-            VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphicPipeline.getGraphicPipeline().getValue()
-        );
     }
     
     private VkRect2D createRenderArea( VulkanSwapChain swapChain ) {
