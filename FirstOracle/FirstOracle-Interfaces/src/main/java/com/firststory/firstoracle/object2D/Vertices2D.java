@@ -3,19 +3,17 @@
  */
 package com.firststory.firstoracle.object2D;
 
+import com.firststory.firstoracle.object.Vertex2D;
 import com.firststory.firstoracle.object.Vertices;
+
+import java.util.List;
 
 /**
  * @author n1t4chi
  */
-public class Vertices2D extends Vertices< BoundingBox2D > {
+public class Vertices2D extends Vertices< Vertex2D, BoundingBox2D > {
     
-    public Vertices2D( float[][] verticesByFrame ) {
+    public Vertices2D( List< Vertex2D >[] verticesByFrame ) {
         super( verticesByFrame, BoundingBox2D.getBoundingBox2D( verticesByFrame ) );
-    }
-    
-    @Override
-    public int getVertexSize() {
-        return 3;
     }
 }

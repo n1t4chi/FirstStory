@@ -12,5 +12,15 @@ public interface VertexAttributeLoader< VertexBuffer extends DataBuffer > {
     
     VertexBuffer provideBuffer( float[] array );
     
-    void bindBuffer( VertexAttribute attribute, long key );
+    default VertexBuffer extractVerticesBuffer( Vertices<?, ?> vertices, int frame ) {
+        return vertices.getBuffer( this, frame );
+    }
+    
+    default VertexBuffer extractUvMapBuffer( UvMap uvMap, int direction, int frame ) {
+        return uvMap.getBuffer( this, direction, frame );
+    }
+    
+    default VertexBuffer extractColouringBuffer( Colouring colouring ) {
+        return colouring.getBuffer( this );
+    }
 }

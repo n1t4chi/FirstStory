@@ -39,7 +39,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
         if ( !OpenGlSupportChecker.isSupportEnough(capabilities) ) {
             throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
         }
-        boolean drawBorder = PropertiesUtil.isPropertyTrue( "DrawBorder" );
+        boolean drawBorder = PropertiesUtil.isPropertyTrue( "drawBorder" );
         renderingContext = new OpenGlRenderingContext(
             attributeLoader,
             textureLoader,

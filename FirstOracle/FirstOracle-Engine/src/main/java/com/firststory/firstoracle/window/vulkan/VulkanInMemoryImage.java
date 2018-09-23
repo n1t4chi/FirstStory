@@ -195,6 +195,8 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
     
     private void invokeBlitImage( VulkanTransferCommandBuffer commandBuffer, int mipWidth, int mipHeight, int index ) {
+        int minw2 = Math.max( 1, mipWidth / 2 );
+        int miph2 = Math.max( 1, mipHeight / 2 );
         VkImageBlit blit = VkImageBlit.create()
             .srcOffsets( 0, VkOffset3D.create().set( 0,0,0 ) )
             .srcOffsets( 1, VkOffset3D.create().set( mipWidth, mipHeight, 1 ) )
@@ -205,7 +207,7 @@ public class VulkanInMemoryImage extends VulkanImage {
                 .layerCount( 1 )
             )
             .dstOffsets( 0,  VkOffset3D.create().set( 0, 0, 0 ) )
-            .dstOffsets( 1, VkOffset3D.create().set( mipWidth / 2, mipHeight / 2, 1 ) )
+            .dstOffsets( 1, VkOffset3D.create().set( minw2, miph2, 1 ) )
             .dstSubresource( VkImageSubresourceLayers.create()
                 .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
                 .mipLevel( index )

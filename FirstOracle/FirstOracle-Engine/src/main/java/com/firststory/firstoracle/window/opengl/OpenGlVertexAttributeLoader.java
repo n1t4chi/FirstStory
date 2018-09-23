@@ -4,8 +4,7 @@
 package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.data.DataBuffer;
-import com.firststory.firstoracle.object.VertexAttribute;
-import com.firststory.firstoracle.object.VertexAttributeLoader;
+import com.firststory.firstoracle.object.*;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -31,14 +30,23 @@ public class OpenGlVertexAttributeLoader implements VertexAttributeLoader {
         return loader.create( array );
     }
     
-    @Override
-    public void bindBuffer( VertexAttribute attribute, long key ) {
-        DataBuffer buffer = attribute.getBuffer( key, this );
-        int index = attribute.getIndex();
+    
+    void bindVertices( Vertices attribute, int frame ) {
+        bindBuffer( attribute, 0, 3, frame );
+    }
+    void bindUvMap( UvMap attribute, int direction, int frame ) {
+        bindBuffer( attribute, 1, 2,  direction, frame );
+    }
+    void bindColouring( Colouring attribute ) {
+        bindBuffer( attribute, 2, 4 );
+    }
+    
+    private void bindBuffer( VertexAttribute attribute, int index, int size, int... parameters ) {
+        DataBuffer buffer = attribute.getBuffer( this, parameters );
         DataBuffer lastBind = lastBinds.get( index );
         if ( lastBind == null || !lastBind.equals( buffer ) ) {
             buffer.bind();
-            GL20.glVertexAttribPointer( index, attribute.getVertexSize(), GL11.GL_FLOAT, false, 0, 0 );
+            GL20.glVertexAttribPointer( index, size, GL11.GL_FLOAT, false, 0, 0 );
             lastBinds.put( index, buffer );
         }
         

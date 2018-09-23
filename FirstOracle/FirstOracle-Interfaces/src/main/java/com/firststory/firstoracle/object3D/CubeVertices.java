@@ -3,6 +3,13 @@
  */
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.object.Vertex3D;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.firststory.firstoracle.object.Vertex3D.vec3;
+
 /**
  * @author n1t4chi
  */
@@ -14,16 +21,16 @@ public class CubeVertices extends FramelessVertices3D {
         return cubeVertices;
     }
 
-    private static float[] createCubeVerticesArray() {
-        float[] pointData = {
-        /*0*/ -1, -1, -1,
-        /*1*/ 1, -1, -1,
-        /*2*/ 1, 1, -1,
-        /*3*/ -1, 1, -1,
-        /*4*/ -1, -1, 1,
-        /*5*/ 1, -1, 1,
-        /*6*/ 1, 1, 1,
-        /*7*/ -1, 1, 1
+    private static List< Vertex3D > createCubeVerticesArray() {
+        Vertex3D[] pointData = {
+        /*0*/ vec3( -1, -1, -1 ),
+        /*1*/ vec3(1, -1, -1 ),
+        /*2*/ vec3(1, 1, -1 ),
+        /*3*/ vec3(-1, 1, -1 ),
+        /*4*/ vec3(-1, -1, 1 ),
+        /*5*/ vec3(1, -1, 1 ),
+        /*6*/ vec3(1, 1, 1 ),
+        /*7*/ vec3(-1, 1, 1 )
         };
 
         short[] points = {
@@ -52,14 +59,12 @@ public class CubeVertices extends FramelessVertices3D {
             4, 1, 0
         };
     
-        float[] rtrn = new float[ points.length * 3 ];
-
-        for ( int j = 0; j < points.length; j++ ) {
-            rtrn[ j * 3 ] = pointData[ 3 * points[ j ] ];
-            rtrn[ j * 3 + 1 ] = pointData[ 3 * points[ j ] + 1 ];
-            rtrn[ j * 3 + 2 ] = pointData[ 3 * points[ j ] + 2 ];
+        List< Vertex3D > list = new ArrayList<>( points.length );
+    
+        for ( short point : points ) {
+            list.add( pointData[ point ] );
         }
-        return rtrn;
+        return list;
     }
 
     private CubeVertices() {

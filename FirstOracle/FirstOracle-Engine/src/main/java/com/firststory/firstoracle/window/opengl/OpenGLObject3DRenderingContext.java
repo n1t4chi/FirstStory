@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.Colour;
+import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object3D.Vertices3D;
@@ -41,7 +41,7 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
-        Colour colours,
+        Colouring colours,
         Vector3fc position,
         Vector3fc scale,
         Vector3fc rotation,
@@ -50,6 +50,7 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         Float maxAlphaChannel
     ) {
         OpenGlShaderProgram3D shaderProgram3D = context.getShaderProgram();
+        OpenGlVertexAttributeLoader loader = context.getVertexAttributeLoader();
     
         shaderProgram3D.bindPosition( position );
         shaderProgram3D.bindRotation( rotation );
@@ -58,13 +59,13 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         shaderProgram3D.bindMaxAlphaChannel( maxAlphaChannel );
         shaderProgram3D.bindOverlayColour( overlayColour );
     
-        int bufferSize = vertices.bind(
-            context.getVertexAttributeLoader(),
-            vertexFrame
-        );
-        uvMap.bind( context.getVertexAttributeLoader(), uvDirection, uvFrame );
+        loader.bindVertices( vertices, vertexFrame );
+        loader.bindUvMap( uvMap, uvDirection, uvFrame );
+        loader.bindColouring( colours );
     
-        texture.bind( context.getTextureLoader() );
+        int bufferSize = vertices.getVertexLength( vertexFrame );
+    
+        context.getTextureLoader().bind( texture );
     
         context.drawTriangles( bufferSize );
     }
@@ -76,26 +77,28 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         Vector3fc position,
         Vector3fc scale,
         Vector3fc rotation,
-        LineData lineLoop
+        LineData lineData
     ) {
         OpenGlShaderProgram3D shaderProgram3D = context.getShaderProgram();
+        OpenGlVertexAttributeLoader loader = context.getVertexAttributeLoader();
     
         shaderProgram3D.bindPosition( position );
         shaderProgram3D.bindRotation( rotation );
         shaderProgram3D.bindScale( scale );
     
         shaderProgram3D.bindMaxAlphaChannel( 1f );
-        shaderProgram3D.bindOverlayColour( lineLoop.getColour() );
+        shaderProgram3D.bindOverlayColour( lineData.getColour() );
     
-        int bufferSize = vertices.bind(
-            context.getVertexAttributeLoader(),
-            vertexFrame
-        );
-        FirstOracleConstants.EMPTY_UV_MAP.bind( context.getVertexAttributeLoader(), 0, 0 );
+        loader.bindVertices( vertices, vertexFrame );
+        loader.bindUvMap( FirstOracleConstants.EMPTY_UV_MAP, 0,0 );
+        loader.bindColouring( FirstOracleConstants.EMPTY_COLOURING );
     
-        FirstOracleConstants.EMPTY_TEXTURE.bind( context.getTextureLoader() );
+        int bufferSize = vertices.getVertexLength( vertexFrame );
+    
+        context.getTextureLoader().bind( FirstOracleConstants.EMPTY_TEXTURE );
         
-        context.setLineWidth( lineLoop.getWidth() );
-        context.drawLineLoop( bufferSize );
+        context.setLineWidth( lineData.getWidth() );
+        
+        context.drawLines( bufferSize, lineData.getType() );
     }
 }

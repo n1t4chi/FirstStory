@@ -3,7 +3,13 @@
  */
 package com.firststory.firstoracle.object2D;
 
+import com.firststory.firstoracle.object.Vertex2D;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
+import static com.firststory.firstoracle.object.Vertex2D.vec2;
 
 /**
  * @author n1t4chi
@@ -33,30 +39,28 @@ public class Plane2DVertices extends FramelessVertices2D {
         }
     }
     
-    private static float[] createPlane2DVerticesArray() {
+    private static List< Vertex2D > createPlane2DVerticesArray() {
         return createPlane2DVerticesArray( -1, 1, -1, 1 );
     }
     
-    private static float[] createPlane2DVerticesArray( float minX, float maxX, float minY, float maxY ) {
-        float[] pointData = {
-        /*0*/ minX, minY,
-        /*1*/ maxX, minY,
-        /*2*/ maxX, maxY,
-        /*3*/ minX, maxY
+    private static List< Vertex2D > createPlane2DVerticesArray( float minX, float maxX, float minY, float maxY ) {
+        Vertex2D[] pointData = {
+        /*0*/ vec2( minX, minY ),
+        /*1*/ vec2( maxX, minY ),
+        /*2*/ vec2( maxX, maxY ),
+        /*3*/ vec2( minX, maxY )
         };
         
         short[] points = {
             0, 1, 2, 0, 2, 3
         };
-        
-        float[] rtrn = new float[points.length * 3];
-        
-        for ( int j = 0; j < points.length; j++ ) {
-            rtrn[j * 3] = pointData[2 * points[j]];
-            rtrn[j * 3 + 1] = pointData[2 * points[j] + 1];
-            rtrn[j * 3 + 2] = 0;
-    }
-        return rtrn;
+    
+        List< Vertex2D > list = new ArrayList<>( points.length );
+    
+        for ( short point : points ) {
+            list.add( pointData[ point ] );
+        }
+        return list;
     }
     
     private Plane2DVertices( float minX, float maxX, float minY, float maxY ) {

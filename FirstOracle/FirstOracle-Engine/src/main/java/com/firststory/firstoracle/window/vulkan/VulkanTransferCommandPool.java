@@ -8,7 +8,6 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 
 import java.nio.IntBuffer;
-import java.util.Map;
 
 /**
  * @author n1t4chi
@@ -17,15 +16,6 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
     
     VulkanTransferCommandPool( VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily ) {
         super( device, usedQueueFamily );
-    }
-    
-    @Override
-    public VulkanTransferCommandBuffer createNewCommandBuffer(
-        int index,
-        VulkanAddress address,
-        Map< Integer, VulkanFrameBuffer > frameBuffers
-    ) {
-        return createNewCommandBuffer( address );
     }
     
     private VulkanTransferCommandBuffer createNewCommandBuffer( VulkanAddress address ) {

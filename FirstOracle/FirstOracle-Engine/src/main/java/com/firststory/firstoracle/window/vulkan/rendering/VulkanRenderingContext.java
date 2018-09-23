@@ -7,6 +7,7 @@ package com.firststory.firstoracle.window.vulkan.rendering;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
+import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.rendering.Object2DRenderingContext;
 import com.firststory.firstoracle.rendering.Object3DRenderingContext;
@@ -16,6 +17,7 @@ import com.firststory.firstoracle.window.vulkan.VulkanTextureData;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
 import org.joml.Matrix4fc;
 import org.joml.Vector4fc;
+import org.lwjgl.vulkan.VK10;
 
 import java.util.*;
 
@@ -50,8 +52,6 @@ public class VulkanRenderingContext implements RenderingContext {
     private VulkanGraphicPipeline lastPipeline = null;
     
     public void tearDownSingleRender(
-        VulkanGraphicPipeline trianglePipeline,
-        VulkanGraphicPipeline linePipeline,
         VulkanGraphicCommandPool graphicCommandPool
     ) {
         lastPipeline = null;
@@ -70,26 +70,50 @@ public class VulkanRenderingContext implements RenderingContext {
                     return;
                 }
     
-                VulkanDescriptorSet descriptorSet = getNextDescriptorSet( texture );
+                VulkanGraphicPipeline linePipeline =  new VulkanGraphicPipeline( device, VK10.VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
+                device.updatePipeline( linePipeline );
+                
+                VulkanGraphicPipeline trianglePipeline = new VulkanGraphicPipeline( device, VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
+                device.updatePipeline( trianglePipeline );
+                
+                VulkanTextureSampler textureSampler = new VulkanTextureSampler( device );
+                VulkanDescriptor descriptor = new VulkanDescriptor( device );
+                descriptor.resetDescriptors();
+                TextureBuffer< VulkanTextureData > textureBuffer = device.getTextureLoader().bind( texture );
     
+                VulkanDescriptorSet descriptorSet = descriptor.getNextDescriptorSet();
+                descriptorSet.updateDesciptorSet( shader, textureSampler, textureBuffer.getContext() );
+                shader.bindUniformData();
+                
+                buffer.bindDescriptorSets( linePipeline, descriptorSet );
+                buffer.bindDescriptorSets( trianglePipeline, descriptorSet );
+                buffer.beginRenderPass( linePipeline.getRenderPass() );
+                
                 //bind data
                 renderDataList.forEach( renderData -> {
                     VulkanDataBuffer dataBuffer = loadObjectData( availableBuffers, renderData );
     
                     VulkanVertexAttributeLoader loader = device.getVertexAttributeLoader();
-                    int bufferSize = renderData.getVertices().bind( loader, renderData.getVertexFrame() );
-                    renderData.getUvMap().bind( loader, renderData.getUvDirection(), renderData.getUvFrame() );
-                    renderData.getColours().bind( loader );
+    
+                    VulkanDataBuffer uvVuffer = loader.extractUvMapBuffer(
+                        renderData.getUvMap(),
+                        renderData.getUvDirection(),
+                        renderData.getUvFrame()
+                    );
+                    VulkanDataBuffer vertexBuffer = loader.extractVerticesBuffer(
+                        renderData.getVertices(),
+                        renderData.getVertexFrame()
+                    );
+                    VulkanDataBuffer colouringBuffer = loader.extractColouringBuffer( renderData.getColouring() );
+    
+                    int bufferSize = renderData.getVertices().getVertexLength( renderData.getVertexFrame() );
                     
                     
-                    buffer.setLineWidth( renderData.getLineWidth() );
-                    //todo:
-                    //renderData.getType()
-                    // VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
-                    //triangles -> triangle pipeline, liines -> line pipeline
+                    
                     VulkanGraphicPipeline pipeline;
                     switch ( renderData.getType() ) {
                         case LINE_LOOP:
+                            buffer.setLineWidth( renderData.getLineWidth() == 0 ? 0 : renderData.getLineWidth() + 1f );
                             pipeline = linePipeline;
                             break;
                         case TRIANGLES:
@@ -98,28 +122,26 @@ public class VulkanRenderingContext implements RenderingContext {
                             break;
                     }
                     if( lastPipeline != pipeline ) {
-                        buffer.beginRenderPass( pipeline.getRenderPass() );
-                        buffer.bindDescriptorSets( pipeline, descriptorSet );
                         buffer.bindPipeline( pipeline );
                         lastPipeline = pipeline;
                     }
     
                     buffer.draw(
-                        loader.getLastBoundVertexBuffer(),
-                        loader.getLastBoundUvMapBuffer(),
-                        loader.getLastBoundColourBuffer(),
+                        vertexBuffer,
+                        uvVuffer,
+                        colouringBuffer,
                         dataBuffer,
                         bufferSize
                     );
-                    
-                    
-                    
                 } );
+    
+                buffer.endRenderPassIfActive();
+                
             } );
         } );
         
         buffer.fillQueueTearDown();
-        graphicCommandPool.submitQueue( buffer, buffer );
+        graphicCommandPool.submitQueue( buffer );
         graphicCommandPool.executeTearDown( buffer );
     }
     
@@ -141,18 +163,6 @@ public class VulkanRenderingContext implements RenderingContext {
             dataBuffers.add( dataBuffer );
         }
         return dataBuffer;
-    }
-    
-    private VulkanDescriptorSet getNextDescriptorSet( Texture texture ) {
-        VulkanShaderProgram3D shader = device.getShaderProgram3D();
-        texture.bind( device.getTextureLoader() );
-        VulkanTextureData lastTexture = device.getTextureLoader().getLastTexture();
-        
-        VulkanDescriptorSet descriptorSet = descriptor.getNextDescriptorSet();
-        
-        descriptorSet.updateDesciptorSet( lastTexture, shader );
-        shader.bindUniformData();
-        return descriptorSet;
     }
     
     public Vector4fc getBackgroundColour() {
@@ -207,7 +217,7 @@ public class VulkanRenderingContext implements RenderingContext {
     }
     
     boolean shouldDrawBorder() {
-        return false;
+        return true;
     }
     
     private VulkanShaderProgram3D getShaderProgram3D() {

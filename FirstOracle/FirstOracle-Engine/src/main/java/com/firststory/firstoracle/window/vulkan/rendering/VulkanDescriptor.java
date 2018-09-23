@@ -20,17 +20,15 @@ import java.util.ListIterator;
  */
 public class VulkanDescriptor {
     
-    private static final int MAX_SETS = 1000;
+    private static final int MAX_SETS = 2;
     private final VulkanAddress descriptorSetLayout;
     private final VulkanAddress descriptorPool;
-    private final VulkanTextureSampler sampler;
     private final VulkanPhysicalDevice device;
     
     private final List< VulkanDescriptorSet > sets = new ArrayList<>( MAX_SETS );
     private ListIterator< VulkanDescriptorSet > setsIterator;
     
-    public VulkanDescriptor( VulkanTextureSampler sampler, VulkanPhysicalDevice device ) {
-        this.sampler = sampler;
+    public VulkanDescriptor( VulkanPhysicalDevice device ) {
         this.device = device;
         descriptorSetLayout = createDescriptorSetLayout();
         descriptorPool = createDescriptorPool();
@@ -66,10 +64,6 @@ public class VulkanDescriptor {
         return descriptorPool;
     }
     
-    VulkanTextureSampler getSampler() {
-        return sampler;
-    }
-    
     VulkanPhysicalDevice getDevice() {
         return device;
     }
@@ -91,7 +85,7 @@ public class VulkanDescriptor {
     }
     
     private VkDescriptorPoolSize createPoolSize( int type ) {
-        return VkDescriptorPoolSize.create().type( type ).descriptorCount( 1 );
+        return VkDescriptorPoolSize.create().type( type ).descriptorCount( MAX_SETS );
     }
     
     private VulkanAddress createDescriptorSetLayout() {

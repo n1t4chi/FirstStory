@@ -14,6 +14,7 @@ import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.nio.IntBuffer;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,6 +25,7 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
     private final VulkanSwapChain swapChain;
     private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
+    private final Map< Integer, VulkanGraphicCommandBuffer > commandBuffers = new HashMap<>(  );
     private Vector4fc backgroundColour = FirstOracleConstants.VECTOR_ZERO_4F;
     
     public VulkanGraphicCommandPool(
@@ -39,14 +41,21 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
     }
     
     public void dispose() {
+        super.dispose();
+        disposeCommandBuffers();
         renderFinishedSemaphore.dispose();
+    }
+    private void disposeCommandBuffers() {
+        commandBuffers.forEach( ( integer, vulkanCommandBuffer ) -> vulkanCommandBuffer.close() );
+        commandBuffers.clear();
     }
     
     public void setBackgroundColour( Vector4fc backgroundColour ) {
         this.backgroundColour = backgroundColour;
     }
     
-    @Override
+    
+    
     public VulkanGraphicCommandBuffer createNewCommandBuffer(
         int index,
         VulkanAddress address,
@@ -62,6 +71,20 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
             index,
             VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
         );
+    }
+    
+    public VulkanGraphicCommandBuffer getCommandBuffer( int index ) {
+        return commandBuffers.get( index );
+    }
+    
+    public void refreshCommandBuffers(
+        Map< Integer, VulkanFrameBuffer > frameBuffers
+    ) {
+        disposeCommandBuffers();
+        VulkanHelper.iterate( createCommandBufferBuffer( frameBuffers.size() ),
+            ( index, address ) -> commandBuffers.put( index,
+                createNewCommandBuffer( index, new VulkanAddress( address ) , frameBuffers )
+            ) );
     }
     
     @Override

@@ -42,9 +42,11 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     
     @Override
     public void fillQueueTearDown() {
-        endRenderPass();
+        endRenderPassIfActive();
         super.fillQueueTearDown();
     }
+    
+    
     
     void setLineWidth( Float lineWidth ) {
         VK10.vkCmdSetLineWidth( getCommandBuffer(), lineWidth );
@@ -92,11 +94,13 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     }
     
     private boolean activeRenderPass = false;
-    
-    void beginRenderPass( VulkanRenderPass renderPass ) {
+    void endRenderPassIfActive() {
         if( activeRenderPass ) {
             endRenderPass();
         }
+    }
+    
+    void beginRenderPass( VulkanRenderPass renderPass ) {
         activeRenderPass = true;
         VkRenderPassBeginInfo renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, backgroundColour );
         VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_INLINE );

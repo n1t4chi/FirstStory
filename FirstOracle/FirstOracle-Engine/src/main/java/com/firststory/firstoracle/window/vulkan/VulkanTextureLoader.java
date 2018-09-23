@@ -43,18 +43,18 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     }
     
     @Override
-    public void bind( VulkanTextureData textureData ) {
+    public void bindUnsafe( VulkanTextureData textureData ) {
         lastTexture = textureData;
     }
     
     @Override
-    public void load( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) {
+    public void loadUnsafe( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) {
         createTextureImage( textureData, imageBuffer, name );
         createTextureImageView( textureData );
     }
     
     @Override
-    public void delete( VulkanTextureData textureData ) {
+    public void deleteUnsafe( VulkanTextureData textureData ) {
         this.textureData.remove( textureData );
         textureData.close();
     }

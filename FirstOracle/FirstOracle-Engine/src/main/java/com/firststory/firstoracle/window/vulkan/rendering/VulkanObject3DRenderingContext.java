@@ -4,15 +4,12 @@
 
 package com.firststory.firstoracle.window.vulkan.rendering;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.Colour;
+import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object3D.Vertices3D;
 import com.firststory.firstoracle.rendering.LineData;
 import com.firststory.firstoracle.rendering.Object3DRenderingContext;
-import org.joml.Vector2fc;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector4fc;
 
@@ -45,7 +42,7 @@ public class VulkanObject3DRenderingContext implements Object3DRenderingContext 
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
-        Colour colours,
+        Colouring colouring,
         Vector3fc position,
         Vector3fc scale,
         Vector3fc rotation,
@@ -65,6 +62,7 @@ public class VulkanObject3DRenderingContext implements Object3DRenderingContext 
             .setUvMap( uvMap )
             .setUvDirection( uvDirection )
             .setUvFrame( uvFrame )
+            .setColouring( colouring )
             .finish()
         );
     }
@@ -76,13 +74,13 @@ public class VulkanObject3DRenderingContext implements Object3DRenderingContext 
         Vector3fc position,
         Vector3fc scale,
         Vector3fc rotation,
-        LineData lineLoop
+        LineData lineData
     ) {
         context.draw( RenderData.build( RenderType.LINE_LOOP )
             .setPosition( position )
             .setRotation( rotation )
             .setScale( scale )
-            .setOverlayColour( lineLoop.getColour() )
+            .setOverlayColour( lineData.getColour() )
             .setVertices( vertices )
             .setVertexFrame( vertexFrame )
             .finish()

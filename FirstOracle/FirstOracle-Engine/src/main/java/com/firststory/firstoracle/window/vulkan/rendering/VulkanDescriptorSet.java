@@ -27,7 +27,9 @@ public class VulkanDescriptorSet {
             .descriptorPool( descriptor.getDescriptorPool().getValue() )
             .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptor.getDescriptorSetLayout().getValue() ) );
         
-        descriptorSet = VulkanHelper.createAddress( address -> VK10.vkAllocateDescriptorSets( descriptor.getDevice().getLogicalDevice(),
+        descriptorSet = VulkanHelper.createAddress(
+            address -> VK10.vkAllocateDescriptorSets(
+                descriptor.getDevice().getLogicalDevice(),
                 allocateInfo,
                 address
             ),
@@ -35,9 +37,9 @@ public class VulkanDescriptorSet {
         );
     }
     
-    void updateDesciptorSet( VulkanTextureData textureData, VulkanShaderProgram shader ) {
-        VkDescriptorImageInfo.Buffer imageSampler = VkDescriptorImageInfo.create( 1 )
-            .put( 0, descriptor.getSampler().createImageInfo( textureData ) );
+    void updateDesciptorSet( VulkanShaderProgram shader, VulkanTextureSampler sampler, VulkanTextureData textureData ) {
+        VkDescriptorImageInfo.Buffer imageInfo = VkDescriptorImageInfo.create( 1 )
+            .put( 0, sampler.createImageInfo( textureData ) );
         
         VK10.vkUpdateDescriptorSets( descriptor.getDevice().getLogicalDevice(),
             VkWriteDescriptorSet.create( 2 )
@@ -46,9 +48,11 @@ public class VulkanDescriptorSet {
                     VkDescriptorBufferInfo.create( 1 ).put( 0, shader.getBufferInfo() ),
                     null
                 ) )
-                .put( 1,
-                    createDescriptorWrite( 1, VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, null, imageSampler )
-                ),
+                .put( 1, createDescriptorWrite( 1,
+                    VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                    null,
+                    imageInfo
+                ) ),
             null
         );
     }

@@ -4,8 +4,7 @@
 
 package com.firststory.firstoracle.window.vulkan.rendering;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.Colour;
+import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object2D.Vertices2D;
@@ -43,7 +42,7 @@ public class VulkanObject2DRenderingContext implements Object2DRenderingContext 
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
-        Colour colours,
+        Colouring colouring,
         Vector2fc position,
         Vector2fc scale,
         Float rotation,
@@ -63,6 +62,7 @@ public class VulkanObject2DRenderingContext implements Object2DRenderingContext 
             .setUvMap( uvMap )
             .setUvDirection( uvDirection )
             .setUvFrame( uvFrame )
+            .setColouring( colouring )
             .finish()
         );
     }
@@ -74,16 +74,16 @@ public class VulkanObject2DRenderingContext implements Object2DRenderingContext 
         Vector2fc position,
         Vector2fc scale,
         Float rotation,
-        LineData lineLoop
+        LineData lineData
     ) {
         context.draw( RenderData.build( RenderType.LINE_LOOP )
             .setPosition( position )
             .setRotation( rotation )
             .setScale( scale )
-            .setOverlayColour( lineLoop.getColour() )
+            .setOverlayColour( lineData.getColour() )
             .setVertices( vertices )
             .setVertexFrame( vertexFrame )
-            .setLineWidth( lineLoop.getWidth() )
+            .setLineWidth( lineData.getWidth() )
             .finish()
         );
     }

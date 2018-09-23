@@ -3,10 +3,12 @@
  */
 package com.firststory.firstoracle.object;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
-import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
-import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
+import static com.firststory.firstoracle.FirstOracleConstants.*;
+import static com.firststory.firstoracle.object.UV.uv;
 
 /**
  * @author n1t4chi
@@ -35,8 +37,8 @@ public class Hex2DUvMap extends UvMap {
         return ( ( long ) rows << 32 ) + frames;
     }
     
-    private static float[][][] getUvMap( int frames, int rows ) {
-        float[][][] map = new float[ 1 ][ frames ][];
+    private static List< UV >[][] getUvMap( int frames, int rows ) {
+        List< UV >[][] map = array( 1 , frames );
         
         for ( int frame = 0; frame < frames; frame++ ) {
             map[ 0 ][ frame ] = createUvMapHex2D( frame, frames, rows );
@@ -44,7 +46,7 @@ public class Hex2DUvMap extends UvMap {
         return map;
     }
     
-    private static float[] createUvMapHex2D( int frame, int frames, int rows ) {
+    private static List< UV > createUvMapHex2D( int frame, int frames, int rows ) {
         if ( frame < 0 || frame >= frames || frames > rows ) {
             throw new IllegalArgumentException(
                 "Illegal frame:" + frame + " for frames:" + frames + ", rows:" + rows + "." );
@@ -58,14 +60,31 @@ public class Hex2DUvMap extends UvMap {
         float vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + UV_DELTA;
         float vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - UV_DELTA;
         
-        return new float[]{
-            0.5f * hor, vertMiddle, 0.75f * hor - UV_DELTA, vertUp, 0.25f * hor + UV_DELTA, vertUp, 0.5f * hor,
-            vertMiddle, 0.25f * hor + UV_DELTA, vertUp, 0 * hor + UV_DELTA, vertMiddle, 0.5f * hor, vertMiddle,
-            0 * hor + UV_DELTA, vertMiddle, 0.25f * hor + UV_DELTA, vertDown, 0.5f * hor, vertMiddle,
-            0.25f * hor + UV_DELTA, vertDown, 0.75f * hor - UV_DELTA, vertDown, 0.5f * hor, vertMiddle,
-            0.75f * hor - UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertMiddle, 0.5f * hor, vertMiddle,
-            1 * hor - UV_DELTA, vertMiddle, 0.75f * hor - UV_DELTA, vertUp,
-            };
+        return Arrays.asList(
+            uv( 0.5f * hor, vertMiddle ),
+            uv( 0.75f * hor - UV_DELTA, vertUp ),
+            uv( 0.25f * hor + UV_DELTA, vertUp ),
+            uv( 0.5f * hor, vertMiddle ),
+            uv( 0.25f * hor + UV_DELTA, vertUp ),
+            uv( 0 * hor + UV_DELTA, vertMiddle ),
+            uv( 0.5f * hor, vertMiddle ),
+
+            uv( 0 * hor + UV_DELTA, vertMiddle ),
+            uv( 0.25f * hor + UV_DELTA, vertDown ),
+            uv( 0.5f * hor, vertMiddle ),
+
+            uv( 0.25f * hor + UV_DELTA, vertDown ),
+            uv( 0.75f * hor - UV_DELTA, vertDown ),
+            uv( 0.5f * hor, vertMiddle ),
+
+            uv( 0.75f * hor - UV_DELTA, vertDown ),
+            uv( 1 * hor - UV_DELTA, vertMiddle ),
+            uv( 0.5f * hor, vertMiddle ),
+
+            uv( 1 * hor - UV_DELTA, vertMiddle ),
+            uv( 0.75f * hor - UV_DELTA, vertUp )
+            
+        );
     }
     
     private Hex2DUvMap( int frames, int rows ) {

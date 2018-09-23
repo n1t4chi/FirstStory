@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle.data;
 
+import com.firststory.firstoracle.object.Texture;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -13,11 +15,53 @@ public interface TextureBufferLoader< Context > {
     
     Context create();
     
-    void bind( Context context );
+    /**
+     * Releases GPU memory resources associated with this texture.
+     */
+    default void release( Texture texture ) {
+        TextureBuffer textureBuffer = texture.extractBuffer( this );
+        if( textureBuffer != null ){
+            texture.removeBuffer( this );
+            textureBuffer.delete();
+        }
+    }
     
-    void load( Context context, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException;
+    /**
+     * Binds texture for usage, if texture is not loaded then it will also load it.
+     */
+    default TextureBuffer< Context > bind( Texture texture ) {
     
-    void delete( Context context );
+        TextureBuffer< Context > textureBuffer = texture.extractBuffer( this );
+        if( textureBuffer == null ){
+            textureBuffer = loadNewBuffer( texture );
+            texture.putBuffer( this, textureBuffer );
+        }
+        textureBuffer.bind();
+        return textureBuffer;
+    }
+    
+    /**
+     * Loads texture data into GPU memory.<br>
+     * <b>Will release previously loaded texture by this object!!!</b><br>
+     * Use {@link #bind(Texture)}  } for reusable texture.
+     */
+    default TextureBuffer load( Texture texture ) {
+        release( texture );
+        return loadNewBuffer( texture );
+    }
+    
+    default TextureBuffer< Context > loadNewBuffer( Texture texture ) {
+        TextureBuffer< Context > buffer = new TextureBuffer<>( this );
+        buffer.create();
+        buffer.load( texture.getData() );
+        return buffer;
+    }
+    
+    void bindUnsafe( Context context );
+    
+    void loadUnsafe( Context context, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException;
+    
+    void deleteUnsafe( Context context );
     
     void close();
 }

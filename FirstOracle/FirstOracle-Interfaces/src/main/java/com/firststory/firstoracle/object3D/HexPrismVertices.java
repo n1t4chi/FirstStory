@@ -3,7 +3,13 @@
  */
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.object.Vertex3D;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
+import static com.firststory.firstoracle.object.Vertex3D.vec3;
 
 /**
  * @author n1t4chi
@@ -16,25 +22,25 @@ public class HexPrismVertices extends FramelessVertices3D {
         return cubeVertices;
     }
 
-    private static float[] createHexPrismVerticesArray() {
-        float[] pointData = {
-        /*0*/ 0, -1, 0,
+    private static List< Vertex3D > createHexPrismVerticesArray() {
+        Vertex3D[] pointData = {
+        /*0*/ vec3( 0, -1, 0 ),
 
-        /*1*/ 1, -1, 0,
-        /*2*/ 0.5f, -1, -SQRT3_DIV2,
-        /*3*/ -0.5f, -1, -SQRT3_DIV2,
-        /*4*/ -1, -1, 0,
-        /*5*/ -0.5f, -1, SQRT3_DIV2,
-        /*6*/ 0.5f, -1, SQRT3_DIV2,
+        /*1*/ vec3( 1, -1, 0 ),
+        /*2*/ vec3( 0.5f, -1, -SQRT3_DIV2 ),
+        /*3*/ vec3( -0.5f, -1, -SQRT3_DIV2 ),
+        /*4*/ vec3( -1, -1, 0 ),
+        /*5*/ vec3( -0.5f, -1, SQRT3_DIV2 ),
+        /*6*/ vec3( 0.5f, -1, SQRT3_DIV2 ),
 
-        /*7*/ 0, 1, 0,
+        /*7*/ vec3( 0, 1, 0 ),
 
-        /*8*/ 1, 1, 0,
-        /*9*/ 0.5f, 1, -SQRT3_DIV2,
-        /*10*/ -0.5f, 1, -SQRT3_DIV2,
-        /*11*/ -1, 1, 0,
-        /*12*/ -0.5f, 1, SQRT3_DIV2,
-        /*13*/ 0.5f, 1, SQRT3_DIV2,
+        /*8*/ vec3( 1, 1, 0 ),
+        /*9*/ vec3( 0.5f, 1, -SQRT3_DIV2 ),
+        /*10*/ vec3( -0.5f, 1, -SQRT3_DIV2 ),
+        /*11*/ vec3( -1, 1, 0 ),
+        /*12*/ vec3( -0.5f, 1, SQRT3_DIV2 ),
+        /*13*/ vec3( 0.5f, 1, SQRT3_DIV2 ),
         };
 
         short[] points = {
@@ -74,14 +80,12 @@ public class HexPrismVertices extends FramelessVertices3D {
             0, 1, 2
         };
     
-        float[] rtrn = new float[ points.length * 3 ];
-
-        for ( int j = 0; j < points.length; j++ ) {
-            rtrn[ j * 3 ] = pointData[ 3 * points[ j ] ];
-            rtrn[ j * 3 + 1 ] = pointData[ 3 * points[ j ] + 1 ];
-            rtrn[ j * 3 + 2 ] = pointData[ 3 * points[ j ] + 2 ];
+        List< Vertex3D > list = new ArrayList<>( points.length );
+    
+        for ( short point : points ) {
+            list.add( pointData[ point ] );
         }
-        return rtrn;
+        return list;
     }
 
     private HexPrismVertices() {

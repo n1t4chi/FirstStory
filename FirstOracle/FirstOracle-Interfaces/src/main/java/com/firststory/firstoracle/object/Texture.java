@@ -154,10 +154,12 @@ public final class Texture {
         String directionString = "" + direction;
         return filePathMask.replace( FRAME_KEYWORD, frameString ).replace( DIRECITON_KEYWORD, directionString );
     }
+    
     private final TextureData data;
     private final HashMap<TextureBufferLoader, TextureBuffer > buffers = new HashMap<>(  );
     
     private javafx.scene.image.Image jfxImage = null;
+    
     /**
      * Creates object containing texture data from given image.<br>
      * Uses single frame and line count.
@@ -168,8 +170,6 @@ public final class Texture {
     public Texture( BufferedImage image ) throws IOException {
         this( image, 1, 1, 1, 1 );
     }
-    
-    
     
     /**
      * Creates object containing texture data from given image.
@@ -291,51 +291,28 @@ public final class Texture {
         return data.getName();
     }
     
-    /**
-     * Releases all texture resources associated with this object by calling {@link #releaseAll()}
-     */
-    public void close() {
-        releaseAll();
-    }
-    
-    /**
-     * Releases GPU memory resources associated with this texture.
-     */
-    public final void release( TextureBufferLoader loader ) {
-        TextureBuffer textureBuffer = buffers.get( loader );
-        if( textureBuffer != null ){
-            textureBuffer.delete();
-        }
+    public <Context> TextureBuffer putBuffer( TextureBufferLoader<Context> loader, TextureBuffer<Context> buffer  ) {
+        return buffers.put( loader, buffer );
     }
     
     @SuppressWarnings( "unchecked" )
-    public <Context> TextureBuffer<Context> getBuffer( TextureBufferLoader<Context> loader ) {
+    public <Context> TextureBuffer<Context> extractBuffer( TextureBufferLoader<Context> loader ) {
         return buffers.get( loader );
     }
     
     /**
-     * Binds texture for usage, if texture is not loaded then it will also load it.
+     * Releases all texture resources associated with this object by calling {@link #releaseAll()}
      */
-    public final void bind(TextureBufferLoader loader ) {
-        TextureBuffer textureBuffer = buffers.computeIfAbsent( loader, this::loadNewBuffer );
-        textureBuffer.bind();
+    public void dispose() {
+        releaseAll();
     }
     
-    /**
-     * Loads texture data into GPU memory.<br>
-     * <b>Will release previously loaded texture by this object!!!</b><br>
-     * Use {@link #bind(TextureBufferLoader)}  } for reusable texture.
-     */
-    public final void load( TextureBufferLoader loader ) {
-        release( loader );
-        loadNewBuffer( loader );
+    public TextureData getData() {
+        return data;
     }
     
-    private TextureBuffer< ? > loadNewBuffer( TextureBufferLoader< ? > loader ) {
-        TextureBuffer< ? > buffer = new TextureBuffer<>( loader );
-        buffer.create();
-        buffer.load( data );
-        return buffer;
+    public void removeBuffer( TextureBufferLoader loader ) {
+        buffers.remove( loader );
     }
     
     private void releaseAll() {

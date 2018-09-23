@@ -7,7 +7,7 @@ package com.firststory.firstoracle.window.opengl;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.data.TextureBufferLoader;
-import com.firststory.firstoracle.object.VertexAttributeLoader;
+import com.firststory.firstoracle.rendering.LineType;
 import com.firststory.firstoracle.rendering.Object2DRenderingContext;
 import com.firststory.firstoracle.rendering.Object3DRenderingContext;
 import com.firststory.firstoracle.rendering.RenderingContext;
@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL20;
  */
 public class OpenGlRenderingContext implements RenderingContext {
 
-    private final VertexAttributeLoader attributeLoader;
+    private final OpenGlVertexAttributeLoader attributeLoader;
     private final TextureBufferLoader textureLoader;
     private final OpenGlShaderProgram3D shaderProgram;
     
@@ -32,7 +32,7 @@ public class OpenGlRenderingContext implements RenderingContext {
     private final OpenGLObject3DRenderingContext context3D;
     
     OpenGlRenderingContext(
-        VertexAttributeLoader attributeLoader,
+        OpenGlVertexAttributeLoader attributeLoader,
         TextureBufferLoader textureLoader,
         OpenGlShaderProgram3D shaderProgram3D,
         boolean useTexture,
@@ -54,7 +54,7 @@ public class OpenGlRenderingContext implements RenderingContext {
         return shaderProgram;
     }
     
-    VertexAttributeLoader getVertexAttributeLoader() {
+    OpenGlVertexAttributeLoader getVertexAttributeLoader() {
         return attributeLoader;
     }
     
@@ -66,15 +66,27 @@ public class OpenGlRenderingContext implements RenderingContext {
         GL11.glLineWidth( width );
     }
     
-    void drawLines( int bufferedAmount ) {
-        drawObjects( GL11.GL_LINES, bufferedAmount );
+    
+    void drawLines( int bufferSize, LineType type ) {
+        switch ( type ) {
+            case LINE_LOOP:
+                drawLineLoop( bufferSize );
+                break;
+            case LINES:
+            default:
+                drawLines( bufferSize );
+        }
     }
     
     void drawTriangles( int bufferSize ) {
         drawObjects( GL11.GL_TRIANGLES, bufferSize );
     }
     
-    void drawLineLoop( int bufferSize ) {
+    private void drawLines( int bufferSize ) {
+        drawObjects( GL11.GL_LINES, bufferSize );
+    }
+    
+    private void drawLineLoop( int bufferSize ) {
         drawObjects( GL11.GL_LINE_LOOP, bufferSize );
     }
     

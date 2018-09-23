@@ -4,74 +4,72 @@
 package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.object.Vertex2D;
 import com.firststory.firstoracle.object2D.Vertices2D;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.firststory.firstoracle.FirstOracleConstants.singletonArray;
+import static com.firststory.firstoracle.object.Vertex2D.vec2;
+import static com.firststory.firstoracle.rendering.LineData.lines;
 
 /**
  * @author n1t4chi
  */
 public class BoundedGrid2DRenderer implements Grid2DRenderer {
     
-    private static final LineData LINES_MAIN = new LineData( 1f, 1, 0f, 0f, 1f );
-    private static final LineData LINES_INTER = new LineData( 0.5f, 0f, 0f, 1f, 0.75f );
-    private static final LineData LINES_POSITIVE = new LineData( 0.1f, 0.25f, 1f, 0.25f, 0.5f );
-    private static final LineData LINES_NEGATIVE = new LineData( 0.1f, 1f, 0.25f, 0.25f, 0.5f );
+    private static final LineData LINES_MAIN = lines( 1f, 1, 0f, 0f, 1f );
+    private static final LineData LINES_INTER = lines( 0.5f, 0f, 0f, 1f, 0.75f );
+    private static final LineData LINES_POSITIVE = lines( 0.1f, 0.25f, 1f, 0.25f, 0.5f );
+    private static final LineData LINES_NEGATIVE = lines( 0.1f, 1f, 0.25f, 0.25f, 0.5f );
     private final Vertices2D mainAxes;
     private final Vertices2D interAxes;
     private final Vertices2D smallPositiveAxes;
     private final Vertices2D smallNegativeAxes;
     
     public BoundedGrid2DRenderer( int gridSize, int interAxesStep, int smallAxesStep ) {
-        int interAxesSize = gridSize / interAxesStep;
-        int smallPositiveAxesSize = ( gridSize - interAxesSize ) / smallAxesStep;
-        int smallNegativeAxesSize = smallPositiveAxesSize;
-        
-        //2 axes 2 points 2 coords 4 lines per axe = 16
-        interAxesSize *= 2 * 16;
-        smallNegativeAxesSize *= 16;
-        smallPositiveAxesSize *= 16;
-        //X
-        //Y
-        //Z
-        float[] mainAxesArray = new float[]{
-            -gridSize, 0, gridSize, 0,//X
-            0, -gridSize, 0, gridSize,//Y
-        };
-        float[] interAxesArray = new float[interAxesSize];
-        float[] smallPositiveAxesArray = new float[smallPositiveAxesSize];
-        float[] smallNegativeAxesArray = new float[smallNegativeAxesSize];
-        int interAxesArrayIt = 0;
-        int smallPositiveAxesArrayIt = 0;
-        int smallNegativeAxesArrayIt = 0;
+        List< Vertex2D > mainAxes = Arrays.asList(
+            //X
+            vec2( -gridSize, 0 ),
+            vec2( gridSize, 0 ),
+            
+            //Y
+            vec2( 0, -gridSize ),
+            vec2( 0, gridSize )
+        );
+    
+        List< Vertex2D > interAxes = new ArrayList<>(  );
+        List< Vertex2D > smallPositiveAxes = new ArrayList<>(  );
+        List< Vertex2D > smallNegativeAxes = new ArrayList<>(  );
         
         for ( int i = 1; i <= gridSize; i++ ) {
             if ( i == 0 ) {
                 continue;
             }
             if ( Math.abs( i % interAxesStep ) == 0 ) {
-                float[] axes = createAxes( gridSize, i );
-                System.arraycopy( axes, 0, interAxesArray, interAxesArrayIt, axes.length );
-                interAxesArrayIt += axes.length;
+                List< Vertex2D > axes = createAxes( gridSize, i );
+                interAxes.addAll( axes );
             } else if ( Math.abs( i % smallAxesStep ) == 0 ) {
                 boolean positive = false;
-                float[] axes = createAxes( gridSize, i );
-                for ( int j = 0; j < axes.length; j++ ) {
-                    if ( j % 4 == 0 ) {
+                List< Vertex2D > axes = createAxes( gridSize, i );
+                for ( int j = 0; j < axes.size(); j++ ) {
+                    if ( j % 2 == 0 ) {
                         positive = !positive;
                     }
                     if ( positive ) {
-                        smallPositiveAxesArray[ smallPositiveAxesArrayIt ] = axes[ j ];
-                        smallPositiveAxesArrayIt++;
+                        smallPositiveAxes.add( axes.get( j ) );
                     } else {
-                        smallNegativeAxesArray[ smallNegativeAxesArrayIt ] = axes[ j ];
-                        smallNegativeAxesArrayIt++;
+                        smallNegativeAxes.add( axes.get( j ) );
                     }
                 }
             }
         }
-        mainAxes = new Vertices2D( new float[][]{ mainAxesArray } );
-        interAxes = new Vertices2D( new float[][]{ interAxesArray } );
-        smallPositiveAxes = new Vertices2D( new float[][]{ smallPositiveAxesArray } );
-        smallNegativeAxes = new Vertices2D( new float[][]{ smallNegativeAxesArray } );
+        this.mainAxes = new Vertices2D( singletonArray(  mainAxes ) );
+        this.interAxes = new Vertices2D( singletonArray(  interAxes ) );
+        this.smallPositiveAxes = new Vertices2D( singletonArray(  smallPositiveAxes ) );
+        this.smallNegativeAxes = new Vertices2D( singletonArray( smallNegativeAxes ) );
     }
     
     @Override
@@ -80,10 +78,10 @@ public class BoundedGrid2DRenderer implements Grid2DRenderer {
     
     @Override
     public void dispose() {
-        mainAxes.close();
-        interAxes.close();
-        smallPositiveAxes.close();
-        smallNegativeAxes.close();
+        mainAxes.dispose();
+        interAxes.dispose();
+        smallPositiveAxes.dispose();
+        smallNegativeAxes.dispose();
     }
     
     @Override
@@ -94,21 +92,34 @@ public class BoundedGrid2DRenderer implements Grid2DRenderer {
         renderGridArray( renderingContext, smallNegativeAxes, LINES_NEGATIVE );
     }
     
-    private float[] createAxes( int gridSize, int i ) {
-        return new float[]{
-            i, 0, i, gridSize,
-            i, 0, i, -gridSize,
-            0, i, gridSize, i,
-            0, i, -gridSize, i,
-            -i, 0, -i, gridSize,
-            -i, 0, -i, -gridSize,
-            0, -i, gridSize, -i,
-            0, -i, -gridSize, -i
-        };
+    private List< Vertex2D > createAxes( int gridSize, int i ) {
+        return Arrays.asList(
+            vec2( i, 0 ),
+            vec2( i, gridSize ),
+            vec2( -i, 0 ),
+            vec2( -i, gridSize ),
+        
+            vec2( i, 0 ),
+            vec2( i, -gridSize ),
+            vec2( -i, 0 ),
+            vec2( -i, -gridSize ),
+        
+            vec2( 0, i ),
+            vec2( gridSize, i ),
+            vec2( 0, -i ),
+            vec2( gridSize, -i ),
+            
+            vec2( 0, i ),
+            vec2( -gridSize, i ),
+            vec2( 0, -i ),
+            vec2( -gridSize, -i )
+        );
     }
     
     private void renderGridArray(
-        RenderingContext renderingContext, Vertices2D buffer, LineData lineData
+        RenderingContext renderingContext,
+        Vertices2D buffer,
+        LineData lineData
     ) {
         renderingContext.render2D( renderer ->
             renderer.renderVerticesAsLines(

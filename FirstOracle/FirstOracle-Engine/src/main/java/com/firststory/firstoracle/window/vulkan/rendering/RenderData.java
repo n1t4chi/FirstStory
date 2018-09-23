@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.window.vulkan.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.Colour;
+import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object.Vertices;
@@ -27,7 +27,7 @@ class RenderData {
     private UvMap uvMap = FirstOracleConstants.EMPTY_UV_MAP;
     private int uvFrame = 0;
     private int uvDirection = 0;
-    private Colour colours = FirstOracleConstants.EMPTY_COLOUR;
+    private Colouring colouring = FirstOracleConstants.EMPTY_COLOURING;
     private Vector3fc position = FirstOracleConstants.VECTOR_ZERO_3F;
     private Vector3fc scale = FirstOracleConstants.VECTOR_ONES_3F;
     private Vector3fc rotation = FirstOracleConstants.VECTOR_ZERO_3F;
@@ -61,8 +61,8 @@ class RenderData {
         return uvDirection;
     }
     
-    Colour getColours() {
-        return colours;
+    Colouring getColouring() {
+        return colouring;
     }
     
     Vector3fc getPosition() {
@@ -136,8 +136,8 @@ class RenderData {
             return this;
         }
         
-        RenderDataBuilder setColours( Colour colours ) {
-            data.colours = colours;
+        RenderDataBuilder setColouring( Colouring colours ) {
+            data.colouring = colours;
             return this;
         }
         

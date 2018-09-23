@@ -26,7 +26,7 @@ public class OpenGlTextureLoader implements TextureBufferLoader<Integer> {
     
     @Override
     public void close() {
-        new ArrayList<>( textures ).forEach( this::delete );
+        new ArrayList<>( textures ).forEach( this::deleteUnsafe );
     }
     
     @Override
@@ -40,13 +40,13 @@ public class OpenGlTextureLoader implements TextureBufferLoader<Integer> {
     }
     
     @Override
-    public void bind( Integer textureID ) {
+    public void bindUnsafe( Integer textureID ) {
         GL11.glBindTexture( GL11.GL_TEXTURE_2D, textureID );
     }
     
     @Override
-    public void load( Integer textureID, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException {
-        bind( textureID );
+    public void loadUnsafe( Integer textureID, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException {
+        bindUnsafe( textureID );
         IntBuffer w = BufferUtils.createIntBuffer( 1 );
         IntBuffer h = BufferUtils.createIntBuffer( 1 );
         IntBuffer c = BufferUtils.createIntBuffer( 1 );
@@ -75,7 +75,7 @@ public class OpenGlTextureLoader implements TextureBufferLoader<Integer> {
         GL30.glGenerateMipmap( GL11.GL_TEXTURE_2D );
     }
     
-    public void delete( Integer textureID ) {
+    public void deleteUnsafe( Integer textureID ) {
         textures.remove( textureID );
         GL11.glDeleteTextures( textureID );
     }

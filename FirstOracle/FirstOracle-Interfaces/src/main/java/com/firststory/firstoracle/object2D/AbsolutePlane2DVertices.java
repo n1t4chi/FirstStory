@@ -3,6 +3,13 @@
  */
 package com.firststory.firstoracle.object2D;
 
+import com.firststory.firstoracle.object.Vertex2D;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.firststory.firstoracle.object.Vertex2D.vec2;
+
 /**
  * @author n1t4chi
  */
@@ -14,27 +21,25 @@ public class AbsolutePlane2DVertices extends FramelessVertices2D {
         return Plane2DVertices;
     }
     
-    private static float[] createPlane2DVerticesArray() {
-        float[] pointData = {
-        /*0*/ 0, 0,
-        /*1*/ 1, 0,
-        /*2*/ 1, 1,
-        /*3*/ 0, 1
+    private static List< Vertex2D > createPlane2DVerticesArray() {
+        Vertex2D[] pointData = {
+        /*0*/ vec2( 0, 0 ),
+        /*1*/ vec2( 1, 0 ),
+        /*2*/ vec2( 1, 1 ),
+        /*3*/ vec2( 0, 1 )
         };
 
         short[] points = {
             0, 1, 2,
             0, 2, 3
         };
-        
-        float[] rtrn = new float[ points.length * 3 ];
-
-        for ( int j = 0; j < points.length; j++ ) {
-            rtrn[ j * 3 ] = pointData[ 3 * points[ j ] ];
-            rtrn[ j * 3 + 1 ] = pointData[ 3 * points[ j ] + 1 ];
-            rtrn[ j * 3 + 2 ] = pointData[ 3 * points[ j ] + 2 ];
+    
+        List< Vertex2D > list = new ArrayList<>( points.length );
+    
+        for ( short point : points ) {
+            list.add( pointData[ point ] );
         }
-        return rtrn;
+        return list;
     }
     
     private AbsolutePlane2DVertices() {

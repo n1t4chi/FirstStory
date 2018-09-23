@@ -3,9 +3,13 @@
  */
 package com.firststory.firstoracle.object;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
+import static com.firststory.firstoracle.FirstOracleConstants.array;
+import static com.firststory.firstoracle.object.UV.uv;
 
 /**
  * @author n1t4chi
@@ -39,8 +43,9 @@ public class PlaneUvMap extends UvMap {
         
     }
     
-    private static float[][][] getUvMap( int directions, int frames, int columns, int rows ) {
-        float[][][] map = new float[directions][frames][];
+    @SuppressWarnings( "unchecked" )
+    private static List< UV >[][] getUvMap( int directions, int frames, int columns, int rows ) {
+        List< UV >[][] map = array( directions , frames );
         
         for ( int direction = 0; direction < directions; direction++ ) {
             for ( int frame = 0; frame < frames; frame++ ) {
@@ -50,10 +55,14 @@ public class PlaneUvMap extends UvMap {
         return map;
     }
     
-    private static float[] createUvMapPlane(
-        int direction, int frame, int directions, int frames, int columns, int rows
-    )
-    {
+    private static List< UV > createUvMapPlane(
+        int direction,
+        int frame,
+        int directions,
+        int frames,
+        int columns,
+        int rows
+    ) {
         if ( frame < 0 || frame >= frames || direction < 0 || direction >= directions ) {
             throw new IllegalArgumentException(
                 "Illegal frame/Direction: " + "direction:" + direction + ", frame:" + frame + " for parameters: " +
@@ -65,11 +74,15 @@ public class PlaneUvMap extends UvMap {
         
         float horLeft = ( direction ) / ( float ) columns + UV_DELTA;
         float horRight = ( direction + 1 ) / ( float ) columns - UV_DELTA;
-        
-        return new float[]{
-            horLeft, vertDown, horRight, vertDown, horRight, vertUp, horLeft, vertDown, horRight, vertUp, horLeft,
-            vertUp
-        };
+    
+        return Arrays.asList(
+            uv( horLeft, vertDown ),
+            uv( horRight, vertDown ),
+            uv( horRight, vertUp ),
+            uv( horLeft, vertDown ),
+            uv( horRight, vertUp ),
+            uv( horLeft, vertUp )
+        );
     }
     
     public PlaneUvMap( int directions, int frames, int columns, int rows ) {

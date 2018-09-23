@@ -3,10 +3,12 @@
  */
 package com.firststory.firstoracle.object;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
-import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
-import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
+import static com.firststory.firstoracle.FirstOracleConstants.*;
+import static com.firststory.firstoracle.object.UV.uv;
 
 /**
  * @author n1t4chi
@@ -36,9 +38,10 @@ public class HexPrismUvMap extends UvMap {
     private static long hash( int frames, int rows ) {
         return ( ( long ) rows << 32 ) + frames;
     }
-
-    private static float[][][] getUvMap( int frames, int rows ) {
-        float[][][] map = new float[ 1 ][ frames ][];
+    
+    @SuppressWarnings( "unchecked" )
+    private static List< UV >[][] getUvMap( int frames, int rows ) {
+        List< UV >[][] map = array( 1 , frames );
 
         for ( int frame = 0; frame < frames; frame++ ) {
             map[ 0 ][ frame ] = createUvMapHexPrism( frame, frames, rows );
@@ -46,7 +49,7 @@ public class HexPrismUvMap extends UvMap {
         return map;
     }
 
-    private static float[] createUvMapHexPrism( int frame, int frames, int rows ) {
+    private static List< UV > createUvMapHexPrism( int frame, int frames, int rows ) {
         if ( frame < 0 || frame >= frames || frames > rows ) {
             throw new IllegalArgumentException(
                 "Illegal frame:" + frame + " for frames:" + frames + ", rows:" + rows + "." );
@@ -60,47 +63,110 @@ public class HexPrismUvMap extends UvMap {
         float vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + UV_DELTA;
         float vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - UV_DELTA;
 
-        return new float[]{
+        return Arrays.asList(
             //face 0
-            0 * hor + UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertUp, 0 * hor + UV_DELTA,
-            vertDown, 1 * hor - UV_DELTA, vertUp, 0 * hor + UV_DELTA, vertUp,
-    
+            uv( 0 * hor + UV_DELTA, vertDown ),
+            uv( 1 * hor - UV_DELTA, vertDown ),
+            uv( 1 * hor - UV_DELTA, vertUp ),
+            uv( 0 * hor + UV_DELTA, vertDown ),
+            uv( 1 * hor - UV_DELTA, vertUp ),
+            uv( 0 * hor + UV_DELTA, vertUp ),
+
+
             //face 1
-            1 * hor + UV_DELTA, vertDown, 2 * hor - UV_DELTA, vertDown, 2 * hor - UV_DELTA, vertUp, 1 * hor + UV_DELTA,
-            vertDown, 2 * hor - UV_DELTA, vertUp, 1 * hor + UV_DELTA, vertUp,
-    
+            uv( 1 * hor + UV_DELTA, vertDown ),
+            uv( 2 * hor - UV_DELTA, vertDown ),
+            uv( 2 * hor - UV_DELTA, vertUp ),
+            uv( 1 * hor + UV_DELTA, vertDown ),
+            uv( 2 * hor - UV_DELTA, vertUp ),
+            uv( 1 * hor + UV_DELTA, vertUp ),
+
+
             //face 2
-            2 * hor + UV_DELTA, vertDown, 3 * hor - UV_DELTA, vertDown, 3 * hor - UV_DELTA, vertUp, 2 * hor + UV_DELTA,
-            vertDown, 3 * hor - UV_DELTA, vertUp, 2 * hor + UV_DELTA, vertUp,
-    
+            uv( 2 * hor + UV_DELTA, vertDown ),
+            uv( 3 * hor - UV_DELTA, vertDown ),
+            uv( 3 * hor - UV_DELTA, vertUp ),
+            uv( 2 * hor + UV_DELTA, vertDown ),
+            uv( 3 * hor - UV_DELTA, vertUp ),
+            uv( 2 * hor + UV_DELTA, vertUp ),
+
+
             //face 3
-            3 * hor + UV_DELTA, vertDown, 4 * hor - UV_DELTA, vertDown, 4 * hor - UV_DELTA, vertUp, 3 * hor + UV_DELTA,
-            vertDown, 4 * hor - UV_DELTA, vertUp, 3 * hor + UV_DELTA, vertUp,
-    
+            uv( 3 * hor + UV_DELTA, vertDown ),
+            uv( 4 * hor - UV_DELTA, vertDown ),
+            uv( 4 * hor - UV_DELTA, vertUp ),
+            uv( 3 * hor + UV_DELTA, vertDown ),
+            uv( 4 * hor - UV_DELTA, vertUp ),
+            uv( 3 * hor + UV_DELTA, vertUp ),
+
+
             //face 4
-            4 * hor + UV_DELTA, vertDown, 5 * hor - UV_DELTA, vertDown, 5 * hor - UV_DELTA, vertUp, 4 * hor + UV_DELTA,
-            vertDown, 5 * hor - UV_DELTA, vertUp, 4 * hor + UV_DELTA, vertUp,
-    
+            uv( 4 * hor + UV_DELTA, vertDown ),
+            uv( 5 * hor - UV_DELTA, vertDown ),
+            uv( 5 * hor - UV_DELTA, vertUp ),
+            uv( 4 * hor + UV_DELTA, vertDown ),
+            uv( 5 * hor - UV_DELTA, vertUp ),
+            uv( 4 * hor + UV_DELTA, vertUp ),
+
+
             //face 5
-            5 * hor + UV_DELTA, vertDown, 6 * hor - UV_DELTA, vertDown, 6 * hor - UV_DELTA, vertUp, 5 * hor + UV_DELTA,
-            vertDown, 6 * hor - UV_DELTA, vertUp, 5 * hor + UV_DELTA, vertUp,
-    
+            uv( 5 * hor + UV_DELTA, vertDown ),
+            uv( 6 * hor - UV_DELTA, vertDown ),
+            uv( 6 * hor - UV_DELTA, vertUp ),
+            uv( 5 * hor + UV_DELTA, vertDown ),
+            uv( 6 * hor - UV_DELTA, vertUp ),
+            uv( 5 * hor + UV_DELTA, vertUp ),
+
+
             //face 6
-            6.5f * hor, vertMiddle, 6.75f * hor - UV_DELTA, vertUp, 6.25f * hor + UV_DELTA, vertUp, 6.5f * hor,
-            vertMiddle, 6.25f * hor + UV_DELTA, vertUp, 6 * hor + UV_DELTA, vertMiddle, 6.5f * hor, vertMiddle,
-            6 * hor + UV_DELTA, vertMiddle, 6.25f * hor + UV_DELTA, vertDown, 6.5f * hor, vertMiddle,
-            6.25f * hor + UV_DELTA, vertDown, 6.75f * hor - UV_DELTA, vertDown, 6.5f * hor, vertMiddle,
-            6.75f * hor - UV_DELTA, vertDown, 7 * hor - UV_DELTA, vertMiddle, 6.5f * hor, vertMiddle,
-            7 * hor - UV_DELTA, vertMiddle, 6.75f * hor - UV_DELTA, vertUp,
-    
+            uv( 6.5f * hor, vertMiddle ),
+            uv( 6.75f * hor - UV_DELTA, vertUp ),
+            uv( 6.25f * hor + UV_DELTA, vertUp ),
+            uv( 6.5f * hor, vertMiddle ),
+            uv( 6.25f * hor + UV_DELTA, vertUp ),
+            uv( 6 * hor + UV_DELTA, vertMiddle ),
+            uv( 6.5f * hor, vertMiddle ),
+
+            uv( 6 * hor + UV_DELTA, vertMiddle ),
+            uv( 6.25f * hor + UV_DELTA, vertDown ),
+            uv( 6.5f * hor, vertMiddle ),
+
+            uv( 6.25f * hor + UV_DELTA, vertDown ),
+            uv( 6.75f * hor - UV_DELTA, vertDown ),
+            uv( 6.5f * hor, vertMiddle ),
+
+            uv( 6.75f * hor - UV_DELTA, vertDown ),
+            uv( 7 * hor - UV_DELTA, vertMiddle ),
+            uv( 6.5f * hor, vertMiddle ),
+
+            uv( 7 * hor - UV_DELTA, vertMiddle ),
+            uv( 6.75f * hor - UV_DELTA, vertUp ),
+
+
             //face 7
-            7.5f * hor, vertMiddle, 7.75f * hor - UV_DELTA, vertUp, 7.25f * hor + UV_DELTA, vertUp, 7.5f * hor,
-            vertMiddle, 7.25f * hor + UV_DELTA, vertUp, 7 * hor + UV_DELTA, vertMiddle, 7.5f * hor, vertMiddle,
-            7 * hor + UV_DELTA, vertMiddle, 7.25f * hor + UV_DELTA, vertDown, 7.5f * hor, vertMiddle,
-            7.25f * hor + UV_DELTA, vertDown, 7.75f * hor - UV_DELTA, vertDown, 7.5f * hor, vertMiddle,
-            7.75f * hor - UV_DELTA, vertDown, 8 * hor - UV_DELTA, vertMiddle, 7.5f * hor, vertMiddle,
-            8 * hor - UV_DELTA, vertMiddle, 7.75f * hor - UV_DELTA, vertUp
-        };
+            uv( 7.5f * hor, vertMiddle ),
+            uv( 7.75f * hor - UV_DELTA, vertUp ),
+            uv( 7.25f * hor + UV_DELTA, vertUp ),
+            uv( 7.5f * hor, vertMiddle ),
+            uv( 7.25f * hor + UV_DELTA, vertUp ),
+            uv( 7 * hor + UV_DELTA, vertMiddle ),
+            uv( 7.5f * hor, vertMiddle ),
+
+            uv( 7 * hor + UV_DELTA, vertMiddle ),
+            uv( 7.25f * hor + UV_DELTA, vertDown ),
+            uv( 7.5f * hor, vertMiddle ),
+
+            uv( 7.25f * hor + UV_DELTA, vertDown ),
+            uv( 7.75f * hor - UV_DELTA, vertDown ),
+            uv( 7.5f * hor, vertMiddle ),
+
+            uv( 7.75f * hor - UV_DELTA, vertDown ),
+            uv( 8 * hor - UV_DELTA, vertMiddle ),
+            uv( 7.5f * hor, vertMiddle ),
+
+            uv( 8 * hor - UV_DELTA, vertMiddle ),
+            uv( 7.75f * hor - UV_DELTA, vertUp )
+        );
     }
     
     private HexPrismUvMap( int frames, int rows ) {

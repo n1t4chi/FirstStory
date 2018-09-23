@@ -4,22 +4,23 @@
 package com.firststory.firstoracle.object;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author n1t4chi
  */
-public abstract class Vertices< BoundingBox > extends VertexAttribute {
+public abstract class Vertices< VertexData extends Vertex, BoundingBox > extends VertexAttribute< VertexData > {
     
     private final BoundingBox boundingBox;
-    private float[][] verticesByFrame;
+    private List< VertexData >[] verticesByFrame;
     
-    public Vertices( float[][] verticesByFrame, BoundingBox boundingBox ) {
+    public Vertices( List< VertexData>[] verticesByFrame, BoundingBox boundingBox ) {
         setVertices( verticesByFrame );
         this.boundingBox = boundingBox;
     }
     
-    public void setVertices( float[][] verticesByFrame ) {
-        close();
+    public void setVertices( List< VertexData >[] verticesByFrame ) {
+        dispose();
         this.verticesByFrame = verticesByFrame;
     }
     
@@ -27,22 +28,26 @@ public abstract class Vertices< BoundingBox > extends VertexAttribute {
         return boundingBox;
     }
     
-    public int bind( VertexAttributeLoader loader, int frame ) {
-        loader.bindBuffer( this, frame );
-        return getVertexLength( frame );
-    }
-    
     @Override
     public String toString() {
-        return "Vertices: " + Arrays.deepToString( verticesByFrame );
+        return "Vertices:{" + Arrays.deepToString( verticesByFrame ) + '}';
+    }
+    
+    private void assertParameters( int[] parameters ) {
+        if ( parameters.length != 1 ) {
+            throw new IllegalArgumentException( "Illegal parameter length" );
+        }
     }
     
     @Override
-    public float[] getArray( long key ) {
-        return verticesByFrame[ ( int ) key ];
+    protected long getKey( int... parameters ) {
+        assertParameters( parameters );
+        return parameters[ 0 ];
     }
     
-    public int getIndex() {
-        return 0;
+    @Override
+    protected List< VertexData > getData( int... parameters ) {
+        assertParameters( parameters );
+        return verticesByFrame[ parameters[ 0 ] ];
     }
 }

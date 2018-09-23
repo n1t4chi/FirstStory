@@ -4,7 +4,10 @@
 package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.object.BoundingBox;
+import com.firststory.firstoracle.object.Vertex2D;
 import org.joml.Vector2fc;
+
+import java.util.List;
 
 import static java.lang.Math.*;
 
@@ -13,45 +16,33 @@ import static java.lang.Math.*;
  */
 public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransformations, Vector2fc > {
     
-    public static BoundingBox2D getBoundingBox2D( float[] vertices ) {
+    public static BoundingBox2D getBoundingBox2D( List< Vertex2D > vertices ) {
         float minX, maxX, minY, maxY;
         minX = minY = Float.MAX_VALUE;
         maxY = maxX = -Float.MAX_VALUE;
-        for ( int i = 0; i < vertices.length; i += 2 ) {
-            if ( vertices[ i ] < minX ) {
-                minX = vertices[ i ];
-            }
-            if ( vertices[ i ] > maxX ) {
-                maxX = vertices[ i ];
-            }
-            if ( vertices[ i + 1 ] < minY ) {
-                minY = vertices[ i + 1 ];
-            }
-            if ( vertices[ i + 1 ] > maxY ) {
-                maxY = vertices[ i + 1 ];
-            }
+        for (  Vertex2D vertex : vertices ) {
+            float x = vertex.getX();
+            float y = vertex.getY();
+            minX = min( minX, x );
+            maxX = max( maxX, x );
+            minY = min( minY, y );
+            maxY = max( maxY, y );
         }
         return new BoundingBox2D( minX, maxX, minY, maxY );
     }
     
-    public static BoundingBox2D getBoundingBox2D( float[][] verticesArray ) {
+    public static BoundingBox2D getBoundingBox2D( List< Vertex2D >[] verticesArray ) {
         float minX, maxX, minY, maxY;
         minX = minY = Float.MAX_VALUE;
         maxY = maxX = -Float.MAX_VALUE;
-        for ( float[] vertices : verticesArray ) {
-            for ( int i = 0; i < vertices.length; i += 2 ) {
-                if ( vertices[ i ] < minX ) {
-                    minX = vertices[ i ];
-                }
-                if ( vertices[ i ] > maxX ) {
-                    maxX = vertices[ i ];
-                }
-                if ( vertices[ i + 1 ] < minY ) {
-                    minY = vertices[ i + 1 ];
-                }
-                if ( vertices[ i + 1 ] > maxY ) {
-                    maxY = vertices[ i + 1 ];
-                }
+        for ( List< Vertex2D > vertices : verticesArray ) {
+            for (  Vertex2D vertex : vertices ) {
+                float x = vertex.getX();
+                float y = vertex.getY();
+                minX = min( minX, x );
+                maxX = max( maxX, x );
+                minY = min( minY, y );
+                maxY = max( maxY, y );
             }
         }
         return new BoundingBox2D( minX, maxX, minY, maxY );

@@ -16,15 +16,12 @@ import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffer> {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandPool.class );
     private final VulkanPhysicalDevice device;
     private final VulkanQueueFamily usedQueueFamily;
-    private final Map< Integer, CommandBuffer > commandBuffers = new HashMap<>(  );
     private VulkanAddress address;
     
     public VulkanCommandPool( VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily ) {
@@ -41,8 +38,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         return usedQueueFamily;
     }
     
-    void dispose() {
-        disposeCommandBuffers();
+    public void dispose() {
         if( !address.isNull() ){
             VK10.vkDestroyCommandPool( device.getLogicalDevice(), address.getValue(), null );
             address.setNull();
@@ -52,26 +48,6 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     VulkanAddress getAddress() {
         return address;
     }
-    
-    public CommandBuffer getCommandBuffer( int index ) {
-        return commandBuffers.get( index );
-    }
-    
-    void refreshCommandBuffers(
-        Map< Integer, VulkanFrameBuffer > frameBuffers
-    ) {
-        disposeCommandBuffers();
-        VulkanHelper.iterate( createCommandBufferBuffer( frameBuffers.size() ),
-            ( index, address ) -> commandBuffers.put( index,
-                createNewCommandBuffer( index, new VulkanAddress( address ) , frameBuffers )
-        ) );
-    }
-    
-    public abstract CommandBuffer createNewCommandBuffer(
-        int index,
-        VulkanAddress address,
-        Map< Integer, VulkanFrameBuffer > frameBuffers
-    );
     
     public void executeQueue( VulkanCommand<CommandBuffer> commands ) {
         CommandBuffer commandBuffer = extractNextCommandBuffer();
@@ -110,7 +86,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         );
     }
     
-    PointerBuffer createCommandBufferBuffer( int size ) {
+    public PointerBuffer createCommandBufferBuffer( int size ) {
         PointerBuffer commandBuffersBuffer = MemoryUtil.memAllocPointer( size );
         VulkanHelper.assertCallOrThrow(
             () -> VK10.vkAllocateCommandBuffers(
@@ -118,11 +94,6 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
             resultCode -> new CannotAllocateVulkanCommandBuffersException( device, resultCode )
         );
         return commandBuffersBuffer;
-    }
-    
-    private void disposeCommandBuffers() {
-        commandBuffers.forEach( ( integer, vulkanCommandBuffer ) -> vulkanCommandBuffer.close() );
-        commandBuffers.clear();
     }
     
     private VkCommandBufferAllocateInfo createAllocateInfo( int size ) {

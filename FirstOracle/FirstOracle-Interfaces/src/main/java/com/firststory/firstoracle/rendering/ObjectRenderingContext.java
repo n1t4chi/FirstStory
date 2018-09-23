@@ -16,7 +16,7 @@ public interface ObjectRenderingContext<
     Scale,
     Rotation,
     Transformations extends ObjectTransformations< Scale, Rotation >,
-    VerticesT extends Vertices<?>,
+    VerticesT extends Vertices<?, ?>,
     GraphicObjectT extends GraphicObject< ? extends Transformations, ?, ? extends VerticesT > >
 {
     
@@ -52,7 +52,7 @@ public interface ObjectRenderingContext<
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
-        Colour colours,
+        Colouring colours,
         Position position,
         Transformations transformations,
         Texture texture,
@@ -96,7 +96,7 @@ public interface ObjectRenderingContext<
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
-        Colour colours,
+        Colouring colours,
         Position position,
         Transformations transformations,
         Texture texture,
@@ -125,7 +125,7 @@ public interface ObjectRenderingContext<
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
-        Colour colours,
+        Colouring colours,
         Position position,
         Scale scale,
         Rotation rotation,
@@ -139,7 +139,7 @@ public interface ObjectRenderingContext<
         int vertexFrame,
         Position position,
         Transformations transformations,
-        LineData lineLoop
+        LineData lineData
     ) {
         renderVerticesAsLines(
             vertices,
@@ -147,7 +147,7 @@ public interface ObjectRenderingContext<
             position,
             transformations.getScale(),
             transformations.getRotation(),
-            lineLoop
+            lineData
         );
     };
     
@@ -157,6 +157,6 @@ public interface ObjectRenderingContext<
         Position position,
         Scale scale,
         Rotation rotation,
-        LineData lineLoop
+        LineData lineData
     );
 }

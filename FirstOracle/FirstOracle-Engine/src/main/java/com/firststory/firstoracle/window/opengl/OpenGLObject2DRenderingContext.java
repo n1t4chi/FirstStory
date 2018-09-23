@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.Colour;
+import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object2D.Vertices2D;
@@ -41,7 +41,7 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
-        Colour colours,
+        Colouring colours,
         Vector2fc position,
         Vector2fc scale,
         Float rotation,
@@ -50,6 +50,7 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
         Float maxAlphaChannel
     ) {
         OpenGlShaderProgram3D  shaderProgram2D = context.getShaderProgram();
+        OpenGlVertexAttributeLoader loader = context.getVertexAttributeLoader();
     
         shaderProgram2D.bindPosition( position );
         shaderProgram2D.bindRotation( rotation );
@@ -57,14 +58,14 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
     
         shaderProgram2D.bindMaxAlphaChannel( maxAlphaChannel );
         shaderProgram2D.bindOverlayColour( overlayColour );
+        
+        loader.bindVertices( vertices, vertexFrame );
+        loader.bindUvMap( uvMap, uvDirection, uvFrame );
+        loader.bindColouring( colours );
+        
+        int bufferSize = vertices.getVertexLength( vertexFrame );
     
-        int bufferSize = vertices.bind(
-            context.getVertexAttributeLoader(),
-            vertexFrame
-        );
-        uvMap.bind( context.getVertexAttributeLoader(), uvDirection, uvFrame );
-    
-        texture.bind( context.getTextureLoader() );
+        context.getTextureLoader().bind( texture );
     
         context.drawTriangles( bufferSize );
     }
@@ -76,26 +77,28 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
         Vector2fc position,
         Vector2fc scale,
         Float rotation,
-        LineData lineLoop
+        LineData lineData
     ) {
         OpenGlShaderProgram3D shaderProgram2D = context.getShaderProgram();
+        OpenGlVertexAttributeLoader loader = context.getVertexAttributeLoader();
     
         shaderProgram2D.bindPosition( position );
         shaderProgram2D.bindRotation( rotation );
         shaderProgram2D.bindScale( scale );
     
         shaderProgram2D.bindMaxAlphaChannel( 1f );
-        shaderProgram2D.bindOverlayColour( lineLoop.getColour() );
+        shaderProgram2D.bindOverlayColour( lineData.getColour() );
     
-        int bufferSize = vertices.bind(
-            context.getVertexAttributeLoader(),
-            vertexFrame
-        );
-        FirstOracleConstants.EMPTY_UV_MAP.bind( context.getVertexAttributeLoader(), 0, 0 );
+        loader.bindVertices( vertices, vertexFrame );
+        loader.bindUvMap( FirstOracleConstants.EMPTY_UV_MAP, 0,0 );
+        loader.bindColouring( FirstOracleConstants.EMPTY_COLOURING );
     
-        FirstOracleConstants.EMPTY_TEXTURE.bind( context.getTextureLoader() );
+        int bufferSize = vertices.getVertexLength( vertexFrame );
     
-        context.setLineWidth( lineLoop.getWidth() );
-        context.drawLineLoop( bufferSize );
+        context.getTextureLoader().bind( FirstOracleConstants.EMPTY_TEXTURE );
+    
+        context.setLineWidth( lineData.getWidth() );
+    
+        context.drawLines( bufferSize, lineData.getType() );
     }
 }

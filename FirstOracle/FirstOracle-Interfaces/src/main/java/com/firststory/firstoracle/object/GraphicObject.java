@@ -33,8 +33,8 @@ public interface GraphicObject<
     
     int getCurrentVertexFrame( double currentTimeSnapshot );
     
-    default Colour getColours() {
-        return FirstOracleConstants.EMPTY_COLOUR;
+    default Colouring getColours() {
+        return FirstOracleConstants.EMPTY_COLOURING;
     }
     
     default Vector4fc getOverlayColour() {
@@ -42,18 +42,10 @@ public interface GraphicObject<
     }
     
     default LineData getLineLoop() {
-        return FirstOracleConstants.RED_LINE;
+        return FirstOracleConstants.YELLOW_LINE_LOOP;
     }
     
     default float getMaxAlphaChannel() {
         return 1f;
-    }
-    
-    default void bindCurrentUvMap( VertexAttributeLoader loader, double currentTimeSnapshot, double currentCameraRotation ) {
-        getUvMap().bind( loader, getCurrentUvMapDirection( currentCameraRotation ), getCurrentUvMapFrame( currentTimeSnapshot ) );
-    }
-    
-    default int bindCurrentVerticesAndGetSize( VertexAttributeLoader loader, double currentTimeSnapshot ) {
-        return getVertices().bind( loader, getCurrentVertexFrame( currentTimeSnapshot ) );
     }
 }

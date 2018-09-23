@@ -3,7 +3,7 @@
  */
 package com.firststory.firstoracle;
 
-import com.firststory.firstoracle.object.Colour;
+import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.rendering.LineData;
@@ -12,7 +12,13 @@ import org.joml.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
+
+import static com.firststory.firstoracle.object.UV.uv;
+import static com.firststory.firstoracle.object.VertexColour.col;
 
 /**
  * @author n1t4chi
@@ -60,15 +66,49 @@ public interface FirstOracleConstants {
     Vector4fc WHITE = new Vector4f( 1, 1, 1, 1 );
     Vector4fc BLACK = new Vector4f( 0, 0, 0, 1 );
     Vector4fc GRAY = new Vector4f( 0.5f, 0.5f, 0.5f, 1 );
+    Vector4fc YELLOW = new Vector4f( 1, 1, 0, 1 );
     
-    LineData RED_LINE = new LineData( 1, FirstOracleConstants.RED );
+    LineData YELLOW_LINE_LOOP = LineData.lineLoop( 2, FirstOracleConstants.YELLOW );
     LineData NONE = null;
     
-    Colour EMPTY_COLOUR = new Colour( new float[]{ 0, 0, 0, 0 } );
-    UvMap EMPTY_UV_MAP = new UvMap( new float[ 1 ][ 1 ][ 3 ] );
+    Colouring EMPTY_COLOURING = new Colouring( Collections.singletonList( col( 0, 0, 0, 0 ) ) );
+    UvMap EMPTY_UV_MAP = new UvMap( singletonArray2D( Arrays.asList( uv( 0,0 ), uv( 0,0 ), uv( 0,0 ) ) ) );
+    
     Texture EMPTY_TEXTURE = createEmptyTexture();
     double SQRT3_DIV2_D = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077;
     float SQRT3_DIV2 = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077f;
+    float[] EMPTY_FLOAT_ARRAY = new float[ 0 ];
+    
+    static <T> List<T>[][][] singletonArray3D( List<T> value ){
+        List< T >[][][] array = array( 1, 1, 1 );
+        array[0][0][0] = value;
+        return array;
+    }
+    static <T> List<T>[][] singletonArray2D( List<T> value ){
+        List< T >[][] array = array( 1, 1 );
+        array[0][0] = value;
+        return array;
+    }
+    static <T> List<T>[] singletonArray( List<T> value ){
+        List< T >[] array = array( 1 );
+        array[0] = value;
+        return array;
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    static <T> List<T>[][][] array( int x,int y, int z ){
+        return new java.util.List[x][y][z];
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    static <T> List<T>[][] array( int x,int y ){
+        return new java.util.List[x][y];
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    static <T> List<T>[] array( int x ){
+        return new List[x];
+    }
     
     static Texture createEmptyTexture() {
         BufferedImage image = new BufferedImage( 50, 50, BufferedImage.TYPE_INT_ARGB );
@@ -100,10 +140,7 @@ public interface FirstOracleConstants {
         return ( x + terrainShift ) * 1.5f;
     }
     
-    static float transHexYDiscreteToSpace(
-        float x, float y, float terrainShiftX, float terrainShiftY
-    )
-    {
+    static float transHexYDiscreteToSpace( float x, float y, float terrainShiftX, float terrainShiftY ) {
         float x_sum = x + terrainShiftX;
         double modulo = x_sum % 2;
         
@@ -111,8 +148,6 @@ public interface FirstOracleConstants {
         float product = 2 * translated;
         double sum = product + modulo;
         double finalProduct = sum * SQRT3_DIV2_D;
-
-//        System.err.println( "d2s:"+  modulo+", "+translated+", "+product+", "+sum+", "+finalProduct );
         
         return ( float ) finalProduct;
     }
@@ -125,10 +160,7 @@ public interface FirstOracleConstants {
         return ( y + terrainShift ) * 2;
     }
     
-    static float transHexPrismZDiscreteToSpace(
-        float x, float z, float terrainShiftX, float terrainShiftZ
-    )
-    {
+    static float transHexPrismZDiscreteToSpace( float x, float z, float terrainShiftX, float terrainShiftZ ) {
         float x_sum = x + terrainShiftX;
         double modulo = x_sum % 2;
         
@@ -136,10 +168,6 @@ public interface FirstOracleConstants {
         float product = 2 * translated;
         double sum = product + modulo;
         double finalProduct = sum * SQRT3_DIV2_D;
-
-//        System.err.println( "d2s:" +
-//                            "\nparams: " +x+", "+z+", "+terrainShiftX+", "+terrainShiftZ+
-//                            "\nresults: "+ modulo+", "+translated+", "+product+", "+sum+", "+finalProduct );
         
         return ( float ) finalProduct;
     }
@@ -159,10 +187,7 @@ public interface FirstOracleConstants {
         return coordinate - terrainShift;
     }
     
-    static float transHexYSpaceToDiscrete(
-        float x, float y, float terrainShiftX, float terrainShiftY
-    )
-    {
+    static float transHexYSpaceToDiscrete( float x, float y, float terrainShiftX, float terrainShiftY ) {
         float x_sub = transHexXSpaceToDiscrete( x, terrainShiftX );
         double modulo = x_sub % 2;
         
@@ -170,10 +195,6 @@ public interface FirstOracleConstants {
         double subtraction = initialDivision - modulo;
         double division = subtraction / 2;
         double finalTranslation = division - terrainShiftY;
-
-//        System.err.println("s2d:"+
-//                           "\nparams: " +x+", "+y+", "+terrainShiftX+", "+terrainShiftY+
-//            "\nresults: "+ modulo+", "+initialDivision+", "+subtraction+", "+division+", "+finalTranslation );
         
         return ( float ) finalTranslation;
     }
@@ -190,10 +211,7 @@ public interface FirstOracleConstants {
         return y / 2 - terrainShift;
     }
     
-    static float transHexPrismZSpaceToDiscrete(
-        float x, float z, float terrainShiftX, float terrainShiftZ
-    )
-    {
+    static float transHexPrismZSpaceToDiscrete( float x, float z, float terrainShiftX, float terrainShiftZ ) {
         float x_sub = transHexXSpaceToDiscrete( x, terrainShiftX );
         double modulo = x_sub % 2;
         
@@ -201,10 +219,6 @@ public interface FirstOracleConstants {
         double subtraction = initialDivision - modulo;
         double division = subtraction / 2;
         double finalTranslation = division - terrainShiftZ;
-
-//        System.err.println( "s2d:"+
-//                            "\nparams: " +x+", "+z+", "+terrainShiftX+", "+terrainShiftZ+
-//                            "\nresults: "+ modulo+", "+initialDivision+", "+subtraction+", "+division+", "+finalTranslation );
         
         return ( float ) finalTranslation;
     }

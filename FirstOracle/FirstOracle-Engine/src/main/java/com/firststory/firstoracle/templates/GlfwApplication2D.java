@@ -15,8 +15,8 @@ import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.object2D.RectangleGrid;
 import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object3D.NonAnimatedCube;
 import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
+import com.firststory.firstoracle.object3D.NonAnimatedPlane3D;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.*;
@@ -28,6 +28,7 @@ import org.joml.Vector2ic;
 import org.joml.Vector3ic;
 import org.joml.Vector4f;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -63,25 +64,46 @@ public class GlfwApplication2D {
             .setHeight( height )
             .setDrawBorder( true )
             .build();
-//        grid2DRenderer = new DummyGrid2DRenderer();
-        grid2DRenderer = new BoundedPositiveGrid2DRenderer( 20, 30, 10 );
-            Grid2DRenderer grid2DRenderer = new BoundedGrid2DRenderer(
-                100,
-                10,
-                1
-            );
-        grid3DRenderer = new DummyGrid3DRenderer();
+        grid2DRenderer = new DummyGrid2DRenderer();
+//        grid2DRenderer = new BoundedPositiveGrid2DRenderer( 5, 5, 2 );
+//        Grid2DRenderer grid2DRenderer = new BoundedGrid2DRenderer(
+//            100,
+//            10,
+//            1
+//        );
+//        grid3DRenderer = new DummyGrid3DRenderer();
+        grid3DRenderer = new BoundedGrid3DRenderer( 100, 25, 5 );
 
         renderedScene = new RenderedSceneMutable( settings );
         Texture texture1 = new Texture( "resources/First Oracle/texture3D.png" );
-//        Texture texture2 = new Texture( "resources/First Oracle/obj.png" );
+        Texture texture2 = new Texture( "resources/First Oracle/texture3Dc.png" );
+        Texture texture3 = new Texture( "resources/First Oracle/texture3DHEX.png" );
+        Texture texture4 = new Texture( "resources/First Oracle/texture3DHEX2.png" );
+//        texture1 = texture2 = texture3 = texture4 = FirstOracleConstants.EMPTY_TEXTURE;
 //        Texture compundTexture = Texture.createCompoundTexture( "resources/First Oracle/compound/tex_#frame#_#direction#.png",
 //            4,
 //            6
 //        );
-        NonAnimatedCube cube = new NonAnimatedCube();
-        cube.setTexture( texture1 );
+        NonAnimatedPlane3D cube1 = new NonAnimatedPlane3D();
+        cube1.setTexture( texture1 );
+        cube1.getTransformations().setPosition( 0,0,0 );
+    
+        NonAnimatedPlane3D cube2 = new NonAnimatedPlane3D();
+        cube2.setTexture( texture2 );
+        cube2.getTransformations().setPosition( 4,0,0 );
 
+        NonAnimatedPlane3D hex1 = new NonAnimatedPlane3D();
+        hex1.setTexture( texture3 );
+        hex1.getTransformations().setPosition( 8,0,0 );
+
+        NonAnimatedPlane3D hex2 = new NonAnimatedPlane3D();
+        hex2.setTexture( texture4 );
+        hex2.getTransformations().setPosition( 12,0,0 );
+    
+        NonAnimatedPlane3D hex3 = new NonAnimatedPlane3D();
+        hex3.setTexture( FirstOracleConstants.EMPTY_TEXTURE );
+        hex3.getTransformations().setPosition( 4,4,0 );
+        
 //        NonAnimatedRectangle object = new NonAnimatedRectangle();
 //        object.setTransformations( new Mutable2DTransformations() );
 //        object.setTexture( texture2 );
@@ -119,7 +141,15 @@ public class GlfwApplication2D {
 //            }
 //        }
 //        List<Renderable> renderables = Arrays.<Renderable>asList( compound, object );
-        List<PositionableObject3D> renderables = Collections.singletonList( cube );
+        List<PositionableObject3D> renderables =
+//            Collections.emptyList();
+            Arrays.asList(
+                cube2,
+                cube1,
+                hex1,
+                hex2,
+                hex3
+            );
         
         renderedScene.setScene3D( ( new RenderedScene3D() {
             @Override
@@ -162,7 +192,8 @@ public class GlfwApplication2D {
             ( event, source ) -> {
                 cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
                 cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
-            } );
+            }
+        );
         
         sceneProvider = () -> renderedScene;
         renderer = new WindowRenderer(
@@ -174,7 +205,7 @@ public class GlfwApplication2D {
         );
         window = Window.createWindow( settings, renderer );
         window.init();
-        renderedScene.setBackgroundColour( new Vector4f( 0, 0, 0, 1 ) );
+        renderedScene.setBackgroundColour( new Vector4f( 0.8f, 0.8f, 0.8f, 0.8f ) );
     
         window.addTimeListener( cameraController );
         

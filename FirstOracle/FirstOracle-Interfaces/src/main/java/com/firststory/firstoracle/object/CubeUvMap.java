@@ -3,9 +3,13 @@
  */
 package com.firststory.firstoracle.object;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
+import static com.firststory.firstoracle.FirstOracleConstants.array;
+import static com.firststory.firstoracle.object.UV.uv;
 
 /**
  * @author n1t4chi
@@ -34,9 +38,9 @@ public class CubeUvMap extends UvMap {
     private static long hash( int frames, int rows ) {
         return ( ( long ) rows << 32 ) + frames;
     }
-
-    private static float[][][] getUvMap( int frames, int rows ) {
-        float[][][] map = new float[ 1 ][ frames ][];
+    
+    private static List<UV>[][] getUvMap( int frames, int rows ) {
+        List<UV>[][] map = array( 1 , frames );
 
         for ( int frame = 0; frame < frames; frame++ ) {
             map[ 0 ][ frame ] = createUvMapCube( frame, frames, rows );
@@ -44,7 +48,7 @@ public class CubeUvMap extends UvMap {
         return map;
     }
     
-    private static float[] createUvMapCube( int frame, int frames, int rows ) {
+    private static List<UV> createUvMapCube( int frame, int frames, int rows ) {
         if ( frame < 0 || frame >= frames || frames > rows ) {
             throw new IllegalArgumentException(
                 "Illegal frame:" + frame + " for frames:" + frames + ", rows:" + rows + "." );
@@ -53,31 +57,58 @@ public class CubeUvMap extends UvMap {
         float vertUp = ( frame ) / ( float ) rows + UV_DELTA;
         float vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
 
-        return new float[]{
-            //face 0
-            0 * hor + UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertDown, 1 * hor - UV_DELTA, vertUp, 0 * hor + UV_DELTA,
-            vertDown, 1 * hor - UV_DELTA, vertUp, 0 * hor + UV_DELTA, vertUp,
-    
+        return Arrays.asList( 
+            uv( 0 * hor + UV_DELTA, vertDown ),
+            uv( 1 * hor - UV_DELTA, vertDown ),
+            uv( 1 * hor - UV_DELTA, vertUp ),
+            uv( 0 * hor + UV_DELTA, vertDown ),
+            uv( 1 * hor - UV_DELTA, vertUp ),
+            uv( 0 * hor + UV_DELTA, vertUp ),
+            
             //face 1
-            1 * hor + UV_DELTA, vertDown, 2 * hor - UV_DELTA, vertDown, 2 * hor - UV_DELTA, vertUp, 1 * hor + UV_DELTA,
-            vertDown, 2 * hor - UV_DELTA, vertUp, 1 * hor + UV_DELTA, vertUp,
+            uv( 1 * hor + UV_DELTA, vertDown ),
+            uv( 2 * hor - UV_DELTA, vertDown ),
+            uv( 2 * hor - UV_DELTA, vertUp ),
+            uv( 1 * hor + UV_DELTA, vertDown ),
+            uv( 2 * hor - UV_DELTA, vertUp ),
+            uv( 1 * hor + UV_DELTA, vertUp ),
+            
     
             //face 2
-            2 * hor + UV_DELTA, vertDown, 3 * hor - UV_DELTA, vertDown, 3 * hor - UV_DELTA, vertUp, 2 * hor + UV_DELTA,
-            vertDown, 3 * hor - UV_DELTA, vertUp, 2 * hor + UV_DELTA, vertUp,
+            uv( 2 * hor + UV_DELTA, vertDown ),
+            uv( 3 * hor - UV_DELTA, vertDown ),
+            uv( 3 * hor - UV_DELTA, vertUp ),
+            uv( 2 * hor + UV_DELTA, vertDown ),
+            uv( 3 * hor - UV_DELTA, vertUp ),
+            uv( 2 * hor + UV_DELTA, vertUp ),
+            
     
             //face 3
-            3 * hor + UV_DELTA, vertDown, 4 * hor - UV_DELTA, vertDown, 4 * hor - UV_DELTA, vertUp, 3 * hor + UV_DELTA,
-            vertDown, 4 * hor - UV_DELTA, vertUp, 3 * hor + UV_DELTA, vertUp,
+            uv( 3 * hor + UV_DELTA, vertDown ),
+            uv( 4 * hor - UV_DELTA, vertDown ),
+            uv( 4 * hor - UV_DELTA, vertUp ),
+            uv( 3 * hor + UV_DELTA, vertDown ),
+            uv( 4 * hor - UV_DELTA, vertUp ),
+            uv( 3 * hor + UV_DELTA, vertUp ),
+            
     
             //face 4
-            4 * hor + UV_DELTA, vertDown, 5 * hor - UV_DELTA, vertDown, 5 * hor - UV_DELTA, vertUp, 4 * hor + UV_DELTA,
-            vertDown, 5 * hor - UV_DELTA, vertUp, 4 * hor + UV_DELTA, vertUp,
+            uv( 4 * hor + UV_DELTA, vertDown ),
+            uv( 5 * hor - UV_DELTA, vertDown ),
+            uv( 5 * hor - UV_DELTA, vertUp ),
+            uv( 4 * hor + UV_DELTA, vertDown ),
+            uv( 5 * hor - UV_DELTA, vertUp ),
+            uv( 4 * hor + UV_DELTA, vertUp ),
+            
     
             //face 5
-            5 * hor + UV_DELTA, vertDown, 6 * hor - UV_DELTA, vertDown, 6 * hor - UV_DELTA, vertUp, 5 * hor + UV_DELTA,
-            vertDown, 6 * hor - UV_DELTA, vertUp, 5 * hor + UV_DELTA, vertUp
-        };
+            uv( 5 * hor + UV_DELTA, vertDown ),
+            uv( 6 * hor - UV_DELTA, vertDown ),
+            uv( 6 * hor - UV_DELTA, vertUp ),
+            uv( 5 * hor + UV_DELTA, vertDown ),
+            uv( 6 * hor - UV_DELTA, vertUp ),
+            uv( 5 * hor + UV_DELTA, vertUp )
+        );
     }
 
     private CubeUvMap( int frames, int rows ) {

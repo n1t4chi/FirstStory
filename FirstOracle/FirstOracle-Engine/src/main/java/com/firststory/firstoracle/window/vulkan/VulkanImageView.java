@@ -16,10 +16,12 @@ import org.lwjgl.vulkan.VkImageViewCreateInfo;
 public class VulkanImageView {
     
     private final VulkanPhysicalDevice device;
+    private final VulkanImage image;
     private final VulkanAddress address;
     
     VulkanImageView( VulkanPhysicalDevice device, VulkanImage image, int format, int aspectMask, int mipLevels ) {
         this.device = device;
+        this.image = image;
         this.address = createImageView( image, format, aspectMask, mipLevels );
     }
     

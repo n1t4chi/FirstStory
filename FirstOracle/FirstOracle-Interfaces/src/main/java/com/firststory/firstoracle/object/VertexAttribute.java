@@ -4,36 +4,56 @@
 
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.BufferMap;
 import com.firststory.firstoracle.data.DataBuffer;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author n1t4chi
  */
-public abstract class VertexAttribute {
+public abstract class VertexAttribute< Data extends FloatData > {
+    
     private final HashMap< VertexAttributeLoader, BufferMap > bufferMaps = new HashMap<>();
     
-    
-    public DataBuffer getBuffer( long key, VertexAttributeLoader loader ) {
-        return bufferMaps.computeIfAbsent( loader, ignored -> new BufferMap() )
-            .get(key, () -> loader.provideBuffer( getArray( key ) ) )
-        ;
+    @SuppressWarnings( "unchecked" )
+    public < VertexBuffer extends DataBuffer > VertexBuffer getBuffer(
+        VertexAttributeLoader< VertexBuffer > loader,
+        int... parameters
+    ) {
+        long key = getKey( parameters );
+        return ( VertexBuffer ) bufferMaps.computeIfAbsent( loader, ignored -> new BufferMap() )
+            .get( key, () -> loader.provideBuffer( floatDataToArray( getData( parameters ) ) ) );
     }
     
-    public void close() {
+    public void dispose() {
         bufferMaps.forEach( ( loader, bufferMap ) -> bufferMap.close() );
         bufferMaps.clear();
     }
     
-    public abstract int getIndex();
+    protected abstract List< Data > getData( int... parameters );
     
-    public abstract int getVertexSize();
+    public int getVertexLength( int frame ) {
+        return getData( frame ).size();
+    }
     
-    public abstract float[] getArray( long key );
+    protected abstract long getKey( int... parameters );
     
-    int getVertexLength( long key ) {
-        return getArray( key ).length / getVertexSize();
+    private float[] floatDataToArray( List< ? extends FloatData > vertexData ) {
+        if ( vertexData.isEmpty() ) {
+            return FirstOracleConstants.EMPTY_FLOAT_ARRAY;
+        }
+        int size = vertexData.get( 0 ).size();
+        float[] array = new float[ vertexData.size() * size ];
+        
+        int iterator = 0;
+        
+        for ( FloatData data : vertexData ) {
+            System.arraycopy( data.data(), 0, array, iterator, size );
+            iterator += size;
+        }
+        return array;
     }
 }
