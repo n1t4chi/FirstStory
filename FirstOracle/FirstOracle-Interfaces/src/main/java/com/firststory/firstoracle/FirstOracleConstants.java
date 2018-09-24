@@ -30,7 +30,7 @@ public interface FirstOracleConstants {
     String RESOURCES_FOLDER = "resources/";
     String RESOURCES_ORACLE_FOLDER = RESOURCES_FOLDER + "First Oracle/";
     String SHADER_FILES_LOCATION = RESOURCES_ORACLE_FOLDER + "shader/";
-    String GET_FRAMEWORK_METHOD_NAME = "getFramework";
+    String GET_FRAMEWORK_PROVIDER_METHOD_NAME = "getProvider";
     
     int NO_FLAGS = 0;
     String FIRST_ORACLE = "FirstOracle";
@@ -72,9 +72,9 @@ public interface FirstOracleConstants {
     LineData NONE = null;
     
     Colouring EMPTY_COLOURING = new Colouring( Collections.singletonList( col( 0, 0, 0, 0 ) ) );
-    UvMap EMPTY_UV_MAP = new UvMap( singletonArray2D( Arrays.asList( uv( 0,0 ), uv( 0,0 ), uv( 0,0 ) ) ) );
-    
+    UvMap EMPTY_UV_MAP = new UvMap( singletonArray2D( Arrays.asList( uv( 0,0 ), uv( 1,1 ), uv( 1,0 ) ) ) );
     Texture EMPTY_TEXTURE = createEmptyTexture();
+    
     double SQRT3_DIV2_D = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077;
     float SQRT3_DIV2 = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077f;
     float[] EMPTY_FLOAT_ARRAY = new float[ 0 ];
@@ -111,9 +111,11 @@ public interface FirstOracleConstants {
     }
     
     static Texture createEmptyTexture() {
-        BufferedImage image = new BufferedImage( 50, 50, BufferedImage.TYPE_INT_ARGB );
-        Graphics graphics = image.getGraphics();
-        graphics.fillRect( 0, 0, 50, 50 );
+        int SIZE = 100;
+        BufferedImage image = new BufferedImage( SIZE, SIZE, BufferedImage.TYPE_INT_ARGB );
+        Graphics2D graphics = ( Graphics2D ) image.getGraphics();
+        graphics.setColor( new Color(0,0,0,0) );
+        graphics.fillRect( 0, 0, SIZE, SIZE );
         graphics.dispose();
         Texture texture;
         try {

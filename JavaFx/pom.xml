@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018 Piotr "n1t4chi" Olejarz
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>FirstStory</artifactId>
+        <groupId>com.FirstStory</groupId>
+        <version>0.4</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.FirstStory.JavaFx</groupId>
+    <artifactId>JavaFx</artifactId>
+    <packaging>pom</packaging>
+    <version>0.4</version>
+    <modules>
+        <module>JavaFx-Framework</module>
+    </modules>
+
+
+</project>

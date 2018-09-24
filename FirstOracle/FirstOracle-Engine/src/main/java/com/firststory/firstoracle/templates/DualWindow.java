@@ -9,7 +9,6 @@ package com.firststory.firstoracle.templates;
  */
 public class DualWindow {
     
-    //does not work for now
     public static void main( String[] args ) throws Exception {
         Thread t = new Thread( DualWindow::secondWindow );
         t.start();
@@ -19,7 +18,7 @@ public class DualWindow {
     
     private static void firstWindow() {
         try{
-            FullApplication3D.main( new String[]{} );
+            GlfwApplication3D.main( new String[]{} );
         } catch ( Exception e ) {
             e.printStackTrace();
         }

@@ -24,7 +24,7 @@ public class OpenGlFrameworkProvider implements RenderingFrameworkProvider {
     
     private final Map<Thread,OpenGlFramework > instances = new HashMap<>();
     
-    public static OpenGlFrameworkProvider getFramework() {
+    public static OpenGlFrameworkProvider getProvider() {
         return framework;
     }
     

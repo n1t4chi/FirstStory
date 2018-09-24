@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
-package com.firststory.firstoracle.templates;
+package com.firststory.javafx.jfxgl;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
@@ -23,7 +23,6 @@ import com.firststory.firstoracle.scene.RenderedScene3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
-import com.firststory.firstoracle.window.WindowApplication;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -42,7 +41,7 @@ import java.util.Collections;
  *
  * @author n1t4chi
  */
-public class FullApplication3D {
+public class JfxApplication3D {
     
     private static Window window;
     private static MyOverlayContentManager contentManager;
@@ -135,7 +134,8 @@ public class FullApplication3D {
             return renderedScene;
         };
         //Renderer renders all openGL content in Window, nothing to add much here
-        renderer = new WindowRenderer( grid2DRenderer,
+        renderer = new WindowRenderer(
+            grid2DRenderer,
             grid3DRenderer,
             sceneProvider,
             settings.isUseTexture(),
@@ -159,7 +159,9 @@ public class FullApplication3D {
         //Window is window displayed with OpenGL and contains WindowApplication for JavaFX integration
         //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
         //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
-        window = Window.createWindow( settings, application, renderer );
+        window = Window.build( settings, renderer )
+            .addGuiFrameworkProvider( JavaFxFrameworkProvider.getProvider(), application )
+            .build();
         window.addFpsListener( application );
         window.addTimeListener( application );
         window.addTimeListener( cameraController );

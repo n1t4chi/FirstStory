@@ -17,7 +17,7 @@ public class GlfwFrameworkProvider implements WindowFrameworkProvider {
     private static GlfwFrameworkProvider instance;
     private static GLFWErrorCallback errorCallback;
     
-    public synchronized static GlfwFrameworkProvider createInstance() {
+    public synchronized static GlfwFrameworkProvider getProvider() {
         if(instance == null){
             setUpErrorCallback();
             init();

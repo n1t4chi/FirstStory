@@ -5,6 +5,7 @@
 package com.firststory.firstoracle;
 
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
+import com.firststory.firstoracle.window.GuiFrameworkProvider;
 import com.firststory.firstoracle.window.WindowFrameworkProvider;
 import com.firststory.firstoracle.window.glfw.GlfwFrameworkProvider;
 import com.firststory.firstoracle.window.opengl.OpenGlFrameworkProvider;
@@ -14,56 +15,87 @@ import java.lang.reflect.Method;
 
 public class FrameworkProviderContext {
     
-    public static RenderingFrameworkProvider getRenderingFrameworkProvider(){
-        String renderingFrameworkClassName = System.getProperty(
+    public static RenderingFrameworkProvider createRenderingFrameworkProvider() {
+        return createRenderingFrameworkProvider( System.getProperty( 
             PropertiesUtil.RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY,
             OpenGlFrameworkProvider.class.getName()
-        );
-        Class<?> renderingFrameworkClass =
-            getRenderingFrameworkProviderClass( renderingFrameworkClassName );
+        ) );
+    }
     
+    public static WindowFrameworkProvider createWindowFrameworkProvider() {
+        return createWindowFrameworkProvider( System.getProperty(
+            PropertiesUtil.WINDOW_FRAMEWORK_CLASS_NAME_PROPERTY,
+            GlfwFrameworkProvider.class.getName()
+        ) );
+    }
+    
+    public static GuiFrameworkProvider createGuiFrameworkProvider() {
+        return createGuiFrameworkProvider( System.getProperty(
+            PropertiesUtil.GUI_FRAMEWORK_CLASS_NAME_PROPERTY,
+            DummyGuiFrameworkProvider.class.getName()
+        ) );
+    }
+    
+    public static WindowFrameworkProvider createWindowFrameworkProvider( String windowFrameworkClassName ) {
+        return createFrameworkInstance( windowFrameworkClassName, WindowFrameworkProvider.class );
+    }
+    
+    public static GuiFrameworkProvider createGuiFrameworkProvider( String guiFrameworkClassName ) {
+        return createFrameworkInstance( guiFrameworkClassName, GuiFrameworkProvider.class );
+    }
+    
+    public static RenderingFrameworkProvider createRenderingFrameworkProvider( String renderingFrameworkClassName ) {
+        return createFrameworkInstance( renderingFrameworkClassName, RenderingFrameworkProvider.class );
+    }
+    
+    private static < T extends FrameworkProvider > T createFrameworkInstance(
+        String frameworkClassName, 
+        Class< T > frameworkProviderClassType
+    ) {
         try {
-            Method getter = renderingFrameworkClass.getMethod( FirstOracleConstants.GET_FRAMEWORK_METHOD_NAME );
+            Class< ? > frameworkProviderClass = createFrameworkProviderClass( frameworkClassName );
+            Method getter = frameworkProviderClass.getMethod( FirstOracleConstants.GET_FRAMEWORK_PROVIDER_METHOD_NAME );
             Object instance = getter.invoke( null );
-            if( instance instanceof RenderingFrameworkProvider ){
-                return ( RenderingFrameworkProvider ) instance;
+            
+            if ( frameworkProviderClassType.isInstance( instance ) ) {
+                return frameworkProviderClassType.cast( instance );
             }
-            throw new ClassNotRenderingFrameworkProvider( renderingFrameworkClassName );
+            throw new ClassNotRenderingFrameworkProvider( frameworkClassName, frameworkProviderClassType );
         } catch ( IllegalAccessException | NoSuchMethodException | InvocationTargetException e ) {
-            throw new CannotCreateRenderingFrameworkInstance( renderingFrameworkClassName, e );
+            throw new CannotCreateRenderingFrameworkInstance( frameworkClassName, e );
         }
     }
     
-    public static WindowFrameworkProvider getWindowFrameworkProvider() {
-        return GlfwFrameworkProvider.createInstance();
-    }
-    
-    private static Class<?> getRenderingFrameworkProviderClass( String className ) {
+    private static Class< ? > createFrameworkProviderClass( String className ) {
         try {
             return Class.forName( className );
         } catch ( ClassNotFoundException e ) {
-            throw new RenderingFrameworkClassNotFoundException( className, e );
+            throw new FrameworkClassNotFoundException( className, e );
         }
     }
     
-    private static class RenderingFrameworkClassNotFoundException extends RuntimeException {
+    private static class FrameworkClassNotFoundException extends RuntimeException {
         
-        RenderingFrameworkClassNotFoundException( String className, ClassNotFoundException e ) {
-            super( "Cannot find rendering framework: "+className, e );
+        FrameworkClassNotFoundException( String className, ClassNotFoundException e ) {
+            super( "Cannot find framework: " + className, e );
         }
     }
     
     private static class CannotCreateRenderingFrameworkInstance extends RuntimeException {
         
         CannotCreateRenderingFrameworkInstance( String className, ReflectiveOperationException e ) {
-            super( "Cannot create rendering framework via "+FirstOracleConstants.GET_FRAMEWORK_METHOD_NAME+"() method of "+className + " class", e );
+            super(
+                "Cannot create rendering framework via static " +
+                    FirstOracleConstants.GET_FRAMEWORK_PROVIDER_METHOD_NAME + " method of " + className + " class",
+                e
+            );
         }
     }
     
     private static class ClassNotRenderingFrameworkProvider extends RuntimeException {
         
-        ClassNotRenderingFrameworkProvider( String className ) {
-            super( "Given class: "+className + " is not a valid instance of "+RenderingFrameworkProvider.class.getName() );
+        ClassNotRenderingFrameworkProvider( String className, Class< ? > frameworkProviderClass ) {
+            super( "Given class: " + className + " is not a valid instance of " + frameworkProviderClass.getName() );
         }
     }
 }

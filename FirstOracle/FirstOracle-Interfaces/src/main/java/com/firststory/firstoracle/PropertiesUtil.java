@@ -23,6 +23,8 @@ public class PropertiesUtil {
     public static final String VULKAN_USE_SRGB_PROPERTY = "VulkanUseSRGBIfPossible";
     public static final String APPLICATION_CLASS_NAME_PROPERTY = "ApplicationClassName";
     public static final String RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY = "RenderingFrameworkClassName";
+    public static final String WINDOW_FRAMEWORK_CLASS_NAME_PROPERTY = "WindowFrameworkClassName";
+    public static final String GUI_FRAMEWORK_CLASS_NAME_PROPERTY = "GuiFrameworkClassName";
     public static final String DISABLE_TEXTURES_PROPERTY = "DisableTextures";
     public static final String FORCE_ONE_LOOP_CYCLE_PROPERTY = "ForceOneLoopCycle";
     public static final String RENDER_LOOP_PERFORMANCE_LOG_PROPERTY = "EnableRenderLoopPerformanceLog";

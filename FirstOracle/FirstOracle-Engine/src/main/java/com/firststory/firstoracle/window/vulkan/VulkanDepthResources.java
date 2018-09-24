@@ -25,7 +25,7 @@ public class VulkanDepthResources {
     }
     
     void update( VulkanSwapChain swapChain ) {
-        close();
+        dispose();
         depthImage = createDepthImage( swapChain, depthFormat );
         depthImageView = createDepthImageView( depthFormat, depthImage );
         depthImage.transitionImageLayout(
@@ -68,7 +68,7 @@ public class VulkanDepthResources {
         ) ), VK10.VK_IMAGE_TILING_OPTIMAL, VK10.VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT );
     }
     
-    void close() {
+    void dispose() {
         if( depthImage != null ) {
             depthImage.close();
         }

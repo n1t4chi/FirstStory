@@ -4,8 +4,6 @@
 
 package com.firststory.firstoracle;
 
-import cuchaz.jfxgl.JFXGLLauncher;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,13 +31,7 @@ public class Runner {
     }
     
     public static void main( String[] args ) {
-        logger.fine( "Running application from Runner with arguments: "+ Arrays.toString( args ) );
-        JFXGLLauncher.showFilterWarnings = false;
-        JFXGLLauncher.launchMain( Runner.class, args );
-    }
-    
-    public static void jfxglmain( String[] args ) {
-        logger.fine( "Starting JFXGL main with arguments: " + Arrays.toString( args ) );
+        logger.fine( "Running application from Runner with arguments: " + Arrays.toString( args ) );
         try {
             String className = getApplicationClassName();
             logger.fine( "Loading Application from class: " + className );
@@ -80,9 +72,7 @@ public class Runner {
     
     private static Method getMainMethod( String className ) {
         try {
-            Class< ? > c = null;
-            c = Class.forName( className );
-            return c.getMethod( "main", String[].class );
+            return Class.forName( className ).getMethod( "main", String[].class );
         } catch ( ClassNotFoundException e ) {
             throw new ApplicationClassNotFoundException( className, e );
         } catch ( NoSuchMethodException e ) {

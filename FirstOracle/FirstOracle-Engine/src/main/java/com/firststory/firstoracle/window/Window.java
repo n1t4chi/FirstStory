@@ -11,8 +11,6 @@ import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
-import com.firststory.firstoracle.window.jfxgl.JfxglContext;
-import javafx.application.Application;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,96 +20,63 @@ import java.util.logging.Logger;
 /**
  * @author n1t4chi
  */
-public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotifier,
-    FpsNotifier
-{
-    
-    private static Logger logger = FirstOracleConstants.getLogger( Window.class );
-    private static Logger performanceLogger = Logger.getLogger( Window.class.getName()+"#performance" );
+public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotifier, FpsNotifier {
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
+    private static Logger logger = FirstOracleConstants.getLogger( Window.class );
+    private static Logger performanceLogger = Logger.getLogger( Window.class.getName() + "#performance" );
+    
+    public static WindowBuilder build( WindowSettings settings, Renderer renderer ) {
+        return new WindowBuilder( settings, renderer );
+    }
+    
     private final WindowSettings settings;
     private final ArrayList< TimeListener > timeListeners = new ArrayList<>( 3 );
     private final ArrayList< QuitListener > quitListeners = new ArrayList<>( 3 );
     private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
-    private final Application application;
+    private final GuiApplicationData guiApplicationData;
     private final Renderer renderer;
-    private WindowContext window;
     private final WindowFrameworkProvider windowFrameworkProvider;
     private final RenderingFrameworkProvider renderingFrameworkProvider;
+    private final GuiFrameworkProvider guiFrameworkProvider;
+    private WindowContext window;
     private WindowFramework windowFramework;
     private RenderingFramework renderingFramework;
-    private JfxglContext jfxgl;
+    private GuiFramework guiFramework;
     private int frameCount;
     private double lastFrameUpdate;
     private double lastFpsUpdate;
     private int lastFps;
     
-    public static Window createWindow(
-        WindowSettings windowSettings,
-        Application application,
-        Renderer renderer
-    ) {
-        return new Window( windowSettings, application, renderer,
-            FrameworkProviderContext.getWindowFrameworkProvider(),
-            FrameworkProviderContext.getRenderingFrameworkProvider() );
-    }
-    
-    public static Window createWindow(
-        WindowSettings windowSettings,
-        Renderer renderer
-    ) {
-        return new Window( windowSettings, null, renderer,
-            FrameworkProviderContext.getWindowFrameworkProvider(),
-            FrameworkProviderContext.getRenderingFrameworkProvider() );
-    }
-    
-    public static Window createWindow(
-        WindowSettings windowSettings,
-        Application application,
-        Renderer renderer,
-        WindowFrameworkProvider windowFrameworkProvider,
-        RenderingFrameworkProvider renderingFrameworkProvider
-    ) {
-        return new Window( windowSettings, application, renderer, windowFrameworkProvider,renderingFrameworkProvider );
-    }
-    
-    public static Window createWindow(
-        WindowSettings windowSettings,
-        Renderer renderer,
-        WindowFrameworkProvider windowFrameworkProvider,
-        RenderingFrameworkProvider renderingFrameworkProvider
-    ) {
-        return new Window( windowSettings, null, renderer, windowFrameworkProvider,renderingFrameworkProvider );
-    }
-    
     private Window(
         WindowSettings windowSettings,
-        Application application,
+        GuiApplicationData guiApplicationData,
         Renderer renderer,
         WindowFrameworkProvider windowFrameworkProvider,
-        RenderingFrameworkProvider renderingFrameworkProvider
+        RenderingFrameworkProvider renderingFrameworkProvider,
+        GuiFrameworkProvider guiFrameworkProvider
     ) {
         this.settings = windowSettings;
-        this.application = application;
+        this.guiApplicationData = guiApplicationData;
         this.renderer = renderer;
         this.windowFrameworkProvider = windowFrameworkProvider;
         this.renderingFrameworkProvider = renderingFrameworkProvider;
+        this.guiFrameworkProvider = guiFrameworkProvider;
     }
     
     public void init() {
         try {
             windowFramework = windowFrameworkProvider.getWindowFramework();
-            logger.finest( this+": Window context: "+ windowFramework );
+            logger.finest( this + ": Window context: " + windowFramework );
             window = windowFramework.createWindowContext( settings, renderingFrameworkProvider.isOpenGL() );
             renderingFramework = renderingFrameworkProvider.getRenderingFramework( window );
-            logger.finest( this+": Rendering context: "+renderingFramework );
+            logger.finest( this + ": Rendering context: " + renderingFramework );
             renderingFramework.invoke( instance -> {
                 setupCallbacks();
                 instance.compileShaders();
                 renderer.init();
-            });
-    
+            } );
+            
             frameCount = 0;
             lastFps = 0;
             lastFrameUpdate = windowFramework.getTime();
@@ -124,13 +89,13 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     
     @Override
     public void run() {
-        Thread.currentThread().setName( "Window" + instanceCounter.getAndIncrement()  );
+        Thread.currentThread().setName( "Window" + instanceCounter.getAndIncrement() );
         try {
             renderingFramework.invoke( instance -> {
                 window.show();
-                jfxgl = JfxglContext.createInstance( window.getAddress(), new String[]{}, application );
-                logger.finest( this+": GUI context: "+jfxgl );
-            });
+                guiFramework = guiFrameworkProvider.provide( window, guiApplicationData );
+                logger.finest( this + ": GUI context: " + guiFramework );
+            } );
             
             createRenderLoop().loop();
             notifyQuitListeners();
@@ -140,15 +105,6 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         } finally {
             close();
         }
-    }
-    
-    private RenderLoopInterface createRenderLoop() {
-        RenderLoopInterface renderLoop = new RenderLoop();
-        if( PropertiesUtil.isPropertyTrue( PropertiesUtil.RENDER_LOOP_PERFORMANCE_LOG_PROPERTY ) )
-            renderLoop = new RenderLoopPerformanceTester( renderLoop );
-        if( PropertiesUtil.isPropertyTrue( PropertiesUtil.FORCE_ONE_LOOP_CYCLE_PROPERTY ))
-            renderLoop = new RenderLoopEarlyExit( renderLoop );
-        return renderLoop;
     }
     
     /**
@@ -204,10 +160,6 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         window.addJoystickListener( listener );
     }
     
-    private void setupCallbacks() {
-        window.addWindowListener( this );
-    }
-    
     @Override
     public void notify( WindowSizeEvent event ) {
         renderingFramework.updateViewPort( 0, 0, event.getWidth(), event.getHeight() );
@@ -220,17 +172,80 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     
     }
     
+    @Override
+    public String toString() {
+        return "FirstOracle Window@" + hashCode();
+    }
+    
+    private RenderLoopInterface createRenderLoop() {
+        RenderLoopInterface renderLoop = new RenderLoop();
+        if ( PropertiesUtil.isPropertyTrue( PropertiesUtil.RENDER_LOOP_PERFORMANCE_LOG_PROPERTY ) ) {
+            renderLoop = new RenderLoopPerformanceTester( renderLoop );
+        }
+        if ( PropertiesUtil.isPropertyTrue( PropertiesUtil.FORCE_ONE_LOOP_CYCLE_PROPERTY ) ) {
+            renderLoop = new RenderLoopEarlyExit( renderLoop );
+        }
+        return renderLoop;
+    }
+    
+    private void setupCallbacks() {
+        window.addWindowListener( this );
+    }
+    
     private void close() {
-        if(window != null)
-            window.destroy();
+        if ( window != null ) { window.destroy(); }
+    }
+    
+    public static class WindowBuilder {
+        
+        private final WindowSettings settings;
+        private final Renderer renderer;
+        private WindowFrameworkProvider windowFrameworkProvider = FrameworkProviderContext.createWindowFrameworkProvider();
+        private RenderingFrameworkProvider renderingFrameworkProvider = FrameworkProviderContext.createRenderingFrameworkProvider();
+        private GuiFrameworkProvider guiFrameworkProvider = FrameworkProviderContext.createGuiFrameworkProvider();
+        private GuiApplicationData application = null;
+        
+        public WindowBuilder( WindowSettings settings, Renderer renderer ) {
+            this.settings = settings;
+            this.renderer = renderer;
+        }
+        
+        public WindowBuilder addWindowFrameworkProvider( WindowFrameworkProvider windowFrameworkProvider ) {
+            this.windowFrameworkProvider = windowFrameworkProvider;
+            return this;
+        }
+        
+        public WindowBuilder addRenderingFrameworkProvider( RenderingFrameworkProvider renderingFrameworkProvider ) {
+            this.renderingFrameworkProvider = renderingFrameworkProvider;
+            return this;
+        }
+        
+        public < T extends GuiApplicationData > WindowBuilder addGuiFrameworkProvider(
+            GuiFrameworkProvider< T > guiFrameworkProvider,
+            T application
+        ) {
+            this.guiFrameworkProvider = guiFrameworkProvider;
+            this.application = application;
+            return this;
+        }
+        
+        public Window build() {
+            return new Window( settings,
+                application,
+                renderer,
+                windowFrameworkProvider,
+                renderingFrameworkProvider,
+                guiFrameworkProvider
+            );
+        }
     }
     
     private class RenderLoopEarlyExit extends RenderLoopDelegate {
-    
+        
         RenderLoopEarlyExit( RenderLoopInterface delegate ) {
             super( delegate );
         }
-    
+        
         @Override
         public void loopInside() throws Exception {
             super.loopInside();
@@ -239,42 +254,44 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     }
     
     private class RenderLoopPerformanceTester extends RenderLoopDelegate {
+        
         RenderLoopPerformanceTester( RenderLoopInterface delegate ) {
             super( delegate );
         }
-    
+        
         @Override
         public void loopInside() throws Exception {
-            performanceLogger.finest( this+": loop cycle start" );
+            performanceLogger.finest( this + ": loop cycle start" );
             super.loopInside();
-            performanceLogger.finest( this+": loop cycle end" );
+            performanceLogger.finest( this + ": loop cycle end" );
         }
-    
+        
         @Override
         public void render() throws Exception {
-            performanceLogger.finest( Window.this+": loop render start" );
+            performanceLogger.finest( Window.this + ": loop render start" );
             super.render();
-            performanceLogger.finest( Window.this+": loop render start" );
+            performanceLogger.finest( Window.this + ": loop render start" );
         }
     }
     
     private class RenderLoopDelegate extends RenderLoopInterface {
+        
         private final RenderLoopInterface delegate;
-    
+        
         RenderLoopDelegate( RenderLoopInterface delegate ) {
             this.delegate = delegate;
         }
-    
+        
         @Override
         public void loopInside() throws Exception {
             delegate.loopInside();
         }
-    
+        
         @Override
         public void render() throws Exception {
             delegate.render();
         }
-    
+        
         @Override
         public void setupCycle() {
             delegate.setupCycle();
@@ -282,25 +299,26 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     }
     
     private class RenderLoop extends RenderLoopInterface {
+        
         @Override
         public void loopInside() throws Exception {
             setupCycle();
             render();
         }
-    
+        
         @Override
         public void render() throws Exception {
             renderingFramework.invoke( instance -> {
                 notifyTimeListener( windowFramework.getTime() );
                 window.setUpSingleRender();
-    
+                
                 instance.render( renderer, lastFrameUpdate );
-    
-                jfxgl.render();
+                
+                guiFramework.render();
                 window.tearDownSingleRender();
             } );
         }
-    
+        
         @Override
         public void setupCycle() {
             lastFrameUpdate = windowFramework.getTime();
@@ -315,19 +333,17 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     }
     
     private abstract class RenderLoopInterface {
-        void loop() throws Exception{
+        
+        void loop() throws Exception {
             while ( !shouldWindowClose() ) {
                 loopInside();
             }
         }
+        
         abstract void loopInside() throws Exception;
+        
         abstract void render() throws Exception;
+        
         abstract void setupCycle();
-    }
-    
-    
-    @Override
-    public String toString() {
-        return "FirstOracle Window@"+hashCode();
     }
 }

@@ -7,85 +7,38 @@ package com.firststory.firstoracle.window.vulkan.rendering;
 import com.firststory.firstoracle.window.vulkan.VulkanAddress;
 import com.firststory.firstoracle.window.vulkan.VulkanHelper;
 import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanDescriptorPoolException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanDescriptorSetLayoutException;
-import org.lwjgl.vulkan.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
+import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
+import org.lwjgl.vulkan.VkDescriptorSetLayoutCreateInfo;
 
 /**
  * @author n1t4chi
  */
 public class VulkanDescriptor {
     
-    private static final int MAX_SETS = 2;
     private final VulkanAddress descriptorSetLayout;
-    private final VulkanAddress descriptorPool;
     private final VulkanPhysicalDevice device;
-    
-    private final List< VulkanDescriptorSet > sets = new ArrayList<>( MAX_SETS );
-    private ListIterator< VulkanDescriptorSet > setsIterator;
     
     public VulkanDescriptor( VulkanPhysicalDevice device ) {
         this.device = device;
         descriptorSetLayout = createDescriptorSetLayout();
-        descriptorPool = createDescriptorPool();
     }
     
     public void dispose() {
         VK10.vkDestroyDescriptorSetLayout( device.getLogicalDevice(), descriptorSetLayout.getValue(), null );
-        VK10.vkDestroyDescriptorPool( device.getLogicalDevice(), descriptorPool.getValue(), null );
     }
     
     public VulkanAddress getDescriptorSetLayout() {
         return descriptorSetLayout;
     }
     
-    VulkanDescriptorSet getNextDescriptorSet() {
-        if ( !setsIterator.hasNext() ) {
-            VulkanDescriptorSet descriptorSet = createDescriptorSet();
-            setsIterator.add( descriptorSet );
-            return descriptorSet;
-        }
-        return setsIterator.next();
-    }
-    
-    private VulkanDescriptorSet createDescriptorSet() {
-        return new VulkanDescriptorSet( this );
-    }
-    
-    void resetDescriptors() {
-        setsIterator = sets.listIterator();
-    }
-    
-    VulkanAddress getDescriptorPool() {
-        return descriptorPool;
+    public VulkanDescriptorPool createDescriptorPool( int sets ) {
+        return new VulkanDescriptorPool( device, this, sets );
     }
     
     VulkanPhysicalDevice getDevice() {
         return device;
-    }
-    
-    private VulkanAddress createDescriptorPool() {
-        VkDescriptorPoolCreateInfo createInfo = VkDescriptorPoolCreateInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO )
-            .pPoolSizes( VkDescriptorPoolSize.create( 2 )
-                .put( 0, createPoolSize( VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ) )
-                .put( 1, createPoolSize( VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ) ) )
-            .maxSets( MAX_SETS );
-        return VulkanHelper.createAddress( address -> VK10.vkCreateDescriptorPool( device.getLogicalDevice(),
-            createInfo,
-            null,
-            address
-            ),
-            resultCode -> new CannotCreateVulkanDescriptorPoolException( device, resultCode )
-        );
-    }
-    
-    private VkDescriptorPoolSize createPoolSize( int type ) {
-        return VkDescriptorPoolSize.create().type( type ).descriptorCount( MAX_SETS );
     }
     
     private VulkanAddress createDescriptorSetLayout() {

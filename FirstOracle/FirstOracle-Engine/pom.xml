@@ -9,12 +9,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>FirstOracle-Engine</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4</version>
 
     <parent>
         <groupId>com.FirstStory.FirstOracle</groupId>
         <artifactId>FirstOracle</artifactId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.4</version>
     </parent>
     <packaging>jar</packaging>
 
@@ -50,20 +50,6 @@
         <dependency>
             <groupId>com.FirstStory.FirstOracle</groupId>
             <artifactId>FirstOracle-Impl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>jfxgl</groupId>
-            <artifactId>jfxgl</artifactId>
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>jfx</groupId>-->
-            <!--<artifactId>jfx</artifactId>-->
-        <!--</dependency>-->
-
-        <dependency>
-            <groupId>jfxgl</groupId>
-            <artifactId>jfxgl-jfxrt</artifactId>
         </dependency>
 
         <dependency>

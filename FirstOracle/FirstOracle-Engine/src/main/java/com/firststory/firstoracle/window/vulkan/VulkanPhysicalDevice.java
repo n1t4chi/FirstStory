@@ -63,15 +63,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
     private final Map< Integer, VulkanMemoryHeap > memoryHeaps = new HashMap<>();
     
-    private final VulkanDescriptor descriptorPool;
+    private final VulkanDescriptor descriptor;
     private final VulkanTextureLoader textureLoader;
-    private final VulkanTextureSampler textureSampler;
     private final VulkanDepthResources depthResources;
     private final VulkanShaderProgram3D shaderProgram3D;
-    //private final VulkanShaderProgram2D shaderProgram2D;
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
     
     private int currentImageIndex;
+    private final VulkanGraphicPipeline linePipeline;
     
     VulkanPhysicalDevice(
         long deviceAddress,
@@ -108,6 +107,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         swapChain = new VulkanSwapChain( this );
     
         trianglePipeline = new VulkanGraphicPipeline( this, VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
+        linePipeline = new VulkanGraphicPipeline( this, VK10.VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
+    
         graphicCommandPool = new VulkanGraphicCommandPool(
             this,
             graphicFamily,
@@ -125,8 +126,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     
         depthResources = new VulkanDepthResources( this );
-        textureSampler = new VulkanTextureSampler( this );
-        descriptorPool = new VulkanDescriptor( this );
+        descriptor = new VulkanDescriptor( this );
         textureLoader = new VulkanTextureLoader( this, bufferProvider );
         
         shaderProgram3D = new VulkanShaderProgram3D( this, bufferProvider );
@@ -144,11 +144,15 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
         
         
-        logger.finer(
-            "finished creating " + this + "[" + "\nscore: " + getScore() + "\ngraphic family: " + graphicFamily +
-                "\npresentation family: " + presentationFamily + "\ntransfer family: " + transferFamily + "\nqueues: " +
-                availableQueueFamilies.size() + "\nextensions: " + availableExtensionProperties.size() +
-                "\nmemory types: " + memoryTypesToString() + "]" );
+        logger.finer( "finished creating " + this + "[" +
+            "\nscore: " + getScore() +
+            "\ngraphic family: " + graphicFamily +
+            "\npresentation family: " + presentationFamily +
+            "\ntransfer family: " + transferFamily +
+            "\nqueues: " + availableQueueFamilies.size() +
+            "\nextensions: " + availableExtensionProperties.size() +
+            "\nmemory types: " + memoryTypesToString() +
+        "]" );
     }
     
     @Override
@@ -175,8 +179,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return memoryTypesString.toString();
     }
     
-    public VulkanTextureSampler getTextureSampler() {
-        return textureSampler;
+    public VulkanDescriptor getDescriptor() {
+        return descriptor;
     }
     
     void updateBackground( Vector4fc backgroundColour ) {
@@ -187,28 +191,12 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return vertexAttributeLoader;
     }
     
-//    VulkanShaderProgram2D getShaderProgram2D() {
-//        return shaderProgram2D;
-//    }
-    
     public VulkanShaderProgram3D getShaderProgram3D() {
         return shaderProgram3D;
     }
     
     public VulkanTextureLoader getTextureLoader() {
         return textureLoader;
-    }
-    
-    VulkanDescriptor getDescriptorPool() {
-        return descriptorPool;
-    }
-    
-    Map< Integer, VulkanMemoryType > getMemoryTypes() {
-        return memoryTypes;
-    }
-    
-    public VulkanTransferCommandPool getVertexDataTransferCommandPool() {
-        return vertexDataTransferCommandPool;
     }
     
     VulkanTransferCommandPool getTextureTransferCommandPool() {
@@ -233,7 +221,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         swapChain.update( windowSurface );
         depthResources.update( swapChain );
     
-        updatePipeline( this.trianglePipeline );
+        updatePipeline( trianglePipeline );
+        updatePipeline( linePipeline );
         refreshFrameBuffers( frameBuffers, swapChain, this.trianglePipeline.getRenderPass(), depthResources );
         
         refreshCommandBuffers();
@@ -244,7 +233,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             swapChain,
             shaderProgram3D.getShaderStages(),
             depthResources,
-            descriptorPool.getDescriptorSetLayout()
+            descriptor.getDescriptorSetLayout()
         );
     }
     
@@ -254,7 +243,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
         currentImageIndex = aquireNextImageIndex();
-        renderingContext.tearDownSingleRender( graphicCommandPool );
+        renderingContext.tearDownSingleRender( trianglePipeline, linePipeline, graphicCommandPool );
     
         if( currentImageIndex == swapChain.getImageViews().size() - 1 ) {
             updateRenderingContext();
@@ -270,13 +259,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         disposeFrameBuffers( frameBuffers );
         commandPools.forEach( VulkanCommandPool::dispose );
         trianglePipeline.dispose();
+        linePipeline.dispose();
         graphicCommandPool.dispose();
-        descriptorPool.dispose();
+        descriptor.dispose();
         swapChain.dispose();
         bufferProvider.dispose();
-//        bufferProvider.close();
         
-        depthResources.close();
+        depthResources.dispose();
         
         shaderProgram3D.dispose();
         imageAvailableSemaphore.dispose();

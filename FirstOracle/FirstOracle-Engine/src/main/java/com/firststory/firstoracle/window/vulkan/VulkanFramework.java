@@ -86,7 +86,7 @@ public class VulkanFramework implements RenderingFramework {
         windowSurface = VulkanWindowSurface.create( instance, window );
         physicalDevices = createPhysicalDevices();
         mainPhysicalDevice = selectMainPhysicalDevice();
-        renderingContext = new VulkanRenderingContext( mainPhysicalDevice, mainPhysicalDevice.getDescriptorPool() );
+        renderingContext = new VulkanRenderingContext( mainPhysicalDevice );
     
         logger.finer( "Finished creating Vulkan Framework: " + this );
     }

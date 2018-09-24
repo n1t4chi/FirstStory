@@ -10,11 +10,14 @@
 
     <groupId>com.FirstStory.FirstOracle</groupId>
     <artifactId>FirstOracle</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4</version>
+    <properties>
+        <FirstOracle.LibDir>${project.basedir}/../FirstOracle</FirstOracle.LibDir>
+    </properties>
     <parent>
         <groupId>com.FirstStory</groupId>
         <artifactId>FirstStory</artifactId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.4</version>
     </parent>
 
     <build>
@@ -23,22 +26,40 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                        </execution>
+                    </executions>
                     <configuration>
-                        <outputDirectory>../FirstOracle</outputDirectory>
+                        <goal>package</goal>
+                        <outputDirectory>${FirstOracle.LibDir}</outputDirectory>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                        </execution>
+                    </executions>
                     <configuration>
-                        <jarOutputDirectory>./FirstOracle</jarOutputDirectory>
+                        <goal>package</goal>
+                        <jarOutputDirectory>${FirstOracle.LibDir}</jarOutputDirectory>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                        </execution>
+                    </executions>
                     <configuration>
-                        <outputDirectory>../FirstOracle</outputDirectory>
+                        <goal>package</goal>
+                        <outputDirectory>${FirstOracle.LibDir}</outputDirectory>
                     </configuration>
                 </plugin>
             </plugins>

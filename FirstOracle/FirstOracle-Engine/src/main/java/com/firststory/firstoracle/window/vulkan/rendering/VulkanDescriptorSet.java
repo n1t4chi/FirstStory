@@ -6,6 +6,7 @@ package com.firststory.firstoracle.window.vulkan.rendering;
 
 import com.firststory.firstoracle.window.vulkan.VulkanAddress;
 import com.firststory.firstoracle.window.vulkan.VulkanHelper;
+import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.window.vulkan.VulkanTextureData;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanDescriptorSetException;
 import org.lwjgl.system.MemoryUtil;
@@ -16,15 +17,19 @@ import org.lwjgl.vulkan.*;
  */
 public class VulkanDescriptorSet {
     
+    private final VulkanPhysicalDevice device;
     private final VulkanDescriptor descriptor;
+    private final VulkanDescriptorPool descriptorPool;
     private final VulkanAddress descriptorSet;
     
-    VulkanDescriptorSet( VulkanDescriptor descriptor ) {
+    VulkanDescriptorSet( VulkanPhysicalDevice device, VulkanDescriptor descriptor, VulkanDescriptorPool descriptorPool ) {
+        this.device = device;
         this.descriptor = descriptor;
-        
+        this.descriptorPool = descriptorPool;
+    
         VkDescriptorSetAllocateInfo allocateInfo = VkDescriptorSetAllocateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO )
-            .descriptorPool( descriptor.getDescriptorPool().getValue() )
+            .descriptorPool( descriptorPool.getAddess().getValue() )
             .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptor.getDescriptorSetLayout().getValue() ) );
         
         descriptorSet = VulkanHelper.createAddress(

@@ -1,12 +1,13 @@
 /*
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
-package com.firststory.firstoracle.window;
+package com.firststory.javafx.jfxgl;
 
 import com.firststory.firstoracle.notyfying.FpsListener;
 import com.firststory.firstoracle.notyfying.FpsNotifier;
 import com.firststory.firstoracle.notyfying.TimeListener;
 import com.firststory.firstoracle.notyfying.TimeNotifier;
+import com.firststory.firstoracle.window.OverlayContentManager;
 import com.sun.prism.es2.JFXGLContext;
 import cuchaz.jfxgl.CalledByEventsThread;
 import cuchaz.jfxgl.CalledByMainThread;
@@ -22,7 +23,7 @@ import java.io.IOException;
 /**
  * @author n1t4chi
  */
-public final class WindowApplication extends Application implements FpsListener, TimeListener {
+public final class WindowApplication extends Application implements JavaFxApplication, FpsListener, TimeListener {
     
     private final OverlayContentManager contentUpdater;
     private int lastFpsUpdate = 0;
@@ -55,6 +56,11 @@ public final class WindowApplication extends Application implements FpsListener,
     @Override
     public void notify( double newTimeSnapshot, TimeNotifier source ) {
         lastTimeUpdate = newTimeSnapshot;
+    }
+    
+    @Override
+    public Application getData() {
+        return this;
     }
     
     @CalledByMainThread

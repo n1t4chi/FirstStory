@@ -23,7 +23,7 @@ public class VulkanFrameworkProvider implements RenderingFrameworkProvider {
     
     private final Map<Thread,VulkanFramework > instances = new HashMap<>();
     
-    public static VulkanFrameworkProvider getFramework() {
+    public static VulkanFrameworkProvider getProvider() {
         return framework;
     }
     

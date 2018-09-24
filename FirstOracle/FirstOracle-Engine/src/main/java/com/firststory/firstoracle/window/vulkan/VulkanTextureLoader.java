@@ -98,7 +98,7 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     private void copyBufferToImage( VulkanTextureData textureData ) {
         device.getTextureTransferCommandPool().executeQueue( commandBuffer -> {
             VkBufferImageCopy region = VkBufferImageCopy.create()
-                .bufferOffset( 0 )
+                .bufferOffset( textureData.getBuffer().getMemoryOffset() )
                 .bufferRowLength( 0 )
                 .bufferImageHeight( 0 )
                 .imageSubresource( VkImageSubresourceLayers.create()
@@ -124,7 +124,11 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     
     private void initialTransitionImageLayout( VulkanTextureData textureData, int format ) {
         textureData.getImage()
-            .transitionImageLayout( format, VK10.VK_IMAGE_LAYOUT_UNDEFINED, VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+            .transitionImageLayout(
+                format,
+                VK10.VK_IMAGE_LAYOUT_UNDEFINED,
+                VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+            );
     }
     
     private void postCopyTransitionImageLayout( VulkanTextureData textureData, int format ) {
@@ -142,7 +146,8 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
             VK10.VK_FORMAT_R8G8B8A8_UNORM,
             VK10.VK_IMAGE_TILING_OPTIMAL,
             new int[]{
-                VK10.VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                VK10.VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT,
                 VK10.VK_IMAGE_USAGE_SAMPLED_BIT
             },
             new int[]{ VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }

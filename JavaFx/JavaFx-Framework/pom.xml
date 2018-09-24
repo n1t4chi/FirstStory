@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018 Piotr "n1t4chi" Olejarz
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>JavaFx</artifactId>
+        <groupId>com.FirstStory.JavaFx</groupId>
+        <version>0.4</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>JavaFx-Framework</artifactId>
+    <version>0.4</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.FirstStory.FirstOracle</groupId>
+            <artifactId>FirstOracle-Engine</artifactId>
+            <version>0.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jfxgl</groupId>
+            <artifactId>jfxgl</artifactId>
+        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>jfx</groupId>-->
+        <!--<artifactId>jfx</artifactId>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>jfxgl</groupId>
+            <artifactId>jfxgl-jfxrt</artifactId>
+        </dependency>
+    </dependencies>
+</project>

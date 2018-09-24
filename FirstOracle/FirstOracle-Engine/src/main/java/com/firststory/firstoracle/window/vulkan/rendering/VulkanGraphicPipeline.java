@@ -10,7 +10,6 @@ import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanPip
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
@@ -123,7 +122,7 @@ public class VulkanGraphicPipeline {
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO )
             .depthTestEnable( true )
             .depthWriteEnable( true )
-            .depthCompareOp( VK10.VK_COMPARE_OP_LESS )
+            .depthCompareOp( VK10.VK_COMPARE_OP_LESS_OR_EQUAL )
             .depthBoundsTestEnable( false )
             .minDepthBounds( -1f )
             .maxDepthBounds( 1f )
@@ -136,8 +135,8 @@ public class VulkanGraphicPipeline {
     private VkPipelineShaderStageCreateInfo.Buffer createShaderStageCreateInfoBuffer(
         List<VkPipelineShaderStageCreateInfo> shaderStages
     ) {
-        VkPipelineShaderStageCreateInfo.Buffer shaderStagesBuffer = VkPipelineShaderStageCreateInfo.calloc( shaderStages
-            .size() );
+        VkPipelineShaderStageCreateInfo.Buffer shaderStagesBuffer =
+            VkPipelineShaderStageCreateInfo.calloc( shaderStages.size() );
         shaderStages.forEach( shaderStagesBuffer::put );
         shaderStagesBuffer.flip();
         return shaderStagesBuffer;
@@ -198,7 +197,6 @@ public class VulkanGraphicPipeline {
             .polygonMode( VK10.VK_POLYGON_MODE_FILL )
             .lineWidth( 1f )
             .cullMode( VK10.VK_CULL_MODE_BACK_BIT )
-            .cullMode( VK10.VK_CULL_MODE_NONE )
             .frontFace( VK10.VK_FRONT_FACE_COUNTER_CLOCKWISE )
             .depthBiasEnable( false )
             .depthBiasConstantFactor( 0f )

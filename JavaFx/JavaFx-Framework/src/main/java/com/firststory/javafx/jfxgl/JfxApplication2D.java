@@ -1,13 +1,12 @@
 /*
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
-package com.firststory.firstoracle.templates;
+package com.firststory.javafx.jfxgl;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
-import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.notyfying.WindowListener;
@@ -17,7 +16,16 @@ import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedScene2D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
+import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+import org.joml.Vector2fc;
 import org.joml.Vector2ic;
 import org.joml.Vector4f;
 
@@ -31,22 +39,20 @@ import java.util.List;
  *
  * @author n1t4chi
  */
-public class WorkingGlfwApplication2D {
+public class JfxApplication2D {
+    
+    private static Window window;
+    private static OverlayContentManager contentManager;
+    private static WindowRenderer renderer;
+    private static SceneProvider sceneProvider;
+    private static CameraController cameraController;
+    private static RenderedSceneMutable renderedScene;
+    private static Grid3DRenderer grid3DRenderer;
+    private static BoundedPositiveGrid2DRenderer grid2DRenderer;
+    private static WindowSettings settings;
+    private static WindowApplication application;
     
     public static void main( String[] args ) throws Exception {
-        new WorkingGlfwApplication2D().run( args );
-    }
-    
-    private Window window;
-    private WindowRenderer renderer;
-    private SceneProvider sceneProvider;
-    private CameraController cameraController;
-    private RenderedSceneMutable renderedScene;
-    private Grid3DRenderer grid3DRenderer;
-    private Grid2DRenderer grid2DRenderer;
-    private WindowSettings settings;
-    
-    public void run( String[] args ) throws Exception {
         int width = 300;
         int height = 300;
         settings = new WindowSettings.WindowSettingsBuilder().setVerticalSync( false )
@@ -56,7 +62,6 @@ public class WorkingGlfwApplication2D {
             .setHeight( height )
             .setDrawBorder( true )
             .build();
-//        grid2DRenderer = new DummyGrid2DRenderer();
         grid2DRenderer = new BoundedPositiveGrid2DRenderer( 20, 30, 10 );
 //            Grid2DRenderer grid2DRenderer = new BoundedGrid2DRenderer( shaderProgram2D,
 //                100,
@@ -108,22 +113,19 @@ public class WorkingGlfwApplication2D {
             }
             
             @Override
-            public Collection< PositionableObject2D > getObjects() {
-                return renderables;
-            }
-            
-            @Override
             public Vector2ic getTerrainShift() {
                 return FirstOracleConstants.VECTOR_ZERO_2I;
             }
+            
+            @Override
+            public Collection< PositionableObject2D > getObjects() {
+                return renderables;
+            }
         } );
-        
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
         cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-        cameraController.addCameraListener( ( event, source ) -> {
-            cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-            cameraController.updateIsometricCamera3D( ( IsometricCamera3D ) renderedScene.getCamera3D() );
-        } );
+        cameraController.addCameraListener( ( event, source ) -> cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene
+            .getCamera2D() ) );
         
         sceneProvider = () -> renderedScene;
         renderer = new WindowRenderer( grid2DRenderer,
@@ -132,11 +134,80 @@ public class WorkingGlfwApplication2D {
             settings.isUseTexture(),
             settings.isDrawBorder()
         );
-        window = Window.createWindow( settings, renderer );
+        contentManager = new OverlayContentManager() {
+            float x = 0;
+            float y = 0;
+            Label fpsLabel;
+            Label timeLabel;
+            Label mouseLabel;
+            BorderPane pane;
+            
+            @Override
+            public Pane createOverlayPanel() {
+                return pane = new BorderPane();
+            }
+            
+            @Override
+            public void init( Stage stage, Scene scene ) {
+                fpsLabel = new Label();
+                timeLabel = new Label();
+                mouseLabel = new Label();
+                pane.setTop( fpsLabel );
+                pane.setBottom( timeLabel );
+                pane.setLeft( mouseLabel );
+                
+                pane.addEventFilter( MouseEvent.MOUSE_MOVED, event -> {
+                    Vector2fc translated = renderedScene.getCamera2D()
+                        .translatePointOnScreen( ( float ) event.getX(),
+                            ( float ) event.getY(),
+                            settings.getWidth(),
+                            settings.getHeight()
+                        );
+                    x = translated.x();
+                    y = translated.y();
+                    object.getTransformations().setPosition( x, y );
+                    mouseLabel.setText( "mouse: (" + x + ", " + y + ")" );
+                } );
+                scene.addEventFilter( KeyEvent.KEY_TYPED, event -> {
+                    System.err.println( "typed:" + event.getCharacter() );
+                    switch ( event.getCharacter() ) {
+                        case "n":
+                            grid2DRenderer.setGridWidth( grid2DRenderer.getGridWidth() - 1 );
+                            break;
+                        case "m":
+                            grid2DRenderer.setGridWidth( 2 * grid2DRenderer.getGridWidth() + 1 );
+                            break;
+                        case "k":
+                            grid2DRenderer.setGridHeight( grid2DRenderer.getGridHeight() - 1 );
+                            break;
+                        case "l":
+                            grid2DRenderer.setGridHeight( 2 * grid2DRenderer.getGridHeight() + 1 );
+                            break;
+                        case "o":
+                            grid2DRenderer.setIntermediateAxesStep( grid2DRenderer.getIntermediateAxesStep() - 1 );
+                            break;
+                        case "p":
+                            grid2DRenderer.setIntermediateAxesStep( grid2DRenderer.getIntermediateAxesStep() + 1 );
+                            break;
+                    }
+                } );
+            }
+            
+            @Override
+            public void update( double currentTime, int currentFps ) {
+                fpsLabel.setText( "FPS:" + currentFps );
+                timeLabel.setText( String.format( "current time: %.1fs", currentTime ) );
+            }
+        };
+        application = new WindowApplication( contentManager );
+        window = Window.build( settings, renderer )
+            .addGuiFrameworkProvider( JavaFxFrameworkProvider.getProvider(), application )
+            .build();
         window.init();
-        renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
-        
+        window.addFpsListener( application );
+        window.addTimeListener( application );
         window.addTimeListener( cameraController );
+        renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
         
         window.addQuitListener( cameraController );
         window.addKeyListener( cameraController );
@@ -148,6 +219,7 @@ public class WorkingGlfwApplication2D {
                 renderedScene.getCamera3D().forceUpdate();
             }
         } );
+        
         cameraController.start();
         
         window.run();
