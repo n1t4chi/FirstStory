@@ -6,7 +6,6 @@ package com.firststory.firstoracle.window.opengl;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.data.TextureBufferLoader;
 import com.firststory.firstoracle.rendering.LineType;
 import com.firststory.firstoracle.rendering.Object2DRenderingContext;
 import com.firststory.firstoracle.rendering.Object3DRenderingContext;
@@ -22,7 +21,7 @@ import org.lwjgl.opengl.GL20;
 public class OpenGlRenderingContext implements RenderingContext {
 
     private final OpenGlVertexAttributeLoader attributeLoader;
-    private final TextureBufferLoader textureLoader;
+    private final OpenGlTextureLoader textureLoader;
     private final OpenGlShaderProgram3D shaderProgram;
     
     private final Vector4f borderColour;
@@ -33,7 +32,7 @@ public class OpenGlRenderingContext implements RenderingContext {
     
     OpenGlRenderingContext(
         OpenGlVertexAttributeLoader attributeLoader,
-        TextureBufferLoader textureLoader,
+        OpenGlTextureLoader textureLoader,
         OpenGlShaderProgram3D shaderProgram3D,
         boolean useTexture,
         boolean drawBorder,
@@ -58,7 +57,7 @@ public class OpenGlRenderingContext implements RenderingContext {
         return attributeLoader;
     }
     
-    TextureBufferLoader getTextureLoader() {
+    OpenGlTextureLoader getTextureLoader() {
         return textureLoader;
     }
     

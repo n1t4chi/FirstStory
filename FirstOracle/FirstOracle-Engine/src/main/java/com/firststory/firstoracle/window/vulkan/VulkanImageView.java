@@ -27,7 +27,7 @@ public class VulkanImageView {
     
     @Override
     public int hashCode() {
-        int result = device != null ? device.hashCode() : 0;
+        var result = device != null ? device.hashCode() : 0;
         result = 31 * result + ( address != null ? address.hashCode() : 0 );
         return result;
     }
@@ -36,8 +36,8 @@ public class VulkanImageView {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        VulkanImageView that = ( VulkanImageView ) o;
+    
+        var that = ( VulkanImageView ) o;
         
         if ( device != null ? !device.equals( that.device ) : that.device != null ) { return false; }
         return address != null ? address.equals( that.address ) : that.address == null;

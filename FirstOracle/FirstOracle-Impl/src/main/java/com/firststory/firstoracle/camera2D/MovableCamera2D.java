@@ -75,9 +75,9 @@ public class MovableCamera2D extends Camera2D {
     @Override
     public Vector2fc translatePointOnScreen( float x, float y, int width, int height ) {
         if ( camera.determinant() != 0 ) {
-            float cameraX = 2f * x / width - 1f;
-            float cameraY = -( 2f * y / height - 1f );
-            Vector4f vector = new Vector4f( cameraX, cameraY, 0, 1 );
+            var cameraX = 2f * x / width - 1f;
+            var cameraY = -( 2f * y / height - 1f );
+            var vector = new Vector4f( cameraX, cameraY, 0, 1 );
             inverseCamera.transform( vector );
             return new Vector2f( vector.x, vector.y );
         } else {

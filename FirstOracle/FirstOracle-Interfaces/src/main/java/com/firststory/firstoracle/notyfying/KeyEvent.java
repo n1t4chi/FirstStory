@@ -15,7 +15,7 @@ import com.firststory.firstoracle.window.WindowContext;
  */
 public class KeyEvent {
     private final WindowContext source;
-    private Key key;
+    private final Key key;
     public KeyEvent( WindowContext source, Key key ) {
         this.source = source;
         this.key = key;

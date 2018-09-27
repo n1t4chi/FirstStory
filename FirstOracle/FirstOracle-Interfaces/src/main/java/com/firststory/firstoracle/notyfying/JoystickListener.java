@@ -4,10 +4,10 @@
 
 package com.firststory.firstoracle.notyfying;
 
-public /**
+/**
  * @author n1t4chi
  */
-interface JoystickListener {
+public interface JoystickListener {
     
     default void notify( JoystickEvent joystickEvent ){}
 }

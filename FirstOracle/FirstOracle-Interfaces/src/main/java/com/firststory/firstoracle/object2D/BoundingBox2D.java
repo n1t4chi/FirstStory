@@ -20,9 +20,9 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
         float minX, maxX, minY, maxY;
         minX = minY = Float.MAX_VALUE;
         maxY = maxX = -Float.MAX_VALUE;
-        for (  Vertex2D vertex : vertices ) {
-            float x = vertex.getX();
-            float y = vertex.getY();
+        for ( var vertex : vertices ) {
+            var x = vertex.getX();
+            var y = vertex.getY();
             minX = min( minX, x );
             maxX = max( maxX, x );
             minY = min( minY, y );
@@ -35,10 +35,10 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
         float minX, maxX, minY, maxY;
         minX = minY = Float.MAX_VALUE;
         maxY = maxX = -Float.MAX_VALUE;
-        for ( List< Vertex2D > vertices : verticesArray ) {
-            for (  Vertex2D vertex : vertices ) {
-                float x = vertex.getX();
-                float y = vertex.getY();
+        for ( var vertices : verticesArray ) {
+            for ( var vertex : vertices ) {
+                var x = vertex.getX();
+                var y = vertex.getY();
                 minX = min( minX, x );
                 maxX = max( maxX, x );
                 minY = min( minY, y );
@@ -82,8 +82,8 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
         maxX = this.maxX;
         minY = this.minY;
         maxY = this.maxY;
-        Float rotation = transformations.getRotation();
-        Vector2fc scale = transformations.getScale();
+        var rotation = transformations.getRotation();
+        var scale = transformations.getScale();
         
         minX *= scale.x();
         maxX *= scale.x();
@@ -91,12 +91,12 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
         maxY *= scale.y();
         
         if ( rotation != 0 ) {
-            double rot = toRadians( rotation );
-            float sinZ = ( float ) sin( rot );
-            float cosZ = ( float ) cos( rot );
-            
-            float x = minX;
-            float y = minY;
+            var rot = toRadians( rotation );
+            var sinZ = ( float ) sin( rot );
+            var cosZ = ( float ) cos( rot );
+    
+            var x = minX;
+            var y = minY;
             minX = ( x * cosZ ) - ( y * sinZ );
             minY = ( x * sinZ ) + ( y * cosZ );
             x = maxX;
@@ -114,7 +114,7 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
     
     @Override
     public int hashCode() {
-        int result = ( minX != +0.0f ? Float.floatToIntBits( minX ) : 0 );
+        var result = ( minX != +0.0f ? Float.floatToIntBits( minX ) : 0 );
         result = 31 * result + ( maxX != +0.0f ? Float.floatToIntBits( maxX ) : 0 );
         result = 31 * result + ( minY != +0.0f ? Float.floatToIntBits( minY ) : 0 );
         result = 31 * result + ( maxY != +0.0f ? Float.floatToIntBits( maxY ) : 0 );
@@ -129,8 +129,8 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
         if ( o == null || getClass() != o.getClass() ) {
             return false;
         }
-        
-        BoundingBox2D that = ( BoundingBox2D ) o;
+    
+        var that = ( BoundingBox2D ) o;
         
         return Float.compare( that.minX, minX ) == 0 && Float.compare( that.maxX, maxX ) == 0 &&
             Float.compare( that.minY, minY ) == 0 && Float.compare( that.maxY, maxY ) == 0;

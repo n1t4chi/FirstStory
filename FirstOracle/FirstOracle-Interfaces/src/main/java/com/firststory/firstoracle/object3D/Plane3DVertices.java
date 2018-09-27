@@ -36,7 +36,7 @@ public class Plane3DVertices extends FramelessVertices3D {
     
         List< Vertex3D > list = new ArrayList<>( points.length );
     
-        for ( short point : points ) {
+        for ( var point : points ) {
             list.add( pointData[ point ] );
         }
         return list;

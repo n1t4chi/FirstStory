@@ -7,7 +7,6 @@ import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.data.TextureBufferLoader;
 import com.firststory.firstoracle.data.TextureData;
 import com.firststory.firstoracle.templates.IOUtilities;
-import javafx.embed.swing.SwingFXUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -48,7 +47,7 @@ import java.util.HashMap;
 public final class Texture {
     
     private static final String FRAME_KEYWORD = "#frame#";
-    private static final String DIRECITON_KEYWORD = "#direction#";
+    private static final String DIRECTION_KEYWORD = "#direction#";
     
     /**
      * Constructs compound texture from multiple files each corresponding to one frame with only one direction.<br>
@@ -96,15 +95,15 @@ public final class Texture {
         if ( frames > 1 && !filePathMask.contains( FRAME_KEYWORD ) ) {
             throw new IllegalArgumentException( "File path mask does not contain frame keyword" );
         }
-        if ( directions > 1 && !filePathMask.contains( DIRECITON_KEYWORD ) ) {
+        if ( directions > 1 && !filePathMask.contains( DIRECTION_KEYWORD ) ) {
             throw new IllegalArgumentException( "File path mask does not contain direction keyword" );
         }
-        
-        InputStream[][] inputStreams = new InputStream[frames][directions];
-        for ( int frame = 0; frame < frames; frame++ ) {
-            for ( int direction = 0; direction < directions; direction++ ) {
-                String path = replaceKeywords( filePathMask, frame, direction );
-                File file = new File( path );
+    
+        var inputStreams = new InputStream[frames][directions];
+        for ( var frame = 0; frame < frames; frame++ ) {
+            for ( var direction = 0; direction < directions; direction++ ) {
+                var path = replaceKeywords( filePathMask, frame, direction );
+                var file = new File( path );
                 if ( file.canRead() ) {
                     inputStreams[frame][direction] = file.toURI().toURL().openStream();
                 }else{
@@ -115,14 +114,14 @@ public final class Texture {
                 }
             }
         }
-        
-        int width = -1;
-        int height = -1;
-        
-        BufferedImage[][] images = new BufferedImage[frames][directions];
-        for ( int frame = 0; frame < frames; frame++ ) {
-            for ( int direction = 0; direction < directions; direction++ ) {
-                BufferedImage image = ImageIO.read( inputStreams[frame][direction] );
+    
+        var width = -1;
+        var height = -1;
+    
+        var images = new BufferedImage[frames][directions];
+        for ( var frame = 0; frame < frames; frame++ ) {
+            for ( var direction = 0; direction < directions; direction++ ) {
+                var image = ImageIO.read( inputStreams[frame][direction] );
                 if ( width == -1 && height == -1 ) {
                     height = image.getHeight();
                     width = image.getWidth();
@@ -136,12 +135,12 @@ public final class Texture {
                 images[frame][direction] = image;
             }
         }
-        
-        BufferedImage image = new BufferedImage(
+    
+        var image = new BufferedImage(
             directions * width, frames * height, BufferedImage.TYPE_INT_ARGB );
-        Graphics2D graphics = ( Graphics2D ) image.getGraphics();
-        for ( int frame = 0; frame < frames; frame++ ) {
-            for ( int direction = 0; direction < directions; direction++ ) {
+        var graphics = ( Graphics2D ) image.getGraphics();
+        for ( var frame = 0; frame < frames; frame++ ) {
+            for ( var direction = 0; direction < directions; direction++ ) {
                 graphics.drawImage( images[frame][direction], width * direction, height * frame, null );
             }
         }
@@ -150,24 +149,21 @@ public final class Texture {
     }
     
     private static String replaceKeywords( String filePathMask, int frame, int direction ) {
-        String frameString = "" + frame;
-        String directionString = "" + direction;
-        return filePathMask.replace( FRAME_KEYWORD, frameString ).replace( DIRECITON_KEYWORD, directionString );
+        var frameString = "" + frame;
+        var directionString = "" + direction;
+        return filePathMask.replace( FRAME_KEYWORD, frameString ).replace( DIRECTION_KEYWORD, directionString );
     }
     
     private final TextureData data;
-    private final HashMap<TextureBufferLoader, TextureBuffer > buffers = new HashMap<>(  );
-    
-    private javafx.scene.image.Image jfxImage = null;
+    private final HashMap<TextureBufferLoader< ? >, TextureBuffer< ? > > buffers = new HashMap<>(  );
     
     /**
      * Creates object containing texture data from given image.<br>
      * Uses single frame and line count.
      *
      * @param image image to be used as texture
-     * @throws IOException on problems with loading the image
      */
-    public Texture( BufferedImage image ) throws IOException {
+    public Texture( BufferedImage image ) {
         this( image, 1, 1, 1, 1 );
     }
     
@@ -179,9 +175,8 @@ public final class Texture {
      * @param frames     How many frames this texture represent
      * @param columns    How many columns for directions are in this texture.
      * @param rows       How many rows for frames are in this texture.
-     * @throws IOException on problems with loading the image
      */
-    public Texture( BufferedImage image, int directions, int frames, int columns, int rows ) throws IOException {
+    public Texture( BufferedImage image, int directions, int frames, int columns, int rows ) {
         this( image, image.toString(), directions, frames, columns, rows );
     }
     /**
@@ -211,10 +206,10 @@ public final class Texture {
     private static ByteBuffer imageToByteBuffer( BufferedImage image ) throws IOException {
         ByteBuffer bf;
         byte[] b;
-        
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+        var baos = new ByteArrayOutputStream();
         ImageIO.write( image, "PNG", baos );
-        byte[] arr = baos.toByteArray();
+        var arr = baos.toByteArray();
         bf = ByteBuffer.allocateDirect( arr.length - 1 );
         bf.put( arr, 0, arr.length - 1 );
         bf.position( 0 );
@@ -248,13 +243,6 @@ public final class Texture {
     
     public BufferedImage getImage() {
         return data.getImage();
-    }
-    
-    public synchronized javafx.scene.image.Image getJfxImage(){
-        if(jfxImage == null){
-            jfxImage = SwingFXUtils.toFXImage( getImage(), null );
-        }
-        return jfxImage;
     }
 
 
@@ -291,13 +279,14 @@ public final class Texture {
         return data.getName();
     }
     
-    public <Context> TextureBuffer putBuffer( TextureBufferLoader<Context> loader, TextureBuffer<Context> buffer  ) {
-        return buffers.put( loader, buffer );
+    @SuppressWarnings( "unchecked" )
+    public < Context > TextureBuffer< Context > putBuffer( TextureBufferLoader<Context> loader, TextureBuffer<Context> buffer  ) {
+        return ( TextureBuffer< Context > ) buffers.put( loader, buffer );
     }
     
     @SuppressWarnings( "unchecked" )
     public <Context> TextureBuffer<Context> extractBuffer( TextureBufferLoader<Context> loader ) {
-        return buffers.get( loader );
+        return ( TextureBuffer< Context > ) buffers.get( loader );
     }
     
     /**
@@ -311,7 +300,7 @@ public final class Texture {
         return data;
     }
     
-    public void removeBuffer( TextureBufferLoader loader ) {
+    public void removeBuffer( TextureBufferLoader< ? > loader ) {
         buffers.remove( loader );
     }
     

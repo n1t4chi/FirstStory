@@ -12,7 +12,9 @@ import org.lwjgl.vulkan.VkQueue;
  */
 public class CannotSubmitVulkanDrawCommandBufferException extends VulkanException {
     public CannotSubmitVulkanDrawCommandBufferException(
-        VulkanCommandPool pool, Integer errorCode, VkQueue presentationQueue
+        VulkanCommandPool< ? > pool,
+        Integer errorCode,
+        VkQueue presentationQueue
     ) {
         super( errorCode,
             "Cannot submit vulkan draw command buffer for " + presentationQueue + " at command pool:" + pool );

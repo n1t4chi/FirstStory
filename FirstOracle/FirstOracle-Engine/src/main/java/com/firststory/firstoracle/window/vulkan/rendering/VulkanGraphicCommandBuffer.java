@@ -25,7 +25,7 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         VulkanFrameBuffer frameBuffer,
         Vector4fc backgroundColour,
         VulkanSwapChain swapChain,
-        VulkanCommandPool commandPool,
+        VulkanCommandPool< VulkanGraphicCommandBuffer > commandPool,
         int index,
         int... usedBeginInfoFlags
     ) {
@@ -102,7 +102,7 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     
     void beginRenderPass( VulkanRenderPass renderPass ) {
         activeRenderPass = true;
-        VkRenderPassBeginInfo renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, backgroundColour );
+        var renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, backgroundColour );
         VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_INLINE );
     }
     

@@ -53,8 +53,8 @@ public class VulkanTextureData {
         return image;
     }
     
-    public void setImage( VulkanInMemoryImage mage ) {
-        this.image = mage;
+    public void setImage( VulkanInMemoryImage image ) {
+        this.image = image;
     }
     
     void close() {

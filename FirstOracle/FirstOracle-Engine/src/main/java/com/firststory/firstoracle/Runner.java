@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  */
 public class Runner {
     private static final ArrayList<FrameworkProvider > FRAMEWORK_PROVIDERS = new ArrayList<>();
-    private static Logger logger = FirstOracleConstants.getLogger( Runner.class );
+    private static final Logger logger = FirstOracleConstants.getLogger( Runner.class );
     
     public static void registerFramework( FrameworkProvider provider ) {
         logger.finer( "Registering framework: " + provider );
@@ -33,16 +33,16 @@ public class Runner {
     public static void main( String[] args ) {
         logger.fine( "Running application from Runner with arguments: " + Arrays.toString( args ) );
         try {
-            String className = getApplicationClassName();
+            var className = getApplicationClassName();
             logger.fine( "Loading Application from class: " + className );
-            Method main = getMainMethod( className );
+            var main = getMainMethod( className );
             invokeMainMethod( args, className, main );
         } catch ( Exception e ) {
             logger.severe( "Error while running application: " + e );
             e.printStackTrace();
         } finally {
-            for ( int i = FRAMEWORK_PROVIDERS.size() -1 ; i >= 0 ; i-- ) {
-                FrameworkProvider provider = FRAMEWORK_PROVIDERS.get( i );
+            for ( var i = FRAMEWORK_PROVIDERS.size() -1 ; i >= 0 ; i-- ) {
+                var provider = FRAMEWORK_PROVIDERS.get( i );
                 logger.finer( "Terminating framework: "+provider );
                 provider.terminate();
             }
@@ -63,7 +63,7 @@ public class Runner {
     }
     
     private static String getApplicationClassName() {
-        String className = System.getProperty( PropertiesUtil.APPLICATION_CLASS_NAME_PROPERTY );
+        var className = System.getProperty( PropertiesUtil.APPLICATION_CLASS_NAME_PROPERTY );
         if ( className == null ) {
             throw new ApplicationPropertyNotSetException();
         }

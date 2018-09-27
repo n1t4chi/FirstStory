@@ -4,10 +4,10 @@
 
 package com.firststory.firstoracle.notyfying;
 
-public /**
+/**
  * @author n1t4chi
  */
-interface WindowListener {
+public interface WindowListener {
     default void notify( WindowSizeEvent event ){}
     default void notify( WindowPositionEvent event ){}
     default void notify( WindowCloseEvent event ){}

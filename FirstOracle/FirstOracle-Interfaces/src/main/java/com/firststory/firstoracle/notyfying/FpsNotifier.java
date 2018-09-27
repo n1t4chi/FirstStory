@@ -5,10 +5,10 @@ package com.firststory.firstoracle.notyfying;
 
 import java.util.Collection;
 
-public /**
+/**
  * @author n1t4chi
  */
-interface FpsNotifier {
+public interface FpsNotifier {
     
     default void addFpsListener( FpsListener listener ) {
         getFpsListeners().add( listener );
@@ -25,7 +25,7 @@ interface FpsNotifier {
     }
     
     default void notifyFpsListeners( int newFps ) {
-        NotyfyingEngine.notify(
+        NotifyingEngine.notify(
             getFpsListeners(), ( listener ) -> listener.notify( newFps, this ) );
     }
 }

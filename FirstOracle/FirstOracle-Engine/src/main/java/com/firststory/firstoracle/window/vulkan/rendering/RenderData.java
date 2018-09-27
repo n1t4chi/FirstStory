@@ -22,7 +22,7 @@ class RenderData {
         return new RenderDataBuilder().setRenderType( type );
     }
     
-    private Vertices vertices = null;
+    private Vertices< ?, ? > vertices = null;
     private int vertexFrame = 0;
     private UvMap uvMap = FirstOracleConstants.EMPTY_UV_MAP;
     private int uvFrame = 0;
@@ -41,7 +41,7 @@ class RenderData {
         return type;
     }
     
-    Vertices getVertices() {
+    Vertices< ?, ? > getVertices() {
         return vertices;
     }
     
@@ -95,7 +95,7 @@ class RenderData {
     
     static class RenderDataBuilder {
         
-        RenderData data = new RenderData();
+        final RenderData data = new RenderData();
     
         RenderData finish() {
             return data;

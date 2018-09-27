@@ -13,7 +13,6 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.stb.STBImage;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -22,7 +21,7 @@ import java.util.HashSet;
  */
 public class OpenGlTextureLoader implements TextureBufferLoader<Integer> {
     
-    private HashSet<Integer> textures = new HashSet<>();
+    private final HashSet<Integer> textures = new HashSet<>();
     
     @Override
     public void close() {
@@ -31,7 +30,7 @@ public class OpenGlTextureLoader implements TextureBufferLoader<Integer> {
     
     @Override
     public Integer create(){
-        int textureID = GL11.glGenTextures();
+        var textureID = GL11.glGenTextures();
         if( textureID <= 0 ) {
             throw new CannotCreateBufferException();
         }
@@ -47,15 +46,15 @@ public class OpenGlTextureLoader implements TextureBufferLoader<Integer> {
     @Override
     public void loadUnsafe( Integer textureID, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException {
         bindUnsafe( textureID );
-        IntBuffer w = BufferUtils.createIntBuffer( 1 );
-        IntBuffer h = BufferUtils.createIntBuffer( 1 );
-        IntBuffer c = BufferUtils.createIntBuffer( 1 );
-        ByteBuffer texture = STBImage.stbi_load_from_memory( imageBuffer, w, h, c, 4 );
+        var w = BufferUtils.createIntBuffer( 1 );
+        var h = BufferUtils.createIntBuffer( 1 );
+        var c = BufferUtils.createIntBuffer( 1 );
+        var texture = STBImage.stbi_load_from_memory( imageBuffer, w, h, c, 4 );
         if ( texture == null ) {
             throw new BufferNotCreatedException( "Cannot load image:" + name );
         }
-        int width = w.get( 0 );
-        int height = h.get( 0 );
+        var width = w.get( 0 );
+        var height = h.get( 0 );
         GL11.glTexImage2D( GL11.GL_TEXTURE_2D,
             0,
             GL11.GL_RGBA,

@@ -12,9 +12,9 @@ import java.util.concurrent.Executor;
 /**
  * @author n1t4chi
  */
-public class NotyfyingEngine {
+public class NotifyingEngine {
     
-    private static final Executor executor = new NotyfingExecutor();
+    private static final Executor executor = new NotifyingExecutor();
     private static final Queue< Runnable > commands = new ConcurrentLinkedQueue<>();
     private static Thread thread = null;
     
@@ -23,7 +23,7 @@ public class NotyfyingEngine {
     )
     {
         executor.execute( () -> {
-            for ( Listener listener : listeners ) {
+            for ( var listener : listeners ) {
                 action.notify( listener );
             }
         } );
@@ -31,7 +31,7 @@ public class NotyfyingEngine {
     
     private static synchronized boolean keepThread() {
         try {
-            NotyfyingEngine.class.wait( 1000 );
+            NotifyingEngine.class.wait( 1000 );
             if ( commands.isEmpty() ) {
                 thread = null;
                 return false;
@@ -45,7 +45,7 @@ public class NotyfyingEngine {
         if ( thread == null ) {
             newThread();
         } else {
-            NotyfyingEngine.class.notify();
+            NotifyingEngine.class.notify();
             if ( thread == null ) {
                 newThread();
             }
@@ -65,18 +65,18 @@ public class NotyfyingEngine {
                     }
                 }
             } while ( keepThread() );
-        }, "Notyfying Engine" );
+        }, "Notifying Engine" );
         thread.start();
     }
     
-    private NotyfyingEngine() {
+    private NotifyingEngine() {
     }
     
     public interface NotifyAction< Listener > {
         void notify( Listener listener );
     }
     
-    private static class NotyfingExecutor implements Executor {
+    private static class NotifyingExecutor implements Executor {
         
         @Override
         public void execute( Runnable command ) {

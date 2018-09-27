@@ -35,8 +35,8 @@ public class Vertex implements FloatData {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        Vertex vertex = ( Vertex ) o;
+    
+        var vertex = ( Vertex ) o;
     
         return Arrays.equals( data, vertex.data );
     }

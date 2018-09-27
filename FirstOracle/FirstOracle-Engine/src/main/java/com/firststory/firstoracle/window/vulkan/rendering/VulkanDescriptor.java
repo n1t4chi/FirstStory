@@ -42,7 +42,7 @@ public class VulkanDescriptor {
     }
     
     private VulkanAddress createDescriptorSetLayout() {
-        VkDescriptorSetLayoutCreateInfo createInfo = VkDescriptorSetLayoutCreateInfo.create()
+        var createInfo = VkDescriptorSetLayoutCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO )
             .pBindings( VkDescriptorSetLayoutBinding.calloc( 2 )
                 .put( 0,

@@ -30,7 +30,7 @@ public class BoundedGrid2DRenderer implements Grid2DRenderer {
     private final Vertices2D smallNegativeAxes;
     
     public BoundedGrid2DRenderer( int gridSize, int interAxesStep, int smallAxesStep ) {
-        List< Vertex2D > mainAxes = Arrays.asList(
+        var mainAxes = Arrays.asList(
             //X
             vec2( -gridSize, 0 ),
             vec2( gridSize, 0 ),
@@ -44,17 +44,17 @@ public class BoundedGrid2DRenderer implements Grid2DRenderer {
         List< Vertex2D > smallPositiveAxes = new ArrayList<>(  );
         List< Vertex2D > smallNegativeAxes = new ArrayList<>(  );
         
-        for ( int i = 1; i <= gridSize; i++ ) {
+        for ( var i = 1; i <= gridSize; i++ ) {
             if ( i == 0 ) {
                 continue;
             }
             if ( Math.abs( i % interAxesStep ) == 0 ) {
-                List< Vertex2D > axes = createAxes( gridSize, i );
+                var axes = createAxes( gridSize, i );
                 interAxes.addAll( axes );
             } else if ( Math.abs( i % smallAxesStep ) == 0 ) {
-                boolean positive = false;
-                List< Vertex2D > axes = createAxes( gridSize, i );
-                for ( int j = 0; j < axes.size(); j++ ) {
+                var positive = false;
+                var axes = createAxes( gridSize, i );
+                for ( var j = 0; j < axes.size(); j++ ) {
                     if ( j % 2 == 0 ) {
                         positive = !positive;
                     }

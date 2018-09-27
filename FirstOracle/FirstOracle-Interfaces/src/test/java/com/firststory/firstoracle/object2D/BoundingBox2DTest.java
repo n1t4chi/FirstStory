@@ -16,7 +16,7 @@ public class BoundingBox2DTest {
     
     @Test
     public void testBBO() {
-        BoundingBox2D bb = new BoundingBox2D( -1, 1, -1, 1 );
+        var bb = new BoundingBox2D( -1, 1, -1, 1 );
         assertBBO( bb, 0, 0, 1, 1, 0, -1, 1, -1, 1 );
         assertBBO( bb, 10, 10, 1, 1, 0, 9, 11, 9, 11 );
         assertBBO( bb, 0, 0, 10, 10, 0, -10, 10, -10, 10 );
@@ -41,7 +41,7 @@ public class BoundingBox2DTest {
     ) {
         Vector2fc scale = new Vector2f( sx, sy );
         Vector2fc pos = new Vector2f( x, y );
-        BoundingBox2D assertBB = bb.getTransformedBoundingBox( new PositionableObject2DTransformations() {
+        var assertBB = bb.getTransformedBoundingBox( new PositionableObject2DTransformations() {
             @Override
             public Vector2fc getScale() {
                 return scale;

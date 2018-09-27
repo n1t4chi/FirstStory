@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * This class is used to create {@link OpenGlFramework} in safe manner and possibly other methods that do not require
- * context aquiring and releasing between threads.
+ * context acquiring and releasing between threads.
  */
 public class OpenGlFrameworkProvider implements RenderingFrameworkProvider {
     

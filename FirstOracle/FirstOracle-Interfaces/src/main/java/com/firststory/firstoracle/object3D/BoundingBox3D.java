@@ -22,10 +22,10 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         minX = minY = minZ = Float.MAX_VALUE;
         maxZ = maxY = maxX = -Float.MAX_VALUE;
     
-        for ( Vertex3D vertex : vertices ) {
-            float x = vertex.getX();
-            float y = vertex.getY();
-            float z = vertex.getZ();
+        for ( var vertex : vertices ) {
+            var x = vertex.getX();
+            var y = vertex.getY();
+            var z = vertex.getZ();
             minX = min( minX, x );
             maxX = max( maxX, x );
             minY = min( minY, y );
@@ -40,11 +40,11 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         float minX, maxX, minY, maxY, minZ, maxZ;
         minX = minY = minZ = Float.MAX_VALUE;
         maxZ = maxY = maxX = -Float.MAX_VALUE;
-        for ( List< Vertex3D > vertices : verticesArray ) {
-            for ( Vertex3D vertex : vertices ) {
-                float x = vertex.getX();
-                float y = vertex.getY();
-                float z = vertex.getZ();
+        for ( var vertices : verticesArray ) {
+            for ( var vertex : vertices ) {
+                var x = vertex.getX();
+                var y = vertex.getY();
+                var z = vertex.getZ();
                 minX = min( minX, x );
                 maxX = max( maxX, x );
                 minY = min( minY, y );
@@ -69,7 +69,7 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
     
     @Override
     public int hashCode() {
-        int result = ( minX != +0.0f ? Float.floatToIntBits( minX ) : 0 );
+        var result = ( minX != +0.0f ? Float.floatToIntBits( minX ) : 0 );
         result = 31 * result + ( maxX != +0.0f ? Float.floatToIntBits( maxX ) : 0 );
         result = 31 * result + ( minY != +0.0f ? Float.floatToIntBits( minY ) : 0 );
         result = 31 * result + ( maxY != +0.0f ? Float.floatToIntBits( maxY ) : 0 );
@@ -86,8 +86,8 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         if ( o == null || getClass() != o.getClass() ) {
             return false;
         }
-        
-        BoundingBox3D that = ( BoundingBox3D ) o;
+    
+        var that = ( BoundingBox3D ) o;
         
         return Float.compare( that.minX, minX ) == 0 && Float.compare( that.maxX, maxX ) == 0 &&
             Float.compare( that.minY, minY ) == 0 && Float.compare( that.maxY, maxY ) == 0 &&
@@ -138,8 +138,8 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         maxY = this.maxY;
         minZ = this.minZ;
         maxZ = this.maxZ;
-        Vector3fc rotation = transformations.getRotation();
-        Vector3fc scale = transformations.getScale();
+        var rotation = transformations.getRotation();
+        var scale = transformations.getScale();
         if ( rotation.lengthSquared() != 0 ) {
             minX *= 1.5;
             maxX *= 1.5;

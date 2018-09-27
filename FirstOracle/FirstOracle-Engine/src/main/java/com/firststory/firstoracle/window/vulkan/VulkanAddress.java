@@ -35,8 +35,8 @@ public class VulkanAddress {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        VulkanAddress that = ( VulkanAddress ) o;
+    
+        var that = ( VulkanAddress ) o;
         
         return value == that.value;
     }
@@ -55,7 +55,7 @@ public class VulkanAddress {
         return this;
     }
     
-    public boolean isNull() {
-        return value == NULL_HANDLE;
+    public boolean isNotNull() {
+        return value != NULL_HANDLE;
     }
 }

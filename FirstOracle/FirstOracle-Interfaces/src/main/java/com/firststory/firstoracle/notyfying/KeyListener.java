@@ -4,9 +4,9 @@
 
 package com.firststory.firstoracle.notyfying;
 
-public /**
+/**
  * @author n1t4chi
  */
-interface KeyListener {
-    default void notify( KeyEvent event ){};
+public interface KeyListener {
+    default void notify( KeyEvent event ){}
 }

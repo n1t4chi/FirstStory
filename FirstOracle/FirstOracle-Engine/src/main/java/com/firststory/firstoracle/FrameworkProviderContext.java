@@ -5,13 +5,13 @@
 package com.firststory.firstoracle;
 
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
+import com.firststory.firstoracle.window.GuiApplicationData;
 import com.firststory.firstoracle.window.GuiFrameworkProvider;
 import com.firststory.firstoracle.window.WindowFrameworkProvider;
 import com.firststory.firstoracle.window.glfw.GlfwFrameworkProvider;
 import com.firststory.firstoracle.window.opengl.OpenGlFrameworkProvider;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class FrameworkProviderContext {
     
@@ -29,7 +29,7 @@ public class FrameworkProviderContext {
         ) );
     }
     
-    public static GuiFrameworkProvider createGuiFrameworkProvider() {
+    public static GuiFrameworkProvider< GuiApplicationData< ? > > createGuiFrameworkProvider() {
         return createGuiFrameworkProvider( System.getProperty(
             PropertiesUtil.GUI_FRAMEWORK_CLASS_NAME_PROPERTY,
             DummyGuiFrameworkProvider.class.getName()
@@ -40,7 +40,8 @@ public class FrameworkProviderContext {
         return createFrameworkInstance( windowFrameworkClassName, WindowFrameworkProvider.class );
     }
     
-    public static GuiFrameworkProvider createGuiFrameworkProvider( String guiFrameworkClassName ) {
+    @SuppressWarnings( "unchecked" )
+    public static GuiFrameworkProvider< GuiApplicationData< ? > > createGuiFrameworkProvider( String guiFrameworkClassName ) {
         return createFrameworkInstance( guiFrameworkClassName, GuiFrameworkProvider.class );
     }
     
@@ -53,9 +54,9 @@ public class FrameworkProviderContext {
         Class< T > frameworkProviderClassType
     ) {
         try {
-            Class< ? > frameworkProviderClass = createFrameworkProviderClass( frameworkClassName );
-            Method getter = frameworkProviderClass.getMethod( FirstOracleConstants.GET_FRAMEWORK_PROVIDER_METHOD_NAME );
-            Object instance = getter.invoke( null );
+            var frameworkProviderClass = createFrameworkProviderClass( frameworkClassName );
+            var getter = frameworkProviderClass.getMethod( FirstOracleConstants.GET_FRAMEWORK_PROVIDER_METHOD_NAME );
+            var instance = getter.invoke( null );
             
             if ( frameworkProviderClassType.isInstance( instance ) ) {
                 return frameworkProviderClassType.cast( instance );

@@ -6,9 +6,7 @@ package com.firststory.firstoracle.window.glfw;
 
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.window.WindowFramework;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWVidMode;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +17,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  * @author n1t4chi
  */
 public class GlfwFramework implements WindowFramework {
-    private static Set<GlfwWindowContext > instances = new HashSet<>();
+    private static final Set<GlfwWindowContext > instances = new HashSet<>();
     
     private static void registerWindow( GlfwWindowContext window ) {
         instances.add( window );
@@ -42,18 +40,18 @@ public class GlfwFramework implements WindowFramework {
         if(settings.getMonitorIndex() <= 0 ){
             monitor = GLFW.glfwGetPrimaryMonitor();
         }else{
-            PointerBuffer pointerBuffer = GLFW.glfwGetMonitors();
+            var pointerBuffer = GLFW.glfwGetMonitors();
             if(settings.getMonitorIndex() > pointerBuffer.capacity()){
                 throw new MonitorIndexOutOfBoundException(settings.getMonitorIndex(),pointerBuffer.capacity());
             }
             monitor = pointerBuffer.get( settings.getMonitorIndex()-1 );
         }
-        
-        GLFWVidMode mode = GLFW.glfwGetVideoMode( monitor );
+    
+        var mode = GLFW.glfwGetVideoMode( monitor );
     
         // Create the window
-        int width = settings.getWidth();
-        int height = settings.getHeight();
+        var width = settings.getWidth();
+        var height = settings.getHeight();
         width = ( width > 0 ) ? width : mode.width();
         height = ( height > 0 ) ? height : mode.height();
         settings.setWidth( width );
@@ -84,10 +82,10 @@ public class GlfwFramework implements WindowFramework {
         if ( windowId == NULL ) {
             throw new CannotCreateWindowException();
         }
-        int[] left = new int[ 1 ];
-        int[] top = new int[ 1 ];
-        int[] right = new int[ 1 ];
-        int[] bottom = new int[ 1 ];
+        var left = new int[ 1 ];
+        var top = new int[ 1 ];
+        var right = new int[ 1 ];
+        var bottom = new int[ 1 ];
     
         GLFW.glfwGetWindowFrameSize( windowId, left, top, right, bottom );
         if ( settings.getPositionX() != 0 || settings.getPositionY() != 0 ) {
@@ -96,8 +94,8 @@ public class GlfwFramework implements WindowFramework {
                 settings.getPositionY() + top[ 0 ]
             );
         }
-        
-        GlfwWindowContext window = new GlfwWindowContext( windowId, isOpenGLWindow );
+    
+        var window = new GlfwWindowContext( windowId, isOpenGLWindow );
         registerWindow(window);
         
         window.setVerticalSync( settings.isVerticalSync() );
@@ -130,5 +128,7 @@ public class GlfwFramework implements WindowFramework {
     }
     
     @Override
-    public void destroy() {}
+    public void destroy() {
+        instances.forEach( GlfwWindowContext::destroy );
+    }
 }

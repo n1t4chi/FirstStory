@@ -9,10 +9,10 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 /**
  * @author n1t4chi
  */
-public class CannotAquireNextImageIndexException extends VulkanNextImageIndexException {
+public class CannotAcquireNextImageIndexException extends VulkanNextImageIndexException {
     
-    public CannotAquireNextImageIndexException( VulkanPhysicalDevice device, int index, int errorCode ) {
-        super( device, index, "Cannot aquire next image index. " +
+    public CannotAcquireNextImageIndexException( VulkanPhysicalDevice device, int index, int errorCode ) {
+        super( device, index, "Cannot acquire next image index. " +
             "Error code:" + errorCode+"["+VulkanExceptionHelper.parseResultCode( errorCode )+"]" );
     }
 }

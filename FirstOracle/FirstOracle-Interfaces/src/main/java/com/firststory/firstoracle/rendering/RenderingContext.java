@@ -23,7 +23,7 @@ public interface RenderingContext {
     
     void useRendering3D( Camera3D camera, boolean useDepth );
     
-    interface Render< T extends ObjectRenderingContext > {
+    interface Render< T extends ObjectRenderingContext< ?, ?, ?, ?, ?, ? > > {
         void render( T renderer );
     }
 }

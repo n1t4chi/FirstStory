@@ -22,7 +22,7 @@ import java.util.ListIterator;
 public class VulkanDescriptorPool {
     private final List< VulkanDescriptorSet > setList;
     private final int setCount;
-    private ListIterator< VulkanDescriptorSet > setsIterator;
+    private final ListIterator< VulkanDescriptorSet > setsIterator;
     private final VulkanPhysicalDevice device;
     private final VulkanDescriptor descriptor;
     
@@ -37,13 +37,13 @@ public class VulkanDescriptorPool {
         descriptorPool = createDescriptorPool();
     }
     
-    VulkanAddress getAddess() {
+    VulkanAddress getAddress() {
         return descriptorPool;
     }
     
     VulkanDescriptorSet getNextDescriptorSet() {
         if ( !setsIterator.hasNext() ) {
-            VulkanDescriptorSet descriptorSet = createDescriptorSet();
+            var descriptorSet = createDescriptorSet();
             setsIterator.add( descriptorSet );
             return descriptorSet;
         }
@@ -51,7 +51,7 @@ public class VulkanDescriptorPool {
     }
     
     private VulkanAddress createDescriptorPool() {
-        VkDescriptorPoolCreateInfo createInfo = VkDescriptorPoolCreateInfo.create()
+        var createInfo = VkDescriptorPoolCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO )
             .pPoolSizes( VkDescriptorPoolSize.create( 2 )
                 .put( 0, createPoolSize( VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ) )

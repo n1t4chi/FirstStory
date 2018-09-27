@@ -31,7 +31,7 @@ public class RenderedSceneMutable implements RenderedScene {
         camera2D = new MovableCamera2D( settings, 10, 0, 0, 0 );
         isometricCamera3D = new IsometricCamera3D( settings, 10, 0, 0, 0, 0, 0, 1 );
         backgroundColour = new Vector4f( 1, 1, 0, 1 );
-        EmptyRenderedObjects2D emptyObjects = new EmptyRenderedObjects2D();
+        var emptyObjects = new EmptyRenderedObjects2D();
         background = this.overlay = emptyObjects;
         scene2D = emptyObjects;
         scene3D = new EmptyRenderedObjects3D();

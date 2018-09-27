@@ -51,8 +51,8 @@ public class VertexColour implements FloatData {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        VertexColour colour = ( VertexColour ) o;
+    
+        var colour = ( VertexColour ) o;
         
         return Arrays.equals( data, colour.data );
     }

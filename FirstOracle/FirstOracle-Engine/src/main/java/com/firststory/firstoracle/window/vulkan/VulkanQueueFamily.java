@@ -4,7 +4,6 @@
 
 package com.firststory.firstoracle.window.vulkan;
 
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkQueue;
@@ -35,7 +34,7 @@ public class VulkanQueueFamily {
     }
     
     private VkQueue extractQueue() {
-        PointerBuffer queuePointer = MemoryStack.stackMallocPointer( 1 );
+        var queuePointer = MemoryStack.stackMallocPointer( 1 );
         VK10.vkGetDeviceQueue( device.getLogicalDevice(), index, 0, queuePointer );
         return new VkQueue( queuePointer.get(), device.getLogicalDevice() );
         
@@ -66,8 +65,8 @@ public class VulkanQueueFamily {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        VulkanQueueFamily that = ( VulkanQueueFamily ) o;
+    
+        var that = ( VulkanQueueFamily ) o;
         
         if ( index != that.index ) { return false; }
         return properties != null ? properties.equals( that.properties ) : that.properties == null;
@@ -75,7 +74,7 @@ public class VulkanQueueFamily {
     
     @Override
     public int hashCode() {
-        int result = properties != null ? properties.hashCode() : 0;
+        var result = properties != null ? properties.hashCode() : 0;
         result = 31 * result + index;
         return result;
     }

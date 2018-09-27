@@ -27,80 +27,80 @@ public class FirstOracleConstantsTest {
     
     @Test
     public void transCube() {
-        for ( int startValue : testCasesInt ) {
+        for ( var startValue : testCasesInt ) {
             assertTransformCube( startValue );
         }
-        for ( float startValue : testCasesFloat ) {
+        for ( var startValue : testCasesFloat ) {
             assertTransformCube( startValue );
         }
     }
     
     @Test
     public void transPlane() {
-        for ( int startValue : testCasesInt ) {
+        for ( var startValue : testCasesInt ) {
             assertTransformPlane( startValue );
         }
-        for ( float startValue : testCasesFloat ) {
+        for ( var startValue : testCasesFloat ) {
             assertTransformPlane( startValue );
         }
     }
     
     @Test
     public void transAbsolutePlane() {
-        for ( int startValue : testCasesInt ) {
+        for ( var startValue : testCasesInt ) {
             assertAbsoluteTransformPlane( startValue );
         }
-        for ( float startValue : testCasesFloat ) {
+        for ( var startValue : testCasesFloat ) {
             assertAbsoluteTransformPlane( startValue );
         }
     }
     
     @Test
     public void transHexX() {
-        for ( int startValue : testCasesInt ) {
+        for ( var startValue : testCasesInt ) {
             assertHexX( startValue );
         }
-        for ( float startValue : testCasesFloat ) {
+        for ( var startValue : testCasesFloat ) {
             assertHexX( startValue );
         }
     }
     
     @Test
     public void transHexY() {
-        for ( int startValue : testCasesInt ) {
+        for ( var startValue : testCasesInt ) {
             assertHexY( startValue );
         }
-        for ( float startValue : testCasesFloat ) {
+        for ( var startValue : testCasesFloat ) {
             assertHexY( startValue );
         }
     }
     
     @Test
     public void transHexPrismX() {
-        for ( int startValue : testCasesInt ) {
+        for ( var startValue : testCasesInt ) {
             assertHexPrismX( startValue );
         }
-        for ( float startValue : testCasesFloat ) {
+        for ( var startValue : testCasesFloat ) {
             assertHexPrismX( startValue );
         }
     }
     
     @Test
     public void transHexPrismY() {
-        for ( int startValue : testCasesInt ) {
+        for ( var startValue : testCasesInt ) {
             assertHexPrismY( startValue );
         }
-        for ( float startValue : testCasesFloat ) {
+        for ( var startValue : testCasesFloat ) {
             assertHexPrismY( startValue );
         }
     }
     
     @Test
     public void transHexPrismZ() {
-        for ( int startValue : testCasesInt ) {
+        for ( var startValue : testCasesInt ) {
             assertHexPrismZ( startValue );
         }
-        for ( float startValue : testCasesFloat ) {
+        for ( var startValue : testCasesFloat ) {
             assertHexPrismZ( startValue );
         }
     }

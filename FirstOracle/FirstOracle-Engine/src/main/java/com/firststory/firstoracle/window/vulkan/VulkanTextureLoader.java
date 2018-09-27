@@ -12,7 +12,6 @@ import org.lwjgl.stb.STBImage;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.HashSet;
 
 /**
@@ -37,7 +36,7 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     
     @Override
     public VulkanTextureData create() {
-        VulkanTextureData textureData = new VulkanTextureData();
+        var textureData = new VulkanTextureData();
         this.textureData.add( textureData );
         return textureData;
     }
@@ -75,15 +74,15 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     }
     
     private void createTextureImage( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) {
-        IntBuffer w = BufferUtils.createIntBuffer( 1 );
-        IntBuffer h = BufferUtils.createIntBuffer( 1 );
-        IntBuffer c = BufferUtils.createIntBuffer( 1 );
-        ByteBuffer pixels = STBImage.stbi_load_from_memory( imageBuffer, w, h, c, STBImage.STBI_rgb_alpha );
+        var w = BufferUtils.createIntBuffer( 1 );
+        var h = BufferUtils.createIntBuffer( 1 );
+        var c = BufferUtils.createIntBuffer( 1 );
+        var pixels = STBImage.stbi_load_from_memory( imageBuffer, w, h, c, STBImage.STBI_rgb_alpha );
         if ( pixels == null ) {
             throw new BufferNotCreatedException( "Cannot load image:" + name );
         }
-        int width = w.get( 0 );
-        int height = h.get( 0 );
+        var width = w.get( 0 );
+        var height = h.get( 0 );
         textureData.setWidth( width );
         textureData.setHeight( height );
         textureData.setBuffer( bufferLoader.createTextureBuffer( pixels ) );
@@ -97,7 +96,7 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     
     private void copyBufferToImage( VulkanTextureData textureData ) {
         device.getTextureTransferCommandPool().executeQueue( commandBuffer -> {
-            VkBufferImageCopy region = VkBufferImageCopy.create()
+            var region = VkBufferImageCopy.create()
                 .bufferOffset( textureData.getBuffer().getMemoryOffset() )
                 .bufferRowLength( 0 )
                 .bufferImageHeight( 0 )
@@ -108,8 +107,8 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
                     .layerCount( 1 ) )
                 .imageOffset( VkOffset3D.create().set( 0, 0, 0 ) )
                 .imageExtent( VkExtent3D.create().set( textureData.getWidth(), textureData.getHeight(), 1 ) );
-            
-            VkBufferImageCopy.Buffer regionBuffer = VkBufferImageCopy.calloc( 1 ).put( 0, region );
+    
+            var regionBuffer = VkBufferImageCopy.calloc( 1 ).put( 0, region );
             
             VK10.vkCmdCopyBufferToImage(
                 commandBuffer.getCommandBuffer(),

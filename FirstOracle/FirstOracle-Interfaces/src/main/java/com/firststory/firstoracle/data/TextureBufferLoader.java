@@ -19,7 +19,7 @@ public interface TextureBufferLoader< Context > {
      * Releases GPU memory resources associated with this texture.
      */
     default void release( Texture texture ) {
-        TextureBuffer textureBuffer = texture.extractBuffer( this );
+        var textureBuffer = texture.extractBuffer( this );
         if( textureBuffer != null ){
             texture.removeBuffer( this );
             textureBuffer.delete();
@@ -31,7 +31,7 @@ public interface TextureBufferLoader< Context > {
      */
     default TextureBuffer< Context > bind( Texture texture ) {
     
-        TextureBuffer< Context > textureBuffer = texture.extractBuffer( this );
+        var textureBuffer = texture.extractBuffer( this );
         if( textureBuffer == null ){
             textureBuffer = loadNewBuffer( texture );
             texture.putBuffer( this, textureBuffer );
@@ -45,13 +45,13 @@ public interface TextureBufferLoader< Context > {
      * <b>Will release previously loaded texture by this object!!!</b><br>
      * Use {@link #bind(Texture)}  } for reusable texture.
      */
-    default TextureBuffer load( Texture texture ) {
+    default TextureBuffer< Context > load( Texture texture ) {
         release( texture );
         return loadNewBuffer( texture );
     }
     
     default TextureBuffer< Context > loadNewBuffer( Texture texture ) {
-        TextureBuffer< Context > buffer = new TextureBuffer<>( this );
+        var buffer = new TextureBuffer<>( this );
         buffer.create();
         buffer.load( texture.getData() );
         return buffer;

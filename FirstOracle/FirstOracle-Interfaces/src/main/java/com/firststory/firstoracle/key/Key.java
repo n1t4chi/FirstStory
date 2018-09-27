@@ -11,7 +11,7 @@ import java.util.Objects;
  * @author n1t4chi
  */
 public class Key {
-    private static HashMap<Integer, Key> keyHashMap = new HashMap<>( 100 );
+    private static final HashMap<Integer, Key> keyHashMap = new HashMap<>( 100 );
     
     public static KeyBuilder prepare(KeyCode keyCode){
         return new KeyBuilder(keyCode);
@@ -90,7 +90,7 @@ public class Key {
     @Override
     public boolean equals( Object obj ) {
         if(obj instanceof Key) {
-            Key key = ( Key ) obj;
+            var key = ( Key ) obj;
             return
                 keyCode.equals( key.keyCode ) &&
                 action.isCompatible( key.action ) &&

@@ -29,7 +29,7 @@ public class Hex2DUvMap extends UvMap {
      * @return UV map instance
      */
     public static Hex2DUvMap getHex2DUvMap( int frames, int rows ) {
-        long hash = hash( frames, rows );
+        var hash = hash( frames, rows );
         return instances.computeIfAbsent( hash, k -> new Hex2DUvMap( frames, rows ) );
     }
     
@@ -40,7 +40,7 @@ public class Hex2DUvMap extends UvMap {
     private static List< UV >[][] getUvMap( int frames, int rows ) {
         List< UV >[][] map = array( 1 , frames );
         
-        for ( int frame = 0; frame < frames; frame++ ) {
+        for ( var frame = 0; frame < frames; frame++ ) {
             map[ 0 ][ frame ] = createUvMapHex2D( frame, frames, rows );
         }
         return map;
@@ -51,14 +51,14 @@ public class Hex2DUvMap extends UvMap {
             throw new IllegalArgumentException(
                 "Illegal frame:" + frame + " for frames:" + frames + ", rows:" + rows + "." );
         }
-        float hor = 1 / 8f;
+        var hor = 1 / 8f;
         //lower a bit UV map so pixels from other face will not be taken into consideration.
-        float vertUp = ( frame ) / ( float ) rows + UV_DELTA;
-        float vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
-        
-        float vertMiddle = ( frame + 0.5f ) / ( float ) rows;
-        float vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + UV_DELTA;
-        float vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - UV_DELTA;
+        var vertUp = ( frame ) / ( float ) rows + UV_DELTA;
+        var vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
+    
+        var vertMiddle = ( frame + 0.5f ) / ( float ) rows;
+        var vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + UV_DELTA;
+        var vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - UV_DELTA;
         
         return Arrays.asList(
             uv( 0.5f * hor, vertMiddle ),

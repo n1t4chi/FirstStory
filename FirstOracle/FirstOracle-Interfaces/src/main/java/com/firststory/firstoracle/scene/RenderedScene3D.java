@@ -12,6 +12,7 @@ import org.joml.Vector3ic;
  */
 public interface RenderedScene3D extends RenderedObjects3D {
     
-    Terrain3D[][][] getTerrains();
+    Terrain3D< ? >[][][] getTerrains();
+    
     Vector3ic getTerrainShift();
 }

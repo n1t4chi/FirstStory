@@ -7,13 +7,11 @@ package com.firststory.firstoracle.window.vulkan.rendering;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.data.TextureBuffer;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.rendering.Object2DRenderingContext;
 import com.firststory.firstoracle.rendering.Object3DRenderingContext;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
-import com.firststory.firstoracle.window.vulkan.VulkanTextureData;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;
 import org.joml.Matrix4fc;
 import org.joml.Vector4fc;
@@ -29,7 +27,7 @@ public class VulkanRenderingContext implements RenderingContext {
     private final VulkanObject2DRenderingContext context2D;
     private final VulkanObject3DRenderingContext context3D;
     private Vector4fc backgroundColour = FirstOracleConstants.VECTOR_ZERO_4F;
-    private Map< Matrix4fc, Map< Texture, List< RenderData > > > renderDataByCamera = new LinkedHashMap<>();
+    private final Map< Matrix4fc, Map< Texture, List< RenderData > > > renderDataByCamera = new LinkedHashMap<>();
     private Matrix4fc lastCamera = null;
     
     public VulkanRenderingContext( VulkanPhysicalDevice device ) {
@@ -48,8 +46,8 @@ public class VulkanRenderingContext implements RenderingContext {
     private VulkanGraphicPipeline lastPipeline = null;
     
     
-    List< VulkanTextureSampler > samplers = new ArrayList<>(  );
-    List< VulkanDescriptorPool > descriptorsPools = new ArrayList<>(  );
+    final List< VulkanTextureSampler > samplers = new ArrayList<>(  );
+    final List< VulkanDescriptorPool > descriptorsPools = new ArrayList<>(  );
     
     
     VulkanTextureSampler textureSampler;
@@ -69,20 +67,20 @@ public class VulkanRenderingContext implements RenderingContext {
         lastPipeline = null;
         Deque< VulkanDataBuffer > availableDataBuffers = new LinkedList<>( dataBuffers );
     
-        VulkanGraphicCommandBuffer buffer = graphicCommandPool.extractNextCommandBuffer();
+        var buffer = graphicCommandPool.extractNextCommandBuffer();
         buffer.fillQueueSetup();
         buffer.beginRenderPass( trianglePipeline.getRenderPass() );
         
         List< Matrix4fc > emptyCameras = new ArrayList<>();
-        
-        VulkanShaderProgram3D shader = getShaderProgram3D();
+    
+        var shader = getShaderProgram3D();
         samplers.add( textureSampler );
         
         renderDataByCamera.forEach( ( camera, renderDataByTexture ) -> {
             if( !renderDataByTexture.isEmpty() ) {
                 List< Texture > emptyRenderData = new ArrayList<>();
-                
-                VulkanDescriptorPool descriptorPool = device.getDescriptor().createDescriptorPool( renderDataByTexture.size() );
+    
+                var descriptorPool = device.getDescriptor().createDescriptorPool( renderDataByTexture.size() );
                 descriptorsPools.add( descriptorPool );
     
                 shader.bindCamera( camera );
@@ -116,34 +114,34 @@ public class VulkanRenderingContext implements RenderingContext {
         Texture texture,
         List< RenderData > renderDataList
     ) {
-        VulkanShaderProgram3D shader = getShaderProgram3D();
-        
-        TextureBuffer< VulkanTextureData > textureBuffer = device.getTextureLoader().bind( texture );
-        
-        VulkanDescriptorSet descriptorSet = descriptorPool.getNextDescriptorSet();
-        descriptorSet.updateDesciptorSet( shader, textureSampler, textureBuffer.getContext() );
+        var shader = getShaderProgram3D();
+    
+        var textureBuffer = device.getTextureLoader().bind( texture );
+    
+        var descriptorSet = descriptorPool.getNextDescriptorSet();
+        descriptorSet.updateDescriptorSet( shader, textureSampler, textureBuffer.getContext() );
         
         buffer.bindDescriptorSets( linePipeline, descriptorSet );
         buffer.bindDescriptorSets( trianglePipeline, descriptorSet );
         
         //bind data
         renderDataList.forEach( renderData -> {
-            VulkanDataBuffer dataBuffer = loadObjectData( availableDataBuffers, renderData );
-
-            VulkanVertexAttributeLoader loader = device.getVertexAttributeLoader();
-
-            VulkanDataBuffer uvVuffer = loader.extractUvMapBuffer(
+            var dataBuffer = loadObjectData( availableDataBuffers, renderData );
+    
+            var loader = device.getVertexAttributeLoader();
+    
+            var uvBuffer = loader.extractUvMapBuffer(
                 renderData.getUvMap(),
                 renderData.getUvDirection(),
                 renderData.getUvFrame()
             );
-            VulkanDataBuffer vertexBuffer = loader.extractVerticesBuffer(
+            var vertexBuffer = loader.extractVerticesBuffer(
                 renderData.getVertices(),
                 renderData.getVertexFrame()
             );
-            VulkanDataBuffer colouringBuffer = loader.extractColouringBuffer( renderData.getColouring() );
-
-            int bufferSize = renderData.getVertices().getVertexLength( renderData.getVertexFrame() );
+            var colouringBuffer = loader.extractColouringBuffer( renderData.getColouring() );
+    
+            var bufferSize = renderData.getVertices().getVertexLength( renderData.getVertexFrame() );
             
             
             
@@ -165,7 +163,7 @@ public class VulkanRenderingContext implements RenderingContext {
 
             buffer.draw(
                 vertexBuffer,
-                uvVuffer,
+                uvBuffer,
                 colouringBuffer,
                 dataBuffer,
                 bufferSize
@@ -174,13 +172,13 @@ public class VulkanRenderingContext implements RenderingContext {
     }
     
     private VulkanDataBuffer loadObjectData( Deque< VulkanDataBuffer > availableBuffers, RenderData renderData ) {
-        VulkanShaderProgram3D shader = device.getShaderProgram3D();
+        var shader = device.getShaderProgram3D();
         shader.bindPosition( renderData.getPosition() );
         shader.bindScale( renderData.getScale() );
         shader.bindRotation( renderData.getRotation() );
         shader.bindOverlayColour( renderData.getOverlayColour() );
         shader.bindMaxAlphaChannel( renderData.getMaxAlphaChannel() );
-        float[] data = shader.getInputData();
+        var data = shader.getInputData();
         
         VulkanDataBuffer dataBuffer;
         if( !availableBuffers.isEmpty() ) {
@@ -223,16 +221,16 @@ public class VulkanRenderingContext implements RenderingContext {
     }
     
     void draw( RenderData data ) {
-        VulkanShaderProgram3D shader = getShaderProgram3D();
+        var shader = getShaderProgram3D();
         if ( shader.didCameraChange() ) {
             lastCamera = shader.getCamera();
         }
-        Map< Texture, List< RenderData > > renderDataByTexture = renderDataByCamera.computeIfAbsent(
+        var renderDataByTexture = renderDataByCamera.computeIfAbsent(
             lastCamera,
             camera -> Collections.synchronizedMap( new LinkedHashMap<>() )
         );
-        
-        List< RenderData > renderData = renderDataByTexture.computeIfAbsent(
+    
+        var renderData = renderDataByTexture.computeIfAbsent(
             data.getTexture(),
             texture -> Collections.synchronizedList( new ArrayList<>() )
         );

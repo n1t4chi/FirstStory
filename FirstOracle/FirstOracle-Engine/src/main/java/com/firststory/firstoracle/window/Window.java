@@ -23,8 +23,8 @@ import java.util.logging.Logger;
 public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotifier, FpsNotifier {
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
-    private static Logger logger = FirstOracleConstants.getLogger( Window.class );
-    private static Logger performanceLogger = Logger.getLogger( Window.class.getName() + "#performance" );
+    private static final Logger logger = FirstOracleConstants.getLogger( Window.class );
+    private static final Logger performanceLogger = Logger.getLogger( Window.class.getName() + "#performance" );
     
     public static WindowBuilder build( WindowSettings settings, Renderer renderer ) {
         return new WindowBuilder( settings, renderer );
@@ -34,11 +34,11 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     private final ArrayList< TimeListener > timeListeners = new ArrayList<>( 3 );
     private final ArrayList< QuitListener > quitListeners = new ArrayList<>( 3 );
     private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
-    private final GuiApplicationData guiApplicationData;
+    private final GuiApplicationData< ? > guiApplicationData;
     private final Renderer renderer;
     private final WindowFrameworkProvider windowFrameworkProvider;
     private final RenderingFrameworkProvider renderingFrameworkProvider;
-    private final GuiFrameworkProvider guiFrameworkProvider;
+    private final GuiFrameworkProvider< ? > guiFrameworkProvider;
     private WindowContext window;
     private WindowFramework windowFramework;
     private RenderingFramework renderingFramework;
@@ -50,11 +50,11 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     
     private Window(
         WindowSettings windowSettings,
-        GuiApplicationData guiApplicationData,
+        GuiApplicationData< ? > guiApplicationData,
         Renderer renderer,
         WindowFrameworkProvider windowFrameworkProvider,
         RenderingFrameworkProvider renderingFrameworkProvider,
-        GuiFrameworkProvider guiFrameworkProvider
+        GuiFrameworkProvider< ? > guiFrameworkProvider
     ) {
         this.settings = windowSettings;
         this.guiApplicationData = guiApplicationData;
@@ -88,12 +88,13 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
     }
     
     @Override
+    @SuppressWarnings( "unchecked" )
     public void run() {
         Thread.currentThread().setName( "Window" + instanceCounter.getAndIncrement() );
         try {
             renderingFramework.invoke( instance -> {
                 window.show();
-                guiFramework = guiFrameworkProvider.provide( window, guiApplicationData );
+                guiFramework = (( GuiFrameworkProvider< GuiApplicationData<?>> ) guiFrameworkProvider).provide( window, guiApplicationData );
                 logger.finest( this + ": GUI context: " + guiFramework );
             } );
             
@@ -202,8 +203,8 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         private final Renderer renderer;
         private WindowFrameworkProvider windowFrameworkProvider = FrameworkProviderContext.createWindowFrameworkProvider();
         private RenderingFrameworkProvider renderingFrameworkProvider = FrameworkProviderContext.createRenderingFrameworkProvider();
-        private GuiFrameworkProvider guiFrameworkProvider = FrameworkProviderContext.createGuiFrameworkProvider();
-        private GuiApplicationData application = null;
+        private GuiFrameworkProvider< ? > guiFrameworkProvider = FrameworkProviderContext.createGuiFrameworkProvider();
+        private GuiApplicationData< ? > application = null;
         
         public WindowBuilder( WindowSettings settings, Renderer renderer ) {
             this.settings = settings;
@@ -220,7 +221,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
             return this;
         }
         
-        public < T extends GuiApplicationData > WindowBuilder addGuiFrameworkProvider(
+        public < T extends GuiApplicationData< ? > > WindowBuilder addGuiFrameworkProvider(
             GuiFrameworkProvider< T > guiFrameworkProvider,
             T application
         ) {

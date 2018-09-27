@@ -117,7 +117,7 @@ public interface ObjectRenderingContext<
             overlayColour,
             maxAlphaChannel
         );
-    };
+    }
     
     void renderVerticesAsTriangles(
         VerticesT vertices,
@@ -149,7 +149,7 @@ public interface ObjectRenderingContext<
             transformations.getRotation(),
             lineData
         );
-    };
+    }
     
     void renderVerticesAsLines(
         VerticesT vertices,

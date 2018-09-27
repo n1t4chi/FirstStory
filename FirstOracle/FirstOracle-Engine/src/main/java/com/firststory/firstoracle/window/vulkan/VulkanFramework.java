@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class VulkanFramework implements RenderingFramework {
     
-    private static Logger logger = FirstOracleConstants.getLogger( VulkanFramework.class );
+    private static final Logger logger = FirstOracleConstants.getLogger( VulkanFramework.class );
     
     static boolean validationLayersAreEnabled() {
         return PropertiesUtil.isPropertyTrue( PropertiesUtil.VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY );
@@ -55,17 +55,17 @@ public class VulkanFramework implements RenderingFramework {
         if ( !GLFWVulkan.glfwVulkanSupported() ) {
             throw new RuntimeException( "GLFW Vulkan not supported!" );
         }
-        
-        String applicationName = PropertiesUtil.getProperty( "ApplicationName",
+    
+        var applicationName = PropertiesUtil.getProperty( "ApplicationName",
             "Application powered by " + FirstOracleConstants.FIRST_ORACLE
         );
-        int applicationVersion = VK10.VK_MAKE_VERSION( PropertiesUtil.getIntegerProperty( "ApplicationMajorVersion",
+        var applicationVersion = VK10.VK_MAKE_VERSION( PropertiesUtil.getIntegerProperty( "ApplicationMajorVersion",
             1 ),
             PropertiesUtil.getIntegerProperty( "ApplicationMinorVersion", 0 ),
             PropertiesUtil.getIntegerProperty( "ApplicationPatchVersion", 0 )
         );
-        String engineName = FirstOracleConstants.FIRST_ORACLE;
-        int engineVersion = VK10.VK_MAKE_VERSION( FirstOracleConstants.FIRST_ORACLE_VERSION_MAJOR,
+        var engineName = FirstOracleConstants.FIRST_ORACLE;
+        var engineVersion = VK10.VK_MAKE_VERSION( FirstOracleConstants.FIRST_ORACLE_VERSION_MAJOR,
             FirstOracleConstants.FIRST_ORACLE_VERSION_MINOR,
             FirstOracleConstants.FIRST_ORACLE_VERSION_PATCH
         );
@@ -145,14 +145,14 @@ public class VulkanFramework implements RenderingFramework {
         if ( !validationLayersAreEnabled() ) {
             return new ArrayList<>();
         }
-        
-        Set< String > layerNames = layerProperties.stream()
+    
+        var layerNames = layerProperties.stream()
             .map( VkLayerProperties::layerNameString )
             .collect( Collectors.toSet() );
-        List< String > validationLayers = PropertiesUtil.getListFromPropertySafe( PropertiesUtil.VULKAN_VALIDATION_LAYERS_LIST_PROPERTY );
+        var validationLayers = PropertiesUtil.getListFromPropertySafe( PropertiesUtil.VULKAN_VALIDATION_LAYERS_LIST_PROPERTY );
         
-        for ( Iterator< String > iterator = validationLayers.iterator(); iterator.hasNext(); ) {
-            String layer = iterator.next();
+        for ( var iterator = validationLayers.iterator(); iterator.hasNext(); ) {
+            var layer = iterator.next();
             if ( !layerNames.contains( layer ) ) {
                 iterator.remove();
                 logger.warning( "Validation layer: " + layer + " is not available." );
@@ -166,17 +166,17 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     private void addGlfwInstanceExtensions( Map< String, Long > enabledExtensions ) {
-        PointerBuffer glfwInstanceExtensions = GLFWVulkan.glfwGetRequiredInstanceExtensions();
+        var glfwInstanceExtensions = GLFWVulkan.glfwGetRequiredInstanceExtensions();
         while ( glfwInstanceExtensions.hasRemaining() ) {
-            long address = glfwInstanceExtensions.get();
+            var address = glfwInstanceExtensions.get();
             enabledExtensions.put( MemoryUtil.memUTF8( address ), address );
         }
     }
     
     private Set< VkLayerProperties > getLayerProperties() {
-        int[] layerCount = new int[1];
+        var layerCount = new int[1];
         VK10.vkEnumerateInstanceLayerProperties( layerCount, null );
-        VkLayerProperties.Buffer layerBuffer = VkLayerProperties.create( layerCount[0] );
+        var layerBuffer = VkLayerProperties.create( layerCount[0] );
         VK10.vkEnumerateInstanceLayerProperties( layerCount, layerBuffer );
         Set< VkLayerProperties > set = new HashSet<>( layerCount[0] );
         layerBuffer.iterator().forEachRemaining( set::add );
@@ -184,9 +184,9 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     private Set< VkExtensionProperties > getExtensionProperties() {
-        int[] propertyCount = new int[1];
+        var propertyCount = new int[1];
         VK10.vkEnumerateInstanceExtensionProperties( ( ByteBuffer ) null, propertyCount, null );
-        VkExtensionProperties.Buffer extensionsBuffer = VkExtensionProperties.create( propertyCount[0] );
+        var extensionsBuffer = VkExtensionProperties.create( propertyCount[0] );
         VK10.vkEnumerateInstanceExtensionProperties( ( ByteBuffer ) null, propertyCount, extensionsBuffer );
         Set< VkExtensionProperties > set = new HashSet<>( propertyCount[0] );
         extensionsBuffer.iterator().forEachRemaining( set::add );
@@ -194,15 +194,15 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     private PriorityQueue< VulkanPhysicalDevice > createPhysicalDevices() {
-        int[] deviceCount = new int[1];
+        var deviceCount = new int[1];
         VK10.vkEnumeratePhysicalDevices( instance, deviceCount, null );
         if ( deviceCount[0] == 0 ) {
             throw new NoDeviceSupportingVulkanException();
         }
-        
-        PointerBuffer devicesBuffer = PointerBuffer.allocateDirect( deviceCount[0] );
+    
+        var devicesBuffer = PointerBuffer.allocateDirect( deviceCount[0] );
         VK10.vkEnumeratePhysicalDevices( instance, deviceCount, devicesBuffer );
-        PriorityQueue< VulkanPhysicalDevice > queue = new PriorityQueue<>( VulkanPhysicalDevice::compareTo );
+        var queue = new PriorityQueue<>( VulkanPhysicalDevice::compareTo );
         while ( devicesBuffer.hasRemaining() ) {
             try {
                 queue.add( new VulkanPhysicalDevice( devicesBuffer.get(),
@@ -221,7 +221,7 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     private VkInstance createInstance() {
-        PointerBuffer instancePointer = MemoryStack.stackCallocPointer( 1 );
+        var instancePointer = MemoryStack.stackCallocPointer( 1 );
         int resultCode;
     
         VulkanHelper.assertCallOrThrow(
@@ -241,14 +241,14 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     private PointerBuffer createValidationLayerNamesBuffer() {
-        PointerBuffer validationLayerNamesBuffer = MemoryUtil.memAllocPointer( validationLayerNames.size() );
+        var validationLayerNamesBuffer = MemoryUtil.memAllocPointer( validationLayerNames.size() );
         validationLayerNames.stream().map( MemoryUtil::memUTF8 ).forEach( validationLayerNamesBuffer::put );
         validationLayerNamesBuffer = validationLayerNamesBuffer.flip();
         return validationLayerNamesBuffer;
     }
     
     private PointerBuffer createEnabledExtensionsBuffer() {
-        PointerBuffer enabledExtensionsBuffer = MemoryUtil.memAllocPointer( enabledExtensions.size() );
+        var enabledExtensionsBuffer = MemoryUtil.memAllocPointer( enabledExtensions.size() );
         enabledExtensions.values().forEach( enabledExtensionsBuffer::put );
         enabledExtensionsBuffer = enabledExtensionsBuffer.flip();
         return enabledExtensionsBuffer;
@@ -258,7 +258,7 @@ public class VulkanFramework implements RenderingFramework {
         String applicationName, int applicationVersion, String engineName, int engineVersion
     )
     {
-        VkApplicationInfo vulkanInfo = VkApplicationInfo.create();
+        var vulkanInfo = VkApplicationInfo.create();
         vulkanInfo.set( VK10.VK_STRUCTURE_TYPE_APPLICATION_INFO,
             VK10.VK_NULL_HANDLE,
             MemoryStack.stackUTF8( applicationName ),
@@ -276,7 +276,7 @@ public class VulkanFramework implements RenderingFramework {
             logger.finest( "Validation layer: " + MemoryUtil.memUTF8( pMessage ) );
             return VK10.VK_FALSE;
         } );
-        VkDebugReportCallbackCreateInfoEXT createInfo = VkDebugReportCallbackCreateInfoEXT.create()
+        var createInfo = VkDebugReportCallbackCreateInfoEXT.create()
             .sType( EXTDebugReport.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT )
             .flags( EXTDebugReport.VK_DEBUG_REPORT_ERROR_BIT_EXT | EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT
                 //| EXTDebugReport.VK_DEBUG_REPORT_INFORMATION_BIT_EXT

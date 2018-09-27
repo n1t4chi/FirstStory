@@ -8,7 +8,7 @@ import com.firststory.firstoracle.data.DataBuffer;
 /**
  * @author n1t4chi
  */
-public interface VertexAttributeLoader< VertexBuffer extends DataBuffer > {
+public interface VertexAttributeLoader< VertexBuffer extends DataBuffer< ? > > {
     
     VertexBuffer provideBuffer( float[] array );
     

@@ -9,9 +9,9 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 /**
  * @author n1t4chi
  */
-public class CannotAllocateVulkanMemoryExcpetion extends CannotCreateVulkanPhysicalDeviceException {
+public class CannotAllocateVulkanMemoryException extends CannotCreateVulkanPhysicalDeviceException {
     
-    public CannotAllocateVulkanMemoryExcpetion( VulkanPhysicalDevice device, Integer resultCode ) {
+    public CannotAllocateVulkanMemoryException( VulkanPhysicalDevice device, Integer resultCode ) {
         super( device, resultCode );
     }
 }

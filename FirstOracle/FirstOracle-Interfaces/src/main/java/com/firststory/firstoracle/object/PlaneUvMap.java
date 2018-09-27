@@ -32,7 +32,7 @@ public class PlaneUvMap extends UvMap {
      * @return UV map instance
      */
     public static PlaneUvMap getPlaneUvMap( int directions, int frames, int columns, int rows ) {
-        long hash = hash( directions, frames, rows, columns );
+        var hash = hash( directions, frames, rows, columns );
         return map.computeIfAbsent( hash, k -> new PlaneUvMap( directions, frames, columns, rows ) );
     }
     
@@ -47,8 +47,8 @@ public class PlaneUvMap extends UvMap {
     private static List< UV >[][] getUvMap( int directions, int frames, int columns, int rows ) {
         List< UV >[][] map = array( directions , frames );
         
-        for ( int direction = 0; direction < directions; direction++ ) {
-            for ( int frame = 0; frame < frames; frame++ ) {
+        for ( var direction = 0; direction < directions; direction++ ) {
+            for ( var frame = 0; frame < frames; frame++ ) {
                 map[direction][frame] = createUvMapPlane( direction, frame, directions, frames, columns, rows );
             }
         }
@@ -69,11 +69,11 @@ public class PlaneUvMap extends UvMap {
                 "directions:" + directions + ", " + "frames:" + frames + ", " + "columns:" + columns + ", " + "rows:" +
                 rows + "." );
         }
-        float vertUp = ( frame ) / ( float ) rows + UV_DELTA;
-        float vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
-        
-        float horLeft = ( direction ) / ( float ) columns + UV_DELTA;
-        float horRight = ( direction + 1 ) / ( float ) columns - UV_DELTA;
+        var vertUp = ( frame ) / ( float ) rows + UV_DELTA;
+        var vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
+    
+        var horLeft = ( direction ) / ( float ) columns + UV_DELTA;
+        var horRight = ( direction + 1 ) / ( float ) columns - UV_DELTA;
     
         return Arrays.asList(
             uv( horLeft, vertDown ),

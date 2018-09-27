@@ -52,9 +52,9 @@ public abstract class OpenGlShaderProgram implements ShaderProgram {
     
     @Override
     public void compile() throws IOException {
-        
-        String VertexContent = readTextResource( vertexFilePath );
-        String FragmentContent = readTextResource( fragmentFilePath );
+    
+        var VertexContent = readTextResource( vertexFilePath );
+        var FragmentContent = readTextResource( fragmentFilePath );
         
         vertexShader = compileSource( GL20.GL_VERTEX_SHADER, VertexContent );
         fragmentShader = compileSource( GL20.GL_FRAGMENT_SHADER, FragmentContent );
@@ -75,7 +75,7 @@ public abstract class OpenGlShaderProgram implements ShaderProgram {
     
     OpenGlUniformLocation createUniformLocation( String locationName ) {
         if ( !uniformLocations.containsKey( locationName ) ) {
-            OpenGlUniformLocation uniformLocation = new OpenGlUniformLocation( program, locationName );
+            var uniformLocation = new OpenGlUniformLocation( program, locationName );
             uniformLocations.put( locationName, uniformLocation );
             return uniformLocation;
         } else {
@@ -90,10 +90,10 @@ public abstract class OpenGlShaderProgram implements ShaderProgram {
         }
         GL20.glShaderSource( shader, source );
         GL20.glCompileShader( shader );
-        
-        int comp_stat = GL20.glGetShaderi( shader, GL20.GL_COMPILE_STATUS );
+    
+        var comp_stat = GL20.glGetShaderi( shader, GL20.GL_COMPILE_STATUS );
         if ( comp_stat == GL11.GL_FALSE ) {
-            String err = GL20.glGetShaderInfoLog( shader );
+            var err = GL20.glGetShaderInfoLog( shader );
             throw new RuntimeException(
                 "Shader creation failed.\nLog:" + err + "\ntype: " + shaderTypeToString( type ) );
         }
@@ -124,7 +124,7 @@ public abstract class OpenGlShaderProgram implements ShaderProgram {
     }
     
     private void checkLinkingOfProgram() {
-        String err = GL20.glGetProgramInfoLog( program );
+        var err = GL20.glGetProgramInfoLog( program );
         if ( !err.isEmpty() ) {
             System.err.println(
                 "Error after program creation for shaders" + "\nvertex:" + vertexFilePath +

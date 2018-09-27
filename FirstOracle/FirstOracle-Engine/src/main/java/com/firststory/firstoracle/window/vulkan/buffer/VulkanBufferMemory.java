@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.window.vulkan.buffer;
 
 import com.firststory.firstoracle.window.vulkan.*;
-import com.firststory.firstoracle.window.vulkan.exceptions.CannotAllocateVulkanMemoryExcpetion;
+import com.firststory.firstoracle.window.vulkan.exceptions.CannotAllocateVulkanMemoryException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotBindVulkanMemoryException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanVertexBufferException;
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotMapVulkanMemoryException;
@@ -143,8 +143,8 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
             return;
         }
         once = true;
-        
-        LinearMemoryLocation location1 = new LinearMemoryLocation( location.getPosition(),
+    
+        var location1 = new LinearMemoryLocation( location.getPosition(),
             location.getLength(),
             location.getTrueLength()
         );
@@ -154,27 +154,27 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         } catch ( InterruptedException e ) {
             e.printStackTrace();
         }
-        
-        VulkanBuffer readGpuMemoryBuffer = new VulkanBuffer( new int[]{
+    
+        var readGpuMemoryBuffer = new VulkanBuffer( new int[]{
             VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT
         }, new int[]{
             VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
         }, location1.getLength() );
         
         memoryBuffer.copyBuffer( readGpuMemoryBuffer, commandPool, location1 );
-        
-        ByteBuffer readLocalMemory = MemoryUtil.memAlloc( ( int ) location1.getLength() );
+    
+        var readLocalMemory = MemoryUtil.memAlloc( ( int ) location1.getLength() );
         MemoryUtil.memCopy( readGpuMemoryBuffer.mapMemory().getValue(),
             MemoryUtil.memAddress( readLocalMemory ),
             location1.getLength()
         );
         readGpuMemoryBuffer.unmapMemory();
-        
-        byte[] dst = new byte[ ( int ) location1.getLength() ];
+    
+        var dst = new byte[ ( int ) location1.getLength() ];
         readLocalMemory.get( dst );
         System.out.println( " byte gpu: " + Arrays.toString( dst ) );
-        
-        float[] fdst = new float[ ( int ) location1.getLength() / 4 ];
+    
+        var fdst = new float[ ( int ) location1.getLength() / 4 ];
         readLocalMemory.asFloatBuffer().get( fdst );
         
         System.out.println( " float gpu: " + Arrays.toString( fdst ) );
@@ -213,7 +213,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         )
         {
             commandPool.executeQueue( commandBuffer -> {
-                VkBufferCopy copyRegion = VkBufferCopy.create().srcOffset( 0 ) // Optional
+                var copyRegion = VkBufferCopy.create().srcOffset( 0 ) // Optional
                     .dstOffset( location.getPosition() ) // Optional
                     .size( location.getLength() );
                 
@@ -240,11 +240,11 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         }
         
         private void delete() {
-            if ( !bufferAddress.isNull() ) {
+            if ( bufferAddress.isNotNull() ) {
                 VK10.vkDestroyBuffer( device.getLogicalDevice(), bufferAddress.getValue(), null );
                 bufferAddress.setNull();
             }
-            if ( !allocatedMemoryAddress.isNull() ) {
+            if ( allocatedMemoryAddress.isNotNull() ) {
                 VK10.vkFreeMemory( device.getLogicalDevice(), allocatedMemoryAddress.getValue(), null );
                 allocatedMemoryAddress.setNull();
             }
@@ -267,7 +267,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
                 null,
                 address
                 ),
-                resultCode -> new CannotAllocateVulkanMemoryExcpetion( device, resultCode )
+                resultCode -> new CannotAllocateVulkanMemoryException( device, resultCode )
             );
         }
         
@@ -287,7 +287,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         }
         
         private VkMemoryRequirements createMemoryRequirements( VulkanAddress bufferAddress ) {
-            VkMemoryRequirements memoryRequirements = VkMemoryRequirements.create();
+            var memoryRequirements = VkMemoryRequirements.create();
             VK10.vkGetBufferMemoryRequirements( device.getLogicalDevice(),
                 bufferAddress.getValue(),
                 memoryRequirements
@@ -297,7 +297,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         
         private VulkanAddress createBuffer( int[] usageFlags, long length ) {
             return VulkanHelper.createAddress( () -> {
-                    VkBufferCreateInfo createInfo = VkBufferCreateInfo.create()
+                    var createInfo = VkBufferCreateInfo.create()
                         .sType( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO )
                         .pNext( VK10.VK_NULL_HANDLE )
                         .size( length )

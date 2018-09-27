@@ -38,7 +38,7 @@ public class VulkanTextureSampler {
     }
     
     private VulkanAddress createTextureSampler() {
-        VkSamplerCreateInfo createInfo = VkSamplerCreateInfo.create()
+        var createInfo = VkSamplerCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO )
             .magFilter( VK10.VK_FILTER_LINEAR )
             .minFilter( VK10.VK_FILTER_LINEAR )

@@ -4,7 +4,6 @@
 package com.firststory.firstoracle.camera2D;
 
 import com.firststory.firstoracle.Camera;
-import com.firststory.firstoracle.object2D.BoundingBox2D;
 import com.firststory.firstoracle.object2D.Object2D;
 import org.joml.Vector2fc;
 
@@ -27,8 +26,8 @@ public abstract class Camera2D implements Camera {
     
     public abstract boolean contains( float minX, float maxX, float minY, float maxY );
     
-    public boolean contains( Object2D object ) {
-        BoundingBox2D bb = object.getBBO();
+    public boolean contains( Object2D< ?, ? > object ) {
+        var bb = object.getBBO();
         return contains( bb.getMinX(), bb.getMaxX(), bb.getMinY(), bb.getMaxY() );
     }
     

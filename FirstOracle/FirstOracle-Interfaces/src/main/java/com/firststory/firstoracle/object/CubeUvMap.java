@@ -31,7 +31,7 @@ public class CubeUvMap extends UvMap {
      * @return UV map instance
      */
     public static CubeUvMap getCubeUvMap( int frames, int rows ) {
-        long hash = hash( frames, rows );
+        var hash = hash( frames, rows );
         return instances.computeIfAbsent( hash, k -> new CubeUvMap( frames, rows ) );
     }
 
@@ -42,7 +42,7 @@ public class CubeUvMap extends UvMap {
     private static List<UV>[][] getUvMap( int frames, int rows ) {
         List<UV>[][] map = array( 1 , frames );
 
-        for ( int frame = 0; frame < frames; frame++ ) {
+        for ( var frame = 0; frame < frames; frame++ ) {
             map[ 0 ][ frame ] = createUvMapCube( frame, frames, rows );
         }
         return map;
@@ -53,9 +53,9 @@ public class CubeUvMap extends UvMap {
             throw new IllegalArgumentException(
                 "Illegal frame:" + frame + " for frames:" + frames + ", rows:" + rows + "." );
         }
-        float hor = 1 / 8f;
-        float vertUp = ( frame ) / ( float ) rows + UV_DELTA;
-        float vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
+        var hor = 1 / 8f;
+        var vertUp = ( frame ) / ( float ) rows + UV_DELTA;
+        var vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
 
         return Arrays.asList( 
             uv( 0 * hor + UV_DELTA, vertDown ),

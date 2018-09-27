@@ -10,7 +10,10 @@ package com.firststory.firstoracle.window.vulkan;
 public class VulkanTransferCommandBuffer extends VulkanCommandBuffer {
     
     public VulkanTransferCommandBuffer(
-        VulkanPhysicalDevice device, VulkanAddress address, VulkanCommandPool commandPool, int... usedBeginInfoFlags
+        VulkanPhysicalDevice device,
+        VulkanAddress address,
+        VulkanCommandPool< ? > commandPool,
+        int... usedBeginInfoFlags
     ) {
         super( device, address, commandPool, usedBeginInfoFlags );
     }

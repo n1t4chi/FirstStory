@@ -10,7 +10,6 @@ import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanPip
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
-import java.nio.IntBuffer;
 import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.*;
@@ -45,11 +44,11 @@ public class VulkanGraphicPipeline {
     }
     
     public void dispose() {
-        if( !graphicsPipeline.isNull() ) {
+        if( graphicsPipeline.isNotNull() ) {
             VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipeline.getValue(), null );
             graphicsPipeline.setNull();
         }
-        if( !pipelineLayout.isNull() ) {
+        if( pipelineLayout.isNotNull() ) {
             VK10.vkDestroyPipelineLayout( device.getLogicalDevice(), pipelineLayout.getValue(), null );
             pipelineLayout.setNull();
         }
@@ -135,7 +134,7 @@ public class VulkanGraphicPipeline {
     private VkPipelineShaderStageCreateInfo.Buffer createShaderStageCreateInfoBuffer(
         List<VkPipelineShaderStageCreateInfo> shaderStages
     ) {
-        VkPipelineShaderStageCreateInfo.Buffer shaderStagesBuffer =
+        var shaderStagesBuffer =
             VkPipelineShaderStageCreateInfo.calloc( shaderStages.size() );
         shaderStages.forEach( shaderStagesBuffer::put );
         shaderStagesBuffer.flip();
@@ -143,7 +142,7 @@ public class VulkanGraphicPipeline {
     }
     
     private VkPipelineDynamicStateCreateInfo createDynamicStateCreateInfo() {
-        IntBuffer flagsBuffer = MemoryUtil.memAllocInt( DYNAMIC_STATE_FLAGS.length );
+        var flagsBuffer = MemoryUtil.memAllocInt( DYNAMIC_STATE_FLAGS.length );
         flagsBuffer.put( DYNAMIC_STATE_FLAGS ).flip();
         return VkPipelineDynamicStateCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO )
@@ -235,16 +234,16 @@ public class VulkanGraphicPipeline {
     }
     
     private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo() {
-        VkVertexInputAttributeDescription.Buffer attributeDescriptions = VkVertexInputAttributeDescription
+        var attributeDescriptions = VkVertexInputAttributeDescription
             .create( 3 + ATTRIBUTE_UNIFORM_SIZE )
             .put( 0, createPositionAttributeDescription() )
             .put( 1, createUvMapAttributeDescription() )
             .put( 2, createColourAttributeDescription() )
         ;
-        for( int i=0; i< UNIFORM_COUNT_VEC4; i ++ ) {
+        for( var i=0; i< UNIFORM_COUNT_VEC4; i ++ ) {
             attributeDescriptions.put( 3 + i, createVec4UniformDataAttributeDescription( i ) );
         }
-        for( int i=0; i< UNIFORM_COUNT_INT; i ++ ) {
+        for( var i=0; i< UNIFORM_COUNT_INT; i ++ ) {
             attributeDescriptions.put( 3 + UNIFORM_COUNT_VEC4 + i, createIntUniformDataAttributeDescription( i ) );
         }
         
@@ -342,7 +341,7 @@ public class VulkanGraphicPipeline {
     }
     
     private void updateVulkanPipelineLayout( VulkanAddress descriptorSet ) {
-        VkPipelineLayoutCreateInfo createInfo = VkPipelineLayoutCreateInfo.create()
+        var createInfo = VkPipelineLayoutCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO )
             .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getValue() ) )
             .pPushConstantRanges( null );

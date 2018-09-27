@@ -61,8 +61,8 @@ public class LinearMemoryLocation {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        LinearMemoryLocation that = ( LinearMemoryLocation ) o;
+    
+        var that = ( LinearMemoryLocation ) o;
         
         if ( position != that.position ) { return false; }
         return length == that.length;
@@ -70,7 +70,7 @@ public class LinearMemoryLocation {
     
     @Override
     public int hashCode() {
-        int result = ( int ) ( position ^ ( position >>> 32 ) );
+        var result = ( int ) ( position ^ ( position >>> 32 ) );
         result = 31 * result + ( int ) ( length ^ ( length >>> 32 ) );
         return result;
     }
@@ -121,7 +121,7 @@ public class LinearMemoryLocation {
             setLength( length );
             return null;
         }
-        LinearMemoryLocation newLocation = new LinearMemoryLocation( getPosition(), length, length );
+        var newLocation = new LinearMemoryLocation( getPosition(), length, length );
         movePosition( length );
         return newLocation;
     }
@@ -129,7 +129,7 @@ public class LinearMemoryLocation {
     private class CannotResizeException extends RuntimeException {
         
         private CannotResizeException( long length, long trueLength ) {
-            super( "Cannot resize location to " + length + " when maximum lenght is " + trueLength );
+            super( "Cannot resize location to " + length + " when maximum length is " + trueLength );
         }
     }
 }

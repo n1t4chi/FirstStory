@@ -13,7 +13,7 @@ import com.firststory.firstoracle.key.KeyModificator;
  */
 public class CameraKeyMap {
     
-    private static final CameraKeyMap alpabeticalLayout = new CameraKeyMap(
+    private static final CameraKeyMap alphabeticalLayout = new CameraKeyMap(
         Key.prepare( KeyCode.KEY_W ).build(),
         Key.prepare( KeyCode.KEY_S ).build(),
         Key.prepare( KeyCode.KEY_A ).build(),
@@ -39,7 +39,7 @@ public class CameraKeyMap {
     );
     
     public static CameraKeyMap getAlphabetKeyLayout() {
-        return alpabeticalLayout;
+        return alphabeticalLayout;
     }
     
     public static CameraKeyMap getFunctionalKeyLayout() {

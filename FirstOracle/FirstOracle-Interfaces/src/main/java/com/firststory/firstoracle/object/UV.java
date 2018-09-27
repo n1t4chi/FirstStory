@@ -41,8 +41,8 @@ public class UV implements FloatData {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        UV uv = ( UV ) o;
+    
+        var uv = ( UV ) o;
         
         return Arrays.equals( data, uv.data );
     }

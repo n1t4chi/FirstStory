@@ -15,7 +15,6 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
@@ -31,7 +30,7 @@ public class CameraController extends Thread implements
     TimeListener
 {
     
-    private static Logger logger = FirstOracleConstants.getLogger( CameraController.class );
+    private static final Logger logger = FirstOracleConstants.getLogger( CameraController.class );
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final CameraKeyMap cameraKeyMap;
     private final long refreshLatency;
@@ -199,7 +198,7 @@ public class CameraController extends Thread implements
 
     @Override
     public void run() {
-        double previousTimeUpdate = currentTimeUpdate;
+        var previousTimeUpdate = currentTimeUpdate;
         while ( keepWorking ) {
             try {
                 sleep( refreshLatency );
@@ -207,11 +206,11 @@ public class CameraController extends Thread implements
                 System.err.println( "Controller sleep interrupted:" + ex );
                 Thread.currentThread().interrupt();
             }
-            
-            boolean updated = false;
+    
+            var updated = false;
             if ( !keyMap.isEmpty() ) {
-                float timeDelta = ( float ) ( ( currentTimeUpdate - previousTimeUpdate ) * speed );
-                for ( Map.Entry< KeyCode, Key > e : keyMap.entrySet() ) {
+                var timeDelta = ( float ) ( ( currentTimeUpdate - previousTimeUpdate ) * speed );
+                for ( var e : keyMap.entrySet() ) {
                     if ( key( e.getValue(), timeDelta ) ) {
                         keyMap.remove( e.getKey() );
                     } else {
@@ -243,8 +242,8 @@ public class CameraController extends Thread implements
     }
     
     private void rotateVectors() {
-        float angle = rotationY - 45;
-        double radians3D = Math.toRadians( angle );
+        var angle = rotationY - 45;
+        var radians3D = Math.toRadians( angle );
         direction3D.set( ( float ) Math.cos( radians3D ), ( float ) Math.sin( radians3D ) );
         radians3D = Math.toRadians( angle - 90 );
         perpendicularDirection3D.set(
@@ -252,7 +251,7 @@ public class CameraController extends Thread implements
             ( float ) Math.sin( radians3D )
         );
     
-        double radians2D = Math.toRadians( -(rotationY+90) );
+        var radians2D = Math.toRadians( -(rotationY+90) );
         direction2D.set( ( float ) Math.cos( radians2D ), ( float ) Math.sin( radians2D ) );
         radians2D = Math.toRadians( -rotationY );
         perpendicularDirection2D.set(

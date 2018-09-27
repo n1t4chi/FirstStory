@@ -20,7 +20,7 @@ public class VulkanRenderPass {
     }
     
     public void dispose() {
-        if( !renderPass.isNull() ) {
+        if( renderPass.isNotNull() ) {
             VK10.vkDestroyRenderPass( device.getLogicalDevice(), renderPass.getValue(), null );
             renderPass.setNull();
         }
@@ -58,7 +58,7 @@ public class VulkanRenderPass {
     }
     
     private VkAttachmentDescription createDepthAttachmentDescription( VulkanDepthResources depthResources ) {
-        return createAttackmentDescription( depthResources.getDepthFormat().getFormat(),
+        return createAttachmentDescription( depthResources.getDepthFormat().getFormat(),
             VK10.VK_ATTACHMENT_STORE_OP_DONT_CARE,
             VK10.VK_ATTACHMENT_LOAD_OP_DONT_CARE,
             VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
@@ -66,14 +66,14 @@ public class VulkanRenderPass {
     }
     
     private VkAttachmentDescription createColourAttachmentDescription( VulkanSwapChain swapChain ) {
-        return createAttackmentDescription( swapChain.getImageFormat(),
+        return createAttachmentDescription( swapChain.getImageFormat(),
             VK10.VK_ATTACHMENT_STORE_OP_STORE,
             VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
             KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
         );
     }
     
-    private VkAttachmentDescription createAttackmentDescription(
+    private VkAttachmentDescription createAttachmentDescription(
         int imageFormat,
         int storeOperation,
         int stencilLoadOperation,

@@ -38,7 +38,7 @@ public class CameraBoxXZDimension {
         this.maxX = java.lang.Math.max( java.lang.Math.max( points[ 0 ].x, points[ 1 ].x ),
             java.lang.Math.max( points[ 2 ].x, points[ 3 ].x ) );
         
-        for ( int j = 0; j < 4; j++ ) {
+        for ( var j = 0; j < 4; j++ ) {
             lines[ j ] = new LineData( points[ j ], points[ ( j + 1 ) % 4 ] );
         }
     }
@@ -62,13 +62,13 @@ public class CameraBoxXZDimension {
     public CameraBoxZDimension getZDimension( float X ) {
         float z1 = 1, z2 = -1;
         if ( minX <= X && X <= maxX ) {
-            float[] Zs = new float[ 2 ];
-            int Zs_it = 0;
-            for ( LineData ld : lines ) {
-                float[] lineZs = ld.getZsOnGivenX( X );
-                for ( int i = 0; i < lineZs.length && Zs_it < 2; i++ ) {
-                    boolean is = true;
-                    for ( int j = 0; j < Zs_it; j++ ) {
+            var Zs = new float[ 2 ];
+            var Zs_it = 0;
+            for ( var ld : lines ) {
+                var lineZs = ld.getZsOnGivenX( X );
+                for ( var i = 0; i < lineZs.length && Zs_it < 2; i++ ) {
+                    var is = true;
+                    for ( var j = 0; j < Zs_it; j++ ) {
                         if ( lineZs[ i ] == Zs[ j ] ) {
                             is = false;
                             break;
@@ -135,46 +135,46 @@ public class CameraBoxXZDimension {
         }
         
         private float[] getZsOnGivenX( float X ) {
-            float[] rtrn;
+            float[] returnedValue;
 
 //            int branch = 0;
             if ( Float.isFinite( gradient ) ) {
                 if ( gradient == 0 ) {
-                    float d1 = p1.x - X;
-                    float d2 = p2.x - X;
+                    var d1 = p1.x - X;
+                    var d2 = p2.x - X;
                     if ( ( d1 <= 0.01 && d1 >= -0.01 ) || ( d2 <= 0.01 && d2 >= -0.01 ) ) {
-                        rtrn = new float[ 2 ];
-                        rtrn[ 0 ] = p1.z;
-                        rtrn[ 1 ] = p2.z;
+                        returnedValue = new float[ 2 ];
+                        returnedValue[ 0 ] = p1.z;
+                        returnedValue[ 1 ] = p2.z;
 //                        branch = 1;
                     } else {
-                        rtrn = new float[ 0 ];
+                        returnedValue = new float[ 0 ];
 //                        branch = 2;
                     }
                 } else {
-                    float z = gradient * X + intercept;
+                    var z = gradient * X + intercept;
                     if ( withinRectangle( X, z, p1, p2 ) ) {
-                        rtrn = new float[ 1 ];
-                        rtrn[ 0 ] = z;
+                        returnedValue = new float[ 1 ];
+                        returnedValue[ 0 ] = z;
 //                        branch = 3;
                     } else {
-                        rtrn = new float[ 0 ];
+                        returnedValue = new float[ 0 ];
 //                        branch = 4;
                     }
                 }
                 // infinity/nan -> parallel to Z
             } else {
                 if ( ( p1.x <= X && X <= p2.x ) || ( p2.x <= X && X <= p1.x ) ) {
-                    rtrn = new float[ 1 ];
-                    rtrn[ 0 ] = p1.z;
+                    returnedValue = new float[ 1 ];
+                    returnedValue[ 0 ] = p1.z;
 //                    branch = 5;
                 } else {
-                    rtrn = new float[ 0 ];
+                    returnedValue = new float[ 0 ];
 //                    branch = 6;
                 }
             }
-            //System.err.println(toString()+" X:"+X+" z:"+(gradient*X+intercept)+" rtrn:"+Arrays.toString(rtrn)+" branch:"+branch);
-            return rtrn;
+            //System.err.println(toString()+" X:"+X+" z:"+(gradient*X+intercept)+" returnedValue:"+Arrays.toString(returnedValue)+" branch:"+branch);
+            return returnedValue;
         }
         
     }

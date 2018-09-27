@@ -15,12 +15,12 @@ import java.util.HashSet;
  * @author n1t4chi
  */
 class OpenGlArrayBufferLoader implements ArrayBufferProvider<OpenGlArrayBuffer> {
-    private HashSet< OpenGlArrayBuffer > buffers = new HashSet<>();
+    private final HashSet< OpenGlArrayBuffer > buffers = new HashSet<>();
     private int lastBoundBuffer = 0;
     
     @Override
     public OpenGlArrayBuffer create( float[] array ) throws CannotCreateBufferException {
-        OpenGlArrayBuffer buffer = new OpenGlArrayBuffer( this );
+        var buffer = new OpenGlArrayBuffer( this );
         buffers.add( buffer );
         buffer.create();
         buffer.load( array );
@@ -28,7 +28,7 @@ class OpenGlArrayBufferLoader implements ArrayBufferProvider<OpenGlArrayBuffer> 
     }
     
     int createBuffer() {
-        int bufferID = GL15.glGenBuffers();
+        var bufferID = GL15.glGenBuffers();
         if ( bufferID == 0 ) {
             throw new CannotCreateBufferException();
         }

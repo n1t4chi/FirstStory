@@ -18,12 +18,12 @@ import java.util.Collections;
 class EmptyRenderedObjects3D implements RenderedScene3D {
     
     @Override
-    public Terrain3D[][][] getTerrains() {
+    public Terrain3D< ? >[][][] getTerrains() {
         return new Terrain3D[ 0 ][][];
     }
     
     @Override
-    public Collection< PositionableObject3D > getObjects() {
+    public Collection< PositionableObject3D< ?, ? > > getObjects() {
         return Collections.emptyList();
     }
     

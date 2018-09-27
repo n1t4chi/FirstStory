@@ -15,15 +15,15 @@ import java.nio.ByteBuffer;
  */
 public class TextureData {
     
-    private String name;
-    private BufferedImage image;
-    private int width;
-    private int height;
-    private int directions;
-    private int frames;
-    private int rows;
-    private int columns;
-    private ByteBuffer byteBuffer = null;
+    private final String name;
+    private final BufferedImage image;
+    private final int width;
+    private final int height;
+    private final int directions;
+    private final int frames;
+    private final int rows;
+    private final int columns;
+    private ByteBuffer byteBuffer;
     
     public TextureData( BufferedImage image, ByteBuffer bf, String name, int directions, int frames, int columns, int rows ) {
         this.name = name;
@@ -78,10 +78,10 @@ public class TextureData {
     private ByteBuffer imageToByteBuffer( BufferedImage image ) throws IOException {
         ByteBuffer bf;
         byte[] b;
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+        var baos = new ByteArrayOutputStream();
         ImageIO.write( image, "PNG", baos );
-        byte[] arr = baos.toByteArray();
+        var arr = baos.toByteArray();
         bf = ByteBuffer.allocateDirect( arr.length - 1 );
         bf.put( arr, 0, arr.length - 1 );
         bf.position( 0 );

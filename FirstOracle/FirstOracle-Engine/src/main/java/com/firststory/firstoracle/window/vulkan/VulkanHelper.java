@@ -57,13 +57,13 @@ public class VulkanHelper {
     }
     
     public static < CreateInfo > VulkanAddress updateAddress(
-        VulkanAddress addres,
+        VulkanAddress address,
         CreateInfoSupplier< CreateInfo > supplier,
         CreateInfoArrayCreator< CreateInfo > creator,
         FailTest test,
         ExceptionThrower thrower
     ) {
-        return updateAddress( addres, addressA -> creator.create( supplier.get(), addressA ), test, thrower );
+        return updateAddress( address, addressA -> creator.create( supplier.get(), addressA ), test, thrower );
     }
     
     public static VulkanAddress updateAddress(
@@ -77,7 +77,7 @@ public class VulkanHelper {
         VulkanAddress address,
         ArrayCreator creator, FailTest test, ExceptionThrower thrower
     ) {
-        long[] addressA = new long[1];
+        var addressA = new long[1];
         VulkanHelper.assertCallOrThrow( () -> creator.create( addressA ), test, thrower );
         return address.setAddress( addressA[0] );
     }
@@ -123,9 +123,9 @@ public class VulkanHelper {
         VulkanAddress address,
         PointerBufferCreator creator, FailTest test, ExceptionThrower thrower
     ) {
-        PointerBuffer pointerBuffer = MemoryUtil.memAllocPointer( 1 );
+        var pointerBuffer = MemoryUtil.memAllocPointer( 1 );
         VulkanHelper.assertCallOrThrow( () -> creator.create( pointerBuffer ), test, thrower );
-        long value = pointerBuffer.get();
+        var value = pointerBuffer.get();
         pointerBuffer.free();
         return address.setAddress( value );
     }
@@ -161,8 +161,8 @@ public class VulkanHelper {
         Iterable< Product > products,
         IterationAction< Product > action
     ) {
-        int index = 0;
-        for ( Product product : products ) {
+        var index = 0;
+        for ( var product : products ) {
             action.accept( index++, product );
         }
     }
@@ -171,15 +171,15 @@ public class VulkanHelper {
         PointerBuffer products,
         IterationAction< Long > action
     ) {
-        int index = 0;
+        var index = 0;
         while ( products.hasRemaining() ) {
             action.accept( index++, products.get() );
         }
     }
     
     public static int flagsToInt( int... flags ) {
-        int returnedFlag = 0;
-        for ( int flag : flags ) {
+        var returnedFlag = 0;
+        for ( var flag : flags ) {
             returnedFlag |= flag;
         }
         return returnedFlag;

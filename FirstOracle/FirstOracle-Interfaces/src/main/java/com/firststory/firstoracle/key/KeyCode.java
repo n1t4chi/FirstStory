@@ -4,10 +4,10 @@
 
 package com.firststory.firstoracle.key;
 
-public /**
+/**
  * @author n1t4chi
  */
-enum KeyCode {
+public enum KeyCode {
     KEY_SPACE,
     KEY_APOSTROPHE,
     KEY_COMMA,

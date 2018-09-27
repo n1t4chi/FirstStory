@@ -11,9 +11,9 @@ import org.joml.Vector4fc;
  * @author n1t4chi
  */
 public interface GraphicObject<
-        TransformationsType extends ObjectTransformations,
-        BoundingBoxType extends BoundingBox,
-        VerticesType extends Vertices
+        TransformationsType extends ObjectTransformations< ?, ? >,
+        BoundingBoxType extends BoundingBox< ?, ?, ? >,
+        VerticesType extends Vertices< ?, ? >
     >
 {
     

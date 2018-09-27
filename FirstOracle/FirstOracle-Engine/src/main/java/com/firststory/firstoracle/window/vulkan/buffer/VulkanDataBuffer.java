@@ -49,9 +49,9 @@ public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
     
     public void load( float[] data ) throws CannotCreateBufferException {
         if( false ) {
-            ByteBuffer bb = MemoryUtil.memAlloc( data.length * 4 );
+            var bb = MemoryUtil.memAlloc( data.length * 4 );
             bb.asFloatBuffer().put( data );
-            byte[] ba = new byte[ data.length * 4];
+            var ba = new byte[ data.length * 4];
             bb.get( ba );
             System.out.println( " float local: " + Arrays.toString( data ) );
             System.out.println( " byte local: " + Arrays.toString( ba ) );

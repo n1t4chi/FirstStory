@@ -9,10 +9,7 @@ import java.awt.*;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
@@ -31,7 +28,7 @@ public class IOUtilities {
     ) throws IOException {
         InputStream is;
         if ( externalFile ) {
-            File file = new File( resourceName );
+            var file = new File( resourceName );
             is = new FileInputStream( file );
         } else {
             is = IOUtilities.class.getResourceAsStream( resourceName );
@@ -60,13 +57,13 @@ public class IOUtilities {
      * @throws IOException on problems with loading the resource
      */
     public static String readTextResource( String path ) throws IOException {
-        Path p = Paths.get( path );
+        var p = Paths.get( path );
         Reader r;
     
         if ( Files.isReadable( p ) ) {
             r = new FileReader( path );
         } else {
-            InputStream resourceAsStream = Thread.currentThread()
+            var resourceAsStream = Thread.currentThread()
                 .getContextClassLoader()
                 .getResourceAsStream( path );
             if ( resourceAsStream == null ) {
@@ -74,8 +71,8 @@ public class IOUtilities {
             }
             r = new InputStreamReader( resourceAsStream );
         }
-        try ( BufferedReader br = new BufferedReader( r ) ) {
-            StringBuilder vertexSB = new StringBuilder();
+        try ( var br = new BufferedReader( r ) ) {
+            var vertexSB = new StringBuilder();
             br.lines().forEach( ( s ) -> vertexSB.append( s ).append( '\n' ) );
     
             if ( vertexSB.length() > 0 ) {
@@ -87,11 +84,11 @@ public class IOUtilities {
     }
     
     public static InputStream readResource( String resource ) throws IOException {
-        File f = new File( resource );
+        var f = new File( resource );
         if( f.canRead() ){
             return new FileInputStream(f);
         }else{
-            InputStream io = Texture.class.getClassLoader().getResourceAsStream( resource );
+            var io = Texture.class.getClassLoader().getResourceAsStream( resource );
             if ( io == null ) {
                 throw new IOException( "Cannot find file: " + resource );
             }
@@ -100,10 +97,10 @@ public class IOUtilities {
     }
     
     public static ByteBuffer readBinaryResource( String resource ) throws IOException {
-        Path p = Paths.get( resource );
+        var p = Paths.get( resource );
         ByteBuffer bf;
         if ( Files.isReadable( p ) ) {
-            try ( SeekableByteChannel sbc = Files.newByteChannel( p, StandardOpenOption.READ ) ) {
+            try ( var sbc = Files.newByteChannel( p, StandardOpenOption.READ ) ) {
                 bf = ByteBuffer.allocateDirect( ( int ) ( sbc.size() ) );
                 int read;
                 do {
@@ -111,16 +108,16 @@ public class IOUtilities {
                 } while ( read != -1 && sbc.position() != sbc.size() );
             }
         } else {
-            InputStream io = Texture.class.getClassLoader().getResourceAsStream( resource );
+            var io = Texture.class.getClassLoader().getResourceAsStream( resource );
             if ( io == null ) {
                 throw new IOException( "Cannot find file: " + resource );
             }
-            ReadableByteChannel rbc = Channels.newChannel( io );
+            var rbc = Channels.newChannel( io );
             bf = ByteBuffer.allocateDirect( 16384 );
             while ( rbc.read( bf ) != -1 ) {
                 if ( bf.remaining() == 0 ) {
                     //  System.err.println("here8.0.1.2.2.3");
-                    ByteBuffer nbf = ByteBuffer.allocateDirect( bf.capacity() * 2 );
+                    var nbf = ByteBuffer.allocateDirect( bf.capacity() * 2 );
                     bf.flip();
                     nbf.put( nbf );
                     bf = nbf;

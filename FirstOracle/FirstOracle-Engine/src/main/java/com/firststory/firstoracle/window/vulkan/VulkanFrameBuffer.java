@@ -5,7 +5,6 @@
 package com.firststory.firstoracle.window.vulkan;
 
 import com.firststory.firstoracle.window.vulkan.exceptions.CannotCreateVulkanFrameBufferException;
-import com.firststory.firstoracle.window.vulkan.rendering.VulkanGraphicPipeline;
 import com.firststory.firstoracle.window.vulkan.rendering.VulkanRenderPass;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;

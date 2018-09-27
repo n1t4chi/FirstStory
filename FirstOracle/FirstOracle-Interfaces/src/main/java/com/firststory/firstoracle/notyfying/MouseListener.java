@@ -4,10 +4,10 @@
 
 package com.firststory.firstoracle.notyfying;
 
-public /**
+/**
  * @author n1t4chi
  */
-interface MouseListener {
+public interface MouseListener {
     default void notify( MouseScrollEvent event ){}
     default void notify( MousePositionEvent event ){}
     default void notify( MouseButtonEvent event ){}

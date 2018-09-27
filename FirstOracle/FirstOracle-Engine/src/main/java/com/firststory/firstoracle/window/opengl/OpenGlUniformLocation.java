@@ -8,7 +8,6 @@ import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.shader.CannotCreateUniformLocationException;
 import org.joml.*;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.system.MemoryStack;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
 
@@ -26,7 +25,7 @@ class OpenGlUniformLocation {
     private Object lastBind = null;
     
     OpenGlUniformLocation( int program, String locationName ) throws CannotCreateUniformLocationException {
-        int locationID = GL20.glGetUniformLocation( program, locationName );
+        var locationID = GL20.glGetUniformLocation( program, locationName );
         if ( locationID < 0 ) {
             throw new CannotCreateUniformLocationException( locationName );
         }
@@ -88,7 +87,7 @@ class OpenGlUniformLocation {
     
      void bind( Matrix4fc camera ) {
         if ( !camera.equals( lastBind ) ) {
-            try ( MemoryStack stack = stackPush() ) {
+            try ( var stack = stackPush() ) {
                 GL20.glUniformMatrix4fv(
                     locationID,
                     false,
@@ -105,7 +104,7 @@ class OpenGlUniformLocation {
     
      void bind( Matrix3fc camera ) {
         if ( !camera.equals( lastBind ) ) {
-            try ( MemoryStack stack = stackPush() ) {
+            try ( var stack = stackPush() ) {
                 GL20.glUniformMatrix3fv(
                     locationID,
                     false,

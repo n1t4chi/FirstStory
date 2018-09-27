@@ -12,9 +12,9 @@ import java.util.function.Function;
  */
 public class BufferMap {
     
-    private final HashMap< Long, DataBuffer > buffers = new HashMap<>();
+    private final HashMap< Long, DataBuffer< ? > > buffers = new HashMap<>();
     
-    public DataBuffer get( long key, AbsentArrayBufferProvider provider ) {
+    public DataBuffer< ? > get( long key, AbsentArrayBufferProvider provider ) {
         return buffers.computeIfAbsent( key, provider );
     }
     
@@ -23,12 +23,12 @@ public class BufferMap {
         buffers.clear();
     }
     
-    public interface AbsentArrayBufferProvider extends Function< Long, DataBuffer > {
+    public interface AbsentArrayBufferProvider extends Function< Long, DataBuffer< ? > > {
         
-        DataBuffer createNew();
+        DataBuffer< ? > createNew();
         
         @Override
-        default DataBuffer apply( Long aLong ) {
+        default DataBuffer< ? > apply( Long aLong ) {
             return createNew();
         }
     }

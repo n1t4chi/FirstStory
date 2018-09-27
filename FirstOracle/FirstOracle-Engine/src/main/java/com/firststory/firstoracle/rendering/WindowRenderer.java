@@ -18,7 +18,7 @@ public class WindowRenderer implements Renderer {
     private final Grid2DRenderer grid2DRenderer;
     private final Grid3DRenderer grid3DRenderer;
     private final SceneProvider sceneProvider;
-    private MutableCameraDataProvider cameraDataProvider = new MutableCameraDataProvider();
+    private final MutableCameraDataProvider cameraDataProvider = new MutableCameraDataProvider();
     private RenderingContext renderingContext;
     private double currentRenderTime;
     
@@ -52,8 +52,8 @@ public class WindowRenderer implements Renderer {
     public void render( RenderingContext renderingContext, double currentRenderTime ) {
         this.renderingContext = renderingContext;
         this.currentRenderTime = currentRenderTime;
-        
-        RenderedScene scene = sceneProvider.getNextScene();
+    
+        var scene = sceneProvider.getNextScene();
         cameraDataProvider.setRotations( scene );
         
         setBackgroundColour( scene );

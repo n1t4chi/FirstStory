@@ -49,8 +49,8 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
         Vector4fc overlayColour,
         Float maxAlphaChannel
     ) {
-        OpenGlShaderProgram3D  shaderProgram2D = context.getShaderProgram();
-        OpenGlVertexAttributeLoader loader = context.getVertexAttributeLoader();
+        var shaderProgram2D = context.getShaderProgram();
+        var loader = context.getVertexAttributeLoader();
     
         shaderProgram2D.bindPosition( position );
         shaderProgram2D.bindRotation( rotation );
@@ -62,8 +62,8 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
         loader.bindVertices( vertices, vertexFrame );
         loader.bindUvMap( uvMap, uvDirection, uvFrame );
         loader.bindColouring( colours );
-        
-        int bufferSize = vertices.getVertexLength( vertexFrame );
+    
+        var bufferSize = vertices.getVertexLength( vertexFrame );
     
         context.getTextureLoader().bind( texture );
     
@@ -79,8 +79,8 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
         Float rotation,
         LineData lineData
     ) {
-        OpenGlShaderProgram3D shaderProgram2D = context.getShaderProgram();
-        OpenGlVertexAttributeLoader loader = context.getVertexAttributeLoader();
+        var shaderProgram2D = context.getShaderProgram();
+        var loader = context.getVertexAttributeLoader();
     
         shaderProgram2D.bindPosition( position );
         shaderProgram2D.bindRotation( rotation );
@@ -93,7 +93,7 @@ public class OpenGLObject2DRenderingContext implements Object2DRenderingContext 
         loader.bindUvMap( FirstOracleConstants.EMPTY_UV_MAP, 0,0 );
         loader.bindColouring( FirstOracleConstants.EMPTY_COLOURING );
     
-        int bufferSize = vertices.getVertexLength( vertexFrame );
+        var bufferSize = vertices.getVertexLength( vertexFrame );
     
         context.getTextureLoader().bind( FirstOracleConstants.EMPTY_TEXTURE );
     

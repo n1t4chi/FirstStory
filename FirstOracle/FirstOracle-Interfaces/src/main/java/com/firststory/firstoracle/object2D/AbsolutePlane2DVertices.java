@@ -36,7 +36,7 @@ public class AbsolutePlane2DVertices extends FramelessVertices2D {
     
         List< Vertex2D > list = new ArrayList<>( points.length );
     
-        for ( short point : points ) {
+        for ( var point : points ) {
             list.add( pointData[ point ] );
         }
         return list;

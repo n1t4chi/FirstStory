@@ -10,14 +10,14 @@
 
     <groupId>com.FirstStory.FirstOracle</groupId>
     <artifactId>FirstOracle</artifactId>
-    <version>0.4</version>
+    <version>${first.oracle.version}</version>
     <properties>
         <FirstOracle.LibDir>${project.basedir}/../FirstOracle</FirstOracle.LibDir>
     </properties>
     <parent>
         <groupId>com.FirstStory</groupId>
         <artifactId>FirstStory</artifactId>
-        <version>0.4</version>
+        <version>${first.oracle.version}</version>
     </parent>
 
     <build>

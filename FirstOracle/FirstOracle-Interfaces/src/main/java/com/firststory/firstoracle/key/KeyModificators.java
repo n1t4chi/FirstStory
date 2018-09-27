@@ -11,8 +11,8 @@ import java.util.HashMap;
  * @author n1t4chi
  */
 public class KeyModificators {
-    private static HashMap<Integer,KeyModificators> keyModMap = new HashMap<>( 16 );
-    private static KeyModificators EMPTY = new KeyModificators( false,false,false,false );
+    private static final HashMap<Integer,KeyModificators> keyModMap = new HashMap<>( 16 );
+    private static final KeyModificators EMPTY = new KeyModificators( false,false,false,false );
 
     static {
         keyModMap.put( EMPTY.hashCode(), EMPTY );
@@ -23,11 +23,11 @@ public class KeyModificators {
     }
 
     public static KeyModificators create(KeyModificator... modificators){
-        boolean isAltDown = false;
-        boolean isShiftDown = false;
-        boolean isControlDown = false;
-        boolean isSuperDown = false;
-        for(KeyModificator km : modificators ){
+        var isAltDown = false;
+        var isShiftDown = false;
+        var isControlDown = false;
+        var isSuperDown = false;
+        for( var km : modificators ){
             switch(km){
                 case ALT: isAltDown = true; break;
                 case CONTROL: isControlDown = true; break;
@@ -67,7 +67,7 @@ public class KeyModificators {
             ( isAltDown ? 1 : 0 ) +
             ( isSuperDown ? 1 : 0 )
         ];
-        int pos = 0;
+        var pos = 0;
         if( this.isShiftDown){ this.modificators[pos++] = KeyModificator.SHIFT; }
         if( this.isControlDown){ this.modificators[pos++] = KeyModificator.CONTROL; }
         if( this.isAltDown){ this.modificators[pos++] = KeyModificator.ALT; }
@@ -102,7 +102,7 @@ public class KeyModificators {
     @Override
     public boolean equals( Object obj ) {
         if(obj instanceof KeyModificators) {
-            KeyModificators mods = ( KeyModificators ) obj;
+            var mods = ( KeyModificators ) obj;
             return
                 isAltDown == mods.isAltDown &&
                 isControlDown == mods.isControlDown &&

@@ -12,14 +12,14 @@ import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 public class VulkanNextImageIndexException extends VulkanException {
     
     public VulkanNextImageIndexException( VulkanPhysicalDevice physicalDevice, int imageIndex, String message ) {
-        super( "Error during aquiring next image index (returned value: " + imageIndex + ") for device: " +
+        super( "Error during acquiring next image index (returned value: " + imageIndex + ") for device: " +
             physicalDevice + ". Message:\n" + message );
     }
     
     public VulkanNextImageIndexException( VulkanPhysicalDevice physicalDevice, Throwable... suppressed ) {
-        super( "Error during aquiring next image index for device: " + physicalDevice +
+        super( "Error during acquiring next image index for device: " + physicalDevice +
             ". Multiple exceptions intercepted." );
-        for ( Throwable throwable : suppressed ) {
+        for ( var throwable : suppressed ) {
             addSuppressed( throwable );
         }
     }

@@ -25,7 +25,7 @@ class TestableLinearMemory extends LinearMemory< char[] > {
     }
     
     protected char[] readUnsafe( LinearMemoryLocation location ) {
-        char[] data = new char[ ( int ) location.getLength() ];
+        var data = new char[ ( int ) location.getLength() ];
         System.arraycopy( this.data, ( int ) location.getPosition(), data, 0, ( int ) location.getLength() );
         return data;
     }
@@ -36,11 +36,11 @@ class TestableLinearMemory extends LinearMemory< char[] > {
     }
     
     public char[] read( LinearMemoryLocation location ) {
-        asserReadLength( location );
+        assertReadLength( location );
         return readUnsafe( location );
     }
     
-    private void asserReadLength( LinearMemoryLocation location ) {
+    private void assertReadLength( LinearMemoryLocation location ) {
         if ( location.getLength() + location.getPosition() > length() ) {
             throw new ReadMemoryOutOfBoundException( location );
         }

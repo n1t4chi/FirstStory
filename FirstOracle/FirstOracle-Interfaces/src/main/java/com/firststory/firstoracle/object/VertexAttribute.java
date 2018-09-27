@@ -16,14 +16,14 @@ import java.util.List;
  */
 public abstract class VertexAttribute< Data extends FloatData > {
     
-    private final HashMap< VertexAttributeLoader, BufferMap > bufferMaps = new HashMap<>();
+    private final HashMap< VertexAttributeLoader< ? >, BufferMap > bufferMaps = new HashMap<>();
     
     @SuppressWarnings( "unchecked" )
-    public < VertexBuffer extends DataBuffer > VertexBuffer getBuffer(
+    public < VertexBuffer extends DataBuffer< ? > > VertexBuffer getBuffer(
         VertexAttributeLoader< VertexBuffer > loader,
         int... parameters
     ) {
-        long key = getKey( parameters );
+        var key = getKey( parameters );
         return ( VertexBuffer ) bufferMaps.computeIfAbsent( loader, ignored -> new BufferMap() )
             .get( key, () -> loader.provideBuffer( floatDataToArray( getData( parameters ) ) ) );
     }
@@ -45,10 +45,10 @@ public abstract class VertexAttribute< Data extends FloatData > {
         if ( vertexData.isEmpty() ) {
             return FirstOracleConstants.EMPTY_FLOAT_ARRAY;
         }
-        int size = vertexData.get( 0 ).size();
-        float[] array = new float[ vertexData.size() * size ];
-        
-        int iterator = 0;
+        var size = vertexData.get( 0 ).size();
+        var array = new float[ vertexData.size() * size ];
+    
+        var iterator = 0;
         
         for ( FloatData data : vertexData ) {
             System.arraycopy( data.data(), 0, array, iterator, size );

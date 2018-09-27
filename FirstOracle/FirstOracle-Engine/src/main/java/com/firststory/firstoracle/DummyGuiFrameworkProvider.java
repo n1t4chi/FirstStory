@@ -12,14 +12,14 @@ import com.firststory.firstoracle.window.WindowContext;
 /**
  * @author n1t4chi
  */
-public class DummyGuiFrameworkProvider implements GuiFrameworkProvider {
+public class DummyGuiFrameworkProvider implements GuiFrameworkProvider< GuiApplicationData< ? > > {
     
     public static DummyGuiFrameworkProvider getProvider() {
         return new DummyGuiFrameworkProvider();
     }
     
     @Override
-    public GuiFramework provide( WindowContext window, GuiApplicationData guiApplicationData ) {
+    public GuiFramework provide( WindowContext window, GuiApplicationData< ? > guiApplicationData ) {
         return () -> {};
     }
     

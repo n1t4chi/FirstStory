@@ -12,5 +12,5 @@ import java.util.Collection;
  */
 public interface RenderedObjects3D {
     
-    Collection< PositionableObject3D > getObjects();
+    Collection< PositionableObject3D< ?, ? > > getObjects();
 }

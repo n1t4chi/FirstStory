@@ -17,7 +17,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  */
 public class OpenGlSupportChecker {
     
-    private static List<CapabilityTester > tests = new ArrayList<>(  );
+    private static final List<CapabilityTester > tests = new ArrayList<>(  );
 
     static {
         tests.add( test( c -> c.OpenGL11, "opengl 1.1" ) );
@@ -86,7 +86,7 @@ public class OpenGlSupportChecker {
     private interface CapabilityTester {
         CapabilityTest support();
         default void checkSupport(GLCapabilities capabilities) throws OpenGlNotSupported {
-            CapabilityTest support = support();
+            var support = support();
             if( !support.test( capabilities ) ){
                 throw new OpenGlNotSupported(support.capabilityName+" not supported");
             }

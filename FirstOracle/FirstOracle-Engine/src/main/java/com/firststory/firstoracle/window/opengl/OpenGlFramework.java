@@ -30,7 +30,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     private final OpenGlTextureLoader textureLoader = new OpenGlTextureLoader();
     private final OpenGlShaderProgram3D shader = new OpenGlShaderProgram3D();
     private final OpenGlRenderingContext renderingContext;
-    private GLCapabilities capabilities;
+    private final GLCapabilities capabilities;
 
     OpenGlFramework(){
         capabilities = GL.createCapabilities();
@@ -39,7 +39,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
         if ( !OpenGlSupportChecker.isSupportEnough(capabilities) ) {
             throw new RuntimeException( "OpenGL not supported enough to run this engine!" );
         }
-        boolean drawBorder = PropertiesUtil.isPropertyTrue( "drawBorder" );
+        var drawBorder = PropertiesUtil.isPropertyTrue( "drawBorder" );
         renderingContext = new OpenGlRenderingContext(
             attributeLoader,
             textureLoader,
@@ -85,7 +85,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     public void invoke( FrameworkCommands renderingCommands ) throws Exception{
         clearCanvas();
         shader.useProgram();
-        try(OpenGlFramework instance = aquireLock()){
+        try( var instance = acquireLock()){
             renderingCommands.execute( instance );
         }
     }
@@ -96,19 +96,19 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     }
     
     /**
-     * Aquires lock across all OpenGlInstances, will block thread until lock is aquired.
+     * Acquires lock across all OpenGlInstances, will block thread until lock is acquired.
      * @return this instance
      */
-    private OpenGlFramework aquireLock(){
-//        System.err.println("trying to aquire lock by"+Thread.currentThread());
+    private OpenGlFramework acquireLock(){
+//        System.err.println("trying to acquire lock by"+Thread.currentThread());
         contextLock.lock();
-//        System.err.println("lock aquired by"+Thread.currentThread());
+//        System.err.println("lock acquired by"+Thread.currentThread());
         return this;
     }
 
     /**
      * Releases lock to other OpenGlInstances
-     * releasing lock without prior lock aquisition will fail and exception will be thrown
+     * releasing lock without prior lock acquisition will fail and exception will be thrown
      */
     private void releaseLock(){
         contextLock.unlock();

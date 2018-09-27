@@ -12,6 +12,7 @@ import org.joml.Vector2ic;
  */
 public interface RenderedScene2D extends RenderedObjects2D {
     
-    Terrain2D[][] getTerrains();
+    Terrain2D< ? >[][] getTerrains();
+    
     Vector2ic getTerrainShift();
 }

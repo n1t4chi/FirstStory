@@ -17,7 +17,6 @@ import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
 import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import static com.firststory.firstoracle.FirstOracleConstants.SHADER_FILES_LOCATION;
 
@@ -32,7 +31,7 @@ class VulkanShader implements ShaderProgram {
     
     private final String filepath;
     private final ShaderType type;
-    private VulkanPhysicalDevice physicalDevice;
+    private final VulkanPhysicalDevice physicalDevice;
     private VulkanAddress address;
     private VkPipelineShaderStageCreateInfo stageCreateInfo;
     
@@ -63,13 +62,13 @@ class VulkanShader implements ShaderProgram {
     
     @Override
     public void dispose() {
-        if( !address.isNull() ) {
+        if( address.isNotNull() ) {
             VK10.vkDestroyShaderModule( physicalDevice.getLogicalDevice(), address.getValue(), null );
         }
     }
     
     private VkPipelineShaderStageCreateInfo createStageCreateInfo() {
-        VkPipelineShaderStageCreateInfo stageCreateInfo = VkPipelineShaderStageCreateInfo.create()
+        var stageCreateInfo = VkPipelineShaderStageCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO )
             .module( address.getValue() )
             .pName( MemoryUtil.memUTF8( "main" ) )
@@ -90,7 +89,7 @@ class VulkanShader implements ShaderProgram {
     }
     
     private VulkanAddress createShader() throws IOException {
-        ByteBuffer value = IOUtilities.readBinaryResource( filepath );
+        var value = IOUtilities.readBinaryResource( filepath );
         return VulkanHelper.createAddress(
             () -> VkShaderModuleCreateInfo.create()
                 .sType( VK10.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO )

@@ -56,7 +56,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanGraphicCommandPool graphicCommandPool;
     private final VulkanTransferCommandPool vertexDataTransferCommandPool;
     private final VulkanTransferCommandPool textureTransferCommandPool;
-    private final Set< VulkanCommandPool > commandPools = new HashSet<>();
+    private final Set< VulkanCommandPool< ? > > commandPools = new HashSet<>();
     private final VulkanSemaphore imageAvailableSemaphore;
     private final VulkanBufferProvider bufferProvider;
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
@@ -166,7 +166,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     public String memoryTypesToString() {
-        StringBuilder memoryTypesString = new StringBuilder();
+        var memoryTypesString = new StringBuilder();
         memoryTypesString.append( "{" );
         memoryTypes.values()
             .forEach( memoryType -> memoryTypesString.append( " { heapIndex:" )
@@ -204,7 +204,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     public VulkanMemoryType selectMemoryType( int desiredType, int... desiredFlags ) {
-        for ( VulkanMemoryType memoryType : memoryTypes.values() ) {
+        for ( var memoryType : memoryTypes.values() ) {
             if( checkMemoryTypeFlags( memoryType.getIndex(), memoryType.propertyFlags(), desiredType, desiredFlags ) ) {
                 return memoryType;
             }
@@ -242,7 +242,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
-        currentImageIndex = aquireNextImageIndex();
+        currentImageIndex = acquireNextImageIndex();
         renderingContext.tearDownSingleRender( trianglePipeline, linePipeline, graphicCommandPool );
     
         if( currentImageIndex == swapChain.getImageViews().size() - 1 ) {
@@ -295,26 +295,26 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     public IntBuffer createQueueFamilyIndicesBuffer() {
-        IntBuffer buffer = MemoryUtil.memAllocInt( usedQueueFamilies.size() );
+        var buffer = MemoryUtil.memAllocInt( usedQueueFamilies.size() );
         usedQueueFamilies.forEach( family -> buffer.put( family.getIndex() ) );
         buffer.flip();
         return buffer;
     }
     
-    public int aquireCurrentImageIndex() {
+    public int acquireCurrentImageIndex() {
         return currentImageIndex;
     }
     
     
-    private int aquireNextImageIndex() {
+    private int acquireNextImageIndex() {
         try {
-            return tryToAquireNextImageIndex();
+            return tryToAcquireNextImageIndex();
         } catch ( VulkanNextImageIndexException ex1 ) {
-            logger.log( Level.WARNING, "Exception during aquiring next image index. Updating rendering context.", ex1 );
+            logger.log( Level.WARNING, "Exception during acquiring next image index. Updating rendering context.", ex1 );
             try {
                 updateRenderingContext();
-                int imageIndex = tryToAquireNextImageIndex();
-                logger.log( Level.FINEST, "Aquired image index: " + imageIndex + " after context update." );
+                var imageIndex = tryToAcquireNextImageIndex();
+                logger.log( Level.FINEST, "Acquired image index: " + imageIndex + " after context update." );
                 return imageIndex;
             } catch ( Exception ex2 ) {
                 throw new VulkanNextImageIndexException( this, ex1, ex2 );
@@ -323,14 +323,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     VulkanFormatProperty findFormatProperty( Set< Integer > candidates, Integer tiling, Integer features ) {
-        Set< VulkanFormatProperty > properties = createFormatProperties( candidates );
+        var properties = createFormatProperties( candidates );
         return selectFormatProperty( tiling, features, properties );
     }
     
     private VulkanFormatProperty selectFormatProperty(
         Integer tiling, Integer features, Set< VulkanFormatProperty > properties
     ) {
-        for ( VulkanFormatProperty property : properties ) {
+        for ( var property : properties ) {
             if ( tiling == VK10.VK_IMAGE_TILING_LINEAR && ( property.linearTilingFeatures() & features ) == features ||
                 tiling == VK10.VK_IMAGE_TILING_OPTIMAL && ( property.optimalTilingFeatures() & features ) == features )
             {
@@ -342,8 +342,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private Set< VulkanFormatProperty > createFormatProperties( Set< Integer > candidates ) {
         Set< VulkanFormatProperty > properties = new HashSet<>(  );
-        for( Integer format : candidates ) {
-            VkFormatProperties property = VkFormatProperties.create();
+        for( var format : candidates ) {
+            var property = VkFormatProperties.create();
             VK10.vkGetPhysicalDeviceFormatProperties( physicalDevice, format, property );
             properties.add( new VulkanFormatProperty( format, property ) );
         }
@@ -370,7 +370,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private VkPhysicalDeviceMemoryProperties createPhysicalDeviceMemoryProperties() {
-        VkPhysicalDeviceMemoryProperties memoryProperties = VkPhysicalDeviceMemoryProperties.create();
+        var memoryProperties = VkPhysicalDeviceMemoryProperties.create();
         VK10.vkGetPhysicalDeviceMemoryProperties( physicalDevice, memoryProperties );
         return memoryProperties;
     }
@@ -379,9 +379,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         graphicCommandPool.refreshCommandBuffers( frameBuffers );
     }
     
-    private int tryToAquireNextImageIndex() {
-        int[] imageIndex = new int[1];
-        int result = KHRSwapchain.vkAcquireNextImageKHR(
+    private int tryToAcquireNextImageIndex() {
+        var imageIndex = new int[1];
+        var result = KHRSwapchain.vkAcquireNextImageKHR(
             logicalDevice,
             swapChain.getAddress().getValue(),
             Long.MAX_VALUE,
@@ -398,7 +398,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             case VK10.VK_SUCCESS:
                 break;
             default:
-                throw new CannotAquireNextImageIndexException( this, imageIndex[0], result );
+                throw new CannotAcquireNextImageIndexException( this, imageIndex[0], result );
         }
         return imageIndex[0];
     }
@@ -410,7 +410,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VulkanDepthResources depthResources
     ) {
         disposeFrameBuffers( frameBuffers );
-        for ( Map.Entry< Integer, VulkanImageView > entry : swapChain.getImageViews().entrySet() ) {
+        for ( var entry : swapChain.getImageViews().entrySet() ) {
             frameBuffers.put( entry.getKey(),
                 new VulkanFrameBuffer( this, entry.getValue(), renderPass, swapChain, depthResources )
             );
@@ -461,9 +461,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private List< VkExtensionProperties > createExtensionProperties() {
-        int[] extensionCount = new int[1];
+        var extensionCount = new int[1];
         VK10.vkEnumerateDeviceExtensionProperties( physicalDevice, ( ByteBuffer ) null, extensionCount, null );
-        VkExtensionProperties.Buffer extensionPropertiesBuffer = VkExtensionProperties.create( extensionCount[0] );
+        var extensionPropertiesBuffer = VkExtensionProperties.create( extensionCount[0] );
         VK10.vkEnumerateDeviceExtensionProperties( physicalDevice,
             ( ByteBuffer ) null,
             extensionCount,
@@ -484,9 +484,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private VkDeviceQueueCreateInfo.Buffer createQueueFamilyBuffer() {
-        VkDeviceQueueCreateInfo.Buffer buffer = createVkDeviceQueueCreateInfoBuffer( usedQueueFamilies.size() );
+        var buffer = createVkDeviceQueueCreateInfoBuffer( usedQueueFamilies.size() );
         usedQueueFamilies.forEach( family -> {
-            VkDeviceQueueCreateInfo queueInfo = VkDeviceQueueCreateInfo.create()
+            var queueInfo = VkDeviceQueueCreateInfo.create()
                 .sType( VK10.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO )
                 .queueFamilyIndex( family.getIndex() )
                 .pQueuePriorities( MemoryStack.stackFloats( 1.0f ) );
@@ -502,7 +502,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private VkPhysicalDeviceFeatures createDeviceFeatures() {
-        VkPhysicalDeviceFeatures features = VkPhysicalDeviceFeatures.create()
+        var features = VkPhysicalDeviceFeatures.create()
             .samplerAnisotropy( true )
             ;
         VK10.vkGetPhysicalDeviceFeatures( physicalDevice, features );
@@ -510,17 +510,17 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private VkPhysicalDeviceProperties createDeviceProperties() {
-        VkPhysicalDeviceProperties properties = VkPhysicalDeviceProperties.create();
+        var properties = VkPhysicalDeviceProperties.create();
         VK10.vkGetPhysicalDeviceProperties( physicalDevice, properties );
         return properties;
     }
     
     private VkDevice createLogicalDevice( PointerBuffer validationLayerNamesBuffer ) {
-        VkDeviceCreateInfo createInfo = createDeviceCreateInfo();
+        var createInfo = createDeviceCreateInfo();
         if ( VulkanFramework.validationLayersAreEnabled() ) {
             createInfo.ppEnabledLayerNames( validationLayerNamesBuffer );
         }
-        PointerBuffer devicePointer = MemoryUtil.memAllocPointer( 1 );
+        var devicePointer = MemoryUtil.memAllocPointer( 1 );
         VulkanHelper.assertCallOrThrow( () -> VK10.vkCreateDevice( physicalDevice, createInfo, null, devicePointer ),
             resultCode -> new CannotCreateVulkanLogicDeviceException( this, resultCode )
         );
@@ -528,10 +528,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private PointerBuffer createEnabledExtensionNamesBuffer() {
-        PointerBuffer extensionsBuffer = MemoryUtil.memAllocPointer( requiredExtensions.size() );
-        requiredExtensions.forEach( ex -> {
-            extensionsBuffer.put( MemoryUtil.memAddress( MemoryStack.stackUTF8( ex ) ) );
-        } );
+        var extensionsBuffer = MemoryUtil.memAllocPointer( requiredExtensions.size() );
+        requiredExtensions.forEach( ex -> extensionsBuffer.put( MemoryUtil.memAddress( MemoryStack.stackUTF8( ex ) ) ) );
         extensionsBuffer.flip();
         return extensionsBuffer;
     }
@@ -556,7 +554,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private VulkanQueueFamily selectPresentationFamily() {
         return selectSuitableFamily( family -> {
-            int[] supports = new int[1];
+            var supports = new int[1];
             return KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR( physicalDevice,
                 family.getIndex(),
                 windowSurface.getAddress().getValue(),
@@ -584,7 +582,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     )
     {
         VulkanQueueFamily selectedFamily = null;
-        for ( VulkanQueueFamily family : availableQueueFamilies ) {
+        for ( var family : availableQueueFamilies ) {
             if ( familyChecker.test( family ) && familyComparator.compare( selectedFamily, family ) < 0 ) {
                 selectedFamily = family;
             }
@@ -596,14 +594,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private List< VulkanQueueFamily > getAvailableQueueFamilies() {
-        int[] queueFamilyCount = new int[1];
+        var queueFamilyCount = new int[1];
         VK10.vkGetPhysicalDeviceQueueFamilyProperties( physicalDevice, queueFamilyCount, null );
-        VkQueueFamilyProperties.Buffer queueFamilyPropertiesBuffer = VkQueueFamilyProperties.create( queueFamilyCount[0] );
+        var queueFamilyPropertiesBuffer = VkQueueFamilyProperties.create( queueFamilyCount[0] );
         VK10.vkGetPhysicalDeviceQueueFamilyProperties( physicalDevice, queueFamilyCount, queueFamilyPropertiesBuffer );
         List< VulkanQueueFamily > queueFamilyProperties = new ArrayList<>( queueFamilyCount[0] );
         
         VulkanHelper.iterate( queueFamilyPropertiesBuffer, ( index, properties ) -> {
-            VulkanQueueFamily family = new VulkanQueueFamily( this, properties, index );
+            var family = new VulkanQueueFamily( this, properties, index );
             queueFamilyProperties.add( family );
             logger.finer( this + " -> " + family );
         } );

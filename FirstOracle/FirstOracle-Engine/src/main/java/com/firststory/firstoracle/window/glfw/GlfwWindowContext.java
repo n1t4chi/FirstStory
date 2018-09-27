@@ -67,12 +67,17 @@ public class GlfwWindowContext implements WindowContext {
         GLFW.glfwShowWindow( address );
     }
     
+    private boolean destroyed = false;
+    
     @Override
     public void destroy(){
-        JOYSTICK_CALLBACK.removeWindow( this );
-        deregisterWindow(this);
-        Callbacks.glfwFreeCallbacks( address );
-        GLFW.glfwDestroyWindow( address );
+        if( !destroyed ) {
+            destroyed = true;
+            JOYSTICK_CALLBACK.removeWindow( this );
+            deregisterWindow( this );
+            Callbacks.glfwFreeCallbacks( address );
+            GLFW.glfwDestroyWindow( address );
+        }
     }
     
     @Override
@@ -139,7 +144,7 @@ public class GlfwWindowContext implements WindowContext {
     }
     
     void notifyJoystickListeners( int jid, int event ) {
-        JoystickEvent joystickEvent = new JoystickEvent(GlfwWindowContext.this, jid, event );
+        var joystickEvent = new JoystickEvent(GlfwWindowContext.this, jid, event );
         joystickListeners.forEach( listener -> listener.notify( joystickEvent ) );
     }
     
@@ -158,7 +163,7 @@ public class GlfwWindowContext implements WindowContext {
     private class MouserScrollCallback implements GLFWScrollCallbackI {
         @Override
         public void invoke( long window, double xoffset, double yoffset ) {
-            MouseScrollEvent event = new MouseScrollEvent( GlfwWindowContext.this,xoffset, yoffset );
+            var event = new MouseScrollEvent( GlfwWindowContext.this,xoffset, yoffset );
             mouseListeners.forEach( listener -> listener.notify( event ) );
         }
     }
@@ -166,7 +171,7 @@ public class GlfwWindowContext implements WindowContext {
     private class MouseButtonCallback implements GLFWMouseButtonCallbackI {
         @Override
         public void invoke( long window, int button, int action, int mods ) {
-            MouseButtonEvent event = new MouseButtonEvent( GlfwWindowContext.this, button, action, mods );
+            var event = new MouseButtonEvent( GlfwWindowContext.this, button, action, mods );
             mouseListeners.forEach( listener -> listener.notify( event ) );
         }
     }
@@ -174,7 +179,7 @@ public class GlfwWindowContext implements WindowContext {
     private class MouserPositionCallback implements GLFWCursorPosCallbackI {
         @Override
         public void invoke( long window, double xpos, double ypos ) {
-            MousePositionEvent event = new MousePositionEvent( GlfwWindowContext.this, xpos, ypos );
+            var event = new MousePositionEvent( GlfwWindowContext.this, xpos, ypos );
             mouseListeners.forEach( listener -> listener.notify( event ) );
         }
     }
@@ -182,7 +187,7 @@ public class GlfwWindowContext implements WindowContext {
     private class KeyCallback implements GLFWKeyCallbackI {
         @Override
         public void invoke( long window, int key, int scancode, int action, int mods ) {
-            KeyEvent event = new KeyEvent(
+            var event = new KeyEvent(
                 GlfwWindowContext.this, GlfwKeyMap.parseKeyCode( key, scancode, action, mods )
             );
             keyListeners.forEach( listener -> listener.notify( event ) );
@@ -192,7 +197,7 @@ public class GlfwWindowContext implements WindowContext {
     private class WindowSizeCallback implements GLFWWindowSizeCallbackI {
         @Override
         public void invoke( long window, int width, int height ) {
-            WindowSizeEvent event = new WindowSizeEvent( GlfwWindowContext.this, width, height );
+            var event = new WindowSizeEvent( GlfwWindowContext.this, width, height );
             windowListeners.forEach( listener -> listener.notify( event ) );
         }
     }
@@ -200,7 +205,7 @@ public class GlfwWindowContext implements WindowContext {
     private class WindowPositionCallback implements GLFWWindowPosCallbackI {
         @Override
         public void invoke( long window, int xpos, int ypos ) {
-            WindowPositionEvent event = new WindowPositionEvent( GlfwWindowContext.this, xpos, ypos );
+            var event = new WindowPositionEvent( GlfwWindowContext.this, xpos, ypos );
             windowListeners.forEach( listener -> listener.notify( event ) );
         }
     }
@@ -208,7 +213,7 @@ public class GlfwWindowContext implements WindowContext {
     private class WindowCloseCallback implements GLFWWindowCloseCallbackI {
         @Override
         public void invoke( long window ) {
-            WindowCloseEvent event = new WindowCloseEvent( GlfwWindowContext.this );
+            var event = new WindowCloseEvent( GlfwWindowContext.this );
             windowListeners.forEach( listener -> listener.notify( event ) );
         }
     }
@@ -216,7 +221,7 @@ public class GlfwWindowContext implements WindowContext {
     private class WindowFocusCallback implements GLFWWindowFocusCallbackI {
         @Override
         public void invoke( long window, boolean focused ) {
-            WindowFocusedEvent event = new WindowFocusedEvent( GlfwWindowContext.this, focused );
+            var event = new WindowFocusedEvent( GlfwWindowContext.this, focused );
             windowListeners.forEach( listener -> listener.notify( event ) );
         }
     }

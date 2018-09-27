@@ -10,7 +10,7 @@ package com.firststory.firstoracle.templates;
 public class DualWindow {
     
     public static void main( String[] args ) throws Exception {
-        Thread t = new Thread( DualWindow::secondWindow );
+        var t = new Thread( DualWindow::secondWindow );
         t.start();
         firstWindow();
         t.join();

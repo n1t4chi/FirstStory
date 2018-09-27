@@ -31,7 +31,7 @@ public class PropertiesUtil {
     private static final Logger logger = FirstOracleConstants.getLogger( PropertiesUtil.class );
     
     public static boolean isPropertyTrue( String propertyName ) {
-        String value = System.getProperty( propertyName );
+        var value = System.getProperty( propertyName );
         if( value != null ){
             return Boolean.parseBoolean( value );
         }
@@ -64,7 +64,7 @@ public class PropertiesUtil {
     public static <T> T getGenericProperty(
         String propertyName, T defaultValue, String expectedValueInfo, Function< String, T > parser
     ){
-        String value = System.getProperty( propertyName );
+        var value = System.getProperty( propertyName );
         
         if( value != null ) {
             try {
@@ -79,7 +79,7 @@ public class PropertiesUtil {
     }
     
     public static List<String> getListFromProperty( String propertyName ){
-        String property = System.getProperty( propertyName, null );
+        var property = System.getProperty( propertyName, null );
         if(property == null){
             throw new PropertyNotFoundException( propertyName );
         }
@@ -88,7 +88,7 @@ public class PropertiesUtil {
             throw new InvalidPropertyFormatException(propertyName, property);
         }
         property = property.substring( 1, property.length()-1 );
-        String[] properties = property.split( "," );
+        var properties = property.split( "," );
         return new ArrayList<>( Arrays.asList( properties ) );
     }
     

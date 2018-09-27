@@ -20,7 +20,7 @@ class VulkanSwapChainImage extends VulkanImage {
     
     @Override
     public int hashCode() {
-        int result = getAddress() != null ? getAddress().hashCode() : 0;
+        var result = getAddress() != null ? getAddress().hashCode() : 0;
         result = 31 * result + index;
         return result;
     }
@@ -29,8 +29,8 @@ class VulkanSwapChainImage extends VulkanImage {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        VulkanSwapChainImage that = ( VulkanSwapChainImage ) o;
+    
+        var that = ( VulkanSwapChainImage ) o;
         
         if ( index != that.index ) { return false; }
         return getAddress() != null ? getAddress().equals( that.getAddress() ) : that.getAddress() == null;

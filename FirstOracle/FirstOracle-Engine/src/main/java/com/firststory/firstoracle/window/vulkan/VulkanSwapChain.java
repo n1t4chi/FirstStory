@@ -30,7 +30,7 @@ public class VulkanSwapChain {
     private VkSurfaceFormatKHR usedFormat;
     private int[] presentModes;
     private int usedPresentMode;
-    private VulkanPhysicalDevice device;
+    private final VulkanPhysicalDevice device;
     private VkExtent2D extent;
     private int imageCount;
     private VkSwapchainCreateInfoKHR createInfo;
@@ -43,7 +43,7 @@ public class VulkanSwapChain {
     void dispose() {
         clearImages();
         clearImageViews();
-        if ( !address.isNull() ) {
+        if ( address.isNotNull() ) {
             KHRSwapchain.vkDestroySwapchainKHR( device.getLogicalDevice(), address.getValue(), null );
             address.setNull();
         }
@@ -62,7 +62,7 @@ public class VulkanSwapChain {
     
     void update( VulkanWindowSurface windowSurface ) {
         dispose();
-        VkPhysicalDevice physicalDevice = device.getPhysicalDevice();
+        var physicalDevice = device.getPhysicalDevice();
         capabilities = createCapabilities( physicalDevice, windowSurface );
         refreshFormats( physicalDevice, windowSurface );
         presentModes = createPresentModes( physicalDevice, windowSurface );
@@ -111,18 +111,19 @@ public class VulkanSwapChain {
     
     private void refreshImageViews() {
         clearImageViews();
-        images.forEach( ( index, image ) -> {
-            imageViews.put( index, image.createImageView( usedFormat.format(), VK10.VK_IMAGE_ASPECT_COLOR_BIT, 1 ) );
-        } );
+        images.forEach( ( index, image ) -> imageViews.put(
+            index,
+            image.createImageView( usedFormat.format(), VK10.VK_IMAGE_ASPECT_COLOR_BIT, 1 )
+        ) );
     }
     
     private void refreshVulkanImages() {
-        int[] count = new int[1];
+        var count = new int[1];
         KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address.getValue(), count, null );
-        long[] addresses = new long[count[0]];
+        var addresses = new long[count[0]];
         clearImages();
         KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address.getValue(), count, addresses );
-        for ( int i = 0; i < addresses.length; i++ ) {
+        for ( var i = 0; i < addresses.length; i++ ) {
             images.put( i, new VulkanSwapChainImage( device, new VulkanAddress( addresses[i] ), i ) );
         }
     }
@@ -141,7 +142,7 @@ public class VulkanSwapChain {
     }
     
     private VkSwapchainCreateInfoKHR createSwapChainCreateInfo( VulkanWindowSurface windowSurface ) {
-        VkSwapchainCreateInfoKHR createInfo = VkSwapchainCreateInfoKHR.create()
+        var createInfo = VkSwapchainCreateInfoKHR.create()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR )
             .surface( windowSurface.getAddress().getValue() )
             .minImageCount( imageCount )
@@ -149,7 +150,7 @@ public class VulkanSwapChain {
             .imageColorSpace( usedFormat.colorSpace() )
             .imageExtent( extent )
             .imageArrayLayers( 1 )
-            //.imageUsage( VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT ) todo: ould be used for post processing
+            //.imageUsage( VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT ) todo: could be used for post processing
             .imageUsage( VK10.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT )
             .preTransform( capabilities.currentTransform() )
             .compositeAlpha( KHRSurface.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR )
@@ -168,7 +169,7 @@ public class VulkanSwapChain {
     }
     
     private int computeImageCount() {
-        int imageCount = capabilities.minImageCount() + 1;
+        var imageCount = capabilities.minImageCount() + 1;
         if ( capabilities.maxImageCount() > 0 ) {
             imageCount = capabilities.maxImageCount();
         }
@@ -196,9 +197,9 @@ public class VulkanSwapChain {
         return presentModes[0];
     }
     
-    private boolean isModeAvailable( int preferedMode ) {
-        for ( int mode : presentModes ) {
-            if ( mode == preferedMode ) {
+    private boolean isModeAvailable( int preferredMode ) {
+        for ( var mode : presentModes ) {
+            if ( mode == preferredMode ) {
                 return true;
             }
         }
@@ -207,8 +208,8 @@ public class VulkanSwapChain {
     
     private VkSurfaceFormatKHR selectSurfaceFormat() {
         VkSurfaceFormatKHR selectedFormat;
-        
-        Set< VkSurfaceFormatKHR > collect = formats.stream()
+    
+        var collect = formats.stream()
             .filter( format -> format.colorSpace() == KHRSurface.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR )
             .collect( Collectors.toSet() );
         
@@ -237,13 +238,13 @@ public class VulkanSwapChain {
     }
     
     private int[] createPresentModes( VkPhysicalDevice physicalDevice, VulkanWindowSurface windowSurface ) {
-        int[] presentModeCount = new int[1];
+        var presentModeCount = new int[1];
         KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR( physicalDevice,
             windowSurface.getAddress().getValue(),
             presentModeCount,
             null
         );
-        int[] presentModes = new int[presentModeCount[0]];
+        var presentModes = new int[presentModeCount[0]];
         KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR( physicalDevice,
             windowSurface.getAddress().getValue(),
             presentModeCount,
@@ -253,13 +254,13 @@ public class VulkanSwapChain {
     }
     
     private void refreshFormats( VkPhysicalDevice physicalDevice, VulkanWindowSurface windowSurface ) {
-        int[] formatCount = new int[1];
+        var formatCount = new int[1];
         KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR( physicalDevice,
             windowSurface.getAddress().getValue(),
             formatCount,
             null
         );
-        VkSurfaceFormatKHR.Buffer formatsBuffer = VkSurfaceFormatKHR.create( formatCount[0] );
+        var formatsBuffer = VkSurfaceFormatKHR.create( formatCount[0] );
         KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR( physicalDevice,
             windowSurface.getAddress().getValue(),
             formatCount,
@@ -273,7 +274,7 @@ public class VulkanSwapChain {
         VkPhysicalDevice physicalDevice, VulkanWindowSurface windowSurface
     )
     {
-        VkSurfaceCapabilitiesKHR capabilities = VkSurfaceCapabilitiesKHR.create();
+        var capabilities = VkSurfaceCapabilitiesKHR.create();
         KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR( physicalDevice,
             windowSurface.getAddress().getValue(),
             capabilities

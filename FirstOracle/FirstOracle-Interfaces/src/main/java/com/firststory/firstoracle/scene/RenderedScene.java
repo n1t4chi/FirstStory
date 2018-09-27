@@ -5,14 +5,8 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.CameraDataProvider;
 import com.firststory.firstoracle.rendering.RenderingContext;
-import org.joml.Vector2ic;
-import org.joml.Vector3ic;
 import org.joml.Vector4fc;
 
 /**
@@ -26,28 +20,27 @@ public interface RenderedScene {
         CameraDataProvider cameraDataProvider
     ) {
         renderingContext.render2D( renderer -> {
-            double cameraRotation = cameraDataProvider.getCameraRotation2D();
-            RenderedScene2D scene2D = getScene2D();
-
-            Vector2ic terrainShift = scene2D.getTerrainShift();
-            Terrain2D<?>[][] terrains = scene2D.getTerrains();
+            var cameraRotation = cameraDataProvider.getCameraRotation2D();
+            var scene2D = getScene2D();
+    
+            var terrainShift = scene2D.getTerrainShift();
+            var terrains = scene2D.getTerrains();
             for ( int x = 0, xLength = terrains.length; x < xLength; x++ ) {
-                Terrain2D< ? >[] terrainsY = terrains[ x ];
-
+                var terrainsY = terrains[ x ];
+                
                 for ( int y = 0, yLength = terrainsY.length; y < xLength; y++ ) {
-                    Terrain2D<?> terrain = terrainsY[ y ];
-
-                    renderer.render(
-                        terrain,
+                    var terrain = terrainsY[ y ];
+                    
+                    renderer.render( terrain,
                         terrain.computePosition( x, y, terrainShift ),
                         currentRenderTime,
                         cameraRotation
                     );
-
+                    
                 }
             }
-
-            for ( PositionableObject2D< ?, ? > object : scene2D.getObjects() ) {
+            
+            for ( var object : scene2D.getObjects() ) {
                 renderer.render( object, currentRenderTime, cameraRotation );
             }
         } );
@@ -61,22 +54,21 @@ public interface RenderedScene {
         CameraDataProvider cameraDataProvider
     ) {
         renderingContext.render3D( renderer -> {
-            double cameraRotation = cameraDataProvider.getCameraRotation3D();
-            RenderedScene3D scene3D = getScene3D();
-
-            Vector3ic terrainShift = scene3D.getTerrainShift();
-            Terrain3D<?>[][][] terrainsXYZ = scene3D.getTerrains();
+            var cameraRotation = cameraDataProvider.getCameraRotation3D();
+            var scene3D = getScene3D();
+    
+            var terrainShift = scene3D.getTerrainShift();
+            var terrainsXYZ = scene3D.getTerrains();
             for ( int x = 0, xLength = terrainsXYZ.length; x < xLength; x++ ) {
-                Terrain3D< ? >[][] terrainsYZ = terrainsXYZ[ x ];
-
+                var terrainsYZ = terrainsXYZ[ x ];
+                
                 for ( int y = 0, yLength = terrainsYZ.length; y < yLength; y++ ) {
-                    Terrain3D< ? >[] terrainsZ = terrainsYZ[ y ];
-
+                    var terrainsZ = terrainsYZ[ y ];
+                    
                     for ( int z = 0, zLength = terrainsZ.length; z < zLength; z++ ) {
-                        Terrain3D<?> terrain = terrainsZ[ z ];
-
-                        renderer.render(
-                            terrain,
+                        var terrain = terrainsZ[ z ];
+                        
+                        renderer.render( terrain,
                             terrain.computePosition( x, y, z, terrainShift ),
                             currentRenderTime,
                             cameraRotation
@@ -84,8 +76,8 @@ public interface RenderedScene {
                     }
                 }
             }
-
-            for ( PositionableObject3D< ?, ? > object : scene3D.getObjects() ) {
+            
+            for ( var object : scene3D.getObjects() ) {
                 renderer.render( object, currentRenderTime, cameraRotation );
             }
         } );
@@ -94,15 +86,13 @@ public interface RenderedScene {
     RenderedScene3D getScene3D();
     
     default void renderBackground(
-        RenderingContext renderingContext,
-        double currentRenderTime,
-        CameraDataProvider cameraDataProvider
+        RenderingContext renderingContext, double currentRenderTime, CameraDataProvider cameraDataProvider
     ) {
         renderingContext.render2D( renderer -> {
-            double cameraRotation = cameraDataProvider.getCameraRotation2D();
-            RenderedObjects2D scene2D = getBackground();
-
-            for ( PositionableObject2D< ?, ? > object : scene2D.getObjects() ) {
+            var cameraRotation = cameraDataProvider.getCameraRotation2D();
+            var scene2D = getBackground();
+            
+            for ( var object : scene2D.getObjects() ) {
                 renderer.render( object, currentRenderTime, cameraRotation );
             }
         } );
@@ -111,15 +101,13 @@ public interface RenderedScene {
     RenderedObjects2D getBackground();
     
     default void renderOverlay(
-        RenderingContext renderingContext,
-        double currentRenderTime,
-        CameraDataProvider cameraDataProvider
+        RenderingContext renderingContext, double currentRenderTime, CameraDataProvider cameraDataProvider
     ) {
         renderingContext.render2D( renderer -> {
-            double cameraRotation = cameraDataProvider.getCameraRotation2D();
-            RenderedObjects2D scene2D = getOverlay();
-
-            for ( PositionableObject2D< ?, ? > object : scene2D.getObjects() ) {
+            var cameraRotation = cameraDataProvider.getCameraRotation2D();
+            var scene2D = getOverlay();
+            
+            for ( var object : scene2D.getObjects() ) {
                 renderer.render( object, currentRenderTime, cameraRotation );
             }
         } );

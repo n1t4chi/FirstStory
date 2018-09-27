@@ -49,8 +49,8 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         Vector4fc overlayColour,
         Float maxAlphaChannel
     ) {
-        OpenGlShaderProgram3D shaderProgram3D = context.getShaderProgram();
-        OpenGlVertexAttributeLoader loader = context.getVertexAttributeLoader();
+        var shaderProgram3D = context.getShaderProgram();
+        var loader = context.getVertexAttributeLoader();
     
         shaderProgram3D.bindPosition( position );
         shaderProgram3D.bindRotation( rotation );
@@ -63,7 +63,7 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         loader.bindUvMap( uvMap, uvDirection, uvFrame );
         loader.bindColouring( colours );
     
-        int bufferSize = vertices.getVertexLength( vertexFrame );
+        var bufferSize = vertices.getVertexLength( vertexFrame );
     
         context.getTextureLoader().bind( texture );
     
@@ -79,8 +79,8 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         Vector3fc rotation,
         LineData lineData
     ) {
-        OpenGlShaderProgram3D shaderProgram3D = context.getShaderProgram();
-        OpenGlVertexAttributeLoader loader = context.getVertexAttributeLoader();
+        var shaderProgram3D = context.getShaderProgram();
+        var loader = context.getVertexAttributeLoader();
     
         shaderProgram3D.bindPosition( position );
         shaderProgram3D.bindRotation( rotation );
@@ -93,7 +93,7 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         loader.bindUvMap( FirstOracleConstants.EMPTY_UV_MAP, 0,0 );
         loader.bindColouring( FirstOracleConstants.EMPTY_COLOURING );
     
-        int bufferSize = vertices.getVertexLength( vertexFrame );
+        var bufferSize = vertices.getVertexLength( vertexFrame );
     
         context.getTextureLoader().bind( FirstOracleConstants.EMPTY_TEXTURE );
         

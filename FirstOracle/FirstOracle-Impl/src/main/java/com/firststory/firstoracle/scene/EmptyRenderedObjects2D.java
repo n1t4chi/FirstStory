@@ -18,12 +18,12 @@ import java.util.Collections;
 class EmptyRenderedObjects2D implements RenderedScene2D {
     
     @Override
-    public Terrain2D[][] getTerrains() {
+    public Terrain2D< ? >[][] getTerrains() {
         return new Terrain2D[ 0 ][];
     }
     
     @Override
-    public Collection< PositionableObject2D > getObjects() {
+    public Collection< PositionableObject2D< ?, ? > > getObjects() {
         return Collections.emptyList();
     }
     

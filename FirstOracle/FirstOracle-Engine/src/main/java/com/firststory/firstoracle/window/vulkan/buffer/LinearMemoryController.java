@@ -4,7 +4,6 @@
 
 package com.firststory.firstoracle.window.vulkan.buffer;
 
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
@@ -16,11 +15,11 @@ import static com.firststory.firstoracle.window.vulkan.buffer.LinearMemoryLocati
 class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
     
     private final Memory memory;
-    private PriorityQueue< LinearMemoryLocation > freeSpace = new PriorityQueue<>( BY_TRUE_SIZE );
+    private final PriorityQueue< LinearMemoryLocation > freeSpace = new PriorityQueue<>( BY_TRUE_SIZE );
     
     LinearMemoryController( Memory memory ) {
         this.memory = memory;
-        LinearMemoryLocation location = newLoc( 0, memory.length(), memory.length() );
+        var location = newLoc( 0, memory.length(), memory.length() );
         addLocation( location );
     }
     
@@ -41,8 +40,8 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
     }
     
     void free( LinearMemoryLocation location ) {
-        
-        List< LinearMemoryLocation > adjacentLocations = freeSpace.stream()
+    
+        var adjacentLocations = freeSpace.stream()
             .sorted()
             .filter( location::adjacent )
             .collect( Collectors.toList() )
@@ -54,14 +53,13 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
     }
     
     LinearMemoryLocation allocate( int length ) {
-        LinearMemoryLocation memoryLocation = freeSpace.stream()
+        var memoryLocation = freeSpace.stream()
             .sorted( LinearMemoryLocation::compareTrueLengthTo )
             .filter( Location -> Location.getLength() >= length )
             .min( LinearMemoryLocation::compareTrueLengthTo )
             .orElseThrow( () -> new OutOfMemoryException( length ) );
-        
     
-        LinearMemoryLocation newLocation = memoryLocation.split( length );
+        var newLocation = memoryLocation.split( length );
         removeLocation( memoryLocation );
         if( newLocation != null ) {
             addLocation( memoryLocation );

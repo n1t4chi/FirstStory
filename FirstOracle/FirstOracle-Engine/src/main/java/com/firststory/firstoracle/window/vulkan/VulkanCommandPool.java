@@ -22,7 +22,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandPool.class );
     private final VulkanPhysicalDevice device;
     private final VulkanQueueFamily usedQueueFamily;
-    private VulkanAddress address;
+    private final VulkanAddress address;
     
     public VulkanCommandPool( VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily ) {
         this.device = device;
@@ -39,7 +39,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     }
     
     public void dispose() {
-        if( !address.isNull() ){
+        if( address.isNotNull() ){
             VK10.vkDestroyCommandPool( device.getLogicalDevice(), address.getValue(), null );
             address.setNull();
         }
@@ -49,8 +49,8 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         return address;
     }
     
-    public void executeQueue( VulkanCommand<CommandBuffer> commands ) {
-        CommandBuffer commandBuffer = extractNextCommandBuffer();
+    public void executeQueue( VulkanCommand< CommandBuffer > commands ) {
+        var commandBuffer = extractNextCommandBuffer();
         commandBuffer.fillQueueSetup();
         commandBuffer.fillQueue( commands );
         commandBuffer.fillQueueTearDown();
@@ -64,8 +64,8 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     
     public VkSubmitInfo createSubmitInfo( VulkanCommandBuffer... commandBuffers ) {
     
-        PointerBuffer commandBuffersPointer = MemoryUtil.memAllocPointer( commandBuffers.length );
-        for ( int i = 0; i < commandBuffers.length; i++ ) {
+        var commandBuffersPointer = MemoryUtil.memAllocPointer( commandBuffers.length );
+        for ( var i = 0; i < commandBuffers.length; i++ ) {
             commandBuffersPointer.put( i, commandBuffers[ i ].getAddress().getValue() );
         }
     
@@ -78,7 +78,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     
     @SafeVarargs
     public final void submitQueue( CommandBuffer... currentCommandBuffers ) {
-        VkSubmitInfo submitInfo = createSubmitInfo( currentCommandBuffers ) ;
+        var submitInfo = createSubmitInfo( currentCommandBuffers ) ;
         
         VulkanHelper.assertCallOrThrow(
             ()-> VK10.vkQueueSubmit( usedQueueFamily.getQueue(), submitInfo, VK10.VK_NULL_HANDLE ),
@@ -87,7 +87,7 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     }
     
     public PointerBuffer createCommandBufferBuffer( int size ) {
-        PointerBuffer commandBuffersBuffer = MemoryUtil.memAllocPointer( size );
+        var commandBuffersBuffer = MemoryUtil.memAllocPointer( size );
         VulkanHelper.assertCallOrThrow(
             () -> VK10.vkAllocateCommandBuffers(
                 device.getLogicalDevice(), createAllocateInfo( size ), commandBuffersBuffer ),

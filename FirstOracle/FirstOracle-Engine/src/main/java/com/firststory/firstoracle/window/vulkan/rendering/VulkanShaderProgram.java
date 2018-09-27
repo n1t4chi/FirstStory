@@ -4,11 +4,9 @@
 
 package com.firststory.firstoracle.window.vulkan.rendering;
 
-import com.firststory.firstoracle.Camera;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.shader.ShaderProgram;
 import com.firststory.firstoracle.window.vulkan.ShaderType;
-import com.firststory.firstoracle.window.vulkan.VulkanAddress;
 import com.firststory.firstoracle.window.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.window.vulkan.buffer.VulkanDataBuffer;

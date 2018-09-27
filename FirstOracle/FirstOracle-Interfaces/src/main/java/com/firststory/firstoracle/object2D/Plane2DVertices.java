@@ -17,7 +17,7 @@ import static com.firststory.firstoracle.object.Vertex2D.vec2;
 public class Plane2DVertices extends FramelessVertices2D {
     
     private static final Plane2DVertices Plane2DVertices = new Plane2DVertices();
-    private static final HashMap< Touple, Plane2DVertices > instances = new HashMap<>( 2 );
+    private static final HashMap< Tuple, Plane2DVertices > instances = new HashMap<>( 2 );
     
     /**
      * Returns default [-1,1]x[-1,1] instance of Plane2DVertices.
@@ -29,12 +29,12 @@ public class Plane2DVertices extends FramelessVertices2D {
     }
     
     public static Plane2DVertices getPlane2DVertices( float minX, float maxX, float minY, float maxY ) {
-        Touple touple = new Touple( minX, maxX, minY, maxY );
-        if ( instances.containsKey( touple ) ) {
-            return instances.get( touple );
+        var tuple = new Tuple( minX, maxX, minY, maxY );
+        if ( instances.containsKey( tuple ) ) {
+            return instances.get( tuple );
         } else {
-            Plane2DVertices instance = new Plane2DVertices( minX, maxX, minY, maxY );
-            instances.put( touple, instance );
+            var instance = new Plane2DVertices( minX, maxX, minY, maxY );
+            instances.put( tuple, instance );
             return instance;
         }
     }
@@ -57,7 +57,7 @@ public class Plane2DVertices extends FramelessVertices2D {
     
         List< Vertex2D > list = new ArrayList<>( points.length );
     
-        for ( short point : points ) {
+        for ( var point : points ) {
             list.add( pointData[ point ] );
         }
         return list;
@@ -71,14 +71,14 @@ public class Plane2DVertices extends FramelessVertices2D {
         super( createPlane2DVerticesArray() );
     }
     
-    private static class Touple {
+    private static class Tuple {
     
         private final float minX;
         private final float maxX;
         private final float minY;
         private final float maxY;
         
-        private Touple( float minX, float maxX, float minY, float maxY ) {
+        private Tuple( float minX, float maxX, float minY, float maxY ) {
             this.minX = minX;
             this.maxX = maxX;
             this.minY = minY;
@@ -87,7 +87,7 @@ public class Plane2DVertices extends FramelessVertices2D {
         
         @Override
         public int hashCode() {
-            int result = ( minX != +0.0f ? Float.floatToIntBits( minX ) : 0 );
+            var result = ( minX != +0.0f ? Float.floatToIntBits( minX ) : 0 );
             result = 31 * result + ( maxX != +0.0f ? Float.floatToIntBits( maxX ) : 0 );
             result = 31 * result + ( minY != +0.0f ? Float.floatToIntBits( minY ) : 0 );
             result = 31 * result + ( maxY != +0.0f ? Float.floatToIntBits( maxY ) : 0 );
@@ -98,11 +98,11 @@ public class Plane2DVertices extends FramelessVertices2D {
         public boolean equals( Object o ) {
             if ( this == o ) { return true; }
             if ( o == null || getClass() != o.getClass() ) { return false; }
+    
+            var tuple = ( Tuple ) o;
             
-            final Touple touple = ( Touple ) o;
-            
-            return Float.compare( touple.minX, minX ) == 0 && Float.compare( touple.maxX, maxX ) == 0 &&
-                   Float.compare( touple.minY, minY ) == 0 && Float.compare( touple.maxY, maxY ) == 0;
+            return Float.compare( tuple.minX, minX ) == 0 && Float.compare( tuple.maxX, maxX ) == 0 &&
+                   Float.compare( tuple.minY, minY ) == 0 && Float.compare( tuple.maxY, maxY ) == 0;
         }
     }
 }

@@ -21,13 +21,13 @@ public abstract class VulkanCommandBuffer {
     private final VulkanAddress address;
     private final VkCommandBuffer commandBuffer;
     private final VkCommandBufferBeginInfo beginInfo;
-    private final VulkanCommandPool commandPool;
+    private final VulkanCommandPool< ? extends VulkanCommandBuffer > commandPool;
     private final int[] usedBeginInfoFlags;
     
     public VulkanCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
-        VulkanCommandPool commandPool,
+        VulkanCommandPool< ? extends VulkanCommandBuffer > commandPool,
         int... usedBeginInfoFlags
     ) {
         this.device = device;
@@ -42,8 +42,9 @@ public abstract class VulkanCommandBuffer {
         return commandBuffer;
     }
     
-    public void fillQueue( VulkanCommand commands ) {
-        commands.execute( this );
+    @SuppressWarnings( "unchecked" )
+    public < CommandBuffer extends VulkanCommandBuffer > void fillQueue( VulkanCommand< CommandBuffer > commands ) {
+        commands.execute( ( CommandBuffer ) this );
     }
     
     public void fillQueueSetup() {

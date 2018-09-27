@@ -4,10 +4,10 @@
 
 package com.firststory.firstoracle.key;
 
-public /**
+/**
  * @author n1t4chi
  */
-enum KeyModificator {
+public enum KeyModificator {
     ALT,
     SHIFT,
     CONTROL,

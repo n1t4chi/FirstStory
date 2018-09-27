@@ -11,7 +11,6 @@ import org.joml.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -111,16 +110,16 @@ public interface FirstOracleConstants {
     }
     
     static Texture createEmptyTexture() {
-        int SIZE = 100;
-        BufferedImage image = new BufferedImage( SIZE, SIZE, BufferedImage.TYPE_INT_ARGB );
-        Graphics2D graphics = ( Graphics2D ) image.getGraphics();
+        var SIZE = 100;
+        var image = new BufferedImage( SIZE, SIZE, BufferedImage.TYPE_INT_ARGB );
+        var graphics = ( Graphics2D ) image.getGraphics();
         graphics.setColor( new Color(0,0,0,0) );
         graphics.fillRect( 0, 0, SIZE, SIZE );
         graphics.dispose();
         Texture texture;
         try {
             texture = new Texture( image );
-        } catch ( IOException e ) {
+        } catch ( Exception e ) {
             throw new RuntimeException( "Cannot create empty texture!", e );
         }
         return texture;
@@ -143,13 +142,13 @@ public interface FirstOracleConstants {
     }
     
     static float transHexYDiscreteToSpace( float x, float y, float terrainShiftX, float terrainShiftY ) {
-        float x_sum = x + terrainShiftX;
+        var x_sum = x + terrainShiftX;
         double modulo = x_sum % 2;
-        
-        float translated = y + terrainShiftY;
-        float product = 2 * translated;
-        double sum = product + modulo;
-        double finalProduct = sum * SQRT3_DIV2_D;
+    
+        var translated = y + terrainShiftY;
+        var product = 2 * translated;
+        var sum = product + modulo;
+        var finalProduct = sum * SQRT3_DIV2_D;
         
         return ( float ) finalProduct;
     }
@@ -163,13 +162,13 @@ public interface FirstOracleConstants {
     }
     
     static float transHexPrismZDiscreteToSpace( float x, float z, float terrainShiftX, float terrainShiftZ ) {
-        float x_sum = x + terrainShiftX;
+        var x_sum = x + terrainShiftX;
         double modulo = x_sum % 2;
-        
-        float translated = z + terrainShiftZ;
-        float product = 2 * translated;
-        double sum = product + modulo;
-        double finalProduct = sum * SQRT3_DIV2_D;
+    
+        var translated = z + terrainShiftZ;
+        var product = 2 * translated;
+        var sum = product + modulo;
+        var finalProduct = sum * SQRT3_DIV2_D;
         
         return ( float ) finalProduct;
     }
@@ -190,13 +189,13 @@ public interface FirstOracleConstants {
     }
     
     static float transHexYSpaceToDiscrete( float x, float y, float terrainShiftX, float terrainShiftY ) {
-        float x_sub = transHexXSpaceToDiscrete( x, terrainShiftX );
+        var x_sub = transHexXSpaceToDiscrete( x, terrainShiftX );
         double modulo = x_sub % 2;
-        
-        double initialDivision = y / SQRT3_DIV2_D;
-        double subtraction = initialDivision - modulo;
-        double division = subtraction / 2;
-        double finalTranslation = division - terrainShiftY;
+    
+        var initialDivision = y / SQRT3_DIV2_D;
+        var subtraction = initialDivision - modulo;
+        var division = subtraction / 2;
+        var finalTranslation = division - terrainShiftY;
         
         return ( float ) finalTranslation;
     }
@@ -214,18 +213,18 @@ public interface FirstOracleConstants {
     }
     
     static float transHexPrismZSpaceToDiscrete( float x, float z, float terrainShiftX, float terrainShiftZ ) {
-        float x_sub = transHexXSpaceToDiscrete( x, terrainShiftX );
+        var x_sub = transHexXSpaceToDiscrete( x, terrainShiftX );
         double modulo = x_sub % 2;
-        
-        double initialDivision = z / SQRT3_DIV2_D;
-        double subtraction = initialDivision - modulo;
-        double division = subtraction / 2;
-        double finalTranslation = division - terrainShiftZ;
+    
+        var initialDivision = z / SQRT3_DIV2_D;
+        var subtraction = initialDivision - modulo;
+        var division = subtraction / 2;
+        var finalTranslation = division - terrainShiftZ;
         
         return ( float ) finalTranslation;
     }
     
-    static Logger getLogger( Class classObject ) {
+    static Logger getLogger( Class< ? > classObject ) {
         return Logger.getLogger( classObject.getName() );
     }
     

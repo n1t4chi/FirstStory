@@ -27,9 +27,9 @@ public class VulkanDescriptorSet {
         this.descriptor = descriptor;
         this.descriptorPool = descriptorPool;
     
-        VkDescriptorSetAllocateInfo allocateInfo = VkDescriptorSetAllocateInfo.create()
+        var allocateInfo = VkDescriptorSetAllocateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO )
-            .descriptorPool( descriptorPool.getAddess().getValue() )
+            .descriptorPool( descriptorPool.getAddress().getValue() )
             .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptor.getDescriptorSetLayout().getValue() ) );
         
         descriptorSet = VulkanHelper.createAddress(
@@ -42,8 +42,8 @@ public class VulkanDescriptorSet {
         );
     }
     
-    void updateDesciptorSet( VulkanShaderProgram shader, VulkanTextureSampler sampler, VulkanTextureData textureData ) {
-        VkDescriptorImageInfo.Buffer imageInfo = VkDescriptorImageInfo.create( 1 )
+    void updateDescriptorSet( VulkanShaderProgram shader, VulkanTextureSampler sampler, VulkanTextureData textureData ) {
+        var imageInfo = VkDescriptorImageInfo.create( 1 )
             .put( 0, sampler.createImageInfo( textureData ) );
         
         VK10.vkUpdateDescriptorSets( descriptor.getDevice().getLogicalDevice(),

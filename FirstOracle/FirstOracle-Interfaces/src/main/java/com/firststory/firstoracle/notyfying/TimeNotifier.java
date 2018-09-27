@@ -24,7 +24,7 @@ public interface TimeNotifier {
     }
     
     default void notifyTimeListener( double newTime ) {
-        NotyfyingEngine.notify(
+        NotifyingEngine.notify(
             getTimeListeners(), ( listener ) -> listener.notify( newTime, this ) );
     }
 }

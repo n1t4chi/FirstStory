@@ -4,7 +4,6 @@
 package com.firststory.firstoracle.camera3D;
 
 import com.firststory.firstoracle.Camera;
-import com.firststory.firstoracle.object3D.BoundingBox3D;
 import com.firststory.firstoracle.object3D.Object3D;
 import org.joml.Vector3fc;
 
@@ -15,8 +14,8 @@ public abstract class Camera3D implements Camera {
     
     private boolean update = true;
     
-    public boolean contains( Object3D object ) {
-        BoundingBox3D bb = object.getBBO();
+    public boolean contains( Object3D< ?, ? > object ) {
+        var bb = object.getBBO();
         return contains( bb.getMinX(),
             bb.getMaxX(),
             bb.getMinY(),

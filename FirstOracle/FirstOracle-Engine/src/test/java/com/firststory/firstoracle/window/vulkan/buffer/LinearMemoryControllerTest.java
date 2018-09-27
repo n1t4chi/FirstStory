@@ -12,20 +12,20 @@ public class LinearMemoryControllerTest {
     
     @Test
     public void singleSimpleBufferTest() {
-        int outOfMemoryLength = 15;
-        char[] outOfBoundsData = "aeiouaeiouaeiou".toCharArray();
-        
-        int length = 5;
-        char[] data1 = "aeiou".toCharArray();
-        char[] data2 = "qwert".toCharArray();
-        
-        TestableLinearMemoryController controller = new TestableLinearMemoryController( new TestableLinearMemory( 10 ) );
+        var outOfMemoryLength = 15;
+        var outOfBoundsData = "aeiouaeiouaeiou".toCharArray();
+    
+        var length = 5;
+        var data1 = "aeiou".toCharArray();
+        var data2 = "qwert".toCharArray();
+    
+        var controller = new TestableLinearMemoryController( new TestableLinearMemory( 10 ) );
         
         assertException(
             LinearMemoryController.OutOfMemoryException.class,
             () -> controller.createBuffer( outOfMemoryLength )
         );
-        TestableDataBufferInLinearMemory buffer = controller.createBuffer( length );
+        var buffer = controller.createBuffer( length );
         Assert.assertEquals( length, buffer.length() );
         
         assertException(
@@ -47,15 +47,15 @@ public class LinearMemoryControllerTest {
     
     @Test
     public void multipleSimpleBufferTest() {
-        
-        int length = 5;
-        char[] data1 = "aeiou".toCharArray();
-        char[] data2 = "zxcvb".toCharArray();
-        
-        TestableLinearMemoryController controller = new TestableLinearMemoryController( new TestableLinearMemory( 10 ) );
-        
-        TestableDataBufferInLinearMemory buffer1 = controller.createBuffer( length );
-        TestableDataBufferInLinearMemory buffer2 = controller.createBuffer( length );
+    
+        var length = 5;
+        var data1 = "aeiou".toCharArray();
+        var data2 = "zxcvb".toCharArray();
+    
+        var controller = new TestableLinearMemoryController( new TestableLinearMemory( 10 ) );
+    
+        var buffer1 = controller.createBuffer( length );
+        var buffer2 = controller.createBuffer( length );
         assertException( LinearMemoryController.OutOfMemoryException.class, () -> controller.createBuffer( length ) );
         
         buffer1.load( data1 );
@@ -67,28 +67,28 @@ public class LinearMemoryControllerTest {
     
     @Test
     public void simpleReassignmentBufferTest() {
-        
-        int length = 5;
-        char[] data1 = "aeiou".toCharArray();
-        char[] data2 = "zxcvb".toCharArray();
-        char[] data3 = "qwert".toCharArray();
-        char[] data4 = "asdfg".toCharArray();
-        
-        TestableLinearMemoryController controller = new TestableLinearMemoryController( new TestableLinearMemory( 10 ) );
-        
-        TestableDataBufferInLinearMemory buffer1 = controller.createBuffer( length );
+    
+        var length = 5;
+        var data1 = "aeiou".toCharArray();
+        var data2 = "zxcvb".toCharArray();
+        var data3 = "qwert".toCharArray();
+        var data4 = "asdfg".toCharArray();
+    
+        var controller = new TestableLinearMemoryController( new TestableLinearMemory( 10 ) );
+    
+        var buffer1 = controller.createBuffer( length );
         buffer1.load( data1 );
         Assert.assertArrayEquals( data1, buffer1.readBuffer() );
-        
-        TestableDataBufferInLinearMemory buffer2 = controller.createBuffer( length );
+    
+        var buffer2 = controller.createBuffer( length );
         buffer2.load( data2 );
         Assert.assertArrayEquals( data1, buffer1.readBuffer() );
         Assert.assertArrayEquals( data2, buffer2.readBuffer() );
         
         buffer2.delete();
         assertException( BufferNotCreatedException.class, buffer2::delete );
-        
-        TestableDataBufferInLinearMemory buffer3 = controller.createBuffer( length );
+    
+        var buffer3 = controller.createBuffer( length );
         buffer3.load( data3 );
         
         Assert.assertArrayEquals( data1, buffer1.readBuffer() );
@@ -96,8 +96,8 @@ public class LinearMemoryControllerTest {
         Assert.assertArrayEquals( data3, buffer3.readBuffer() );
         
         buffer1.delete();
-        
-        TestableDataBufferInLinearMemory buffer4 = controller.createBuffer( length );
+    
+        var buffer4 = controller.createBuffer( length );
         buffer4.load( data4 );
         
         

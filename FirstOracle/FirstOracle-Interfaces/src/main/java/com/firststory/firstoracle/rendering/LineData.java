@@ -14,7 +14,7 @@ public class LineData {
     
     private final float width;
     private final Vector4fc colour;
-    private LineType type;
+    private final LineType type;
     
     public static LineData lineLoop( float width, Vector4fc colour ) {
         return new LineData( width, colour, LineType.LINE_LOOP );
@@ -56,7 +56,7 @@ public class LineData {
     
     @Override
     public int hashCode() {
-        int result = ( width != +0.0f ? Float.floatToIntBits( width ) : 0 );
+        var result = ( width != +0.0f ? Float.floatToIntBits( width ) : 0 );
         result = 31 * result + ( colour != null ? colour.hashCode() : 0 );
         return result;
     }
@@ -65,8 +65,8 @@ public class LineData {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-        
-        LineData lineData = ( LineData ) o;
+    
+        var lineData = ( LineData ) o;
         
         if ( Float.compare( lineData.width, width ) != 0 ) { return false; }
         return colour != null ? colour.equals( lineData.colour ) : lineData.colour == null;

@@ -28,7 +28,7 @@ public class LoopedFrameController extends SingleAnimationFrameController {
     
     @Override
     public int getCurrentFrame( double lastFrameUpdate ) {
-        double nextAnimationStart = animationStart + duration;
+        var nextAnimationStart = animationStart + duration;
         if ( lastFrameUpdate > nextAnimationStart ) {
             setAnimationStart( nextAnimationStart );
         }

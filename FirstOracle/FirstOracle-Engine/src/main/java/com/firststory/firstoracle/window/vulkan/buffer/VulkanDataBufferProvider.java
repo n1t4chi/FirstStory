@@ -25,14 +25,14 @@ public class VulkanDataBufferProvider extends LinearMemoryController< VulkanBuff
     
     @Override
     public VulkanDataBuffer create( ByteBuffer data ) throws CannotCreateBufferException {
-        VulkanDataBuffer buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.remaining() ) );
+        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.remaining() ) );
         buffer.create();
         buffer.load( data );
         return buffer;
     }
     
     public VulkanDataBuffer create( float[] data ) throws CannotCreateBufferException {
-        VulkanDataBuffer buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
+        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
         buffer.create();
         buffer.load( data );
         return buffer;
@@ -47,14 +47,14 @@ public class VulkanDataBufferProvider extends LinearMemoryController< VulkanBuff
     }
     
     public VulkanDataBuffer create( byte[] data ) throws CannotCreateBufferException {
-        VulkanDataBuffer buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length ) );
+        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length ) );
         buffer.create();
         buffer.load( data );
         return buffer;
     }
     
     public VulkanDataBuffer create( int[] data ) throws CannotCreateBufferException {
-        VulkanDataBuffer buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
+        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
         buffer.create();
         buffer.load( data );
         return buffer;

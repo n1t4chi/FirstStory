@@ -10,7 +10,7 @@ package com.firststory.firstoracle.window.vulkan;
 abstract class VulkanImage {
     
     private final VulkanAddress address;
-    private VulkanPhysicalDevice device;
+    private final VulkanPhysicalDevice device;
     
     VulkanImage( VulkanPhysicalDevice device, VulkanAddress address ) {
         this.device = device;

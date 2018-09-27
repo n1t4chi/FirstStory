@@ -5,10 +5,10 @@ package com.firststory.firstoracle.controller;
 
 import java.util.Collection;
 
-public /**
+/**
  * @author n1t4chi
  */
-interface CameraNotifier {
+public interface CameraNotifier {
     
     default void addCameraListener( CameraListener listener ) {
         getCameraListeners().add( listener );
@@ -25,7 +25,7 @@ interface CameraNotifier {
     }
     
     default void notifyCameraListeners( CameraEvent event ) {
-        for ( CameraListener listener : getCameraListeners() ) {
+        for ( var listener : getCameraListeners() ) {
             listener.notify( event, this );
         }
     }

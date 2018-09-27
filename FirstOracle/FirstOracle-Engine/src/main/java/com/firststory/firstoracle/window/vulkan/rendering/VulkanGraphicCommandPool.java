@@ -89,7 +89,7 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
     
     @Override
     public VulkanGraphicCommandBuffer extractNextCommandBuffer() {
-        return getCommandBuffer( getDevice().aquireCurrentImageIndex() );
+        return getCommandBuffer( getDevice().acquireCurrentImageIndex() );
     }
     
     @Override
@@ -115,7 +115,7 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
     }
     
     private void presentQueue( VulkanSwapChain swapChain, int index ) {
-        VkPresentInfoKHR presentInfo = VkPresentInfoKHR.create()
+        var presentInfo = VkPresentInfoKHR.create()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
             .pWaitSemaphores(
                 MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress().getValue() ) )

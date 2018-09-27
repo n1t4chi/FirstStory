@@ -112,7 +112,7 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
             render = false;
         }
         render = true;
-        List< Vertex2D > mainAxes = Arrays.asList(
+        var mainAxes = Arrays.asList(
             vec2( 0, 0 ),
             vec2( gridWidth, 0 ),
             
@@ -129,16 +129,16 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
         List< Vertex2D > interAxes = new ArrayList<>(  );
         List< Vertex2D > smallAxes = new ArrayList<>(  );
         
-        for ( int i = 1; i < gridWidth; i++ ) {
-            List< Vertex2D > verticalAxes = createVerticalAxes( i, gridHeight );
+        for ( var i = 1; i < gridWidth; i++ ) {
+            var verticalAxes = createVerticalAxes( i, gridHeight );
             if ( Math.abs( i % intermediateAxesStep ) == 0 ) {
                 interAxes.addAll( verticalAxes );
             } else {
                 smallAxes.addAll( verticalAxes );
             }
         }
-        for ( int i = 1; i < gridHeight; i++ ) {
-            List< Vertex2D > horizontalAxes = createHorizontalAxes( i, gridWidth );
+        for ( var i = 1; i < gridHeight; i++ ) {
+            var horizontalAxes = createHorizontalAxes( i, gridWidth );
             if ( Math.abs( i % intermediateAxesStep ) == 0 ) {
                 interAxes.addAll( horizontalAxes );
             } else {

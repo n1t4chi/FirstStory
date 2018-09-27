@@ -104,10 +104,10 @@ public class IsometricCamera3D extends Camera3D {
     
     private void updateMatrix() {
         if ( mustUpdate() ) {
-            float planeX = initialHalfXSize;
+            var planeX = initialHalfXSize;
             //float planeZ = (size+1)*(size+1);
-            float planeY = ( planeX ) * settings.getHeightByWidthRatio();
-            float planeZ = 5 + planeX;
+            var planeY = ( planeX ) * settings.getHeightByWidthRatio();
+            var planeZ = 5 + planeX;
             planeZ *= planeZ;
             //planeZ +=105;
             camera.setOrtho( -planeX, planeX, -planeY, planeY, -planeZ, planeZ );

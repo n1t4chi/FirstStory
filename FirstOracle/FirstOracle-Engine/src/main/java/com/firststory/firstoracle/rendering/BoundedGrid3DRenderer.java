@@ -30,7 +30,7 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     private final Vertices3D smallNegativeAxes;
     
     public BoundedGrid3DRenderer( int gridSize, int interAxesStep, int smallAxesStep ) {
-        List< Vertex3D > mainAxes = Arrays.asList(
+        var mainAxes = Arrays.asList(
             //X
             vec3( -gridSize, 0, 0 ),
             vec3( gridSize, 0, 0 ),
@@ -45,18 +45,18 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         List< Vertex3D > smallPositiveAxes = new ArrayList<>(  );
         List< Vertex3D > smallNegativeAxes = new ArrayList<>(  );
         
-        for ( int i = 1; i <= gridSize; i++ ) {
+        for ( var i = 1; i <= gridSize; i++ ) {
             if ( i == 0 ) {
                 continue;
             }
             
             if ( java.lang.Math.abs( i % interAxesStep ) == 0 ) {
-                List< Vertex3D > axes = createAxes( gridSize, i );
+                var axes = createAxes( gridSize, i );
                 interAxes.addAll( axes );
             } else if ( java.lang.Math.abs( i % smallAxesStep ) == 0 ) {
-                boolean positive = false;
-                List< Vertex3D > axes = createAxes( gridSize, i );
-                for ( int j = 0; j < axes.size(); j++ ) {
+                var positive = false;
+                var axes = createAxes( gridSize, i );
+                for ( var j = 0; j < axes.size(); j++ ) {
                     if ( j % 2 == 0 ) {
                         positive = !positive;
                     }

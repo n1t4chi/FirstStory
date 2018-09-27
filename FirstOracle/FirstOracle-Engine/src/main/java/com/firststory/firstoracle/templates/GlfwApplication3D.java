@@ -21,14 +21,7 @@ import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.RenderedScene3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
-import com.firststory.firstoracle.window.OverlayContentManager;
 import com.firststory.firstoracle.window.Window;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
-import org.joml.Vector3fc;
 import org.joml.Vector3ic;
 import org.joml.Vector4f;
 
@@ -48,7 +41,6 @@ public class GlfwApplication3D {
     }
     
     private Window window;
-    private MyOverlayContentManager contentManager;
     private WindowRenderer renderer;
     private SceneProvider sceneProvider;
     private CameraController cameraController;
@@ -58,7 +50,7 @@ public class GlfwApplication3D {
     private Grid2DRenderer grid2DRenderer;
     
     public void run() throws Exception {
-        //Settings for window, you can switch height/widith, fullscreen, borderless and other magics.
+        //Settings for window, you can switch height/width, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
         settings = new WindowSettings.WindowSettingsBuilder()
 //            .setWindowMode( WindowMode.FULLSCREEN )
@@ -79,30 +71,30 @@ public class GlfwApplication3D {
         renderedScene.setBackgroundColour( new Vector4f( 1f, 1f, 1f, 1 ) );
         
         //it's used for rendering, not necessary here
-        Vector4f colour = new Vector4f( 0, 0, 0, 0 );
+        var colour = new Vector4f( 0, 0, 0, 0 );
         float maxFloat = 1;
         
         //try is for Texture loading.
         //Does not work ATM but graphic objects can be created like that,
-        //Here mostlikely we will only use Rectangle for objects like bullets and characters and RectangleGrid for terrain
+        //Here most likely we will only use Rectangle for objects like bullets and characters and RectangleGrid for terrain
         //RectangleGrid provides nice method for translating array position into rendered space position so they can be shared for same terrains
         //path can be either file in filesystem or within jar
-        Texture texture1 = new Texture( "resources/First Oracle/grid.png" );
-        Texture texture2 = new Texture( "resources/First Oracle/texture3D.png" );
-        NonAnimatedRectangle overlay = new NonAnimatedRectangle();
+        var texture1 = new Texture( "resources/First Oracle/grid.png" );
+        var texture2 = new Texture( "resources/First Oracle/texture3D.png" );
+        var overlay = new NonAnimatedRectangle();
         overlay.setTexture( texture1 );
         //overlay is rendered last, good for UI
         renderedScene.setOverlay( () -> Collections.singletonList( overlay ) );
         
         //Example initialisation of map
-        NonAnimatedCubeGrid terrain = new NonAnimatedCubeGrid();
+        var terrain = new NonAnimatedCubeGrid();
         terrain.setTexture( texture2 );
+    
+        var array = new CubeGrid[ 20 ][ 10 ][ 20 ];
         
-        CubeGrid[][][] array = new CubeGrid[ 20 ][ 10 ][ 20 ];
-        
-        for ( int x = 0; x < 20; x++ ) {
-            for ( int y = 0; y < 10; y++ ) {
-                for ( int z = 0; z < 20; z++ ) {
+        for ( var x = 0; x < 20; x++ ) {
+            for ( var y = 0; y < 10; y++ ) {
+                for ( var z = 0; z < 20; z++ ) {
                     array[ x ][ y ][ z ] = terrain;
                 }
             }
@@ -112,12 +104,12 @@ public class GlfwApplication3D {
         
         renderedScene.setScene3D( new RenderedScene3D() {
             @Override
-            public Terrain3D[][][] getTerrains() {
+            public Terrain3D< ? >[][][] getTerrains() {
                 return array;
             }
             
             @Override
-            public Collection< PositionableObject3D > getObjects() {
+            public Collection< PositionableObject3D< ?, ? > > getObjects() {
                 return Collections.emptyList();
             }
             
@@ -133,7 +125,6 @@ public class GlfwApplication3D {
         sceneProvider = () -> {
             cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
             cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-            contentManager.updatePositionLabel( cameraController.getPos3D() );
             return renderedScene;
         };
         //Renderer renders all openGL content in Window, nothing to add much here
@@ -144,21 +135,9 @@ public class GlfwApplication3D {
             settings.isUseTexture(),
             settings.isDrawBorder()
         );
-        //ContentManager is where everything related to GUI should be made
-        //any JavaFX object creation and even access to statics of JavaFX classes should be from within those methods
-        //With createOverlayPanel you provide your panel which will be displayed over openGL content,
-        //Also save it's declaration so you can use it later in update or init methods
-        //Init() is called once soon after createOverlayPanel, here you should initialise most of the initial content and probably most of the object creation.
-        //update() is called at each frame update so changes there should be made as few as possible, probably setText in example below
-        //should be done when time or fps changes, not every time
-        //update() should contain all dynamic changes to javaFX components on runtime.
-        //side note for JavaFX modifications:
-        //You could use JfxglContext.runOnEventsThread( () -> {}) to create and modify JavaFX content but
-        //it does not look so good but I'm not stopping you from creating another thread for example
-        contentManager = new MyOverlayContentManager();
         
         //Window is window displayed with OpenGL
-        //Also it initalises OpenGL (via init()) content and initialises most of the objects passed via parameters
+        //Also it initialises OpenGL (via init()) content and initialises most of the objects passed via parameters
         //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
         window = Window.build( settings, renderer ).build();
         window.addTimeListener( cameraController );
@@ -180,45 +159,5 @@ public class GlfwApplication3D {
         
         //At last the window loop is run in this thread..
         window.run();
-    }
-    
-    private static class MyOverlayContentManager implements OverlayContentManager {
-        
-        Label fpsLabel;
-        Label timeLabel;
-        Label positionLabel;
-        BorderPane overlayPanel;
-        private String positionText = "";
-        private volatile boolean update = false;
-        
-        @Override
-        public Pane createOverlayPanel() {
-            return overlayPanel = new BorderPane();
-        }
-        
-        @Override
-        public void init( Stage stage, Scene scene ) {
-            fpsLabel = new Label();
-            timeLabel = new Label();
-            positionLabel = new Label();
-            overlayPanel.setTop( fpsLabel );
-            overlayPanel.setBottom( timeLabel );
-            overlayPanel.setLeft( positionLabel );
-        }
-        
-        @Override
-        public void update( double currentTime, int currentFps ) {
-            fpsLabel.setText( "FPS:" + currentFps );
-            timeLabel.setText( String.format( "current time: %.1fs", currentTime ) );
-            if ( update ) {
-                update = false;
-                positionLabel.setText( positionText );
-            }
-        }
-        
-        public synchronized void updatePositionLabel( Vector3fc position ) {
-            positionText = "Position: (" + position.x() + "," + position.y() + "," + position.z() + ")";
-            update = true;
-        }
     }
 }
