@@ -16,6 +16,7 @@ import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.buffer.VulkanDataBuffer;
 import org.joml.Matrix4fc;
+import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
 import java.util.*;
 
@@ -55,6 +56,7 @@ public class VulkanRenderingContext implements RenderingContext {
     }
     
     public void setUpSingleRender() {
+        getShaderProgram3D().resetUniformData();
         renderDataByCamera.forEach(
             ( camera, renderDataByTexture ) -> renderDataByTexture.forEach(
                 ( texture, renderDataList ) -> renderDataList.clear() )
@@ -93,10 +95,10 @@ public class VulkanRenderingContext implements RenderingContext {
                 descriptorsPools.add( descriptorPool );
     
                 shader.bindCamera( camera );
-                shader.bindUniformData();
+                var uniformBufferInfo = shader.bindUniformData();
                 renderDataByTexture.forEach( ( texture, renderDataList ) -> {
                     if ( !renderDataList.isEmpty() ) {
-                        renderTextureData( trianglePipeline, linePipeline, buffer, availableDataBuffers, descriptorPool, texture, renderDataList );
+                        renderTextureData( trianglePipeline, linePipeline, buffer, availableDataBuffers, descriptorPool, uniformBufferInfo, texture, renderDataList );
                     } else {
                         emptyRenderData.add( texture );
                     }
@@ -120,6 +122,7 @@ public class VulkanRenderingContext implements RenderingContext {
         VulkanGraphicCommandBuffer buffer,
         Deque< VulkanDataBuffer > availableDataBuffers,
         VulkanDescriptorPool descriptorPool,
+        VkDescriptorBufferInfo uniformBufferInfo,
         Texture texture,
         List< RenderData > renderDataList
     ) {
@@ -128,7 +131,7 @@ public class VulkanRenderingContext implements RenderingContext {
         var textureBuffer = device.getTextureLoader().bind( texture );
     
         var descriptorSet = descriptorPool.getNextDescriptorSet();
-        descriptorSet.updateDescriptorSet( shader, textureSampler, textureBuffer.getContext() );
+        descriptorSet.updateDescriptorSet( textureSampler, textureBuffer.getContext(), uniformBufferInfo );
         
         buffer.bindDescriptorSets( linePipeline, descriptorSet );
         buffer.bindDescriptorSets( trianglePipeline, descriptorSet );

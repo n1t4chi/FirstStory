@@ -10,7 +10,7 @@ package com.firststory.firstoracle.vulkan.buffer;
 class TestableLinearMemoryController extends LinearMemoryController< TestableLinearMemory, char[]> {
     
     TestableLinearMemoryController( TestableLinearMemory memory ) {
-        super( memory );
+        super( memory, 1 );
     }
     
     char[] read( LinearMemoryLocation location ) {

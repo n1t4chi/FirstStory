@@ -10,6 +10,7 @@ import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.gui.GuiApplicationData;
 import com.firststory.firstoracle.gui.GuiFrameworkProvider;
 import com.firststory.firstoracle.rendering.*;
+import com.firststory.firstoracle.scene.RegistrableScene;
 
 /**
  * @author n1t4chi
@@ -24,7 +25,7 @@ public abstract class WindowBuilder< WindowType extends Window > {
         return new SimpleWindowBuilder( settings, WindowRenderer.provide( provider ) );
     }
     
-    public static WindowBuilder< RegistrableWindow > registrableWindow( WindowSettings settings ) {
+    public static RegistrableWindowBuilder registrableWindow( WindowSettings settings ) {
         return new RegistrableWindowBuilder( settings, new RegistrableSceneProviderImpl() );
     }
     
@@ -62,12 +63,14 @@ public abstract class WindowBuilder< WindowType extends Window > {
         return this;
     }
     
-    public void setRenderLoop( RenderLoop renderLoop ) {
+    public WindowBuilder< WindowType > setRenderLoop( RenderLoop renderLoop ) {
         this.renderLoop = renderLoop;
+        return this;
     }
     
     public < T extends GuiApplicationData< ? > > WindowBuilder< WindowType > addGuiFrameworkProvider(
-        GuiFrameworkProvider< T > guiFrameworkProvider, T application
+        GuiFrameworkProvider< T > guiFrameworkProvider,
+        T application
     ) {
         this.guiFrameworkProvider = guiFrameworkProvider;
         this.application = application;
@@ -76,7 +79,7 @@ public abstract class WindowBuilder< WindowType extends Window > {
     
     public abstract WindowType build();
     
-    private static class SimpleWindowBuilder extends WindowBuilder< Window > {
+    public static class SimpleWindowBuilder extends WindowBuilder< Window > {
     
         private SimpleWindowBuilder( WindowSettings settings, Renderer renderer ) {
             super( settings, renderer );
@@ -95,11 +98,11 @@ public abstract class WindowBuilder< WindowType extends Window > {
         }
     }
     
-    private static class RegistrableWindowBuilder extends WindowBuilder< RegistrableWindow > {
+    public static class RegistrableWindowBuilder extends WindowBuilder< RegistrableWindow > {
         
-        private final RegistrableSceneProviderImpl provider;
-        
-        private RegistrableWindowBuilder( WindowSettings settings, RegistrableSceneProviderImpl provider ) {
+        private final RegistrableSceneProvider< RegistrableScene > provider;
+    
+        private RegistrableWindowBuilder( WindowSettings settings, RegistrableSceneProvider< RegistrableScene > provider ) {
             super( settings, WindowRenderer.provide( provider ) );
             this.provider = provider;
         }
@@ -115,6 +118,32 @@ public abstract class WindowBuilder< WindowType extends Window > {
                 renderLoop,
                 provider
             );
+        }
+    
+        @Override
+        public RegistrableWindowBuilder addWindowFrameworkProvider( WindowFrameworkProvider windowFrameworkProvider ) {
+            super.addWindowFrameworkProvider( windowFrameworkProvider );
+            return this;
+        }
+    
+        @Override
+        public RegistrableWindowBuilder addRenderingFrameworkProvider( RenderingFrameworkProvider renderingFrameworkProvider ) {
+            super.addRenderingFrameworkProvider( renderingFrameworkProvider );
+            return this;
+        }
+    
+        @Override
+        public RegistrableWindowBuilder setRenderLoop( RenderLoop renderLoop ) {
+            super.setRenderLoop( renderLoop );
+            return this;
+        }
+    
+        @Override
+        public < T extends GuiApplicationData< ? > > RegistrableWindowBuilder addGuiFrameworkProvider(
+            GuiFrameworkProvider< T > guiFrameworkProvider, T application
+        ) {
+            super.addGuiFrameworkProvider( guiFrameworkProvider, application );
+            return this;
         }
     }
 }

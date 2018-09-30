@@ -25,10 +25,12 @@ public class RegistrableSceneProviderImpl< SceneType extends RenderableScene > i
         }
     }
     
+    @Override
     public Integer getCurrentIndex() {
         return currentIndex;
     }
     
+    @Override
     public SceneType getScene( int index ) {
         return scenes.get( index );
     }

@@ -17,6 +17,7 @@ public interface TextureBufferLoader< Context > {
     
     /**
      * Releases GPU memory resources associated with this texture.
+     * @param texture texture to release
      */
     default void release( Texture texture ) {
         var textureBuffer = texture.extractBuffer( this );
@@ -28,6 +29,8 @@ public interface TextureBufferLoader< Context > {
     
     /**
      * Binds texture for usage, if texture is not loaded then it will also load it.
+     * @param texture texture to bind
+     * @return new Texture buffer
      */
     default TextureBuffer< Context > bind( Texture texture ) {
     
@@ -44,6 +47,8 @@ public interface TextureBufferLoader< Context > {
      * Loads texture data into GPU memory.<br>
      * <b>Will release previously loaded texture by this object!!!</b><br>
      * Use {@link #bind(Texture)}  } for reusable texture.
+     * @param texture texture to load
+     * @return new Texture buffer
      */
     default TextureBuffer< Context > load( Texture texture ) {
         release( texture );

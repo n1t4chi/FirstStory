@@ -42,7 +42,7 @@ public class VulkanDescriptorSet {
         );
     }
     
-    void updateDescriptorSet( VulkanShaderProgram shader, VulkanTextureSampler sampler, VulkanTextureData textureData ) {
+    void updateDescriptorSet( VulkanTextureSampler sampler, VulkanTextureData textureData, VkDescriptorBufferInfo uniformBufferInfo ) {
         var imageInfo = VkDescriptorImageInfo.create( 1 )
             .put( 0, sampler.createImageInfo( textureData ) );
         
@@ -50,7 +50,7 @@ public class VulkanDescriptorSet {
             VkWriteDescriptorSet.create( 2 )
                 .put( 0, createDescriptorWrite( 0,
                     VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    VkDescriptorBufferInfo.create( 1 ).put( 0, shader.getBufferInfo() ),
+                    VkDescriptorBufferInfo.create( 1 ).put( 0, uniformBufferInfo ),
                     null
                 ) )
                 .put( 1, createDescriptorWrite( 1,

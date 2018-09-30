@@ -33,14 +33,10 @@ public class DataBufferInLinearMemory< Data > implements DataBuffer<Data> {
     }
     
     public LinearMemoryLocation getLocation() {
-//        assertCreated();
-//        assertLoaded();
         return location;
     }
     
     public long getMemoryOffset() {
-//        assertCreated();
-//        assertLoaded();
         return location.getPosition();
     }
     

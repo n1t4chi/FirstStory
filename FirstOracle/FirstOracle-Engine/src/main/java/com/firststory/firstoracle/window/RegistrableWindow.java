@@ -17,7 +17,7 @@ import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.RegistrableSceneImpl;
-import com.firststory.firstoracle.rendering.RegistrableSceneProviderImpl;
+import com.firststory.firstoracle.rendering.RegistrableSceneProvider;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
 import com.firststory.firstoracle.scene.RegistrableScene;
@@ -29,7 +29,7 @@ import java.util.Collection;
  */
 public class RegistrableWindow extends Window {
     
-    private final RegistrableSceneProviderImpl< RegistrableScene > provider;
+    private final RegistrableSceneProvider< RegistrableScene > provider;
     
     public RegistrableWindow(
         WindowSettings settings,
@@ -39,7 +39,7 @@ public class RegistrableWindow extends Window {
         RenderingFrameworkProvider renderingFrameworkProvider,
         GuiFrameworkProvider< ? > guiFrameworkProvider,
         RenderLoop renderLoop,
-        RegistrableSceneProviderImpl< RegistrableScene > provider
+        RegistrableSceneProvider< RegistrableScene > provider
     ) {
         super(
             settings,

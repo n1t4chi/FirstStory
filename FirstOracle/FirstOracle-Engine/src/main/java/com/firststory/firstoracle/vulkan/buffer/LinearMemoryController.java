@@ -14,10 +14,12 @@ import static com.firststory.firstoracle.vulkan.buffer.LinearMemoryLocation.BY_T
  */
 class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
     
+    private final long memoryOffsetAlignment;
     private final Memory memory;
     private final PriorityQueue< LinearMemoryLocation > freeSpace = new PriorityQueue<>( BY_TRUE_SIZE );
     
-    LinearMemoryController( Memory memory ) {
+    LinearMemoryController( Memory memory, long memoryOffsetAlignment ) {
+        this.memoryOffsetAlignment = memoryOffsetAlignment;
         this.memory = memory;
         var location = newLoc( 0, memory.length(), memory.length() );
         addLocation( location );
@@ -52,14 +54,14 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
         addLocation( location );
     }
     
-    LinearMemoryLocation allocate( int length ) {
+    LinearMemoryLocation allocate( long length ) {
         var memoryLocation = freeSpace.stream()
             .sorted( LinearMemoryLocation::compareTrueLengthTo )
             .filter( Location -> Location.getLength() >= length )
             .min( LinearMemoryLocation::compareTrueLengthTo )
             .orElseThrow( () -> new OutOfMemoryException( length ) );
     
-        var newLocation = memoryLocation.split( length );
+        var newLocation = memoryLocation.split( length, memoryOffsetAlignment );
         removeLocation( memoryLocation );
         if( newLocation != null ) {
             addLocation( memoryLocation );
@@ -70,16 +72,16 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
         return newLocation;
     }
     
-    private LinearMemoryLocation newLoc( int offset, int length, int trueLength ) {
+    private LinearMemoryLocation newLoc( long offset, long length, long trueLength ) {
         return new LinearMemoryLocation( offset, length, trueLength );
     }
     
     static class OutOfMemoryException extends RuntimeException {
         
-        private OutOfMemoryException( int freeMemory, int length ) {
+        private OutOfMemoryException( long freeMemory, long length ) {
             super( "Cannot create block of size " + length + ". Free memory left: " + freeMemory );
         }
-        private OutOfMemoryException( int length ) {
+        private OutOfMemoryException( long length ) {
             super( "Cannot create block of size " + length + "." );
         }
     }

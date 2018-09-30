@@ -122,7 +122,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.add( textureTransferCommandPool );
     
         bufferProvider = VulkanBufferProvider.createProvider(
-            this, vertexDataTransferCommandPool, textureTransferCommandPool );
+            this,
+            vertexDataTransferCommandPool,
+            textureTransferCommandPool,
+            extractUniformBufferOffsetAlignment()
+        );
     
     
         depthResources = new VulkanDepthResources( this );
@@ -153,6 +157,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             "\nextensions: " + availableExtensionProperties.size() +
             "\nmemory types: " + memoryTypesToString() +
         "]" );
+    }
+    
+    private long extractUniformBufferOffsetAlignment() {
+        return properties.limits().minUniformBufferOffsetAlignment();
     }
     
     @Override

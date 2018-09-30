@@ -21,4 +21,8 @@ public interface RegistrableSceneProvider< SceneType extends RenderableScene > e
     
     @Override
     SceneType getNextScene();
+    
+    Integer getCurrentIndex();
+    
+    SceneType getScene( int index );
 }

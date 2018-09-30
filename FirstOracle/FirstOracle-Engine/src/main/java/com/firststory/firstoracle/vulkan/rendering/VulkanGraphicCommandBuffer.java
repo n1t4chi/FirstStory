@@ -94,7 +94,8 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     }
     
     private boolean activeRenderPass = false;
-    void endRenderPassIfActive() {
+    
+    private void endRenderPassIfActive() {
         if( activeRenderPass ) {
             endRenderPass();
         }

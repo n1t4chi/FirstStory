@@ -19,8 +19,8 @@ public class VulkanDataBufferProvider extends LinearMemoryController< VulkanBuff
     BufferProvider< VulkanDataBuffer, ByteBuffer >
 {
     
-    public VulkanDataBufferProvider( VulkanBufferMemory memory ) {
-        super( memory );
+    public VulkanDataBufferProvider( VulkanBufferMemory memory, long memoryOffsetAlignment ) {
+        super( memory, memoryOffsetAlignment );
     }
     
     @Override

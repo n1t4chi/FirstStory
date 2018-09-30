@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.data.DataBuffer;
 import com.firststory.firstoracle.shader.ShaderProgram;
 import com.firststory.firstoracle.vulkan.ShaderType;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
@@ -16,9 +17,7 @@ import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static com.firststory.firstoracle.vulkan.rendering.VulkanShader.SHADER_FILE_PATH_FRAGMENT;
 import static com.firststory.firstoracle.vulkan.rendering.VulkanShader.SHADER_FILE_PATH_VERTEX_3D;
@@ -31,39 +30,49 @@ public class VulkanShaderProgram implements ShaderProgram {
     private static final int UNIFORM_SIZE = FirstOracleConstants.SIZE_MATRIX_4F;
     private static final int UNIFORM_DATA_SIZE = FirstOracleConstants.SIZE_FLOAT * UNIFORM_SIZE;
     private final VulkanShader fragmentShader;
+    private final VulkanBufferProvider bufferLoader;
     private final VulkanShader vertexShader;
     private final List< VkPipelineShaderStageCreateInfo > shaderStages = new ArrayList<>();
     private final VulkanPhysicalDevice device;
-    private final VulkanDataBuffer uniformBuffer;
+    
+    private final List< VulkanDataBuffer > uniformBuffers = new ArrayList<>( 50 );
+    private final Deque< VulkanDataBuffer > uniformBuffersIterator  = new LinkedList<>();
     
     private final float[] uniformBufferData = new float[ UNIFORM_SIZE ];
     private Matrix4fc camera = null;
     private boolean cameraChanged = true;
-    private final VkDescriptorBufferInfo descriptorBufferInfo;
     
     VulkanShaderProgram(
-        VulkanPhysicalDevice device, VulkanBufferProvider bufferLoader
+        VulkanPhysicalDevice device,
+        VulkanBufferProvider bufferLoader
     ) {
         this.device = device;
         vertexShader = new VulkanShader( device, SHADER_FILE_PATH_VERTEX_3D, ShaderType.VERTEX );
         fragmentShader = new VulkanShader( device, SHADER_FILE_PATH_FRAGMENT, ShaderType.FRAGMENT );
-        uniformBuffer = bufferLoader.createUniformBuffer( uniformBufferData );
-        descriptorBufferInfo = createDescriptorBufferInfo();
+        this.bufferLoader = bufferLoader;
     }
     
-    VkDescriptorBufferInfo getBufferInfo() {
-        return descriptorBufferInfo;
-    }
-    
-    private VkDescriptorBufferInfo createDescriptorBufferInfo() {
+    private VkDescriptorBufferInfo createDescriptorBufferInfo( VulkanDataBuffer uniformBuffer ) {
         return VkDescriptorBufferInfo.create()
             .buffer( uniformBuffer.getBufferAddress().getValue() )
-            .offset( 0 )
+            .offset( uniformBuffer.getMemoryOffset() )
             .range( UNIFORM_DATA_SIZE );
     }
     
-    void bindUniformData() {
-        uniformBuffer.load( uniformBufferData );
+    void resetUniformData() {
+        uniformBuffersIterator.clear();
+        uniformBuffersIterator.addAll( uniformBuffers );
+    }
+    
+    VkDescriptorBufferInfo bindUniformData() {
+        var buffer = uniformBuffersIterator.poll();
+        if( buffer == null ) {
+            buffer = bufferLoader.createUniformBuffer( uniformBufferData );
+            uniformBuffers.add( buffer );
+        } else {
+            buffer.load( uniformBufferData );
+        }
+        return createDescriptorBufferInfo( buffer );
     }
     
     Matrix4fc getCamera() {
@@ -94,7 +103,9 @@ public class VulkanShaderProgram implements ShaderProgram {
     
     @Override
     public void dispose() {
-        uniformBuffer.close();
+        uniformBuffers.forEach( DataBuffer::close );
+        uniformBuffers.clear();
+        uniformBuffersIterator.clear();
         vertexShader.dispose();
         fragmentShader.dispose();
         shaderStages.clear();

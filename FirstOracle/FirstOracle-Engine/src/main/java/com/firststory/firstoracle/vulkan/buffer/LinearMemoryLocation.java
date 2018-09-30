@@ -43,7 +43,7 @@ public class LinearMemoryLocation {
     }
     
     void setLength( long length ) {
-        if( trueLength > length ) {
+        if( length > trueLength ) {
             throw new CannotResizeException( length, trueLength );
         }
         this.length = length;
@@ -95,7 +95,7 @@ public class LinearMemoryLocation {
         return position + length;
     }
     
-    public void movePosition( int offset ) {
+    public void movePosition( long offset ) {
         this.position += offset;
         this.length -= offset;
         this.trueLength -= offset;
@@ -116,13 +116,19 @@ public class LinearMemoryLocation {
         return o.end() >= getPosition();
     }
     
-    LinearMemoryLocation split( int length ) {
+    LinearMemoryLocation split( long length, long memoryOffsetAlignment ) {
         if ( getTrueLength() - length < MAX_BLOCK_FREE_SPACE ) {
             setLength( length );
             return null;
         }
-        var newLocation = new LinearMemoryLocation( getPosition(), length, length );
-        movePosition( length );
+        var offset = length + ( ( length % memoryOffsetAlignment == 0 )
+            ? 0
+            : memoryOffsetAlignment - ( length % memoryOffsetAlignment )
+        );
+        
+        var newLocation = new LinearMemoryLocation( getPosition(), length, offset );
+        
+        movePosition( offset );
         return newLocation;
     }
     

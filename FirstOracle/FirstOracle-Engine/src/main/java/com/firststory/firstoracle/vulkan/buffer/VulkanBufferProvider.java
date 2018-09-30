@@ -17,9 +17,10 @@ public class VulkanBufferProvider {
     public static VulkanBufferProvider createProvider(
         VulkanPhysicalDevice device,
         VulkanTransferCommandPool dataTransferCommandPool,
-        VulkanTransferCommandPool textureTransferCommandPool
+        VulkanTransferCommandPool textureTransferCommandPool,
+        long uniformBufferOffsetAlignment
     ) {
-        return new VulkanBufferProvider( device, dataTransferCommandPool, textureTransferCommandPool ).init();
+        return new VulkanBufferProvider( device, dataTransferCommandPool, textureTransferCommandPool ).init( uniformBufferOffsetAlignment );
     }
     
     private final VulkanPhysicalDevice device;
@@ -71,15 +72,15 @@ public class VulkanBufferProvider {
         return textureBufferProvider.create( pixels );
     }
     
-    private VulkanBufferProvider init() {
+    private VulkanBufferProvider init( long uniformBufferOffsetAlignment ) {
         textureMemory = VulkanBufferMemory.createTextureMemory( device, getSuitableTextureMemoryLength(), textureTransferCommandPool );
-        textureBufferProvider = new VulkanDataBufferProvider( textureMemory );
+        textureBufferProvider = new VulkanDataBufferProvider( textureMemory, 1 );
         
         vertexMemory = VulkanBufferMemory.createVertexMemory( device, getSuitableVertexDataMemoryLength(), dataTransferCommandPool );
-        vertexBufferProvider = new VulkanDataBufferProvider( vertexMemory );
+        vertexBufferProvider = new VulkanDataBufferProvider( vertexMemory, 1 );
         
         uniformMemory = VulkanBufferMemory.createUniformMemory( device, getSuitableUniformMemoryLength(), dataTransferCommandPool );
-        uniformBufferProvider = new VulkanDataBufferProvider( uniformMemory );
+        uniformBufferProvider = new VulkanDataBufferProvider( uniformMemory, uniformBufferOffsetAlignment );
         return this;
     }
     
