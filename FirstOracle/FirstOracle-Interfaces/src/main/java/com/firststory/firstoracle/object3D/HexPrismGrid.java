@@ -5,8 +5,7 @@ package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.data.Index3D;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
+import com.firststory.firstoracle.object.data.Position3D;
 
 /**
  * @author n1t4chi
@@ -14,8 +13,6 @@ import org.joml.Vector3fc;
 public interface HexPrismGrid
     extends Terrain3D< HexPrismVertices >, HexPrism< Identity3DTransformations >
 {
-    
-    Vector3f position = new Vector3f();
     
     /**
      * Returns position in space based on position in array
@@ -27,8 +24,8 @@ public interface HexPrismGrid
      * @return same vector with updated positions for current rendering
      */
     @Override
-    default Vector3fc computePosition( int x, int y, int z, Index3D arrayShift ) {
-        return position.set(
+    default Position3D computePosition( int x, int y, int z, Index3D arrayShift ) {
+        return Position3D.pos3(
             FirstOracleConstants.transHexPrismXDiscreteToSpace( x, arrayShift.x() ),
             FirstOracleConstants.transHexPrismYDiscreteToSpace( y, arrayShift.y() ),
             FirstOracleConstants.transHexPrismZDiscreteToSpace( x, z, arrayShift.x(), arrayShift.z() )

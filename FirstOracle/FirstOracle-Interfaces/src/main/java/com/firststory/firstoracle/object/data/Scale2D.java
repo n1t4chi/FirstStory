@@ -4,6 +4,9 @@
 
 package com.firststory.firstoracle.object.data;
 
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
+
 /**
  * @author n1t4chi
  */
@@ -20,5 +23,9 @@ public class Scale2D extends Scale {
     @Override
     public String toString() {
         return "Scale2D{ " + x() + ", " + y() + " }";
+    }
+    
+    public Vector2fc toVec2f() {
+        return new Vector2f( x(), y() );
     }
 }

@@ -4,6 +4,9 @@
 
 package com.firststory.firstoracle.object.data;
 
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
+
 /**
  * @author n1t4chi
  */
@@ -20,5 +23,9 @@ public class Index3D extends Index {
     @Override
     public String toString() {
         return "Index3D{ " + x() + ", " + y() + ", " + z() + " }";
+    }
+    
+    public Vector3ic toVec3i() {
+        return new Vector3i( x(), y(), z() );
     }
 }

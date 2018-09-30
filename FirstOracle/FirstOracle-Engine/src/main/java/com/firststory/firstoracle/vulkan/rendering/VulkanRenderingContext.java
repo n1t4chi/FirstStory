@@ -159,6 +159,7 @@ public class VulkanRenderingContext implements RenderingContext {
             
             VulkanGraphicPipeline pipeline;
             switch ( renderData.getType() ) {
+                case LINES:
                 case LINE_LOOP:
                     buffer.setLineWidth( renderData.getLineWidth() );
                     pipeline = linePipeline;

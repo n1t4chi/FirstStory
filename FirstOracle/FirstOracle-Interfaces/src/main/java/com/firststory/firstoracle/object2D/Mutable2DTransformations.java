@@ -3,72 +3,72 @@
  */
 package com.firststory.firstoracle.object2D;
 
-import org.joml.Vector2f;
-import org.joml.Vector2fc;
+import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.object.data.Position2D;
+import com.firststory.firstoracle.object.data.Rotation2D;
+import com.firststory.firstoracle.object.data.Scale2D;
 
 /**
  * @author n1t4chi
  */
 public class Mutable2DTransformations implements PositionableObject2DTransformations {
     
-    private final Vector2f position;
-    private final Vector2f scale;
-    private float rotation;
-    
-    public Mutable2DTransformations() {
-        scale = new Vector2f( 1, 1 );
-        rotation = 0;
-        position = new Vector2f( 0, 0 );
-    }
+    private Position2D position = FirstOracleConstants.POSITION_ZERO_2F;
+    private Scale2D scale = FirstOracleConstants.SCALE_ONE_2F;
+    private Rotation2D rotation = FirstOracleConstants.ROTATION_ZERO_2F;
     
     @Override
-    public Vector2fc getScale() {
+    public Scale2D getScale() {
         return scale;
     }
     
-    public void setScale( Vector2fc scale ) {
-        this.scale.set( scale );
+    public void setScale( Scale2D scale ) {
+        this.scale = scale;
     }
     
     @Override
-    public Float getRotation() {
+    public Rotation2D getRotation() {
         return rotation;
     }
     
-    public void setRotation( float rotation ) {
+    public void setRotation( Rotation2D rotation ) {
         this.rotation = rotation;
     }
     
+    public void setRotation( Float angle ) {
+        setRotation( Rotation2D.rot2( angle ) );
+    }
+    
     @Override
-    public Vector2fc getPosition() {
+    public Position2D getPosition() {
         return position;
     }
     
-    public void setPosition( Vector2fc position ) {
-        this.position.set( position );
+    public void setPosition( Position2D position ) {
+        this.position = position;
     }
     
     public void setPosition( float x, float y ) {
-        position.set( x, y );
+        setPosition( Position2D.pos2( x, y ) );
     }
     
     public void setPositionX( float x ) {
-        position.set( x, position.y );
+        setPosition( x, position.y() );
     }
     
     public void setPositionY( float y ) {
-        position.set( position.x, y );
+        setPosition( position.x(), y );
     }
     
     public void setScale( float x, float y ) {
-        scale.set( x, y );
+        setScale( Scale2D.scale2( x, y ) );
     }
     
     public void setScaleX( float x ) {
-        scale.set( x, scale.y );
+        setScale( x, scale.y() );
     }
     
     public void setScaleY( float y ) {
-        scale.set( scale.x, y );
+        setScale( scale.x(), y );
     }
 }

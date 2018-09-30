@@ -4,6 +4,9 @@
 
 package com.firststory.firstoracle.object.data;
 
+import org.joml.Vector2i;
+import org.joml.Vector2ic;
+
 /**
  * @author n1t4chi
  */
@@ -20,5 +23,9 @@ public class Index2D extends Index {
     @Override
     public String toString() {
         return "Index2D{ " + x() + ", " + y() + " }";
+    }
+    
+    public Vector2ic toVec3i() {
+        return new Vector2i( x(), y() );
     }
 }

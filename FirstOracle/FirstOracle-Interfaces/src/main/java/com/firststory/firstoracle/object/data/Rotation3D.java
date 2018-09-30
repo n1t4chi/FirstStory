@@ -4,10 +4,13 @@
 
 package com.firststory.firstoracle.object.data;
 
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+
 /**
  * @author n1t4chi
  */
-public class Rotation3D extends Position {
+public class Rotation3D extends Rotation {
     
     public static Rotation3D rot3( float x, float y, float z ) {
         return new Rotation3D( x, y, z );
@@ -19,6 +22,10 @@ public class Rotation3D extends Position {
     
     @Override
     public String toString() {
-        return "Rotation3D{ " + x() + ", " + y() + ", " + z() + " }";
+        return "Rotation3D{ " + ox() + ", " + oy() + ", " + oz() + " }";
+    }
+    
+    public Vector3fc toVec3f() {
+        return new Vector3f( ox(), oy(), oz() );
     }
 }

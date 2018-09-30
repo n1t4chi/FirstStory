@@ -5,7 +5,6 @@ package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.object.BoundingBox;
 import com.firststory.firstoracle.object.data.Position3D;
-import org.joml.Vector3fc;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ import static java.lang.Math.min;
 /**
  * @author n1t4chi
  */
-public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransformations, Vector3fc > {
+public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransformations, Position3D > {
     
     public static BoundingBox3D getBoundingBox3D( List< Position3D > vertices ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
@@ -130,7 +129,7 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         return getTransformedBoundingBox( transformations, transformations.getPosition() );
     }
     
-    public BoundingBox3D getTransformedBoundingBox( Object3DTransformations transformations, Vector3fc position ) {
+    public BoundingBox3D getTransformedBoundingBox( Object3DTransformations transformations, Position3D position ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
         minX = this.minX;
         maxX = this.maxX;
@@ -138,8 +137,8 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         maxY = this.maxY;
         minZ = this.minZ;
         maxZ = this.maxZ;
-        var rotation = transformations.getRotation();
-        var scale = transformations.getScale();
+        var rotation = transformations.getRotation().toVec3f();
+        var scale = transformations.getScale().toVec3f();
         if ( rotation.lengthSquared() != 0 ) {
             minX *= 1.5;
             maxX *= 1.5;

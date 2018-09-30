@@ -167,9 +167,9 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     ) {
         renderingContext.render2D( renderer -> renderer.renderVerticesAsLines( buffer,
             0,
-            FirstOracleConstants.VECTOR_ZERO_2F,
-            FirstOracleConstants.VECTOR_ONES_2F,
-            0f,
+            FirstOracleConstants.POSITION_ZERO_2F,
+            FirstOracleConstants.SCALE_ONE_2F,
+            FirstOracleConstants.ROTATION_ZERO_2F,
             lineData
         ) );
     }

@@ -7,7 +7,7 @@ package com.firststory.firstoracle.object.data;
 /**
  * @author n1t4chi
  */
-public class Rotation2D extends Position {
+public class Rotation2D extends Rotation {
     
     public static Rotation2D rot2( float angle ) {
         return new Rotation2D( angle );
@@ -19,6 +19,10 @@ public class Rotation2D extends Position {
     
     @Override
     public String toString() {
-        return "Rotation2D{ " + z() + " }";
+        return "Rotation2D{ " + ox() + " }";
+    }
+    
+    public Float toVec1f() {
+        return oz();
     }
 }

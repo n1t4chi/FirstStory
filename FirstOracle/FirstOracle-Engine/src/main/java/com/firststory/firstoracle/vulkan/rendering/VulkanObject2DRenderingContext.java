@@ -8,10 +8,13 @@ import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.object.data.Position2D;
+import com.firststory.firstoracle.object.data.Rotation2D;
+import com.firststory.firstoracle.object.data.Scale2D;
 import com.firststory.firstoracle.object2D.Vertices2D;
 import com.firststory.firstoracle.rendering.LineData;
 import com.firststory.firstoracle.rendering.Object2DRenderingContext;
-import org.joml.Vector2fc;
+import com.firststory.firstoracle.rendering.RenderType;
 
 /**
  * @author n1t4chi
@@ -43,9 +46,9 @@ public class VulkanObject2DRenderingContext implements Object2DRenderingContext 
         int uvFrame,
         int uvDirection,
         Colouring colouring,
-        Vector2fc position,
-        Vector2fc scale,
-        Float rotation,
+        Position2D position,
+        Scale2D scale,
+        Rotation2D rotation,
         Texture texture,
         Colour overlayColour,
         Float maxAlphaChannel
@@ -71,12 +74,12 @@ public class VulkanObject2DRenderingContext implements Object2DRenderingContext 
     public void renderVerticesAsLines(
         Vertices2D vertices,
         int vertexFrame,
-        Vector2fc position,
-        Vector2fc scale,
-        Float rotation,
+        Position2D position,
+        Scale2D scale,
+        Rotation2D rotation,
         LineData lineData
     ) {
-        context.draw( RenderData.build( RenderType.LINE_LOOP )
+        context.draw( RenderData.build( lineData.getType().getRenderType() )
             .setPosition( position )
             .setRotation( rotation )
             .setScale( scale )

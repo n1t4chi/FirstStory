@@ -3,96 +3,92 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
+import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.object.data.Position3D;
+import com.firststory.firstoracle.object.data.Rotation3D;
+import com.firststory.firstoracle.object.data.Scale3D;
 
 /**
  * @author n1t4chi
  */
 public class Mutable3DTransformations implements PositionableObject3DTransformations {
     
-    private final Vector3f position;
-    private final Vector3f scale;
-    private final Vector3f rotation;
-    
-    public Mutable3DTransformations() {
-        scale = new Vector3f( 1, 1, 1 );
-        rotation = new Vector3f( 0, 0, 0 );
-        position = new Vector3f( 0, 0, 0 );
-    }
+    private Position3D position = FirstOracleConstants.POSITION_ZERO_3F;
+    private Scale3D scale = FirstOracleConstants.SCALE_ONE_3F;
+    private Rotation3D rotation = FirstOracleConstants.ROTATION_ZERO_3F;
     
     @Override
-    public Vector3fc getScale() {
+    public Scale3D getScale() {
         return scale;
     }
     
-    public void setScale( Vector3fc scale ) {
-        this.scale.set( scale );
+    public void setScale( Scale3D scale ) {
+        this.scale = scale;
     }
     
     @Override
-    public Vector3fc getRotation() {
+    public Rotation3D getRotation() {
         return rotation;
     }
     
-    public void setRotation( Vector3fc rotation ) {
-        this.rotation.set( rotation );
+    public void setRotation( Rotation3D rotation ) {
+        this.rotation = rotation;
     }
     
     @Override
-    public Vector3fc getPosition() {
+    public Position3D getPosition() {
         return position;
     }
     
-    public void setPosition( Vector3fc position ) {
-        this.position.set( position );
+    public void setPosition( Position3D position ) {
+        this.position = position;
     }
     
     public void setPosition( float x, float y, float z ) {
-        position.set( x, y, z );
+        setPosition( Position3D.pos3( x, y, z ) );
     }
     
     public void setPositionX( float x ) {
-        position.set( x, position.y, position.z );
+        setPosition( x, position.y(), position.z() );
     }
     
     public void setPositionY( float y ) {
-        position.set( position.x, y, position.z );
+        setPosition( position.x(), y, position.z() );
     }
     
     public void setPositionZ( float z ) {
-        position.set( position.x, position.y, z );
+        setPosition( position.x(), position.y(), z );
     }
     
     public void setScale( float x, float y, float z ) {
-        scale.set( x, y, z );
+        setScale( Scale3D.scale3( x, y, z ) );
     }
     
     public void setScaleX( float x ) {
-        scale.set( x, scale.y, scale.z );
+        setScale( x, scale.y(), scale.z() );
     }
     
     public void setScaleY( float y ) {
-        scale.set( scale.x, y, scale.z );
+        setScale( scale.x(), y, scale.z() );
     }
     
     public void setScaleZ( float z ) {
-        scale.set( scale.x, scale.y, z );
+        setScale( scale.x(), scale.y(), z );
     }
     
     public void setRotation( float x, float y, float z ) {
-        rotation.set( x, y, z );
+        setRotation( Rotation3D.rot3( x, y, z ) );
     }
     
     public void setRotationX( float x ) {
-        rotation.set( x, rotation.y, rotation.z );
+        setRotation( x, rotation.oy(), rotation.oz() );
     }
     
     public void setRotationY( float y ) {
-        rotation.set( rotation.x, y, rotation.z );
+        setRotation( rotation.ox(), y, rotation.oz() );
     }
     
     public void setRotationZ( float z ) {
-        rotation.set( rotation.x, rotation.y, z );
+        setRotation( rotation.ox(), rotation.oy(), z );
     }
 }

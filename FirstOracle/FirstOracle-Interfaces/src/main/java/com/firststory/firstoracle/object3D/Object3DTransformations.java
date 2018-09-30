@@ -5,20 +5,21 @@ package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.ObjectTransformations;
-import org.joml.Vector3fc;
+import com.firststory.firstoracle.object.data.Rotation3D;
+import com.firststory.firstoracle.object.data.Scale3D;
 
 /**
  * @author n1t4chi
  */
-public interface Object3DTransformations extends ObjectTransformations< Vector3fc, Vector3fc > {
+public interface Object3DTransformations extends ObjectTransformations< Scale3D, Rotation3D > {
     
     @Override
-    default Vector3fc getScale() {
-        return FirstOracleConstants.VECTOR_ONES_3F;
+    default Scale3D getScale() {
+        return FirstOracleConstants.SCALE_ONE_3F;
     }
     
     @Override
-    default Vector3fc getRotation() {
-        return FirstOracleConstants.VECTOR_ZERO_3F;
+    default Rotation3D getRotation() {
+        return FirstOracleConstants.ROTATION_ZERO_3F;
     }
 }

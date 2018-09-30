@@ -4,10 +4,16 @@
 
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.object.data.Position;
+import com.firststory.firstoracle.object.data.Rotation;
+import com.firststory.firstoracle.object.data.Scale;
+
 /**
  * @author n1t4chi
  */
-public interface PositionableObjectTransformations< Scale, Rotation, Position > extends ObjectTransformations<Scale, Rotation> {
+public interface PositionableObjectTransformations< PositionType extends Position, ScaleType extends Scale, RotationType extends Rotation > extends
+    ObjectTransformations< ScaleType, RotationType >
+{
     
-    Position getPosition();
+    PositionType getPosition();
 }

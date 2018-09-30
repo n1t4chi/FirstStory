@@ -4,7 +4,7 @@
 package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.object.data.Index2D;
-import org.joml.Vector2fc;
+import com.firststory.firstoracle.object.data.Position2D;
 
 /**
  * @author n1t4chi
@@ -26,7 +26,5 @@ public interface Terrain2D< Vertices extends Vertices2D >
      * @param arrayShift shift of array in space
      * @return position in space
      */
-    Vector2fc computePosition( int x, int y, Index2D arrayShift );
-    
-    
+    Position2D computePosition( int x, int y, Index2D arrayShift );
 }

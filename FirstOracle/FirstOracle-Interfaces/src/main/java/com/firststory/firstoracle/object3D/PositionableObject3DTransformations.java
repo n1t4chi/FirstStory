@@ -6,18 +6,20 @@ package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.PositionableObjectTransformations;
-import org.joml.Vector3fc;
+import com.firststory.firstoracle.object.data.Position3D;
+import com.firststory.firstoracle.object.data.Rotation3D;
+import com.firststory.firstoracle.object.data.Scale3D;
 
 /**
  * @author n1t4chi
  */
 public interface PositionableObject3DTransformations extends
     Object3DTransformations,
-    PositionableObjectTransformations< Vector3fc, Vector3fc, Vector3fc>
+    PositionableObjectTransformations< Position3D, Scale3D, Rotation3D >
 {
     
     @Override
-    default Vector3fc getPosition() {
-        return FirstOracleConstants.VECTOR_ZERO_3F;
+    default Position3D getPosition() {
+        return FirstOracleConstants.POSITION_ZERO_3F;
     }
 }

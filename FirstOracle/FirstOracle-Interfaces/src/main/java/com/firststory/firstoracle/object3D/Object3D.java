@@ -21,6 +21,6 @@ public interface Object3D< Transformations extends Object3DTransformations, Vert
     
     @Override
     default BoundingBox3D getBBO() {
-        return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations(), FirstOracleConstants.VECTOR_ZERO_3F );
+        return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations(), FirstOracleConstants.POSITION_ZERO_3F );
     }
 }

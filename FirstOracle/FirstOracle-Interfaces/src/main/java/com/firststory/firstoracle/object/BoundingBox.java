@@ -3,10 +3,12 @@
  */
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.object.data.Position;
+
 /**
  * @author n1t4chi
  */
-public interface BoundingBox< Box extends BoundingBox< ?, ?, ? >, Transformations extends ObjectTransformations< ?, ? >, Position > {
+public interface BoundingBox< Box extends BoundingBox< ?, ?, ? >, Transformations extends ObjectTransformations< ?, ? >, PositionType extends Position > {
     
-    Box getTransformedBoundingBox( Transformations transformations, Position position );
+    Box getTransformedBoundingBox( Transformations transformations, PositionType position );
 }

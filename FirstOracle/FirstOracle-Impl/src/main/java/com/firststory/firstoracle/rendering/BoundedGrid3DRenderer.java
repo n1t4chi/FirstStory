@@ -140,9 +140,9 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
             renderer.renderVerticesAsLines(
                 buffer,
                 0,
-                FirstOracleConstants.VECTOR_ZERO_3F,
-                FirstOracleConstants.VECTOR_ONES_3F,
-                FirstOracleConstants.VECTOR_ZERO_3F,
+                FirstOracleConstants.POSITION_ZERO_3F,
+                FirstOracleConstants.SCALE_ONE_3F,
+                FirstOracleConstants.ROTATION_ZERO_3F,
                 lineData
             )
         );

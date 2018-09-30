@@ -3,11 +3,9 @@
  */
 package com.firststory.firstoracle.opengl;
 
-import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.object.data.*;
 import com.firststory.firstoracle.shader.ShaderProgram;
 import org.joml.Matrix4fc;
-import org.joml.Vector2fc;
-import org.joml.Vector3fc;
 
 import static com.firststory.firstoracle.FirstOracleConstants.SHADER_FILES_LOCATION;
 
@@ -40,20 +38,32 @@ class OpenGlShaderProgram3D extends OpenGlShaderProgram implements ShaderProgram
         super( vertex_file_path, fragment_file_path );
     }
     
-    void bindPosition( Vector3fc vector ) {
-        positionLocation.bind( vector );
-    }
-    
     void bindCamera( Matrix4fc camera ) {
         cameraLocation.bind( camera );
     }
     
-    void bindScale( Vector3fc vector ) {
+    void bindPosition( Position3D vector ) {
+        positionLocation.bind( vector );
+    }
+    
+    void bindPosition( Position2D vector ) {
+        positionLocation.bind( vector );
+    }
+    
+    void bindScale( Scale3D vector ) {
         scaleLocation.bind( vector );
     }
     
-    void bindRotation( Vector3fc vector ) {
+    void bindScale( Scale2D vector ) {
+        scaleLocation.bind( vector );
+    }
+    
+    void bindRotation( Rotation3D vector ) {
         rotationLocation.bind( vector );
+    }
+    
+    void bindRotation( Rotation2D rotation ) {
+        rotationLocation.bind( rotation );
     }
     
     void bindOverlayColour( Colour vector ) {
@@ -62,18 +72,6 @@ class OpenGlShaderProgram3D extends OpenGlShaderProgram implements ShaderProgram
     
     void bindMaxAlphaChannel( float value ) {
         maxAlphaChannelLocation.bind( value );
-    }
-    
-    void bindPosition( Vector2fc vector ) {
-        positionLocation.bindPosition( vector );
-    }
-    
-    void bindScale( Vector2fc vector ) {
-        scaleLocation.bindScale( vector );
-    }
-    
-    void bindRotation( float rotation ) {
-        rotationLocation.bindRotation( rotation );
     }
     
     @Override

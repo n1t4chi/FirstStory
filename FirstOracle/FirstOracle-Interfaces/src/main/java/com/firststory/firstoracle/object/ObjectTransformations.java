@@ -3,12 +3,15 @@
  */
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.object.data.Rotation;
+import com.firststory.firstoracle.object.data.Scale;
+
 /**
  * @author n1t4chi
  */
-public interface ObjectTransformations< Scale, Rotation > {
+public interface ObjectTransformations< ScaleType extends Scale, RotationType extends Rotation > {
     
-    Scale getScale();
+    ScaleType getScale();
     
-    Rotation getRotation();
+    RotationType getRotation();
 }

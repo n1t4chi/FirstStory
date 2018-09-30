@@ -10,13 +10,14 @@ import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object.Vertices;
 import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.object.data.Position;
+import com.firststory.firstoracle.object.data.Rotation;
+import com.firststory.firstoracle.object.data.Scale;
 import com.firststory.firstoracle.object2D.Vertices2D;
 import com.firststory.firstoracle.object3D.Vertices3D;
-import org.joml.Vector2fc;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
+import com.firststory.firstoracle.rendering.RenderType;
 
-class RenderData {
+public class RenderData {
     
     static RenderDataBuilder build( RenderType type ) {
         return new RenderDataBuilder().setRenderType( type );
@@ -28,9 +29,9 @@ class RenderData {
     private int uvFrame = 0;
     private int uvDirection = 0;
     private Colouring colouring = FirstOracleConstants.EMPTY_COLOURING;
-    private Vector3fc position = FirstOracleConstants.VECTOR_ZERO_3F;
-    private Vector3fc scale = FirstOracleConstants.VECTOR_ONES_3F;
-    private Vector3fc rotation = FirstOracleConstants.VECTOR_ZERO_3F;
+    private Position position = FirstOracleConstants.POSITION_ZERO_3F;
+    private Scale scale = FirstOracleConstants.SCALE_ONE_3F;
+    private Rotation rotation = FirstOracleConstants.ROTATION_ZERO_3F;
     private Texture texture = FirstOracleConstants.EMPTY_TEXTURE;
     private Colour overlayColour = FirstOracleConstants.TRANSPARENT;
     private Float maxAlphaChannel = 1f;
@@ -65,15 +66,15 @@ class RenderData {
         return colouring;
     }
     
-    Vector3fc getPosition() {
+    Position getPosition() {
         return position;
     }
     
-    Vector3fc getScale() {
+    Scale getScale() {
         return scale;
     }
     
-    Vector3fc getRotation() {
+    Rotation getRotation() {
         return rotation;
     }
     
@@ -141,33 +142,18 @@ class RenderData {
             return this;
         }
         
-        RenderDataBuilder setPosition( Vector3fc position ) {
-            data.position = new Vector3f( position );
+        RenderDataBuilder setPosition( Position position ) {
+            data.position = position;
             return this;
         }
         
-        RenderDataBuilder setPosition( Vector2fc position ) {
-            data.position = new Vector3f( position.x(), position.y(), 0 );
+        RenderDataBuilder setScale( Scale scale ) {
+            data.scale = scale;
             return this;
         }
         
-        RenderDataBuilder setScale( Vector3fc scale ) {
-            data.scale = new Vector3f( scale );
-            return this;
-        }
-        
-        RenderDataBuilder setScale( Vector2fc scale ) {
-            data.scale = new Vector3f( scale.x(), scale.y(), 1 );
-            return this;
-        }
-        
-        RenderDataBuilder setRotation( Vector3fc rotation ) {
-            data.rotation = new Vector3f( rotation );
-            return this;
-        }
-        
-        RenderDataBuilder setRotation( float rotation ) {
-            data.rotation = new Vector3f( 0, 0, rotation );
+        RenderDataBuilder setRotation( Rotation rotation ) {
+            data.rotation = rotation;
             return this;
         }
         

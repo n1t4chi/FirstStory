@@ -64,7 +64,7 @@ public class VulkanShaderProgram3D extends VulkanShaderProgram implements Shader
     }
     
     void bindScale( Scale scale ) {
-        putInputData( OFFSET_POSITION, scale.x(), scale.y(), scale.z() );
+        putInputData( OFFSET_SCALE, scale.x(), scale.y(), scale.z() );
     }
     
     void bindRotation( float rotation ) {

@@ -7,17 +7,20 @@ package com.firststory.firstoracle.rendering;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.object.data.Position;
+import com.firststory.firstoracle.object.data.Rotation;
+import com.firststory.firstoracle.object.data.Scale;
 
 /**
  * @author n1t4chi
  */
 public interface ObjectRenderingContext<
-    Position,
-    Scale,
-    Rotation,
-    Transformations extends ObjectTransformations< Scale, Rotation >,
-    VerticesT extends Vertices<?, ?>,
-    GraphicObjectT extends GraphicObject< ? extends Transformations, ?, ? extends VerticesT > >
+    PositionType extends Position,
+    ScaleType extends Scale,
+    RotationType extends Rotation,
+    TransformationsType extends ObjectTransformations< ScaleType, RotationType >,
+    VerticesType extends Vertices<?, ?>,
+    GraphicObjectType extends GraphicObject< ? extends TransformationsType, ?, ? extends VerticesType > >
 {
     
     boolean shouldUseTextures();
@@ -25,8 +28,8 @@ public interface ObjectRenderingContext<
     boolean shouldDrawBorder();
     
     default void render(
-        GraphicObjectT object, 
-        Position position, 
+        GraphicObjectType object,
+        PositionType position,
         double timeSnapshot, 
         double cameraRotation
     ) {
@@ -47,14 +50,14 @@ public interface ObjectRenderingContext<
     }
     
     default void render(
-        VerticesT vertices,
+        VerticesType vertices,
         int vertexFrame,
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
         Colouring colours,
-        Position position,
-        Transformations transformations,
+        PositionType position,
+        TransformationsType transformations,
         Texture texture,
         Colour overlayColour,
         Float maxAlphaChannel,
@@ -91,14 +94,14 @@ public interface ObjectRenderingContext<
     
     
     default void renderVerticesAsTriangles(
-        VerticesT vertices,
+        VerticesType vertices,
         int vertexFrame,
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
         Colouring colours,
-        Position position,
-        Transformations transformations,
+        PositionType position,
+        TransformationsType transformations,
         Texture texture,
         Colour overlayColour,
         Float maxAlphaChannel
@@ -120,25 +123,25 @@ public interface ObjectRenderingContext<
     }
     
     void renderVerticesAsTriangles(
-        VerticesT vertices,
+        VerticesType vertices,
         int vertexFrame,
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
         Colouring colours,
-        Position position,
-        Scale scale,
-        Rotation rotation,
+        PositionType position,
+        ScaleType scale,
+        RotationType rotation,
         Texture texture,
         Colour overlayColour,
         Float maxAlphaChannel
     );
     
     default void renderVerticesAsLines(
-        VerticesT vertices,
+        VerticesType vertices,
         int vertexFrame,
-        Position position,
-        Transformations transformations,
+        PositionType position,
+        TransformationsType transformations,
         LineData lineData
     ) {
         renderVerticesAsLines(
@@ -152,11 +155,11 @@ public interface ObjectRenderingContext<
     }
     
     void renderVerticesAsLines(
-        VerticesT vertices,
+        VerticesType vertices,
         int vertexFrame,
-        Position position,
-        Scale scale,
-        Rotation rotation,
+        PositionType position,
+        ScaleType scale,
+        RotationType rotation,
         LineData lineData
     );
 }

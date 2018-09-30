@@ -5,20 +5,21 @@ package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.ObjectTransformations;
-import org.joml.Vector2fc;
+import com.firststory.firstoracle.object.data.Rotation2D;
+import com.firststory.firstoracle.object.data.Scale2D;
 
 /**
  * @author n1t4chi
  */
-public interface Object2DTransformations extends ObjectTransformations< Vector2fc, Float > {
+public interface Object2DTransformations extends ObjectTransformations< Scale2D, Rotation2D > {
     
     @Override
-    default Vector2fc getScale() {
-        return FirstOracleConstants.VECTOR_ONES_2F;
+    default Scale2D getScale() {
+        return FirstOracleConstants.SCALE_ONE_2F;
     }
     
     @Override
-    default Float getRotation() {
-        return 0f;
+    default Rotation2D getRotation() {
+        return FirstOracleConstants.ROTATION_ZERO_2F;
     }
 }

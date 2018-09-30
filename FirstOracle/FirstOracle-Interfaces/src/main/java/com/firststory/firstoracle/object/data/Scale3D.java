@@ -4,6 +4,9 @@
 
 package com.firststory.firstoracle.object.data;
 
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+
 /**
  * @author n1t4chi
  */
@@ -20,5 +23,9 @@ public class Scale3D extends Scale {
     @Override
     public String toString() {
         return "Scale3D{ " + x() + ", " + y() + ", " + z() + " }";
+    }
+    
+    public Vector3fc toVec3f() {
+        return new Vector3f( x(), y(), z() );
     }
 }

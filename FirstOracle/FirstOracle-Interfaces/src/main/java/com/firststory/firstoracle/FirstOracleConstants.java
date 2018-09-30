@@ -69,14 +69,14 @@ public interface FirstOracleConstants {
     Vector3ic VECTOR_ONES_3I = new Vector3i( 1, 1, 1 );
     Vector4fc VECTOR_ONES_4F = new Vector4f( 1, 1, 1, 1 );
     
-    Position2D POSITION_ZERO_2I = pos2( 0, 0 );
-    Position3D POSITION_ZERO_3I = pos3( 0, 0, 0 );
+    Position2D POSITION_ZERO_2F = pos2( 0, 0 );
+    Position3D POSITION_ZERO_3F = pos3( 0, 0, 0 );
     
-    Rotation2D ROTATION_ZERO_2I = rot2( 0 );
-    Rotation3D ROTATION_ZERO_3I = rot3( 0, 0, 0 );
+    Rotation2D ROTATION_ZERO_2F = rot2( 0 );
+    Rotation3D ROTATION_ZERO_3F = rot3( 0, 0, 0 );
     
-    Scale2D SCALE_ONE_2I = scale2( 1, 1 );
-    Scale3D SCALE_ONE_3I = scale3( 1, 1, 1 );
+    Scale2D SCALE_ONE_2F = scale2( 1, 1 );
+    Scale3D SCALE_ONE_3F = scale3( 1, 1, 1 );
     
     Index2D INDEX_ZERO_2I = id2( 0, 0 );
     Index3D INDEX_ZERO_3I = id3( 0, 0, 0 );

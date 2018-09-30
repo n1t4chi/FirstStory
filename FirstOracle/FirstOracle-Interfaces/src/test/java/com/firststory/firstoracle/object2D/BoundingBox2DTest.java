@@ -4,8 +4,9 @@
 
 package com.firststory.firstoracle.object2D;
 
-import org.joml.Vector2f;
-import org.joml.Vector2fc;
+import com.firststory.firstoracle.object.data.Position2D;
+import com.firststory.firstoracle.object.data.Rotation2D;
+import com.firststory.firstoracle.object.data.Scale2D;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,27 +34,28 @@ public class BoundingBox2DTest {
         int y,
         int sx,
         int sy,
-        float rot,
+        float angle,
         int minX,
         int maxX,
         int minY,
         int maxY
     ) {
-        Vector2fc scale = new Vector2f( sx, sy );
-        Vector2fc pos = new Vector2f( x, y );
+        var scale = Scale2D.scale2( sx, sy );
+        var pos = Position2D.pos2( x, y );
+        var rot = Rotation2D.rot2( angle );
         var assertBB = bb.getTransformedBoundingBox( new PositionableObject2DTransformations() {
             @Override
-            public Vector2fc getScale() {
+            public Scale2D getScale() {
                 return scale;
             }
     
             @Override
-            public Float getRotation() {
+            public Rotation2D getRotation() {
                 return rot;
             }
     
             @Override
-            public Vector2fc getPosition() {
+            public Position2D getPosition() {
                 return pos;
             }
         } );

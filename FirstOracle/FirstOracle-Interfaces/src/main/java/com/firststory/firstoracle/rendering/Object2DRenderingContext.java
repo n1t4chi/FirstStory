@@ -4,16 +4,18 @@
 
 package com.firststory.firstoracle.rendering;
 
+import com.firststory.firstoracle.object.data.Position2D;
+import com.firststory.firstoracle.object.data.Rotation2D;
+import com.firststory.firstoracle.object.data.Scale2D;
 import com.firststory.firstoracle.object2D.*;
-import org.joml.Vector2fc;
 
 /**
  * @author n1t4chi
  */
 public interface Object2DRenderingContext extends ObjectRenderingContext<
-    Vector2fc,
-    Vector2fc,
-    Float,
+    Position2D,
+    Scale2D,
+    Rotation2D,
     Object2DTransformations,
     Vertices2D,
     Object2D< ? extends Object2DTransformations, ? extends Vertices2D >

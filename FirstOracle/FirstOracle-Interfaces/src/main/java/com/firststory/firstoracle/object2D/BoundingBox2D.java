@@ -5,7 +5,6 @@ package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.object.BoundingBox;
 import com.firststory.firstoracle.object.data.Position2D;
-import org.joml.Vector2fc;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ import static java.lang.Math.*;
 /**
  * @author n1t4chi
  */
-public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransformations, Vector2fc > {
+public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransformations, Position2D > {
     
     public static BoundingBox2D getBoundingBox2D( List< Position2D > vertices ) {
         float minX, maxX, minY, maxY;
@@ -76,14 +75,14 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
     public BoundingBox2D getTransformedBoundingBox( PositionableObject2DTransformations transformations ) {
         return getTransformedBoundingBox( transformations, transformations.getPosition() );
     }
-    public BoundingBox2D getTransformedBoundingBox( Object2DTransformations transformations, Vector2fc position ) {
+    public BoundingBox2D getTransformedBoundingBox( Object2DTransformations transformations, Position2D position ) {
         float minX, maxX, minY, maxY;
         minX = this.minX;
         maxX = this.maxX;
         minY = this.minY;
         maxY = this.maxY;
-        var rotation = transformations.getRotation();
-        var scale = transformations.getScale();
+        var rotation = transformations.getRotation().toVec1f();
+        var scale = transformations.getScale().toVec2f();
         
         minX *= scale.x();
         maxX *= scale.x();

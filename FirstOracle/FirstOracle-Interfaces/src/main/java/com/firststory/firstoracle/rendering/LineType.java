@@ -8,5 +8,15 @@ package com.firststory.firstoracle.rendering;
  * @author n1t4chi
  */
 public enum LineType {
-    LINES,LINE_LOOP
+    LINES( RenderType.LINES ),LINE_LOOP( RenderType.LINE_LOOP );
+    
+    private final RenderType renderType;
+    
+    LineType( RenderType renderType ) {
+        this.renderType = renderType;
+    }
+    
+    public RenderType getRenderType() {
+        return renderType;
+    }
 }

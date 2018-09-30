@@ -9,10 +9,12 @@ import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.object.data.Position3D;
+import com.firststory.firstoracle.object.data.Rotation3D;
+import com.firststory.firstoracle.object.data.Scale3D;
 import com.firststory.firstoracle.object3D.Vertices3D;
 import com.firststory.firstoracle.rendering.LineData;
 import com.firststory.firstoracle.rendering.Object3DRenderingContext;
-import org.joml.Vector3fc;
 
 /**
  * @author n1t4chi
@@ -42,9 +44,9 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
         int uvFrame,
         int uvDirection,
         Colouring colours,
-        Vector3fc position,
-        Vector3fc scale,
-        Vector3fc rotation,
+        Position3D position,
+        Scale3D scale,
+        Rotation3D rotation,
         Texture texture,
         Colour overlayColour,
         Float maxAlphaChannel
@@ -74,9 +76,9 @@ class OpenGLObject3DRenderingContext implements Object3DRenderingContext {
     public void renderVerticesAsLines(
         Vertices3D vertices,
         int vertexFrame,
-        Vector3fc position,
-        Vector3fc scale,
-        Vector3fc rotation,
+        Position3D position,
+        Scale3D scale,
+        Rotation3D rotation,
         LineData lineData
     ) {
         var shaderProgram3D = context.getShaderProgram();
