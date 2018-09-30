@@ -6,19 +6,23 @@ package com.firststory.firstoracle.templates;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.notyfying.WindowListener;
 import com.firststory.firstoracle.notyfying.WindowSizeEvent;
-import com.firststory.firstoracle.object.*;
+import com.firststory.firstoracle.object.DefaultDirectionController;
+import com.firststory.firstoracle.object.LoopedFrameController;
+import com.firststory.firstoracle.object.PlaneUvMap;
+import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.object.data.Index2D;
 import com.firststory.firstoracle.object2D.*;
-import com.firststory.firstoracle.rendering.*;
-import com.firststory.firstoracle.scene.RenderedScene2D;
+import com.firststory.firstoracle.rendering.SceneProvider;
+import com.firststory.firstoracle.scene.RenderableScene2D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.Window;
-import org.joml.Vector2ic;
-import org.joml.Vector4f;
+import com.firststory.firstoracle.window.WindowBuilder;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,12 +41,9 @@ public class GlfwApplication2D {
     }
     
     private Window window;
-    private WindowRenderer renderer;
     private SceneProvider sceneProvider;
     private CameraController cameraController;
     private RenderedSceneMutable renderedScene;
-    private Grid3DRenderer grid3DRenderer;
-    private Grid2DRenderer grid2DRenderer;
     private WindowSettings settings;
     
     public void run() throws Exception {
@@ -53,16 +54,7 @@ public class GlfwApplication2D {
             .setWindowMode( WindowMode.WINDOWED )
             .setWidth( width )
             .setHeight( height )
-            .setDrawBorder( true )
             .build();
-//        grid2DRenderer = new DummyGrid2DRenderer();
-        grid2DRenderer = new BoundedPositiveGrid2DRenderer( 20, 30, 10 );
-//            Grid2DRenderer grid2DRenderer = new BoundedGrid2DRenderer( shaderProgram2D,
-//                100,
-//                10,
-//                1
-//            );
-        grid3DRenderer = new DummyGrid3DRenderer();
         
         renderedScene = new RenderedSceneMutable( settings );
         var texture1 = new Texture( "resources/First Oracle/texture2D.png" );
@@ -78,7 +70,7 @@ public class GlfwApplication2D {
         object.setTransformations( new Mutable2DTransformations() );
         object.setTexture( texture2 );
         
-        DirectionController directionController = new DefaultDirectionController( compoundTexture.getDirections() );
+        var directionController = new DefaultDirectionController( compoundTexture.getDirections() );
         var frameController = new LoopedFrameController();
         var compound = new AnimatedRectangle();
         frameController.setCurrentState( compoundTexture.getFrames(), 0, 1 );
@@ -99,41 +91,40 @@ public class GlfwApplication2D {
             }
         }
         List< PositionableObject2D< ?, ? > > renderables = Arrays.asList( compound, object );
+    
+        var camera2D = new MovableCamera2D( settings, 10, 0, 0, 0 );
         
-        renderedScene.setScene2D( new RenderedScene2D() {
+        renderedScene.setScene2D( new RenderableScene2D() {
             @Override
-            public Terrain2D< ? >[][] getTerrains() {
+            public Terrain2D< ? >[][] getTerrains2D() {
                 return array;
             }
-            
+    
             @Override
-            public Collection< PositionableObject2D< ?, ? > > getObjects() {
+            public Camera2D getScene2DCamera() {
+                return camera2D;
+            }
+    
+            @Override
+            public Collection< PositionableObject2D< ?, ? > > getObjects2D() {
                 return renderables;
             }
             
             @Override
-            public Vector2ic getTerrainShift() {
-                return FirstOracleConstants.VECTOR_ZERO_2I;
+            public Index2D getTerrain2DShift() {
+                return FirstOracleConstants.INDEX_ZERO_2I;
             }
         } );
         
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
-        cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
+        cameraController.updateMovableCamera2D( camera2D );
         cameraController.addCameraListener( ( event, source ) -> {
-            cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
-            cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
+            cameraController.updateMovableCamera2D( camera2D );
         } );
         
         sceneProvider = () -> renderedScene;
-        renderer = new WindowRenderer( grid2DRenderer,
-            grid3DRenderer,
-            sceneProvider,
-            settings.isUseTexture(),
-            settings.isDrawBorder()
-        );
-        window = Window.build( settings, renderer ).build();
+        window = WindowBuilder.simpleWindow( settings, sceneProvider ).build();
         window.init();
-        renderedScene.setBackgroundColour( new Vector4f( 1, 1, 1, 1 ) );
         
         window.addTimeListener( cameraController );
         
@@ -143,8 +134,7 @@ public class GlfwApplication2D {
         window.addWindowListener( new WindowListener() {
             @Override
             public void notify( WindowSizeEvent event ) {
-                renderedScene.getCamera2D().forceUpdate();
-                renderedScene.getCamera3D().forceUpdate();
+                camera2D.forceUpdate();
             }
         } );
         cameraController.start();

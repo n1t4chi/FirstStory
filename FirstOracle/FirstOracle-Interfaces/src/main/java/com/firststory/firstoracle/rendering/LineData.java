@@ -4,8 +4,9 @@
 
 package com.firststory.firstoracle.rendering;
 
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
+import com.firststory.firstoracle.object.data.Colour;
+
+import static com.firststory.firstoracle.object.data.Colour.col;
 
 /**
  * @author n1t4chi
@@ -13,10 +14,10 @@ import org.joml.Vector4fc;
 public class LineData {
     
     private final float width;
-    private final Vector4fc colour;
+    private final Colour colour;
     private final LineType type;
     
-    public static LineData lineLoop( float width, Vector4fc colour ) {
+    public static LineData lineLoop( float width, Colour colour ) {
         return new LineData( width, colour, LineType.LINE_LOOP );
     }
     
@@ -24,7 +25,7 @@ public class LineData {
         return new LineData( width, red, green, blue, alpha, LineType.LINE_LOOP );
     }
     
-    public static LineData lines( float width, Vector4fc colour ) {
+    public static LineData lines( float width, Colour colour ) {
         return new LineData( width, colour, LineType.LINES );
     }
     
@@ -32,21 +33,21 @@ public class LineData {
         return new LineData( width, red, green, blue, alpha, LineType.LINES );
     }
     
-    private LineData( float width, Vector4fc colour, LineType type ) {
+    private LineData( float width, Colour colour, LineType type ) {
         this.width = width;
         this.colour = colour;
         this.type = type;
     }
     
     private LineData( float width, float red, float green, float blue, float alpha, LineType type ) {
-        this( width, new Vector4f( red, green, blue, alpha ), type );
+        this( width, col( red, green, blue, alpha ), type );
     }
     
     public float getWidth() {
         return width;
     }
     
-    public Vector4fc getColour() {
+    public Colour getColour() {
         return colour;
     }
     

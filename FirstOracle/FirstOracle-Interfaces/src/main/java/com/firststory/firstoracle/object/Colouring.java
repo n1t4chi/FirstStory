@@ -4,21 +4,23 @@
 
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.object.data.Colour;
+
 import java.util.List;
 
 /**
  * @author n1t4chi
  */
-public class Colouring extends VertexAttribute< VertexColour > {
+public class Colouring extends VertexAttribute< Colour > {
     
-    private final List< VertexColour > colour;
+    private final List< Colour > colour;
     
-    public Colouring( List< VertexColour > colour ) {
+    public Colouring( List< Colour > colour ) {
         this.colour = colour;
     }
     
     @Override
-    protected List< VertexColour > getData( int... parameters ) {
+    protected List< Colour > getData( int... parameters ) {
         return colour;
     }
     

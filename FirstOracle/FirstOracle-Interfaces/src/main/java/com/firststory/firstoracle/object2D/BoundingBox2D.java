@@ -4,7 +4,7 @@
 package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.object.BoundingBox;
-import com.firststory.firstoracle.object.Vertex2D;
+import com.firststory.firstoracle.object.data.Position2D;
 import org.joml.Vector2fc;
 
 import java.util.List;
@@ -16,13 +16,13 @@ import static java.lang.Math.*;
  */
 public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransformations, Vector2fc > {
     
-    public static BoundingBox2D getBoundingBox2D( List< Vertex2D > vertices ) {
+    public static BoundingBox2D getBoundingBox2D( List< Position2D > vertices ) {
         float minX, maxX, minY, maxY;
         minX = minY = Float.MAX_VALUE;
         maxY = maxX = -Float.MAX_VALUE;
         for ( var vertex : vertices ) {
-            var x = vertex.getX();
-            var y = vertex.getY();
+            var x = vertex.x();
+            var y = vertex.y();
             minX = min( minX, x );
             maxX = max( maxX, x );
             minY = min( minY, y );
@@ -31,14 +31,14 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
         return new BoundingBox2D( minX, maxX, minY, maxY );
     }
     
-    public static BoundingBox2D getBoundingBox2D( List< Vertex2D >[] verticesArray ) {
+    public static BoundingBox2D getBoundingBox2D( List< Position2D >[] verticesArray ) {
         float minX, maxX, minY, maxY;
         minX = minY = Float.MAX_VALUE;
         maxY = maxX = -Float.MAX_VALUE;
         for ( var vertices : verticesArray ) {
             for ( var vertex : vertices ) {
-                var x = vertex.getX();
-                var y = vertex.getY();
+                var x = vertex.x();
+                var y = vertex.y();
                 minX = min( minX, x );
                 maxX = max( maxX, x );
                 minY = min( minY, y );

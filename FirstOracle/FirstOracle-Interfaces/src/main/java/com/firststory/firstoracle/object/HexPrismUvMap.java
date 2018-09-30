@@ -3,12 +3,14 @@
  */
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.object.data.UV;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.*;
-import static com.firststory.firstoracle.object.UV.uv;
+import static com.firststory.firstoracle.object.data.UV.uv;
 
 /**
  * @author n1t4chi

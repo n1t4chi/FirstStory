@@ -6,14 +6,14 @@ package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import org.joml.Vector4fc;
+import com.firststory.firstoracle.object.data.Colour;
 
 /**
  * @author n1t4chi
  */
 public interface RenderingContext {
     
-    void setBackgroundColour( Vector4fc backgroundColour );
+    void setBackgroundColour( Colour backgroundColour );
     
     void render2D( Render< Object2DRenderingContext > context );
     

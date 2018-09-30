@@ -17,9 +17,6 @@ public class WindowSettings {
     private int height;
     private int positionX;
     private int positionY;
-    private boolean drawGrid;
-    private boolean drawBorder;
-    private boolean useTexture;
     private boolean resizeable;
     
     public WindowSettings(
@@ -32,10 +29,7 @@ public class WindowSettings {
         int positionY,
         boolean verticalSync,
         boolean resizeable,
-        int antiAliasing,
-        boolean drawGrid,
-        boolean drawBorder,
-        boolean useTexture
+        int antiAliasing
     ) {
         this.windowMode = windowMode;
         this.monitorIndex = monitorIndex;
@@ -47,9 +41,6 @@ public class WindowSettings {
         this.verticalSync = verticalSync;
         this.resizeable = resizeable;
         this.antiAliasing = antiAliasing;
-        this.drawGrid = drawGrid;
-        this.drawBorder = drawBorder;
-        this.useTexture = useTexture;
     }
     
     public int getMonitorIndex() {
@@ -116,30 +107,6 @@ public class WindowSettings {
         this.positionY = positionY;
     }
     
-    public boolean isDrawGrid() {
-        return drawGrid;
-    }
-    
-    public void setDrawGrid( boolean drawGrid ) {
-        this.drawGrid = drawGrid;
-    }
-    
-    public boolean isDrawBorder() {
-        return drawBorder;
-    }
-    
-    public void setDrawBorder( boolean drawBorder ) {
-        this.drawBorder = drawBorder;
-    }
-    
-    public boolean isUseTexture() {
-        return useTexture;
-    }
-    
-    public void setUseTexture( boolean useTexture ) {
-        this.useTexture = useTexture;
-    }
-    
     public static class WindowSettingsBuilder {
         
         private WindowMode windowMode = WindowMode.WINDOWED;
@@ -150,9 +117,6 @@ public class WindowSettings {
         private int height = 300;
         private int positionX = 0;
         private int positionY = 0;
-        private boolean drawGrid = false;
-        private boolean drawBorder = false;
-        private boolean useTexture = true;
         private boolean resizeable = false;
         private int monitorIndex;
     
@@ -167,10 +131,7 @@ public class WindowSettings {
                 positionY,
                 verticalSync,
                 resizeable,
-                antiAliasing,
-                drawGrid,
-                drawBorder,
-                useTexture
+                antiAliasing
             );
             
         }
@@ -222,21 +183,6 @@ public class WindowSettings {
         
         public WindowSettingsBuilder setPositionY( int positionY ) {
             this.positionY = positionY;
-            return this;
-        }
-        
-        public WindowSettingsBuilder setDrawGrid( boolean drawGrid ) {
-            this.drawGrid = drawGrid;
-            return this;
-        }
-        
-        public WindowSettingsBuilder setDrawBorder( boolean drawBorder ) {
-            this.drawBorder = drawBorder;
-            return this;
-        }
-        
-        public WindowSettingsBuilder setUseTexture( boolean useTexture ) {
-            this.useTexture = useTexture;
             return this;
         }
     }

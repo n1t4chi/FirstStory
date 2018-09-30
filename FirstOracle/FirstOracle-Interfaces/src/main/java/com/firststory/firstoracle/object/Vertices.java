@@ -3,13 +3,15 @@
  */
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.object.data.Position;
+
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author n1t4chi
  */
-public abstract class Vertices< VertexData extends Vertex, BoundingBox > extends VertexAttribute< VertexData > {
+public abstract class Vertices< VertexData extends Position, BoundingBox > extends VertexAttribute< VertexData > {
     
     private final BoundingBox boundingBox;
     private List< VertexData >[] verticesByFrame;

@@ -6,6 +6,7 @@ package com.firststory.firstoracle;
 import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object.data.*;
 import com.firststory.firstoracle.rendering.LineData;
 import org.joml.*;
 
@@ -16,8 +17,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static com.firststory.firstoracle.object.UV.uv;
-import static com.firststory.firstoracle.object.VertexColour.col;
+import static com.firststory.firstoracle.object.data.Colour.col;
+import static com.firststory.firstoracle.object.data.Index2D.id2;
+import static com.firststory.firstoracle.object.data.Index3D.id3;
+import static com.firststory.firstoracle.object.data.Position2D.pos2;
+import static com.firststory.firstoracle.object.data.Position3D.pos3;
+import static com.firststory.firstoracle.object.data.Rotation2D.rot2;
+import static com.firststory.firstoracle.object.data.Rotation3D.rot3;
+import static com.firststory.firstoracle.object.data.Scale2D.scale2;
+import static com.firststory.firstoracle.object.data.Scale3D.scale3;
+import static com.firststory.firstoracle.object.data.UV.uv;
 
 /**
  * @author n1t4chi
@@ -30,6 +39,8 @@ public interface FirstOracleConstants {
     String RESOURCES_ORACLE_FOLDER = RESOURCES_FOLDER + "First Oracle/";
     String SHADER_FILES_LOCATION = RESOURCES_ORACLE_FOLDER + "shader/";
     String GET_FRAMEWORK_PROVIDER_METHOD_NAME = "getProvider";
+    
+    String REFLECT_PROVIDE_METHOD_NAME = "provide";
     
     int NO_FLAGS = 0;
     String FIRST_ORACLE = "FirstOracle";
@@ -58,14 +69,26 @@ public interface FirstOracleConstants {
     Vector3ic VECTOR_ONES_3I = new Vector3i( 1, 1, 1 );
     Vector4fc VECTOR_ONES_4F = new Vector4f( 1, 1, 1, 1 );
     
-    Vector4fc TRANSPARENT = new Vector4f( 0, 0, 0, 0 );
-    Vector4fc RED = new Vector4f( 1, 0, 0, 1 );
-    Vector4fc GREEN = new Vector4f( 0, 1, 0, 1 );
-    Vector4fc BLUE = new Vector4f( 0, 0, 1, 1 );
-    Vector4fc WHITE = new Vector4f( 1, 1, 1, 1 );
-    Vector4fc BLACK = new Vector4f( 0, 0, 0, 1 );
-    Vector4fc GRAY = new Vector4f( 0.5f, 0.5f, 0.5f, 1 );
-    Vector4fc YELLOW = new Vector4f( 1, 1, 0, 1 );
+    Position2D POSITION_ZERO_2I = pos2( 0, 0 );
+    Position3D POSITION_ZERO_3I = pos3( 0, 0, 0 );
+    
+    Rotation2D ROTATION_ZERO_2I = rot2( 0 );
+    Rotation3D ROTATION_ZERO_3I = rot3( 0, 0, 0 );
+    
+    Scale2D SCALE_ONE_2I = scale2( 1, 1 );
+    Scale3D SCALE_ONE_3I = scale3( 1, 1, 1 );
+    
+    Index2D INDEX_ZERO_2I = id2( 0, 0 );
+    Index3D INDEX_ZERO_3I = id3( 0, 0, 0 );
+    
+    Colour TRANSPARENT = col( 0, 0, 0, 0 );
+    Colour RED = col( 1, 0, 0, 1 );
+    Colour GREEN = col( 0, 1, 0, 1 );
+    Colour BLUE = col( 0, 0, 1, 1 );
+    Colour WHITE = col( 1, 1, 1, 1 );
+    Colour BLACK = col( 0, 0, 0, 1 );
+    Colour GRAY = col( 0.5f, 0.5f, 0.5f, 1 );
+    Colour YELLOW = col( 1, 1, 0, 1 );
     
     LineData YELLOW_LINE_LOOP = LineData.lineLoop( 2, FirstOracleConstants.YELLOW );
     LineData NONE = null;

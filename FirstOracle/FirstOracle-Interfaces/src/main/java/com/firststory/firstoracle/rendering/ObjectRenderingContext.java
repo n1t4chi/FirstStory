@@ -6,7 +6,7 @@ package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.*;
-import org.joml.Vector4fc;
+import com.firststory.firstoracle.object.data.Colour;
 
 /**
  * @author n1t4chi
@@ -56,7 +56,7 @@ public interface ObjectRenderingContext<
         Position position,
         Transformations transformations,
         Texture texture,
-        Vector4fc overlayColour,
+        Colour overlayColour,
         Float maxAlphaChannel,
         LineData lineLoop
     ) {
@@ -100,7 +100,7 @@ public interface ObjectRenderingContext<
         Position position,
         Transformations transformations,
         Texture texture,
-        Vector4fc overlayColour,
+        Colour overlayColour,
         Float maxAlphaChannel
     ) {
         renderVerticesAsTriangles(
@@ -130,7 +130,7 @@ public interface ObjectRenderingContext<
         Scale scale,
         Rotation rotation,
         Texture texture,
-        Vector4fc overlayColour,
+        Colour overlayColour,
         Float maxAlphaChannel
     );
     

@@ -5,9 +5,11 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.camera2D.Camera2D;
+import com.firststory.firstoracle.camera2D.IdentityCamera2D;
+import com.firststory.firstoracle.object.data.Index2D;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.object2D.Terrain2D;
-import org.joml.Vector2ic;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -15,20 +17,33 @@ import java.util.Collections;
 /**
  * @author n1t4chi
  */
-class EmptyRenderedObjects2D implements RenderedScene2D {
+class EmptyRenderedObjects2D implements RenderableScene2D {
+    
+    public static final EmptyRenderedObjects2D instance = new EmptyRenderedObjects2D();
+    
+    public static EmptyRenderedObjects2D provide() {
+        return instance;
+    }
+    
+    private EmptyRenderedObjects2D() {}
     
     @Override
-    public Terrain2D< ? >[][] getTerrains() {
+    public Terrain2D< ? >[][] getTerrains2D() {
         return new Terrain2D[ 0 ][];
     }
     
     @Override
-    public Collection< PositionableObject2D< ?, ? > > getObjects() {
+    public Camera2D getScene2DCamera() {
+        return IdentityCamera2D.getCamera();
+    }
+    
+    @Override
+    public Collection< PositionableObject2D< ?, ? > > getObjects2D() {
         return Collections.emptyList();
     }
     
     @Override
-    public Vector2ic getTerrainShift() {
-        return FirstOracleConstants.VECTOR_ZERO_2I;
+    public Index2D getTerrain2DShift() {
+        return FirstOracleConstants.INDEX_ZERO_2I;
     }
 }

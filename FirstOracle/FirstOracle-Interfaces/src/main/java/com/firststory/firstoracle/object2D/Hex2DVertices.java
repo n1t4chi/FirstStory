@@ -3,13 +3,13 @@
  */
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.object.Vertex2D;
+import com.firststory.firstoracle.object.data.Position2D;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
-import static com.firststory.firstoracle.object.Vertex2D.vec2;
+import static com.firststory.firstoracle.object.data.Position2D.pos2;
 
 /**
  * @author n1t4chi
@@ -22,15 +22,15 @@ public class Hex2DVertices extends FramelessVertices2D {
         return Hex2DVertices;
     }
     
-    private static List< Vertex2D > createHex2DVerticesArray() {
-        Vertex2D[] pointData = {
-        /*0*/ vec2( 0, 0 ),
-        /*1*/ vec2( 1, 0 ),
-        /*2*/ vec2( 0.5f, -SQRT3_DIV2 ),
-        /*3*/ vec2( -0.5f, -SQRT3_DIV2 ),
-        /*4*/ vec2( -1, 0 ),
-        /*5*/ vec2( -0.5f, SQRT3_DIV2 ),
-        /*6*/ vec2( 0.5f, SQRT3_DIV2 ),
+    private static List< Position2D > createHex2DVerticesArray() {
+        Position2D[] pointData = {
+        /*0*/ pos2( 0, 0 ),
+        /*1*/ pos2( 1, 0 ),
+        /*2*/ pos2( 0.5f, -SQRT3_DIV2 ),
+        /*3*/ pos2( -0.5f, -SQRT3_DIV2 ),
+        /*4*/ pos2( -1, 0 ),
+        /*5*/ pos2( -0.5f, SQRT3_DIV2 ),
+        /*6*/ pos2( 0.5f, SQRT3_DIV2 ),
         };
 
         short[] points = {
@@ -42,7 +42,7 @@ public class Hex2DVertices extends FramelessVertices2D {
             0, 1, 2
         };
     
-        List< Vertex2D > list = new ArrayList<>( points.length );
+        List< Position2D > list = new ArrayList<>( points.length );
     
         for ( var point : points ) {
             list.add( pointData[ point ] );

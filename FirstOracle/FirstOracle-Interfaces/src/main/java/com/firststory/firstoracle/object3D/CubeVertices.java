@@ -3,12 +3,12 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.Vertex3D;
+import com.firststory.firstoracle.object.data.Position3D;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.firststory.firstoracle.object.Vertex3D.vec3;
+import static com.firststory.firstoracle.object.data.Position3D.pos3;
 
 /**
  * @author n1t4chi
@@ -21,16 +21,16 @@ public class CubeVertices extends FramelessVertices3D {
         return cubeVertices;
     }
 
-    private static List< Vertex3D > createCubeVerticesArray() {
-        Vertex3D[] pointData = {
-        /*0*/ vec3( -1, -1, -1 ),
-        /*1*/ vec3(1, -1, -1 ),
-        /*2*/ vec3(1, 1, -1 ),
-        /*3*/ vec3(-1, 1, -1 ),
-        /*4*/ vec3(-1, -1, 1 ),
-        /*5*/ vec3(1, -1, 1 ),
-        /*6*/ vec3(1, 1, 1 ),
-        /*7*/ vec3(-1, 1, 1 )
+    private static List< Position3D > createCubeVerticesArray() {
+        Position3D[] pointData = {
+        /*0*/ pos3( -1, -1, -1 ),
+        /*1*/ pos3(1, -1, -1 ),
+        /*2*/ pos3(1, 1, -1 ),
+        /*3*/ pos3(-1, 1, -1 ),
+        /*4*/ pos3(-1, -1, 1 ),
+        /*5*/ pos3(1, -1, 1 ),
+        /*6*/ pos3(1, 1, 1 ),
+        /*7*/ pos3(-1, 1, 1 )
         };
 
         short[] points = {
@@ -59,7 +59,7 @@ public class CubeVertices extends FramelessVertices3D {
             4, 1, 0
         };
     
-        List< Vertex3D > list = new ArrayList<>( points.length );
+        List< Position3D > list = new ArrayList<>( points.length );
     
         for ( var point : points ) {
             list.add( pointData[ point ] );

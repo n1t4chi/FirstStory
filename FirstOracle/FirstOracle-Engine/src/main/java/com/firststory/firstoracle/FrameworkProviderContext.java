@@ -4,12 +4,13 @@
 
 package com.firststory.firstoracle;
 
+import com.firststory.firstoracle.glfw.GlfwFrameworkProvider;
+import com.firststory.firstoracle.gui.GuiApplicationData;
+import com.firststory.firstoracle.gui.GuiFrameworkProvider;
+import com.firststory.firstoracle.opengl.OpenGlFrameworkProvider;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
-import com.firststory.firstoracle.window.GuiApplicationData;
-import com.firststory.firstoracle.window.GuiFrameworkProvider;
+import com.firststory.firstoracle.window.DummyGuiFrameworkProvider;
 import com.firststory.firstoracle.window.WindowFrameworkProvider;
-import com.firststory.firstoracle.window.glfw.GlfwFrameworkProvider;
-import com.firststory.firstoracle.window.opengl.OpenGlFrameworkProvider;
 
 import java.lang.reflect.InvocationTargetException;
 

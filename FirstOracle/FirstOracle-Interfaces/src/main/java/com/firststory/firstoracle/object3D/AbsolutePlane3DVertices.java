@@ -3,12 +3,12 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.Vertex3D;
+import com.firststory.firstoracle.object.data.Position3D;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.firststory.firstoracle.object.Vertex3D.vec3;
+import static com.firststory.firstoracle.object.data.Position3D.pos3;
 
 /**
  * @author n1t4chi
@@ -21,12 +21,12 @@ public class AbsolutePlane3DVertices extends FramelessVertices3D {
         return Plane3DVertices;
     }
 
-    private static List< Vertex3D > createPlane3DVerticesArray() {
-        Vertex3D[] pointData = {
-        /*0*/ vec3( -1, -1, 0 ),
-        /*1*/ vec3( 1, -1, 0 ),
-        /*2*/ vec3( 1, 1, 0 ),
-        /*3*/ vec3( -1, 1, 0 )
+    private static List< Position3D > createPlane3DVerticesArray() {
+        Position3D[] pointData = {
+        /*0*/ pos3( -1, -1, 0 ),
+        /*1*/ pos3( 1, -1, 0 ),
+        /*2*/ pos3( 1, 1, 0 ),
+        /*3*/ pos3( -1, 1, 0 )
 
         };
 
@@ -35,7 +35,7 @@ public class AbsolutePlane3DVertices extends FramelessVertices3D {
             0, 2, 3
         };
     
-        List< Vertex3D > list = new ArrayList<>( points.length );
+        List< Position3D > list = new ArrayList<>( points.length );
     
         for ( var point : points ) {
             list.add( pointData[ point ] );

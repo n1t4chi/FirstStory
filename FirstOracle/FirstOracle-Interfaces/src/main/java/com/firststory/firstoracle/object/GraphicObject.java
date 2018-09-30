@@ -4,8 +4,8 @@
 package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.object.data.Colour;
 import com.firststory.firstoracle.rendering.LineData;
-import org.joml.Vector4fc;
 
 /**
  * @author n1t4chi
@@ -37,7 +37,7 @@ public interface GraphicObject<
         return FirstOracleConstants.EMPTY_COLOURING;
     }
     
-    default Vector4fc getOverlayColour() {
+    default Colour getOverlayColour() {
         return FirstOracleConstants.TRANSPARENT;
     }
     

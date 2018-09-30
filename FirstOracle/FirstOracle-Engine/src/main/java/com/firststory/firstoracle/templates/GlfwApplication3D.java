@@ -6,24 +6,26 @@ package com.firststory.firstoracle.templates;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.camera2D.MovableCamera2D;
+import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.notyfying.WindowListener;
 import com.firststory.firstoracle.notyfying.WindowSizeEvent;
 import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.object.data.Index3D;
 import com.firststory.firstoracle.object2D.NonAnimatedRectangle;
 import com.firststory.firstoracle.object3D.CubeGrid;
 import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.*;
-import com.firststory.firstoracle.scene.RenderedScene3D;
+import com.firststory.firstoracle.scene.RegistrableOverlay;
+import com.firststory.firstoracle.scene.RegistrableOverlayImpl;
+import com.firststory.firstoracle.scene.RenderableScene3D;
 import com.firststory.firstoracle.scene.RenderedSceneMutable;
 import com.firststory.firstoracle.window.Window;
-import org.joml.Vector3ic;
-import org.joml.Vector4f;
+import com.firststory.firstoracle.window.WindowBuilder;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -55,7 +57,9 @@ public class GlfwApplication3D {
         settings = new WindowSettings.WindowSettingsBuilder()
 //            .setWindowMode( WindowMode.FULLSCREEN )
 //            .setWindowMode( WindowMode.BORDERLESS )
-            .setWindowMode( WindowMode.WINDOWED ).setMonitorIndex( 1 ).setDrawBorder( true ).setResizeable( true )
+            .setWindowMode( WindowMode.WINDOWED )
+            .setMonitorIndex( 1 )
+            .setResizeable( true )
 //            .setPositionX( -1920 )
 //            .setWidth( -1 )
 //            .setHeight( -1 )
@@ -66,13 +70,6 @@ public class GlfwApplication3D {
         //Rendered scene is what is displayed via OpenGL rendering, it should be most likely moved to SceneProvider
         //Which will provide next scenes to renderObject when something changes.
         renderedScene = new RenderedSceneMutable( settings );
-        renderedScene.setIsometricCamera3D( new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 ) );
-        renderedScene.setCamera2D( new MovableCamera2D( settings, 1, 1, 0, 0 ) );
-        renderedScene.setBackgroundColour( new Vector4f( 1f, 1f, 1f, 1 ) );
-        
-        //it's used for rendering, not necessary here
-        var colour = new Vector4f( 0, 0, 0, 0 );
-        float maxFloat = 1;
         
         //try is for Texture loading.
         //Does not work ATM but graphic objects can be created like that,
@@ -81,10 +78,13 @@ public class GlfwApplication3D {
         //path can be either file in filesystem or within jar
         var texture1 = new Texture( "resources/First Oracle/grid.png" );
         var texture2 = new Texture( "resources/First Oracle/texture3D.png" );
-        var overlay = new NonAnimatedRectangle();
-        overlay.setTexture( texture1 );
-        //overlay is rendered last, good for UI
-        renderedScene.setOverlay( () -> Collections.singletonList( overlay ) );
+        var overlayObject = new NonAnimatedRectangle();
+        overlayObject.setTexture( texture1 );
+        //overlayObject is rendered last, good for UI
+        
+        RegistrableOverlay overlay = new RegistrableOverlayImpl();
+        overlay.registerOverlay( overlayObject );
+        renderedScene.setOverlay( overlay );
         
         //Example initialisation of map
         var terrain = new NonAnimatedCubeGrid();
@@ -101,45 +101,51 @@ public class GlfwApplication3D {
         }
         //setScene2D is very similar but you are providing Objects2D instead of 3D
         //here it's best place to renderObject all game objects
+        var camera3D = new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 );
         
-        renderedScene.setScene3D( new RenderedScene3D() {
+        renderedScene.setScene3D( new RenderableScene3D() {
             @Override
-            public Terrain3D< ? >[][][] getTerrains() {
+            public Camera3D getScene3DCamera() {
+                return camera3D;
+            }
+    
+            @Override
+            public Terrain3D< ? >[][][] getTerrains3D() {
                 return array;
             }
             
             @Override
-            public Collection< PositionableObject3D< ?, ? > > getObjects() {
+            public Collection< PositionableObject3D< ?, ? > > getObjects3D() {
                 return Collections.emptyList();
             }
             
             @Override
-            public Vector3ic getTerrainShift() {
-                return FirstOracleConstants.VECTOR_ZERO_3I;
+            public Index3D getTerrain3DShift() {
+                return FirstOracleConstants.INDEX_ZERO_3I;
             }
         } );
         //SceneProvider is object which provides all next scenes for renderer below
         //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
         //Most likely you would want to create your own SceneProvider that implements this interface
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15 );
+        cameraController.updateIsometricCamera3D( camera3D );
+        cameraController.addCameraListener( ( event, source ) -> {
+            cameraController.updateIsometricCamera3D( camera3D );
+        } );
         sceneProvider = () -> {
-            cameraController.updateIsometricCamera3D( renderedScene.getCamera3D() );
-            cameraController.updateMovableCamera2D( ( MovableCamera2D ) renderedScene.getCamera2D() );
             return renderedScene;
         };
         //Renderer renders all openGL content in Window, nothing to add much here
         renderer = new WindowRenderer(
             grid2DRenderer,
             grid3DRenderer,
-            sceneProvider,
-            settings.isUseTexture(),
-            settings.isDrawBorder()
+            sceneProvider
         );
         
         //Window is window displayed with OpenGL
         //Also it initialises OpenGL (via init()) content and initialises most of the objects passed via parameters
         //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
-        window = Window.build( settings, renderer ).build();
+        window = WindowBuilder.simpleWindow( settings, renderer ).build();
         window.addTimeListener( cameraController );
         window.init();
         //OpenGL is initialised now. You can use all classes that use it.
@@ -149,8 +155,7 @@ public class GlfwApplication3D {
         window.addWindowListener( new WindowListener() {
             @Override
             public void notify( WindowSizeEvent event ) {
-                renderedScene.getCamera2D().forceUpdate();
-                renderedScene.getCamera3D().forceUpdate();
+                camera3D.forceUpdate();
             }
         } );
         

@@ -3,8 +3,8 @@
  */
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.object.data.Index3D;
 import org.joml.Vector3fc;
-import org.joml.Vector3ic;
 
 /**
  * @author n1t4chi
@@ -27,5 +27,5 @@ public interface Terrain3D< Vertices extends Vertices3D >
      * @param arrayShift shift of array in space
      * @return position in space
      */
-    Vector3fc computePosition( int x, int y, int z, Vector3ic arrayShift );
+    Vector3fc computePosition( int x, int y, int z, Index3D arrayShift );
 }

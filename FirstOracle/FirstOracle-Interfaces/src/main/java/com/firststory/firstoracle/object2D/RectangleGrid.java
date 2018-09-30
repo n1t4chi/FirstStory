@@ -4,9 +4,9 @@
 package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.object.data.Index2D;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
-import org.joml.Vector2ic;
 
 /**
  * @author n1t4chi
@@ -26,7 +26,7 @@ public interface RectangleGrid
      * @return same vector with updated positions for current rendering
      */
     @Override
-    default Vector2fc computePosition( int x, int y, Vector2ic arrayShift ) {
+    default Vector2fc computePosition( int x, int y, Index2D arrayShift ) {
         return position.set(
             FirstOracleConstants.transPlaneDiscreteToSpace( x, arrayShift.x() ),
             FirstOracleConstants.transPlaneDiscreteToSpace( y, arrayShift.y() )

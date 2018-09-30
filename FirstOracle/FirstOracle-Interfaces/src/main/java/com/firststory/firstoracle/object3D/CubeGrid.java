@@ -4,9 +4,9 @@
 package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.object.data.Index3D;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.joml.Vector3ic;
 
 /**
  * @author n1t4chi
@@ -25,7 +25,7 @@ public interface CubeGrid extends Terrain3D< CubeVertices >, Cube< Identity3DTra
      * @return same vector with updated positions for current rendering
      */
     @Override
-    default Vector3fc computePosition( int x, int y, int z, Vector3ic arrayShift ) {
+    default Vector3fc computePosition( int x, int y, int z, Index3D arrayShift ) {
         return position.set(
             FirstOracleConstants.transCubeDiscreteToSpace( x, arrayShift.x() ),
             FirstOracleConstants.transCubeDiscreteToSpace( y, arrayShift.y() ),

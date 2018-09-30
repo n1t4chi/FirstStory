@@ -7,6 +7,7 @@ package com.firststory.firstoracle.object;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.BufferMap;
 import com.firststory.firstoracle.data.DataBuffer;
+import com.firststory.firstoracle.object.data.FloatData;
 
 import java.util.HashMap;
 import java.util.List;

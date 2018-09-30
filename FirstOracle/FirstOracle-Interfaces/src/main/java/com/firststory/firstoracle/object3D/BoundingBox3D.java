@@ -4,7 +4,7 @@
 package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.object.BoundingBox;
-import com.firststory.firstoracle.object.Vertex3D;
+import com.firststory.firstoracle.object.data.Position3D;
 import org.joml.Vector3fc;
 
 import java.util.List;
@@ -17,15 +17,15 @@ import static java.lang.Math.min;
  */
 public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransformations, Vector3fc > {
     
-    public static BoundingBox3D getBoundingBox3D( List< Vertex3D > vertices ) {
+    public static BoundingBox3D getBoundingBox3D( List< Position3D > vertices ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
         minX = minY = minZ = Float.MAX_VALUE;
         maxZ = maxY = maxX = -Float.MAX_VALUE;
     
         for ( var vertex : vertices ) {
-            var x = vertex.getX();
-            var y = vertex.getY();
-            var z = vertex.getZ();
+            var x = vertex.x();
+            var y = vertex.y();
+            var z = vertex.z();
             minX = min( minX, x );
             maxX = max( maxX, x );
             minY = min( minY, y );
@@ -36,15 +36,15 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         return new BoundingBox3D( minX, maxX, minY, maxY, minZ, maxZ );
     }
     
-    public static BoundingBox3D getBoundingBox3D( List< Vertex3D >[] verticesArray ) {
+    public static BoundingBox3D getBoundingBox3D( List< Position3D >[] verticesArray ) {
         float minX, maxX, minY, maxY, minZ, maxZ;
         minX = minY = minZ = Float.MAX_VALUE;
         maxZ = maxY = maxX = -Float.MAX_VALUE;
         for ( var vertices : verticesArray ) {
             for ( var vertex : vertices ) {
-                var x = vertex.getX();
-                var y = vertex.getY();
-                var z = vertex.getZ();
+                var x = vertex.x();
+                var y = vertex.y();
+                var z = vertex.z();
                 minX = min( minX, x );
                 maxX = max( maxX, x );
                 minY = min( minY, y );

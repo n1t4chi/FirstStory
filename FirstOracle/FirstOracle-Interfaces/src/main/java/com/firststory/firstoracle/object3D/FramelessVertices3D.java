@@ -3,7 +3,7 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.Vertex3D;
+import com.firststory.firstoracle.object.data.Position3D;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.singletonArray;
  */
 public class FramelessVertices3D extends Vertices3D {
     
-    public FramelessVertices3D( List< Vertex3D > vertices ) {
+    public FramelessVertices3D( List< Position3D > vertices ) {
         super( singletonArray( vertices ) );
     }
 }
