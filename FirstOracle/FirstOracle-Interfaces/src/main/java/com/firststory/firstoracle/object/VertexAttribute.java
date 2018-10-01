@@ -5,9 +5,9 @@
 package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.BufferMap;
-import com.firststory.firstoracle.data.DataBuffer;
-import com.firststory.firstoracle.object.data.FloatData;
+import com.firststory.firstoracle.buffer.BufferMap;
+import com.firststory.firstoracle.buffer.DataBuffer;
+import com.firststory.firstoracle.data.FloatData;
 
 import java.util.HashMap;
 import java.util.List;

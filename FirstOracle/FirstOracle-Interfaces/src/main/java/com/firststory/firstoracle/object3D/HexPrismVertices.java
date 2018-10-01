@@ -3,13 +3,13 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.data.Position3D;
+import com.firststory.firstoracle.data.Position3D;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
-import static com.firststory.firstoracle.object.data.Position3D.pos3;
+import static com.firststory.firstoracle.data.Position3D.pos3;
 
 /**
  * @author n1t4chi

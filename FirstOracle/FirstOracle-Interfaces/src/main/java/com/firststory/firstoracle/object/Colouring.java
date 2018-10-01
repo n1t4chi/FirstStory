@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.data.Colour;
 
 import java.util.List;
 

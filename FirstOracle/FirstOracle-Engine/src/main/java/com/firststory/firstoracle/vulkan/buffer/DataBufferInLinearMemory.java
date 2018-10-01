@@ -4,10 +4,10 @@
 
 package com.firststory.firstoracle.vulkan.buffer;
 
-import com.firststory.firstoracle.data.BufferNotCreatedException;
-import com.firststory.firstoracle.data.BufferNotLoadedException;
-import com.firststory.firstoracle.data.CannotCreateBufferException;
-import com.firststory.firstoracle.data.DataBuffer;
+import com.firststory.firstoracle.buffer.BufferNotCreatedException;
+import com.firststory.firstoracle.buffer.BufferNotLoadedException;
+import com.firststory.firstoracle.buffer.CannotCreateBufferException;
+import com.firststory.firstoracle.buffer.DataBuffer;
 
 /**
  * @author n1t4chi

@@ -4,9 +4,9 @@
 
 package com.firststory.firstoracle.opengl;
 
-import com.firststory.firstoracle.data.BufferNotCreatedException;
-import com.firststory.firstoracle.data.CannotCreateBufferException;
-import com.firststory.firstoracle.data.TextureBufferLoader;
+import com.firststory.firstoracle.buffer.BufferNotCreatedException;
+import com.firststory.firstoracle.buffer.CannotCreateBufferException;
+import com.firststory.firstoracle.buffer.TextureBufferLoader;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;

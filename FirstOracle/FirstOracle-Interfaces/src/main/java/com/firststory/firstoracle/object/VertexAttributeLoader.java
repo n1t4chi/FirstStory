@@ -3,7 +3,7 @@
  */
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.data.DataBuffer;
+import com.firststory.firstoracle.buffer.DataBuffer;
 
 /**
  * @author n1t4chi

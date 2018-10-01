@@ -4,8 +4,8 @@
 package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.data.Colour;
-import com.firststory.firstoracle.rendering.LineData;
+import com.firststory.firstoracle.data.Colour;
+import com.firststory.firstoracle.data.LineData;
 
 /**
  * @author n1t4chi
@@ -33,7 +33,7 @@ public interface GraphicObject<
     
     int getCurrentVertexFrame( double currentTimeSnapshot );
     
-    default Colouring getColours() {
+    default Colouring getColouring() {
         return FirstOracleConstants.EMPTY_COLOURING;
     }
     

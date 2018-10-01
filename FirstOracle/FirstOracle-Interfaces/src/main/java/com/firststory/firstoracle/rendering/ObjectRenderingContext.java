@@ -5,11 +5,8 @@
 package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.object.*;
-import com.firststory.firstoracle.object.data.Colour;
-import com.firststory.firstoracle.object.data.Position;
-import com.firststory.firstoracle.object.data.Rotation;
-import com.firststory.firstoracle.object.data.Scale;
 
 /**
  * @author n1t4chi
@@ -27,19 +24,19 @@ public interface ObjectRenderingContext<
     
     boolean shouldDrawBorder();
     
-    default void render(
+    default void renderObject(
         GraphicObjectType object,
         PositionType position,
         double timeSnapshot, 
         double cameraRotation
     ) {
-        render(
+        renderObject(
             object.getVertices(),
             object.getCurrentVertexFrame( timeSnapshot ),
             object.getUvMap(),
             object.getCurrentUvMapFrame( timeSnapshot ),
             object.getCurrentUvMapDirection( cameraRotation ),
-            object.getColours(),
+            object.getColouring(),
             position,
             object.getTransformations(),
             object.getTexture(),
@@ -49,13 +46,13 @@ public interface ObjectRenderingContext<
         );
     }
     
-    default void render(
+    default void renderObject(
         VerticesType vertices,
         int vertexFrame,
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
-        Colouring colours,
+        Colouring colouring,
         PositionType position,
         TransformationsType transformations,
         Texture texture,
@@ -74,7 +71,7 @@ public interface ObjectRenderingContext<
             uvMap,
             uvFrame,
             uvDirection,
-            colours,
+            colouring,
             position,
             transformations,
             texture,
@@ -99,7 +96,7 @@ public interface ObjectRenderingContext<
         UvMap uvMap,
         int uvFrame,
         int uvDirection,
-        Colouring colours,
+        Colouring colouring,
         PositionType position,
         TransformationsType transformations,
         Texture texture,
@@ -112,7 +109,7 @@ public interface ObjectRenderingContext<
             uvMap,
             uvFrame,
             uvDirection,
-            colours,
+            colouring,
             position,
             transformations.getScale(),
             transformations.getRotation(),
@@ -121,21 +118,6 @@ public interface ObjectRenderingContext<
             maxAlphaChannel
         );
     }
-    
-    void renderVerticesAsTriangles(
-        VerticesType vertices,
-        int vertexFrame,
-        UvMap uvMap,
-        int uvFrame,
-        int uvDirection,
-        Colouring colours,
-        PositionType position,
-        ScaleType scale,
-        RotationType rotation,
-        Texture texture,
-        Colour overlayColour,
-        Float maxAlphaChannel
-    );
     
     default void renderVerticesAsLines(
         VerticesType vertices,
@@ -154,12 +136,56 @@ public interface ObjectRenderingContext<
         );
     }
     
-    void renderVerticesAsLines(
+    default void renderVerticesAsTriangles(
+        VerticesType vertices,
+        int vertexFrame,
+        UvMap uvMap,
+        int uvFrame,
+        int uvDirection,
+        Colouring colouring,
+        PositionType position,
+        ScaleType scale,
+        RotationType rotation,
+        Texture texture,
+        Colour overlayColour,
+        Float maxAlphaChannel
+    ) {
+        render( RenderData.build( RenderType.TRIANGLES )
+            .setPosition( position )
+            .setRotation( rotation )
+            .setScale( scale )
+            .setMaxAlphaChannel( maxAlphaChannel )
+            .setOverlayColour( overlayColour )
+            .setVertices( vertices )
+            .setVertexFrame( vertexFrame )
+            .setTexture( texture )
+            .setUvMap( uvMap )
+            .setUvDirection( uvDirection )
+            .setUvFrame( uvFrame )
+            .setColouring( colouring )
+            .finish()
+        );
+    }
+    
+    default void renderVerticesAsLines(
         VerticesType vertices,
         int vertexFrame,
         PositionType position,
         ScaleType scale,
         RotationType rotation,
         LineData lineData
-    );
+    ) {
+        render( RenderData.build( lineData.getType().getRenderType() )
+            .setPosition( position )
+            .setRotation( rotation )
+            .setScale( scale )
+            .setOverlayColour( lineData.getColour() )
+            .setVertices( vertices )
+            .setVertexFrame( vertexFrame )
+            .setLineWidth( lineData.getWidth() )
+            .finish()
+        );
+    }
+    
+    void render( RenderData renderData );
 }

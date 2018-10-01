@@ -3,9 +3,9 @@
  */
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.data.TextureBuffer;
-import com.firststory.firstoracle.data.TextureBufferLoader;
-import com.firststory.firstoracle.data.TextureData;
+import com.firststory.firstoracle.buffer.TextureBuffer;
+import com.firststory.firstoracle.buffer.TextureBufferLoader;
+import com.firststory.firstoracle.buffer.TextureData;
 import com.firststory.firstoracle.templates.IOUtilities;
 
 import javax.imageio.ImageIO;

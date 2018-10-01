@@ -6,7 +6,7 @@ package com.firststory.firstoracle.templates;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.camera2D.Camera2D;
+import com.firststory.firstoracle.camera2D.IdentityCamera2D;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
@@ -16,16 +16,16 @@ import com.firststory.firstoracle.object.DefaultDirectionController;
 import com.firststory.firstoracle.object.LoopedFrameController;
 import com.firststory.firstoracle.object.PlaneUvMap;
 import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.data.Index2D;
 import com.firststory.firstoracle.object2D.*;
-import com.firststory.firstoracle.rendering.SceneProvider;
-import com.firststory.firstoracle.scene.RenderableScene2D;
-import com.firststory.firstoracle.scene.RenderedSceneMutable;
+import com.firststory.firstoracle.scene.RenderableBackgroundImpl;
+import com.firststory.firstoracle.scene.RenderableScene2DImpl;
+import com.firststory.firstoracle.scene.RenderableSceneMutable;
+import com.firststory.firstoracle.scene.SceneProvider;
 import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.WindowBuilder;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,7 +43,7 @@ public class GlfwApplication2D {
     private Window window;
     private SceneProvider sceneProvider;
     private CameraController cameraController;
-    private RenderedSceneMutable renderedScene;
+    private RenderableSceneMutable renderedScene;
     private WindowSettings settings;
     
     public void run() throws Exception {
@@ -56,7 +56,7 @@ public class GlfwApplication2D {
             .setHeight( height )
             .build();
         
-        renderedScene = new RenderedSceneMutable( settings );
+        renderedScene = new RenderableSceneMutable( settings );
         var texture1 = new Texture( "resources/First Oracle/texture2D.png" );
         var texture2 = new Texture( "resources/First Oracle/obj.png" );
         var compoundTexture = Texture.createCompoundTexture( "resources/First Oracle/compound/tex_#frame#_#direction#.png",
@@ -94,27 +94,8 @@ public class GlfwApplication2D {
     
         var camera2D = new MovableCamera2D( settings, 10, 0, 0, 0 );
         
-        renderedScene.setScene2D( new RenderableScene2D() {
-            @Override
-            public Terrain2D< ? >[][] getTerrains2D() {
-                return array;
-            }
-    
-            @Override
-            public Camera2D getScene2DCamera() {
-                return camera2D;
-            }
-    
-            @Override
-            public Collection< PositionableObject2D< ?, ? > > getObjects2D() {
-                return renderables;
-            }
-            
-            @Override
-            public Index2D getTerrain2DShift() {
-                return FirstOracleConstants.INDEX_ZERO_2I;
-            }
-        } );
+        renderedScene.setBackground( new RenderableBackgroundImpl( IdentityCamera2D.getCamera(), Collections.emptyList(), FirstOracleConstants.WHITE ) );
+        renderedScene.setScene2D( new RenderableScene2DImpl( camera2D, renderables, array, FirstOracleConstants.INDEX_ZERO_2I ) );
         
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
         cameraController.updateMovableCamera2D( camera2D );

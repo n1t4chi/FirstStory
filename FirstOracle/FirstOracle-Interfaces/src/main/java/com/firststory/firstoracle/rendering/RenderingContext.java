@@ -6,7 +6,7 @@ package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.data.Colour;
 
 /**
  * @author n1t4chi

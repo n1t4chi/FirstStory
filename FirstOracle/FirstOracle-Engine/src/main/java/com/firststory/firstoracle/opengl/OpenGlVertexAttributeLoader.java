@@ -3,7 +3,7 @@
  */
 package com.firststory.firstoracle.opengl;
 
-import com.firststory.firstoracle.data.DataBuffer;
+import com.firststory.firstoracle.buffer.DataBuffer;
 import com.firststory.firstoracle.object.*;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;

@@ -7,20 +7,20 @@ package com.firststory.firstoracle.window;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
+import com.firststory.firstoracle.data.Colour;
+import com.firststory.firstoracle.data.Index2D;
+import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.gui.GuiApplicationData;
 import com.firststory.firstoracle.gui.GuiFrameworkProvider;
-import com.firststory.firstoracle.object.data.Colour;
-import com.firststory.firstoracle.object.data.Index2D;
-import com.firststory.firstoracle.object.data.Index3D;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
-import com.firststory.firstoracle.rendering.RegistrableSceneImpl;
-import com.firststory.firstoracle.rendering.RegistrableSceneProvider;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
 import com.firststory.firstoracle.scene.RegistrableScene;
+import com.firststory.firstoracle.scene.RegistrableSceneImpl;
+import com.firststory.firstoracle.scene.RegistrableSceneProvider;
 
 import java.util.Collection;
 

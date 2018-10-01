@@ -6,12 +6,12 @@ package com.firststory.firstoracle.opengl;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.object.data.Colour;
-import com.firststory.firstoracle.rendering.LineType;
+import com.firststory.firstoracle.data.Colour;
+import com.firststory.firstoracle.data.LineType;
 import com.firststory.firstoracle.rendering.Object2DRenderingContext;
 import com.firststory.firstoracle.rendering.Object3DRenderingContext;
+import com.firststory.firstoracle.rendering.RenderData;
 import com.firststory.firstoracle.rendering.RenderingContext;
-import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -24,7 +24,6 @@ public class OpenGlRenderingContext implements RenderingContext {
     private final OpenGlTextureLoader textureLoader;
     private final OpenGlShaderProgram3D shaderProgram;
     
-    private final Vector4f borderColour;
     private final boolean useTexture;
     private final boolean drawBorder;
     private final OpenGLObject2DRenderingContext context2D;
@@ -35,38 +34,51 @@ public class OpenGlRenderingContext implements RenderingContext {
         OpenGlTextureLoader textureLoader,
         OpenGlShaderProgram3D shaderProgram3D,
         boolean useTexture,
-        boolean drawBorder,
-        Vector4f borderColour
+        boolean drawBorder
     ) {
         this.attributeLoader = attributeLoader;
         this.textureLoader = textureLoader;
         this.shaderProgram = shaderProgram3D;
         this.useTexture = useTexture;
         this.drawBorder = drawBorder;
-        this.borderColour = borderColour;
         
         context2D = new OpenGLObject2DRenderingContext( this );
         context3D = new OpenGLObject3DRenderingContext( this );
     }
     
-    OpenGlShaderProgram3D getShaderProgram() {
-        return shaderProgram;
+    void render( RenderData renderData ) {
+    
+        shaderProgram.bindPosition( renderData.getPosition() );
+        shaderProgram.bindRotation( renderData.getRotation() );
+        shaderProgram.bindScale( renderData.getScale() );
+        
+        shaderProgram.bindMaxAlphaChannel( renderData.getMaxAlphaChannel() );
+        shaderProgram.bindOverlayColour( renderData.getOverlayColour() );
+        
+        attributeLoader.bindVertices( renderData.getVertices(), renderData.getVertexFrame() );
+        attributeLoader.bindUvMap( renderData.getUvMap(), renderData.getUvDirection(),renderData.getVertexFrame() );
+        attributeLoader.bindColouring( renderData.getColouring() );
+        var bufferSize = renderData.getVertices().getVertexLength( renderData.getVertexFrame() );
+        textureLoader.bind( renderData.getTexture() );
+        
+        switch ( renderData.getType() ) {
+            case LINE_LOOP:
+            case LINES:
+                setLineWidth( renderData.getLineWidth() );
+                drawLines( bufferSize, LineType.getLineType( renderData.getType() ) );
+                break;
+            case TRIANGLES:
+            default:
+                drawTriangles( bufferSize );
+                break;
+        }
     }
     
-    OpenGlVertexAttributeLoader getVertexAttributeLoader() {
-        return attributeLoader;
-    }
-    
-    OpenGlTextureLoader getTextureLoader() {
-        return textureLoader;
-    }
-    
-    void setLineWidth( float width ) {
+    private void setLineWidth( float width ) {
         GL11.glLineWidth( width );
     }
     
-    
-    void drawLines( int bufferSize, LineType type ) {
+    private void drawLines( int bufferSize, LineType type ) {
         switch ( type ) {
             case LINE_LOOP:
                 drawLineLoop( bufferSize );
@@ -77,7 +89,7 @@ public class OpenGlRenderingContext implements RenderingContext {
         }
     }
     
-    void drawTriangles( int bufferSize ) {
+    private void drawTriangles( int bufferSize ) {
         drawObjects( GL11.GL_TRIANGLES, bufferSize );
     }
     

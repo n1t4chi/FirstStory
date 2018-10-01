@@ -6,9 +6,9 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.object.data.Colour;
-import com.firststory.firstoracle.object.data.Index2D;
-import com.firststory.firstoracle.object.data.Index3D;
+import com.firststory.firstoracle.data.Colour;
+import com.firststory.firstoracle.data.Index2D;
+import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.object3D.PositionableObject3D;

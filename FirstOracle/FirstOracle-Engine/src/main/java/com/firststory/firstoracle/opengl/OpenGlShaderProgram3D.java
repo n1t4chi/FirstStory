@@ -3,7 +3,10 @@
  */
 package com.firststory.firstoracle.opengl;
 
-import com.firststory.firstoracle.object.data.*;
+import com.firststory.firstoracle.data.Colour;
+import com.firststory.firstoracle.data.Position;
+import com.firststory.firstoracle.data.Rotation;
+import com.firststory.firstoracle.data.Scale;
 import com.firststory.firstoracle.shader.ShaderProgram;
 import org.joml.Matrix4fc;
 
@@ -42,32 +45,20 @@ class OpenGlShaderProgram3D extends OpenGlShaderProgram implements ShaderProgram
         cameraLocation.bind( camera );
     }
     
-    void bindPosition( Position3D vector ) {
-        positionLocation.bind( vector );
+    void bindPosition( Position position ) {
+        positionLocation.bind( position );
     }
     
-    void bindPosition( Position2D vector ) {
-        positionLocation.bind( vector );
+    void bindScale( Scale scale ) {
+        scaleLocation.bind( scale );
     }
     
-    void bindScale( Scale3D vector ) {
-        scaleLocation.bind( vector );
-    }
-    
-    void bindScale( Scale2D vector ) {
-        scaleLocation.bind( vector );
-    }
-    
-    void bindRotation( Rotation3D vector ) {
-        rotationLocation.bind( vector );
-    }
-    
-    void bindRotation( Rotation2D rotation ) {
+    void bindRotation( Rotation rotation ) {
         rotationLocation.bind( rotation );
     }
     
-    void bindOverlayColour( Colour vector ) {
-        overlayColourLocation.bind( vector );
+    void bindOverlayColour( Colour colour ) {
+        overlayColourLocation.bind( colour );
     }
     
     void bindMaxAlphaChannel( float value ) {

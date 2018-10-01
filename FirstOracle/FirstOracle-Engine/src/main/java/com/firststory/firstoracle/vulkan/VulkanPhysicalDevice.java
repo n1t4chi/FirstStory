@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.exceptions.*;
 import com.firststory.firstoracle.vulkan.rendering.*;

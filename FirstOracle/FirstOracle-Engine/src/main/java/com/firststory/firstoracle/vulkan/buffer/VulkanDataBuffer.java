@@ -4,8 +4,8 @@
 
 package com.firststory.firstoracle.vulkan.buffer;
 
-import com.firststory.firstoracle.data.BufferNotCreatedException;
-import com.firststory.firstoracle.data.CannotCreateBufferException;
+import com.firststory.firstoracle.buffer.BufferNotCreatedException;
+import com.firststory.firstoracle.buffer.CannotCreateBufferException;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import org.lwjgl.system.MemoryUtil;
 

@@ -6,28 +6,21 @@ package com.firststory.firstoracle.templates;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.camera3D.Camera3D;
+import com.firststory.firstoracle.camera2D.IdentityCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.notyfying.WindowListener;
 import com.firststory.firstoracle.notyfying.WindowSizeEvent;
 import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.data.Index3D;
 import com.firststory.firstoracle.object2D.NonAnimatedRectangle;
 import com.firststory.firstoracle.object3D.CubeGrid;
 import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.*;
-import com.firststory.firstoracle.scene.RegistrableOverlay;
-import com.firststory.firstoracle.scene.RegistrableOverlayImpl;
-import com.firststory.firstoracle.scene.RenderableScene3D;
-import com.firststory.firstoracle.scene.RenderedSceneMutable;
+import com.firststory.firstoracle.scene.*;
 import com.firststory.firstoracle.window.Window;
 import com.firststory.firstoracle.window.WindowBuilder;
 
-import java.util.Collection;
 import java.util.Collections;
 
 /**
@@ -46,7 +39,7 @@ public class GlfwApplication3D {
     private WindowRenderer renderer;
     private SceneProvider sceneProvider;
     private CameraController cameraController;
-    private RenderedSceneMutable renderedScene;
+    private RenderableSceneMutable renderedScene;
     private Grid3DRenderer grid3DRenderer;
     private WindowSettings settings;
     private Grid2DRenderer grid2DRenderer;
@@ -69,7 +62,7 @@ public class GlfwApplication3D {
         grid2DRenderer = new DummyGrid2DRenderer();
         //Rendered scene is what is displayed via OpenGL rendering, it should be most likely moved to SceneProvider
         //Which will provide next scenes to renderObject when something changes.
-        renderedScene = new RenderedSceneMutable( settings );
+        renderedScene = new RenderableSceneMutable( settings );
         
         //try is for Texture loading.
         //Does not work ATM but graphic objects can be created like that,
@@ -103,27 +96,8 @@ public class GlfwApplication3D {
         //here it's best place to renderObject all game objects
         var camera3D = new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 );
         
-        renderedScene.setScene3D( new RenderableScene3D() {
-            @Override
-            public Camera3D getScene3DCamera() {
-                return camera3D;
-            }
-    
-            @Override
-            public Terrain3D< ? >[][][] getTerrains3D() {
-                return array;
-            }
-            
-            @Override
-            public Collection< PositionableObject3D< ?, ? > > getObjects3D() {
-                return Collections.emptyList();
-            }
-            
-            @Override
-            public Index3D getTerrain3DShift() {
-                return FirstOracleConstants.INDEX_ZERO_3I;
-            }
-        } );
+        renderedScene.setBackground( new RenderableBackgroundImpl( IdentityCamera2D.getCamera(), Collections.emptyList(), FirstOracleConstants.WHITE ) );
+        renderedScene.setScene3D( new RenderableScene3DImpl( camera3D, Collections.emptyList(), array, FirstOracleConstants.INDEX_ZERO_3I ) );
         //SceneProvider is object which provides all next scenes for renderer below
         //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
         //Most likely you would want to create your own SceneProvider that implements this interface

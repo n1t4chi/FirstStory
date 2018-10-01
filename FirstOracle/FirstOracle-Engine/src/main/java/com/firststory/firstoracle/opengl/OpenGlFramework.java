@@ -8,7 +8,6 @@ import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.rendering.FrameworkCommands;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFramework;
-import org.joml.Vector4f;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
@@ -44,8 +43,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
             textureLoader,
             shader,
             !PropertiesUtil.isPropertyTrue( PropertiesUtil.DISABLE_TEXTURES_PROPERTY ),
-            PropertiesUtil.isPropertyTrue( PropertiesUtil.DRAW_BORDER_PROPERTY ),
-            new Vector4f( 1,0,0,1 )
+            PropertiesUtil.isPropertyTrue( PropertiesUtil.DRAW_BORDER_PROPERTY )
         );
     }
 

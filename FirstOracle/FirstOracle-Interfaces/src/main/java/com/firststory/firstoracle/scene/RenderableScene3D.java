@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.object.data.Index3D;
+import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.rendering.CameraDataProvider;
@@ -45,7 +45,7 @@ public interface RenderableScene3D {
                     for ( int z = 0, zLength = terrainsZ.length; z < zLength; z++ ) {
                         var terrain = terrainsZ[ z ];
                         
-                        renderer.render( terrain, terrain.computePosition( x, y, z, terrainShift ), currentRenderTime, cameraRotation );
+                        renderer.renderObject( terrain, terrain.computePosition( x, y, z, terrainShift ), currentRenderTime, cameraRotation );
                     }
                 }
             }

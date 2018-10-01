@@ -3,8 +3,8 @@
  */
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.object.data.Rotation;
-import com.firststory.firstoracle.object.data.Scale;
+import com.firststory.firstoracle.data.Rotation;
+import com.firststory.firstoracle.data.Scale;
 
 /**
  * @author n1t4chi

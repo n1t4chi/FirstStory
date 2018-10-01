@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.object.data.Index3D;
+import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 

@@ -4,7 +4,8 @@
 package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.data.Position2D;
+import com.firststory.firstoracle.data.LineData;
+import com.firststory.firstoracle.data.Position2D;
 import com.firststory.firstoracle.object2D.Vertices2D;
 
 import java.util.ArrayList;
@@ -12,8 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.singletonArray;
-import static com.firststory.firstoracle.object.data.Position2D.pos2;
-import static com.firststory.firstoracle.rendering.LineData.lines;
+import static com.firststory.firstoracle.data.LineData.lines;
+import static com.firststory.firstoracle.data.Position2D.pos2;
 
 /**
  * @author n1t4chi
@@ -165,7 +166,8 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
         Vertices2D buffer,
         LineData lineData
     ) {
-        renderingContext.render2D( renderer -> renderer.renderVerticesAsLines( buffer,
+        renderingContext.render2D( renderer -> renderer.renderVerticesAsLines(
+            buffer,
             0,
             FirstOracleConstants.POSITION_ZERO_2F,
             FirstOracleConstants.SCALE_ONE_2F,

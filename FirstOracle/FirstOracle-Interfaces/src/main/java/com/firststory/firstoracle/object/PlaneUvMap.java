@@ -3,7 +3,7 @@
  */
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.object.data.UV;
+import com.firststory.firstoracle.data.UV;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
 import static com.firststory.firstoracle.FirstOracleConstants.array;
-import static com.firststory.firstoracle.object.data.UV.uv;
+import static com.firststory.firstoracle.data.UV.uv;
 
 /**
  * @author n1t4chi

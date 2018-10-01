@@ -3,8 +3,8 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.data.Index3D;
-import com.firststory.firstoracle.object.data.Position3D;
+import com.firststory.firstoracle.data.Index3D;
+import com.firststory.firstoracle.data.Position3D;
 
 /**
  * @author n1t4chi

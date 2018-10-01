@@ -5,7 +5,7 @@ package com.firststory.firstoracle.opengl;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.object.data.*;
+import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.shader.CannotCreateUniformLocationException;
 import org.joml.*;
 import org.lwjgl.opengl.GL20;

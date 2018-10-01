@@ -3,7 +3,7 @@
  */
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.object.data.Position;
+import com.firststory.firstoracle.data.Position;
 
 /**
  * @author n1t4chi

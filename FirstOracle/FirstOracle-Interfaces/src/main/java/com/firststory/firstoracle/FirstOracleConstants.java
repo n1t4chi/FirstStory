@@ -3,11 +3,10 @@
  */
 package com.firststory.firstoracle;
 
+import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.object.data.*;
-import com.firststory.firstoracle.rendering.LineData;
 import org.joml.*;
 
 import java.awt.*;
@@ -17,16 +16,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static com.firststory.firstoracle.object.data.Colour.col;
-import static com.firststory.firstoracle.object.data.Index2D.id2;
-import static com.firststory.firstoracle.object.data.Index3D.id3;
-import static com.firststory.firstoracle.object.data.Position2D.pos2;
-import static com.firststory.firstoracle.object.data.Position3D.pos3;
-import static com.firststory.firstoracle.object.data.Rotation2D.rot2;
-import static com.firststory.firstoracle.object.data.Rotation3D.rot3;
-import static com.firststory.firstoracle.object.data.Scale2D.scale2;
-import static com.firststory.firstoracle.object.data.Scale3D.scale3;
-import static com.firststory.firstoracle.object.data.UV.uv;
+import static com.firststory.firstoracle.data.Colour.col;
+import static com.firststory.firstoracle.data.Index2D.id2;
+import static com.firststory.firstoracle.data.Index3D.id3;
+import static com.firststory.firstoracle.data.Position2D.pos2;
+import static com.firststory.firstoracle.data.Position3D.pos3;
+import static com.firststory.firstoracle.data.Rotation2D.rot2;
+import static com.firststory.firstoracle.data.Rotation3D.rot3;
+import static com.firststory.firstoracle.data.Scale2D.scale2;
+import static com.firststory.firstoracle.data.Scale3D.scale3;
+import static com.firststory.firstoracle.data.UV.uv;
 
 /**
  * @author n1t4chi

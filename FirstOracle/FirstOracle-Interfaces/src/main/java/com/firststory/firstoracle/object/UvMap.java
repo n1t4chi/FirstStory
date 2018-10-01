@@ -3,7 +3,7 @@
  */
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.object.data.UV;
+import com.firststory.firstoracle.data.UV;
 
 import java.util.Arrays;
 import java.util.List;

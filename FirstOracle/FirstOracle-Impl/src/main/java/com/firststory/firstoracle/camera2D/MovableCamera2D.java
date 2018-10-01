@@ -18,9 +18,7 @@ public class MovableCamera2D extends Camera2D {
     private float rotation;
     private final WindowSettings settings;
     
-    public MovableCamera2D(
-        WindowSettings settings, float width, float X, float Y, float rotation
-    ) {
+    public MovableCamera2D( WindowSettings settings, float width, float X, float Y, float rotation ) {
         this.settings = settings;
         this.position = new Vector2f( X, Y );
         this.centerPoint = new Vector2f( -X, -Y );

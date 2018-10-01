@@ -3,13 +3,13 @@
  */
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.object.data.Position2D;
+import com.firststory.firstoracle.data.Position2D;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.firststory.firstoracle.object.data.Position2D.pos2;
+import static com.firststory.firstoracle.data.Position2D.pos2;
 
 /**
  * @author n1t4chi

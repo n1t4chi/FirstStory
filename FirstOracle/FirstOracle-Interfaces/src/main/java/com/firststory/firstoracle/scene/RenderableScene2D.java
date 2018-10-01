@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
-import com.firststory.firstoracle.object.data.Index2D;
+import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.rendering.CameraDataProvider;
@@ -40,7 +40,7 @@ public interface RenderableScene2D {
                 for ( int y = 0, yLength = terrainsY.length; y < yLength; y++ ) {
                     var terrain = terrainsY[ y ];
                     
-                    renderer.render( terrain, terrain.computePosition( x, y, terrainShift ), currentRenderTime, cameraRotation );
+                    renderer.renderObject( terrain, terrain.computePosition( x, y, terrainShift ), currentRenderTime, cameraRotation );
                     
                 }
             }

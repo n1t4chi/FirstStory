@@ -9,8 +9,13 @@ import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.gui.GuiApplicationData;
 import com.firststory.firstoracle.gui.GuiFrameworkProvider;
-import com.firststory.firstoracle.rendering.*;
+import com.firststory.firstoracle.rendering.Renderer;
+import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
+import com.firststory.firstoracle.rendering.WindowRenderer;
 import com.firststory.firstoracle.scene.RegistrableScene;
+import com.firststory.firstoracle.scene.RegistrableSceneProvider;
+import com.firststory.firstoracle.scene.RegistrableSceneProviderImpl;
+import com.firststory.firstoracle.scene.SceneProvider;
 
 /**
  * @author n1t4chi
@@ -26,7 +31,7 @@ public abstract class WindowBuilder< WindowType extends Window > {
     }
     
     public static RegistrableWindowBuilder registrableWindow( WindowSettings settings ) {
-        return new RegistrableWindowBuilder( settings, new RegistrableSceneProviderImpl() );
+        return new RegistrableWindowBuilder( settings, new RegistrableSceneProviderImpl<>() );
     }
     
     final WindowSettings settings;

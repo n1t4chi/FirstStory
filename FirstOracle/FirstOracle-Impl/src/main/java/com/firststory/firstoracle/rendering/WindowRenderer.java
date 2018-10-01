@@ -8,6 +8,7 @@ import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.ReflectionUtils;
 import com.firststory.firstoracle.camera2D.IdentityCamera2D;
 import com.firststory.firstoracle.scene.RenderableScene;
+import com.firststory.firstoracle.scene.SceneProvider;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -5,10 +5,10 @@
 package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.DataBuffer;
+import com.firststory.firstoracle.buffer.DataBuffer;
 import com.firststory.firstoracle.shader.ShaderProgram;
-import com.firststory.firstoracle.vulkan.ShaderType;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
+import com.firststory.firstoracle.vulkan.VulkanShaderType;
 import com.firststory.firstoracle.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.buffer.VulkanDataBuffer;
 import org.joml.Matrix4f;
@@ -47,8 +47,8 @@ public class VulkanShaderProgram implements ShaderProgram {
         VulkanBufferProvider bufferLoader
     ) {
         this.device = device;
-        vertexShader = new VulkanShader( device, SHADER_FILE_PATH_VERTEX_3D, ShaderType.VERTEX );
-        fragmentShader = new VulkanShader( device, SHADER_FILE_PATH_FRAGMENT, ShaderType.FRAGMENT );
+        vertexShader = new VulkanShader( device, SHADER_FILE_PATH_VERTEX_3D, VulkanShaderType.VERTEX );
+        fragmentShader = new VulkanShader( device, SHADER_FILE_PATH_FRAGMENT, VulkanShaderType.FRAGMENT );
         this.bufferLoader = bufferLoader;
     }
     

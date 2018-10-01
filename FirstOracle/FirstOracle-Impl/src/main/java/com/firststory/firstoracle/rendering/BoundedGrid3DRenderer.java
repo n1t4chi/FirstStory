@@ -4,7 +4,8 @@
 package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.data.Position3D;
+import com.firststory.firstoracle.data.LineData;
+import com.firststory.firstoracle.data.Position3D;
 import com.firststory.firstoracle.object3D.Vertices3D;
 
 import java.util.ArrayList;
@@ -12,8 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.singletonArray;
-import static com.firststory.firstoracle.object.data.Position3D.pos3;
-import static com.firststory.firstoracle.rendering.LineData.lines;
+import static com.firststory.firstoracle.data.LineData.lines;
+import static com.firststory.firstoracle.data.Position3D.pos3;
 
 /**
  * @author n1t4chi

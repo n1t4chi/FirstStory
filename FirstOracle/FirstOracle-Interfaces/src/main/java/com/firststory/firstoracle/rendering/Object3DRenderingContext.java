@@ -4,9 +4,9 @@
 
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.object.data.Position3D;
-import com.firststory.firstoracle.object.data.Rotation3D;
-import com.firststory.firstoracle.object.data.Scale3D;
+import com.firststory.firstoracle.data.Position3D;
+import com.firststory.firstoracle.data.Rotation3D;
+import com.firststory.firstoracle.data.Scale3D;
 import com.firststory.firstoracle.object3D.*;
 
 /**
@@ -27,7 +27,7 @@ public interface Object3DRenderingContext extends ObjectRenderingContext<
         double timeSnapshot,
         double cameraRotation
     ) {
-        render(
+        renderObject(
             object,
             object.getTransformations().getPosition(),
             timeSnapshot,

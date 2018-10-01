@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.vulkan.buffer;
 
-import com.firststory.firstoracle.data.BufferNotCreatedException;
+import com.firststory.firstoracle.buffer.BufferNotCreatedException;
 import org.junit.Assert;
 import org.junit.Test;
 

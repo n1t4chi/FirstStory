@@ -4,8 +4,8 @@
 
 package com.firststory.firstoracle.opengl;
 
-import com.firststory.firstoracle.data.ArrayBufferProvider;
-import com.firststory.firstoracle.data.CannotCreateBufferException;
+import com.firststory.firstoracle.buffer.ArrayBufferProvider;
+import com.firststory.firstoracle.buffer.CannotCreateBufferException;
 import org.lwjgl.opengl.GL15;
 
 import java.util.ArrayList;

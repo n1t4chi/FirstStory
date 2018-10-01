@@ -4,8 +4,8 @@
 package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.data.Index2D;
-import com.firststory.firstoracle.object.data.Position2D;
+import com.firststory.firstoracle.data.Index2D;
+import com.firststory.firstoracle.data.Position2D;
 
 /**
  * @author n1t4chi

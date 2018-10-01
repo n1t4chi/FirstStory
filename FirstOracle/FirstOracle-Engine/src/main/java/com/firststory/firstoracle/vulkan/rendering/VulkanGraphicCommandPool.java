@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.vulkan.*;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.KHRSwapchain;

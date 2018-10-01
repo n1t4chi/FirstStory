@@ -3,7 +3,7 @@
  */
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.object.data.Position2D;
+import com.firststory.firstoracle.data.Position2D;
 
 import java.util.List;
 

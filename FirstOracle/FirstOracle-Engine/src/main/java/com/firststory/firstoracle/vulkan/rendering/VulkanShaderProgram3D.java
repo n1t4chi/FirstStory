@@ -5,10 +5,10 @@
 package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.object.data.Colour;
-import com.firststory.firstoracle.object.data.Position;
-import com.firststory.firstoracle.object.data.Rotation;
-import com.firststory.firstoracle.object.data.Scale;
+import com.firststory.firstoracle.data.Colour;
+import com.firststory.firstoracle.data.Position;
+import com.firststory.firstoracle.data.Rotation;
+import com.firststory.firstoracle.data.Scale;
 import com.firststory.firstoracle.shader.ShaderProgram;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.buffer.VulkanBufferProvider;

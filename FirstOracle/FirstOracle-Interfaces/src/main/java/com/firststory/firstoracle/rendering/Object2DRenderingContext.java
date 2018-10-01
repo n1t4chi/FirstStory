@@ -4,9 +4,9 @@
 
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.object.data.Position2D;
-import com.firststory.firstoracle.object.data.Rotation2D;
-import com.firststory.firstoracle.object.data.Scale2D;
+import com.firststory.firstoracle.data.Position2D;
+import com.firststory.firstoracle.data.Rotation2D;
+import com.firststory.firstoracle.data.Scale2D;
 import com.firststory.firstoracle.object2D.*;
 
 /**
@@ -27,7 +27,7 @@ public interface Object2DRenderingContext extends ObjectRenderingContext<
         double timeSnapshot,
         double cameraRotation
     ) {
-        render(
+        renderObject(
             object,
             object.getTransformations().getPosition(),
             timeSnapshot,

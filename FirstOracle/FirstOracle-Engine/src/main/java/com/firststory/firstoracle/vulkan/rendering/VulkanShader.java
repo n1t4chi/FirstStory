@@ -6,10 +6,10 @@ package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.shader.ShaderProgram;
 import com.firststory.firstoracle.templates.IOUtilities;
-import com.firststory.firstoracle.vulkan.ShaderType;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
+import com.firststory.firstoracle.vulkan.VulkanShaderType;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanShaderException;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
@@ -30,12 +30,12 @@ class VulkanShader implements ShaderProgram {
     static final String SHADER_FILE_PATH_FRAGMENT = SHADER_FILES_LOCATION + "shader.vk.frag.spv";
     
     private final String filepath;
-    private final ShaderType type;
+    private final VulkanShaderType type;
     private final VulkanPhysicalDevice physicalDevice;
     private VulkanAddress address;
     private VkPipelineShaderStageCreateInfo stageCreateInfo;
     
-    VulkanShader( VulkanPhysicalDevice physicalDevice, String filepath, ShaderType type ) {
+    VulkanShader( VulkanPhysicalDevice physicalDevice, String filepath, VulkanShaderType type ) {
         this.physicalDevice = physicalDevice;
         this.filepath = filepath;
         this.type = type;

@@ -7,7 +7,7 @@ package com.firststory.firstoracle.scene;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera2D.IdentityCamera2D;
-import com.firststory.firstoracle.object.data.Colour;
+import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 
 import java.util.Collection;
