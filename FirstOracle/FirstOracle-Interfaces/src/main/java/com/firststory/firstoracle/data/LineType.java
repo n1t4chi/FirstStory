@@ -14,16 +14,17 @@ public enum LineType {
     
     /**
      * Returns line type based on render type.
-     * If there is no corresponding type (eg. {@link RenderType#TRIANGLES } ) {@link RenderType#LINES} is returned
+     * If there is no corresponding type (eg. {@link RenderType#TRIANGLES } ) {@link RenderType#LINE_LOOP} is returned
      *
      * @param type render type
      * @return corresponding line type
      */
     public static LineType getLineType( RenderType type ) {
-        if ( RenderType.LINE_LOOP.equals( type ) ) {
-            return LINE_LOOP;
+        if ( RenderType.LINES.equals( type ) ) {
+            return LINES;
         }
-        return LINES;
+        //LINE_LOOP and BORDER should be this one
+        return LINE_LOOP;
     }
     
     private final RenderType renderType;

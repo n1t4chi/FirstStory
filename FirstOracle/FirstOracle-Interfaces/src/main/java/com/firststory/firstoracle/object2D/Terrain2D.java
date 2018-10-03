@@ -5,12 +5,15 @@ package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Position2D;
+import com.firststory.firstoracle.object.Terrain;
 
 /**
+ * Class representing 2D terrain, contains texture, UV mapping, vertices and objectTransformations.
  * @author n1t4chi
  */
 public interface Terrain2D< Vertices extends Vertices2D >
-    extends Object2D< Identity2DTransformations, Vertices >
+    extends Object2D< Identity2DTransformations, Vertices >,
+    Terrain< Identity2DTransformations, BoundingBox2D, Vertices >
 {
     
     @Override

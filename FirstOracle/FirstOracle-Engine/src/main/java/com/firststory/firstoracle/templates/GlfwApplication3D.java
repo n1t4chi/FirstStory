@@ -57,6 +57,7 @@ public class GlfwApplication3D {
 //            .setWidth( -1 )
 //            .setHeight( -1 )
             .build();
+        
         //GridRenderer will be changed so it works as either 2D or 3D. For now leave it as it is so you can see whether the rendering still works.
         grid3DRenderer = new BoundedGrid3DRenderer( 100, 25, 5 );
         grid2DRenderer = new DummyGrid2DRenderer();
@@ -64,20 +65,13 @@ public class GlfwApplication3D {
         //Which will provide next scenes to renderObject when something changes.
         renderedScene = new RenderableSceneMutable( settings );
         
-        //try is for Texture loading.
-        //Does not work ATM but graphic objects can be created like that,
         //Here most likely we will only use Rectangle for objects like bullets and characters and RectangleGrid for terrain
         //RectangleGrid provides nice method for translating array position into rendered space position so they can be shared for same terrains
-        //path can be either file in filesystem or within jar
+        //Texture path can be either file in filesystem or within jar
         var texture1 = new Texture( "resources/First Oracle/grid.png" );
         var texture2 = new Texture( "resources/First Oracle/texture3D.png" );
         var overlayObject = new NonAnimatedRectangle();
         overlayObject.setTexture( texture1 );
-        //overlayObject is rendered last, good for UI
-        
-        RegistrableOverlay overlay = new RegistrableOverlayImpl();
-        overlay.registerOverlay( overlayObject );
-        renderedScene.setOverlay( overlay );
         
         //Example initialisation of map
         var terrain = new NonAnimatedCubeGrid();
@@ -92,12 +86,13 @@ public class GlfwApplication3D {
                 }
             }
         }
-        //setScene2D is very similar but you are providing Objects2D instead of 3D
-        //here it's best place to renderObject all game objects
         var camera3D = new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 );
         
-        renderedScene.setBackground( new RenderableBackgroundImpl( IdentityCamera2D.getCamera(), Collections.emptyList(), FirstOracleConstants.WHITE ) );
+        //Now the Scene3D is being set up like camera, which objects etc.
+        //Scene2D is similar but you are providing 2D Objects instead of 3D
+        //Scenes 2D and 3D are designed to be used for in game objects like characters, terrain or items
         renderedScene.setScene3D( new RenderableScene3DImpl( camera3D, Collections.emptyList(), array, FirstOracleConstants.INDEX_ZERO_3I ) );
+        
         //SceneProvider is object which provides all next scenes for renderer below
         //Scene creation should be done here, I made it return same scene for now because I don't change content ATM
         //Most likely you would want to create your own SceneProvider that implements this interface
@@ -106,10 +101,23 @@ public class GlfwApplication3D {
         cameraController.addCameraListener( ( event, source ) -> {
             cameraController.updateIsometricCamera3D( camera3D );
         } );
-        sceneProvider = () -> {
-            return renderedScene;
-        };
-        //Renderer renders all openGL content in Window, nothing to add much here
+        
+        //Scene provider could be used for providing different scenes. For example one for open credits, one for main menu and one for game.
+        //New scenes could be created when other scene is presented and immediately switched to when ready.
+        //Now we are providing one scene so this simple lambda can be used instead.
+        sceneProvider = () -> renderedScene ;
+    
+        
+        //Background is bunch of 2D objects rendered beneath other elements, so could be used for background images or skybox.
+        //It also provides background colour which can be seen when there are no objects displayed in some places.
+        renderedScene.setBackground( new RenderableBackgroundImpl( IdentityCamera2D.getCamera(), Collections.emptyList(), FirstOracleConstants.WHITE ) );
+    
+        //Overlay is rendered on top of anything so it's good for UI elements, although only 2D objects are supported.
+        RegistrableOverlay overlay = new RegistrableOverlayImpl();
+        overlay.registerOverlay( overlayObject );
+        renderedScene.setOverlay( overlay );
+        
+        //Renderer is class that contains all information like scenes and grids.
         renderer = new WindowRenderer(
             grid2DRenderer,
             grid3DRenderer,
@@ -120,12 +128,14 @@ public class GlfwApplication3D {
         //Also it initialises OpenGL (via init()) content and initialises most of the objects passed via parameters
         //It also contains rendering loop which is done via run() method, best if called as another thread since it will block current thread for ever.
         window = WindowBuilder.simpleWindow( settings, renderer ).build();
+        
         window.addTimeListener( cameraController );
-        window.init();
-        //OpenGL is initialised now. You can use all classes that use it.
         window.addQuitListener( cameraController );
         window.addKeyListener( cameraController );
         window.addMouseListener( cameraController );
+        
+        //It's good to update cameras when window is resized since some of them use width/height ratio of the rendered area
+        //to correctly display objects on screen
         window.addWindowListener( new WindowListener() {
             @Override
             public void notify( WindowSizeEvent event ) {
@@ -136,7 +146,7 @@ public class GlfwApplication3D {
         //Now it's place to spawn all other threads like game thread or controller thread.
         cameraController.start();
         
-        //At last the window loop is run in this thread..
+        //At last the window loop must be run in this thread. ( or thread where init() was called )
         window.run();
     }
 }

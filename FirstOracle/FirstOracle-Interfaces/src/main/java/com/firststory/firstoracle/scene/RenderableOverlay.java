@@ -25,7 +25,7 @@ public interface RenderableOverlay {
         renderingContext.render2D( renderer -> {
             var cameraRotation = cameraDataProvider.getCameraRotation2D();
             for ( var object : getOverlayObjects() ) {
-                renderer.render( object, currentRenderTime, cameraRotation );
+                renderer.render( object.getRenderData( currentRenderTime, cameraRotation ) );
             }
         } );
     }

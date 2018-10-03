@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.opengl;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.data.Colour;
@@ -56,12 +57,17 @@ public class OpenGlRenderingContext implements RenderingContext {
         shaderProgram.bindOverlayColour( renderData.getOverlayColour() );
         
         attributeLoader.bindVertices( renderData.getVertices(), renderData.getVertexFrame() );
-        attributeLoader.bindUvMap( renderData.getUvMap(), renderData.getUvDirection(),renderData.getVertexFrame() );
+        attributeLoader.bindUvMap( renderData.getUvMap(), renderData.getUvDirection(), renderData.getUvFrame() );
         attributeLoader.bindColouring( renderData.getColouring() );
         var bufferSize = renderData.getVertices().getVertexLength( renderData.getVertexFrame() );
-        textureLoader.bind( renderData.getTexture() );
+        
+        textureLoader.bind( shouldUseTextures() ? renderData.getTexture() : FirstOracleConstants.EMPTY_TEXTURE );
         
         switch ( renderData.getType() ) {
+            case BORDER:
+                if( !shouldDrawBorder() ) {
+                    break;
+                }
             case LINE_LOOP:
             case LINES:
                 setLineWidth( renderData.getLineWidth() );

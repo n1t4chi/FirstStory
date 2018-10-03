@@ -29,6 +29,10 @@ public class BoundedGrid2DRenderer implements Grid2DRenderer {
     private final Vertices2D interAxes;
     private final Vertices2D smallPositiveAxes;
     private final Vertices2D smallNegativeAxes;
+    private final RenderData mainRenderData;
+    private final RenderData interRenderData;
+    private final RenderData smallPositiveRenderData;
+    private final RenderData smallNegativeRenderData;
     
     public BoundedGrid2DRenderer( int gridSize, int interAxesStep, int smallAxesStep ) {
         var mainAxes = Arrays.asList(
@@ -71,6 +75,11 @@ public class BoundedGrid2DRenderer implements Grid2DRenderer {
         this.interAxes = new Vertices2D( singletonArray(  interAxes ) );
         this.smallPositiveAxes = new Vertices2D( singletonArray(  smallPositiveAxes ) );
         this.smallNegativeAxes = new Vertices2D( singletonArray( smallNegativeAxes ) );
+        
+        mainRenderData = createRenderData( this.mainAxes, LINES_MAIN );
+        interRenderData = createRenderData( this.interAxes, LINES_INTER );
+        smallPositiveRenderData = createRenderData( this.smallPositiveAxes, LINES_POSITIVE );
+        smallNegativeRenderData = createRenderData( this.smallNegativeAxes, LINES_NEGATIVE );
     }
     
     @Override
@@ -87,10 +96,10 @@ public class BoundedGrid2DRenderer implements Grid2DRenderer {
     
     @Override
     public void render( RenderingContext renderingContext, double currentRenderTime ) {
-        renderGridArray( renderingContext, mainAxes, LINES_MAIN );
-        renderGridArray( renderingContext, interAxes, LINES_INTER );
-        renderGridArray( renderingContext, smallPositiveAxes, LINES_POSITIVE );
-        renderGridArray( renderingContext, smallNegativeAxes, LINES_NEGATIVE );
+        renderGridArray( renderingContext, mainRenderData );
+        renderGridArray( renderingContext, interRenderData );
+        renderGridArray( renderingContext, smallPositiveRenderData );
+        renderGridArray( renderingContext, smallNegativeRenderData );
     }
     
     private List< Position2D > createAxes( int gridSize, int i ) {
@@ -117,20 +126,24 @@ public class BoundedGrid2DRenderer implements Grid2DRenderer {
         );
     }
     
-    private void renderGridArray(
-        RenderingContext renderingContext,
-        Vertices2D buffer,
+    private RenderData createRenderData(
+        Vertices2D vertices,
         LineData lineData
     ) {
-        renderingContext.render2D( renderer ->
-            renderer.renderVerticesAsLines(
-                buffer,
-                0,
-                FirstOracleConstants.POSITION_ZERO_2F,
-                FirstOracleConstants.SCALE_ONE_2F,
-                FirstOracleConstants.ROTATION_ZERO_2F,
-                lineData
-            )
-        );
+        return RenderData.renderLineData(
+            vertices,
+            0,
+            FirstOracleConstants.POSITION_ZERO_2F,
+            FirstOracleConstants.SCALE_ONE_2F,
+            FirstOracleConstants.ROTATION_ZERO_2F,
+            lineData
+        ).build();
+    }
+    
+    private void renderGridArray(
+        RenderingContext renderingContext,
+        RenderData renderData
+    ) {
+        renderingContext.render2D( renderer -> renderer.render( renderData ) );
     }
 }

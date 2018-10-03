@@ -127,9 +127,7 @@ public class VulkanRenderingContext implements RenderingContext {
         Texture texture,
         List< RenderData > renderDataList
     ) {
-        var shader = getShaderProgram3D();
-    
-        var textureBuffer = device.getTextureLoader().bind( texture );
+        var textureBuffer = device.getTextureLoader().bind( shouldUseTextures() ? texture : FirstOracleConstants.EMPTY_TEXTURE );
     
         var descriptorSet = descriptorPool.getNextDescriptorSet();
         descriptorSet.updateDescriptorSet( textureSampler, textureBuffer.getContext(), uniformBufferInfo );
@@ -160,6 +158,10 @@ public class VulkanRenderingContext implements RenderingContext {
             
             VulkanGraphicPipeline pipeline;
             switch ( renderData.getType() ) {
+                case BORDER:
+                    if( !shouldDrawBorder() ) {
+                        return;
+                    }
                 case LINES:
                 case LINE_LOOP:
                     buffer.setLineWidth( renderData.getLineWidth() );

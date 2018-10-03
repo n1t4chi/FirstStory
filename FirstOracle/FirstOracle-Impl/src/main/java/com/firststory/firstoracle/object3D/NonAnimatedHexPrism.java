@@ -11,7 +11,9 @@ import com.firststory.firstoracle.object.UvMap;
 /**
  * @author n1t4chi
  */
-public class NonAnimatedHexPrism implements HexPrism< Mutable3DTransformations >,
+public class NonAnimatedHexPrism
+    extends AbstractPositionableObject3D< Mutable3DTransformations, HexPrismVertices >
+    implements HexPrism< Mutable3DTransformations >,
     NonAnimatedObject3D< Mutable3DTransformations, HexPrismVertices >,
     MutableTextureObject3D< Mutable3DTransformations, HexPrismVertices >,
     PositionableObject3D< Mutable3DTransformations, HexPrismVertices >

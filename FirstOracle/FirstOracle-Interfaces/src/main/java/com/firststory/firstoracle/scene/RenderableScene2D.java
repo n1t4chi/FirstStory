@@ -39,14 +39,14 @@ public interface RenderableScene2D {
                 
                 for ( int y = 0, yLength = terrainsY.length; y < yLength; y++ ) {
                     var terrain = terrainsY[ y ];
-                    
-                    renderer.renderObject( terrain, terrain.computePosition( x, y, terrainShift ), currentRenderTime, cameraRotation );
+    
+                    renderer.render( terrain.getRenderData( terrain.computePosition( x, y, terrainShift ), currentRenderTime, cameraRotation ) );
                     
                 }
             }
             
             for ( var object : getObjects2D() ) {
-                renderer.render( object, currentRenderTime, cameraRotation );
+                renderer.render( object.getRenderData( currentRenderTime, cameraRotation ) );
             }
         } );
     }

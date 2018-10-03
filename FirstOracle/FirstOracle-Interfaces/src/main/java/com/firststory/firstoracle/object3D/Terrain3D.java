@@ -5,12 +5,15 @@ package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.data.Position3D;
+import com.firststory.firstoracle.object.Terrain;
 
 /**
+ * Class representing 3D terrain, contains texture, UV mapping, vertices and objectTransformations.
  * @author n1t4chi
  */
-public interface Terrain3D< Vertices extends Vertices3D >
-    extends Object3D< Identity3DTransformations, Vertices >
+public interface Terrain3D< Vertices extends Vertices3D > extends
+    Object3D< Identity3DTransformations, Vertices >,
+    Terrain< Identity3DTransformations, BoundingBox3D, Vertices >
 {
     
     @Override

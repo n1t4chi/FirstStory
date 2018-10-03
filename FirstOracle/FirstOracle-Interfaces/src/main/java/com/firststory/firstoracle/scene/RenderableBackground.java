@@ -28,7 +28,7 @@ public interface RenderableBackground {
         renderingContext.render2D( renderer -> {
             var cameraRotation = cameraDataProvider.getCameraRotation2D();
             for ( var object : getBackgroundObjects() ) {
-                renderer.render( object, currentRenderTime, cameraRotation );
+                renderer.render( object.getRenderData( currentRenderTime, cameraRotation ) );
             }
         } );
     }

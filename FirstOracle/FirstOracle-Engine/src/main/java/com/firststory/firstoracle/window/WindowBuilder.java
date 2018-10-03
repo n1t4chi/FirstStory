@@ -82,15 +82,21 @@ public abstract class WindowBuilder< WindowType extends Window > {
         return this;
     }
     
-    public abstract WindowType build();
+    public WindowType build() {
+        WindowType window = createWindowInstance();
+        window.init();
+        return window;
+    }
+    
+    protected abstract WindowType createWindowInstance();
     
     public static class SimpleWindowBuilder extends WindowBuilder< Window > {
     
         private SimpleWindowBuilder( WindowSettings settings, Renderer renderer ) {
             super( settings, renderer );
         }
-        
-        public Window build() {
+    
+        protected Window createWindowInstance() {
             return new Window(
                 settings,
                 application,
@@ -112,7 +118,7 @@ public abstract class WindowBuilder< WindowType extends Window > {
             this.provider = provider;
         }
     
-        public RegistrableWindow build() {
+        protected RegistrableWindow createWindowInstance() {
             return new RegistrableWindow(
                 settings,
                 application,

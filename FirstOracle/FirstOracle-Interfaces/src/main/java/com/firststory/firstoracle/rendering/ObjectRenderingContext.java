@@ -8,6 +8,8 @@ import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.object.*;
 
+import java.util.List;
+
 /**
  * @author n1t4chi
  */
@@ -27,7 +29,7 @@ public interface ObjectRenderingContext<
     default void renderObject(
         GraphicObjectType object,
         PositionType position,
-        double timeSnapshot, 
+        double timeSnapshot,
         double cameraRotation
     ) {
         renderObject(
@@ -45,7 +47,7 @@ public interface ObjectRenderingContext<
             object.getLineLoop()
         );
     }
-    
+
     default void renderObject(
         VerticesType vertices,
         int vertexFrame,
@@ -88,8 +90,8 @@ public interface ObjectRenderingContext<
             );
         }
     }
-    
-    
+
+
     default void renderVerticesAsTriangles(
         VerticesType vertices,
         int vertexFrame,
@@ -118,7 +120,7 @@ public interface ObjectRenderingContext<
             maxAlphaChannel
         );
     }
-    
+
     default void renderVerticesAsLines(
         VerticesType vertices,
         int vertexFrame,
@@ -135,7 +137,7 @@ public interface ObjectRenderingContext<
             lineData
         );
     }
-    
+
     default void renderVerticesAsTriangles(
         VerticesType vertices,
         int vertexFrame,
@@ -150,7 +152,7 @@ public interface ObjectRenderingContext<
         Colour overlayColour,
         Float maxAlphaChannel
     ) {
-        render( RenderData.build( RenderType.TRIANGLES )
+        render( RenderData.renderData( RenderType.TRIANGLES )
             .setPosition( position )
             .setRotation( rotation )
             .setScale( scale )
@@ -163,10 +165,10 @@ public interface ObjectRenderingContext<
             .setUvDirection( uvDirection )
             .setUvFrame( uvFrame )
             .setColouring( colouring )
-            .finish()
+            .build()
         );
     }
-    
+
     default void renderVerticesAsLines(
         VerticesType vertices,
         int vertexFrame,
@@ -175,7 +177,7 @@ public interface ObjectRenderingContext<
         RotationType rotation,
         LineData lineData
     ) {
-        render( RenderData.build( lineData.getType().getRenderType() )
+        render( RenderData.renderData( lineData.getType().getRenderType() )
             .setPosition( position )
             .setRotation( rotation )
             .setScale( scale )
@@ -183,8 +185,12 @@ public interface ObjectRenderingContext<
             .setVertices( vertices )
             .setVertexFrame( vertexFrame )
             .setLineWidth( lineData.getWidth() )
-            .finish()
+            .build()
         );
+    }
+    
+    default void render( List< RenderData > renderData ) {
+        renderData.forEach( this::render );
     }
     
     void render( RenderData renderData );

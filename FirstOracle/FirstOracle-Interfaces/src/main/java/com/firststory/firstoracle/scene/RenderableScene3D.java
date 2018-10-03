@@ -44,14 +44,13 @@ public interface RenderableScene3D {
                     
                     for ( int z = 0, zLength = terrainsZ.length; z < zLength; z++ ) {
                         var terrain = terrainsZ[ z ];
-                        
-                        renderer.renderObject( terrain, terrain.computePosition( x, y, z, terrainShift ), currentRenderTime, cameraRotation );
+                        renderer.render( terrain.getRenderData( terrain.computePosition( x, y, z, terrainShift ), currentRenderTime, cameraRotation ) );
                     }
                 }
             }
             
             for ( var object : getObjects3D() ) {
-                renderer.render( object, currentRenderTime, cameraRotation );
+                renderer.render( object.getRenderData( currentRenderTime, cameraRotation ) );
             }
         } );
     }

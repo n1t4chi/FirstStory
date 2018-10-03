@@ -29,6 +29,10 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     private final Vertices3D interAxes;
     private final Vertices3D smallPositiveAxes;
     private final Vertices3D smallNegativeAxes;
+    private final RenderData mainRenderData;
+    private final RenderData interRenderData;
+    private final RenderData smallPositiveRenderData;
+    private final RenderData smallNegativeRenderData;
     
     public BoundedGrid3DRenderer( int gridSize, int interAxesStep, int smallAxesStep ) {
         var mainAxes = Arrays.asList(
@@ -73,6 +77,11 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         this.interAxes = new Vertices3D( singletonArray(  interAxes ) );
         this.smallPositiveAxes = new Vertices3D( singletonArray(  smallPositiveAxes ) );
         this.smallNegativeAxes = new Vertices3D( singletonArray(  smallNegativeAxes ) );
+    
+        mainRenderData = createRenderData( this.mainAxes, LINES_MAIN );
+        interRenderData = createRenderData( this.interAxes, LINES_INTER );
+        smallPositiveRenderData = createRenderData( this.smallPositiveAxes, LINES_POSITIVE );
+        smallNegativeRenderData = createRenderData( this.smallNegativeAxes, LINES_NEGATIVE );
     }
     
     @Override
@@ -89,10 +98,10 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     
     @Override
     public void render( RenderingContext renderingContext, double currentRenderTime ) {
-        renderGridArray( renderingContext, mainAxes, LINES_MAIN );
-        renderGridArray( renderingContext, interAxes, LINES_INTER );
-        renderGridArray( renderingContext, smallPositiveAxes, LINES_POSITIVE );
-        renderGridArray( renderingContext, smallNegativeAxes, LINES_NEGATIVE );
+        renderGridArray( renderingContext, mainRenderData );
+        renderGridArray( renderingContext, interRenderData );
+        renderGridArray( renderingContext, smallPositiveRenderData );
+        renderGridArray( renderingContext, smallNegativeRenderData );
     }
     
     private List< Position3D > createAxes( int gridSize, int i ) {
@@ -132,20 +141,24 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         );
     }
     
-    private void renderGridArray(
-        RenderingContext renderingContext,
-        Vertices3D buffer,
+    private RenderData createRenderData(
+        Vertices3D vertices,
         LineData lineData
     ) {
-        renderingContext.render3D( renderer ->
-            renderer.renderVerticesAsLines(
-                buffer,
-                0,
-                FirstOracleConstants.POSITION_ZERO_3F,
-                FirstOracleConstants.SCALE_ONE_3F,
-                FirstOracleConstants.ROTATION_ZERO_3F,
-                lineData
-            )
-        );
+        return RenderData.renderLineData(
+            vertices,
+            0,
+            FirstOracleConstants.POSITION_ZERO_3F,
+            FirstOracleConstants.SCALE_ONE_3F,
+            FirstOracleConstants.ROTATION_ZERO_3F,
+            lineData
+        ).build();
+    }
+    
+    private void renderGridArray(
+        RenderingContext renderingContext,
+        RenderData renderData
+    ) {
+        renderingContext.render2D( renderer -> renderer.render( renderData ) );
     }
 }

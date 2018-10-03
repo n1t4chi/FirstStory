@@ -8,5 +8,5 @@ package com.firststory.firstoracle.rendering;
  * @author n1t4chi
  */
 public enum RenderType {
-    TRIANGLES, LINE_LOOP, LINES
+    TRIANGLES, LINE_LOOP, LINES, BORDER
 }

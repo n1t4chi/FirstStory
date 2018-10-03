@@ -90,22 +90,19 @@ public class GlfwApplication2D {
                 array[ x ][ y ] = terrain;
             }
         }
-        List< PositionableObject2D< ?, ? > > renderables = Arrays.asList( compound, object );
+        List< PositionableObject2D< ?, ? > > renderables = Arrays.asList( compound/*, object*/ );
     
         var camera2D = new MovableCamera2D( settings, 10, 0, 0, 0 );
         
         renderedScene.setBackground( new RenderableBackgroundImpl( IdentityCamera2D.getCamera(), Collections.emptyList(), FirstOracleConstants.WHITE ) );
-        renderedScene.setScene2D( new RenderableScene2DImpl( camera2D, renderables, array, FirstOracleConstants.INDEX_ZERO_2I ) );
+        renderedScene.setScene2D( new RenderableScene2DImpl( camera2D, renderables, new Terrain2D[0][], FirstOracleConstants.INDEX_ZERO_2I ) );
         
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
         cameraController.updateMovableCamera2D( camera2D );
-        cameraController.addCameraListener( ( event, source ) -> {
-            cameraController.updateMovableCamera2D( camera2D );
-        } );
+        cameraController.addCameraListener( ( event, source ) -> cameraController.updateMovableCamera2D( camera2D ) );
         
         sceneProvider = () -> renderedScene;
         window = WindowBuilder.simpleWindow( settings, sceneProvider ).build();
-        window.init();
         
         window.addTimeListener( cameraController );
         

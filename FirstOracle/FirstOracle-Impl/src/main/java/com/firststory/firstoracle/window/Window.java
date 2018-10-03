@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 /**
  * @author n1t4chi
  */
-public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotifier, FpsNotifier {
+public class Window implements TimeNotifier, WindowListener, QuitNotifier, FpsNotifier {
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private static final Logger logger = FirstOracleConstants.getLogger( Window.class );
@@ -86,7 +86,7 @@ public class Window implements Runnable, TimeNotifier, WindowListener, QuitNotif
         }
     }
     
-    @Override
+//    @Override
     @SuppressWarnings( "unchecked" )
     public void run() {
         Thread.currentThread().setName( "Window" + instanceCounter.getAndIncrement() );

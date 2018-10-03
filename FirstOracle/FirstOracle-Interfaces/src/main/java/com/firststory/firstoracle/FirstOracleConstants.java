@@ -90,6 +90,7 @@ public interface FirstOracleConstants {
     Colour YELLOW = col( 1, 1, 0, 1 );
     
     LineData YELLOW_LINE_LOOP = LineData.lineLoop( 2, FirstOracleConstants.YELLOW );
+    LineData RED_LINE_LOOP = LineData.lineLoop( 2, FirstOracleConstants.RED );
     LineData NONE = null;
     
     Colouring EMPTY_COLOURING = new Colouring( Collections.singletonList( col( 0, 0, 0, 0 ) ) );

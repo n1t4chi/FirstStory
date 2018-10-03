@@ -150,8 +150,6 @@ public class TestGlfwApplication {
         window.setScene2DCamera( DEFAULT_SCENE, camera2D );
         window.setScene3DCamera( DEFAULT_SCENE, camera3D );
         
-        window.init();
-        
         window.addTimeListener( cameraController );
         
         window.addQuitListener( cameraController );

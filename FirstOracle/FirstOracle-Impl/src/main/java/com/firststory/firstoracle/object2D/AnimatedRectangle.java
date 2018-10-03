@@ -12,7 +12,9 @@ import com.firststory.firstoracle.object.UvMap;
 /**
  * @author n1t4chi
  */
-public class AnimatedRectangle implements Rectangle< Mutable2DTransformations >,
+public class AnimatedRectangle
+    extends AbstractPositionableObject2D< Mutable2DTransformations, Plane2DVertices >
+    implements Rectangle< Mutable2DTransformations >,
     AnimatedObject2D< Mutable2DTransformations, Plane2DVertices >,
     MutableTextureObject2D< Mutable2DTransformations, Plane2DVertices >,
     PositionableObject2D< Mutable2DTransformations, Plane2DVertices >

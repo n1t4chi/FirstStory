@@ -11,7 +11,9 @@ import com.firststory.firstoracle.object.UvMap;
 /**
  * @author n1t4chi
  */
-public class NonAnimatedCube implements Cube< Mutable3DTransformations >,
+public class NonAnimatedCube
+    extends AbstractPositionableObject3D< Mutable3DTransformations, CubeVertices >
+    implements Cube< Mutable3DTransformations >,
     NonAnimatedObject3D< Mutable3DTransformations, CubeVertices >,
     MutableTextureObject3D< Mutable3DTransformations, CubeVertices >,
     PositionableObject3D< Mutable3DTransformations, CubeVertices >

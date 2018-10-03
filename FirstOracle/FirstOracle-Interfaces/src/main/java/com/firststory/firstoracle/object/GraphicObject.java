@@ -14,8 +14,7 @@ public interface GraphicObject<
         TransformationsType extends ObjectTransformations< ?, ? >,
         BoundingBoxType extends BoundingBox< ?, ?, ? >,
         VerticesType extends Vertices< ?, ? >
-    >
-{
+> {
     
     Texture getTexture();
     

@@ -11,12 +11,12 @@ import java.util.List;
 /**
  * @author n1t4chi
  */
-public abstract class Vertices< VertexData extends Position, BoundingBox > extends VertexAttribute< VertexData > {
+public abstract class Vertices< VertexData extends Position, BoundingBoxType extends BoundingBox< ?, ?, ? > > extends VertexAttribute< VertexData > {
     
-    private final BoundingBox boundingBox;
+    private final BoundingBoxType boundingBox;
     private List< VertexData >[] verticesByFrame;
     
-    public Vertices( List< VertexData>[] verticesByFrame, BoundingBox boundingBox ) {
+    public Vertices( List< VertexData>[] verticesByFrame, BoundingBoxType boundingBox ) {
         setVertices( verticesByFrame );
         this.boundingBox = boundingBox;
     }
@@ -26,7 +26,7 @@ public abstract class Vertices< VertexData extends Position, BoundingBox > exten
         this.verticesByFrame = verticesByFrame;
     }
     
-    public BoundingBox getBoundingBox() {
+    public BoundingBoxType getBoundingBox() {
         return boundingBox;
     }
     

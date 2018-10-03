@@ -11,7 +11,9 @@ import com.firststory.firstoracle.object.UvMap;
 /**
  * @author n1t4chi
  */
-public class NonAnimatedPlane3D implements Plane3D< Mutable3DTransformations >,
+public class NonAnimatedPlane3D
+    extends AbstractPositionableObject3D< Mutable3DTransformations, Plane3DVertices >
+    implements Plane3D< Mutable3DTransformations >,
     NonAnimatedObject3D< Mutable3DTransformations, Plane3DVertices >,
     MutableTextureObject3D< Mutable3DTransformations, Plane3DVertices >,
     PositionableObject3D< Mutable3DTransformations, Plane3DVertices >

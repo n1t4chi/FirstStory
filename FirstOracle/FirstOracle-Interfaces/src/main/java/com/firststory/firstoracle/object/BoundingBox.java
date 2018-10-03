@@ -8,7 +8,11 @@ import com.firststory.firstoracle.data.Position;
 /**
  * @author n1t4chi
  */
-public interface BoundingBox< Box extends BoundingBox< ?, ?, ? >, Transformations extends ObjectTransformations< ?, ? >, PositionType extends Position > {
+public interface BoundingBox<
+    Box extends BoundingBox< ?, ?, ? >,
+    Transformations extends ObjectTransformations< ?, ? >,
+    PositionType extends Position
+> {
     
     Box getTransformedBoundingBox( Transformations transformations, PositionType position );
 }

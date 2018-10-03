@@ -33,6 +33,9 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     private Vertices2D interAxes;
     private Vertices2D smallAxes;
     private boolean render;
+    private RenderData mainRenderData;
+    private RenderData interRenderData;
+    private RenderData smallRenderData;
     
     public BoundedPositiveGrid2DRenderer( int gridWidth, int gridHeight, int intermediateAxesStep ) {
         this.gridWidth = gridWidth;
@@ -102,9 +105,9 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     public void render( RenderingContext renderingContext, double currentRenderTime ) {
         init();
         if ( render ) {
-            renderGridArray( renderingContext, mainAxes, LINES_MAIN );
-            renderGridArray( renderingContext, interAxes, LINES_INTER );
-            renderGridArray( renderingContext, smallAxes, LINES_SMALL );
+            renderGridArray( renderingContext, mainRenderData );
+            renderGridArray( renderingContext, interRenderData );
+            renderGridArray( renderingContext, smallRenderData );
         }
     }
     
@@ -150,6 +153,10 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
         this.mainAxes = new Vertices2D( singletonArray( mainAxes ) );
         this.interAxes = new Vertices2D( singletonArray( interAxes ) );
         this.smallAxes = new Vertices2D( singletonArray( smallAxes ) );
+        mainRenderData = createRenderData( this.mainAxes, LINES_MAIN );
+        interRenderData = createRenderData( this.interAxes, LINES_INTER );
+        smallRenderData = createRenderData( this.smallAxes, LINES_SMALL );
+        
         reload = false;
     }
     
@@ -161,18 +168,25 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
         return Arrays.asList( pos2( i, 0 ), pos2( i, gridHeight ) );
     }
     
-    private void renderGridArray(
-        RenderingContext renderingContext,
-        Vertices2D buffer,
+    
+    private RenderData createRenderData(
+        Vertices2D vertices,
         LineData lineData
     ) {
-        renderingContext.render2D( renderer -> renderer.renderVerticesAsLines(
-            buffer,
+        return RenderData.renderLineData(
+            vertices,
             0,
             FirstOracleConstants.POSITION_ZERO_2F,
             FirstOracleConstants.SCALE_ONE_2F,
             FirstOracleConstants.ROTATION_ZERO_2F,
             lineData
-        ) );
+        ).build();
+    }
+    
+    private void renderGridArray(
+        RenderingContext renderingContext,
+        RenderData renderData
+    ) {
+        renderingContext.render2D( renderer -> renderer.render( renderData ) );
     }
 }

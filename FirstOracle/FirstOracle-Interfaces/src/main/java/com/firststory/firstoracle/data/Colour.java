@@ -20,10 +20,10 @@ public class Colour implements FloatData {
     private final float[] data = new float[ 4 ];
     
     private Colour( float r, float g, float b, float a ) {
-        this.data[ R ] = r;
+        this.data[ A ] = a;
         this.data[ G ] = g;
         this.data[ B ] = b;
-        this.data[ A ] = a;
+        this.data[ R ] = r;
     }
     
     public float red() {
