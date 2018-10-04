@@ -27,7 +27,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     private final OpenGlArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
     private final OpenGlVertexAttributeLoader attributeLoader = new OpenGlVertexAttributeLoader( bufferLoader );
     private final OpenGlTextureLoader textureLoader = new OpenGlTextureLoader();
-    private final OpenGlShaderProgram3D shader = new OpenGlShaderProgram3D();
+    private final OpenGlShaderProgram shader = new OpenGlShaderProgram();
     private final OpenGlRenderingContext renderingContext;
     private final GLCapabilities capabilities;
 

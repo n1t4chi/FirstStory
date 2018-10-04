@@ -9,8 +9,7 @@ import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.object.*;
 
 public class RenderData {
-    
-    public static final LineData DEFAULT_BORDER_COLOUR = FirstOracleConstants.RED_LINE_LOOP;
+    private static final LineData DEFAULT_BORDER_COLOUR = FirstOracleConstants.RED_LINE_LOOP;
     
     /**
      * Returns builder which returns can return unique Render Data.

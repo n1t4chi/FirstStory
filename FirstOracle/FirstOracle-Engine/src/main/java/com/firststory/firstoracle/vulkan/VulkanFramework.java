@@ -103,7 +103,6 @@ public class VulkanFramework implements RenderingFramework {
     
     @Override
     public void invoke( FrameworkCommands commands ) throws Exception {
-        mainPhysicalDevice.updateBackground( renderingContext.getBackgroundColour() );
         commands.execute( this );
     }
     

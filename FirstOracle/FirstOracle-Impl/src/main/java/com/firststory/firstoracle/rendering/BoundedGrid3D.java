@@ -19,7 +19,7 @@ import static com.firststory.firstoracle.data.Position3D.pos3;
 /**
  * @author n1t4chi
  */
-public class BoundedGrid3DRenderer implements Grid3DRenderer {
+public class BoundedGrid3D implements Grid3D {
     
     private static final LineData LINES_MAIN = lines( 1f, 1, 0f, 0f, 1f );
     private static final LineData LINES_INTER = lines( 0.5f, 0f, 0f, 1f, 0.75f );
@@ -29,12 +29,9 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
     private final Vertices3D interAxes;
     private final Vertices3D smallPositiveAxes;
     private final Vertices3D smallNegativeAxes;
-    private final RenderData mainRenderData;
-    private final RenderData interRenderData;
-    private final RenderData smallPositiveRenderData;
-    private final RenderData smallNegativeRenderData;
+    private final List< RenderData > renderDatas;
     
-    public BoundedGrid3DRenderer( int gridSize, int interAxesStep, int smallAxesStep ) {
+    public BoundedGrid3D( int gridSize, int interAxesStep, int smallAxesStep ) {
         var mainAxes = Arrays.asList(
             //X
             pos3( -gridSize, 0, 0 ),
@@ -78,14 +75,17 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         this.smallPositiveAxes = new Vertices3D( singletonArray(  smallPositiveAxes ) );
         this.smallNegativeAxes = new Vertices3D( singletonArray(  smallNegativeAxes ) );
     
-        mainRenderData = createRenderData( this.mainAxes, LINES_MAIN );
-        interRenderData = createRenderData( this.interAxes, LINES_INTER );
-        smallPositiveRenderData = createRenderData( this.smallPositiveAxes, LINES_POSITIVE );
-        smallNegativeRenderData = createRenderData( this.smallNegativeAxes, LINES_NEGATIVE );
+        renderDatas = Arrays.asList(
+            createRenderData( this.mainAxes, LINES_MAIN ),
+            createRenderData( this.interAxes, LINES_INTER ),
+            createRenderData( this.smallPositiveAxes, LINES_POSITIVE ),
+            createRenderData( this.smallNegativeAxes, LINES_NEGATIVE )
+        );
     }
     
     @Override
-    public void init() {
+    public List< RenderData > toRenderDataList() {
+        return renderDatas;
     }
     
     @Override
@@ -94,14 +94,6 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
         interAxes.dispose();
         smallPositiveAxes.dispose();
         smallNegativeAxes.dispose();
-    }
-    
-    @Override
-    public void render( RenderingContext renderingContext, double currentRenderTime ) {
-        renderGridArray( renderingContext, mainRenderData );
-        renderGridArray( renderingContext, interRenderData );
-        renderGridArray( renderingContext, smallPositiveRenderData );
-        renderGridArray( renderingContext, smallNegativeRenderData );
     }
     
     private List< Position3D > createAxes( int gridSize, int i ) {
@@ -153,12 +145,5 @@ public class BoundedGrid3DRenderer implements Grid3DRenderer {
             FirstOracleConstants.ROTATION_ZERO_3F,
             lineData
         ).build();
-    }
-    
-    private void renderGridArray(
-        RenderingContext renderingContext,
-        RenderData renderData
-    ) {
-        renderingContext.render2D( renderer -> renderer.render( renderData ) );
     }
 }

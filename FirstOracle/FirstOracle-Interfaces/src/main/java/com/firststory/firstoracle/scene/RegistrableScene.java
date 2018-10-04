@@ -13,8 +13,6 @@ import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
-import com.firststory.firstoracle.rendering.CameraDataProvider;
-import com.firststory.firstoracle.rendering.RenderingContext;
 
 import java.util.Collection;
 
@@ -37,26 +35,6 @@ public interface RegistrableScene extends RenderableScene, RegistrableScene2D, R
         getScene3D().dispose();
         getBackground().dispose();
         getOverlay().dispose();
-    }
-    
-    @Override
-    default void renderScene2D( RenderingContext renderingContext, double currentRenderTime, CameraDataProvider cameraDataProvider ) {
-        RenderableScene.super.renderScene2D( renderingContext, currentRenderTime, cameraDataProvider );
-    }
-    
-    @Override
-    default void renderScene3D( RenderingContext renderingContext, double currentRenderTime, CameraDataProvider cameraDataProvider ) {
-        RenderableScene.super.renderScene3D( renderingContext, currentRenderTime, cameraDataProvider );
-    }
-    
-    @Override
-    default void renderBackground( RenderingContext renderingContext, double currentRenderTime, CameraDataProvider cameraDataProvider ) {
-        RenderableScene.super.renderBackground( renderingContext, currentRenderTime, cameraDataProvider );
-    }
-    
-    @Override
-    default void renderOverlay( RenderingContext renderingContext, double currentRenderTime, CameraDataProvider cameraDataProvider ) {
-        RenderableScene.super.renderOverlay( renderingContext, currentRenderTime, cameraDataProvider );
     }
     
     @Override

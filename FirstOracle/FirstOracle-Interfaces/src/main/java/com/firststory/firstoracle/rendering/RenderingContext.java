@@ -8,22 +8,19 @@ import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.data.Colour;
 
+import java.util.List;
+
 /**
  * @author n1t4chi
  */
 public interface RenderingContext {
     
-    void setBackgroundColour( Colour backgroundColour );
+    void renderOverlay( Camera2D camera, List< RenderData > renderDatas );
     
-    void render2D( Render< Object2DRenderingContext > context );
+    void renderBackground( Camera2D camera, Colour backgroundColour, List< RenderData > renderDatas );
     
-    void render3D( Render< Object3DRenderingContext > context );
+    void renderScene3D( Camera3D camera, List< RenderData > renderDatas );
     
-    void useRendering2D( Camera2D camera, boolean useDepth );
+    void renderScene2D( Camera2D camera, List< RenderData > renderDatas );
     
-    void useRendering3D( Camera3D camera, boolean useDepth );
-    
-    interface Render< T extends ObjectRenderingContext< ?, ?, ?, ?, ?, ? > > {
-        void render( T renderer );
-    }
 }

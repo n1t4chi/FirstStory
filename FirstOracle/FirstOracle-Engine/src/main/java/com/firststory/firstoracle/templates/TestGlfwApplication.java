@@ -38,7 +38,7 @@ import java.util.List;
 public class TestGlfwApplication {
     
     private static final Index3D TERRAIN_3D_DIM = Index3D.id3( 0,0,0 );
-    private static final Index2D TERRAIN_2D_DIM = Index2D.id2( 0,0 );
+    private static final Index2D TERRAIN_2D_DIM = Index2D.id2( 2,2 );
     private static final int DEFAULT_SCENE = 0;
     
     public static void main( String[] args ) throws Exception {
@@ -67,6 +67,16 @@ public class TestGlfwApplication {
             4,
             6
         );
+        var bgTex = new Texture( "resources/First Oracle/background.png" );
+        var ovTex = new Texture( "resources/First Oracle/overlay.png" );
+    
+        var bg = new NonAnimatedRectangle();
+        bg.setTexture( bgTex );
+    
+        var ov = new NonAnimatedRectangle();
+        ov.setTexture( ovTex );
+        ov.getTransformations().setPosition( 0, -0.5f );
+        ov.getTransformations().setScale( 1f, 0.5f );
     
         var rectangle = new NonAnimatedRectangle();
         rectangle.setTexture( texture2D );
@@ -127,6 +137,7 @@ public class TestGlfwApplication {
         var camera2D = new MovableCamera2D( settings, 10, 0, 0, 0 );
         
         cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
+        cameraController.setCameraSize( 10 );
         cameraController.updateMovableCamera2D( camera2D );
         cameraController.updateIsometricCamera3D( camera3D );
         cameraController.addCameraListener( ( event, source ) -> {
@@ -138,15 +149,15 @@ public class TestGlfwApplication {
     
         window.createNewScene( DEFAULT_SCENE, TERRAIN_2D_DIM, FirstOracleConstants.INDEX_ZERO_2I, TERRAIN_3D_DIM, FirstOracleConstants.INDEX_ZERO_3I );
         
-        window.registerMultipleObjects2D( DEFAULT_SCENE, renderables2D );
-        window.registerMultipleObjects3D( DEFAULT_SCENE, renderables3D );
-        
-        window.registerMultipleObjects2D( DEFAULT_SCENE, renderables2D );
+        window.deregisterMultipleObjects2D( DEFAULT_SCENE, renderables2D );
         window.registerMultipleObjects3D( DEFAULT_SCENE, renderables3D );
     
         window.registerMultipleTerrains3D( DEFAULT_SCENE, terrains3D );
         window.registerMultipleTerrains2D( DEFAULT_SCENE, terrains2D );
-        
+    
+        window.setBackgroundColour( DEFAULT_SCENE, FirstOracleConstants.WHITE );
+        window.registerBackground( DEFAULT_SCENE, bg );
+        window.registerOverlay( DEFAULT_SCENE, ov );
         window.setScene2DCamera( DEFAULT_SCENE, camera2D );
         window.setScene3DCamera( DEFAULT_SCENE, camera3D );
         

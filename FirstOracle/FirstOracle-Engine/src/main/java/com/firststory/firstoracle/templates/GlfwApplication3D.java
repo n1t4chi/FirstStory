@@ -40,9 +40,9 @@ public class GlfwApplication3D {
     private SceneProvider sceneProvider;
     private CameraController cameraController;
     private RenderableSceneMutable renderedScene;
-    private Grid3DRenderer grid3DRenderer;
+    private Grid3D grid3DRenderer;
     private WindowSettings settings;
-    private Grid2DRenderer grid2DRenderer;
+    private Grid2D grid2DRenderer;
     
     public void run() throws Exception {
         //Settings for window, you can switch height/width, fullscreen, borderless and other magics.
@@ -59,8 +59,8 @@ public class GlfwApplication3D {
             .build();
         
         //GridRenderer will be changed so it works as either 2D or 3D. For now leave it as it is so you can see whether the rendering still works.
-        grid3DRenderer = new BoundedGrid3DRenderer( 100, 25, 5 );
-        grid2DRenderer = new DummyGrid2DRenderer();
+        grid3DRenderer = new BoundedGrid3D( 100, 25, 5 );
+        grid2DRenderer = new DummyGrid2D();
         //Rendered scene is what is displayed via OpenGL rendering, it should be most likely moved to SceneProvider
         //Which will provide next scenes to renderObject when something changes.
         renderedScene = new RenderableSceneMutable( settings );

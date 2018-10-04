@@ -5,6 +5,8 @@
 package com.firststory.firstoracle.vulkan;
 
 import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkClearDepthStencilValue;
+import org.lwjgl.vulkan.VkImageSubresourceRange;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,9 +45,32 @@ public class VulkanDepthResources {
         return depthFormat;
     }
     
+    public void clearDepthImage( VulkanCommandBuffer buffer, VkClearDepthStencilValue stencilValue ) {
+        depthImage.transitionImageLayout(
+            depthFormat.getFormat(),
+            VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+        );
+        VK10.vkCmdClearDepthStencilImage(
+            buffer.getCommandBuffer(),
+            depthImage.getAddress().getValue(),
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            stencilValue,
+            VkImageSubresourceRange.create()
+                .aspectMask( VK10.VK_IMAGE_ASPECT_DEPTH_BIT )
+                .baseArrayLayer( 0 )
+                .layerCount( 1 )
+                .levelCount( 1 )
+        );
+        depthImage.transitionImageLayout(
+            depthFormat.getFormat(),
+            VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+        );
+    }
+    
     private VulkanImageView createDepthImageView( VulkanFormatProperty depthFormat, VulkanImage depthImage ) {
-        return depthImage.createImageView(
-            depthFormat.getFormat(), VK10.VK_IMAGE_ASPECT_DEPTH_BIT, 1 );
+        return depthImage.createImageView( depthFormat.getFormat(), VK10.VK_IMAGE_ASPECT_DEPTH_BIT, 1 );
     }
     
     private VulkanInMemoryImage createDepthImage( VulkanSwapChain swapChain, VulkanFormatProperty depthFormat ) {
@@ -55,7 +80,7 @@ public class VulkanDepthResources {
             swapChain.getExtent().height(),
             depthFormat.getFormat(),
             VK10.VK_IMAGE_TILING_OPTIMAL,
-            new int[] { VK10.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT },
+            new int[] { VK10.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK10.VK_IMAGE_USAGE_TRANSFER_DST_BIT },
             new int[] { VK10.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
         );
     }

@@ -65,7 +65,6 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
             getDevice(),
             address,
             frameBuffers.get( index ),
-            backgroundColour,
             swapChain,
             this,
             index,

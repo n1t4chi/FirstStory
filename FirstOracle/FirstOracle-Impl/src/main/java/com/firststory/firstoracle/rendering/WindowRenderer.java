@@ -6,15 +6,16 @@ package com.firststory.firstoracle.rendering;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.ReflectionUtils;
-import com.firststory.firstoracle.camera2D.IdentityCamera2D;
 import com.firststory.firstoracle.scene.RenderableScene;
 import com.firststory.firstoracle.scene.SceneProvider;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.firststory.firstoracle.rendering.DummyGrid2DRenderer.DUMMY_GRID_2D_RENDERER;
-import static com.firststory.firstoracle.rendering.DummyGrid3DRenderer.DUMMY_GRID_3D_RENDERER;
+import static com.firststory.firstoracle.rendering.DummyGrid2D.DUMMY_GRID_2D;
+import static com.firststory.firstoracle.rendering.DummyGrid3D.DUMMY_GRID_3D;
 
 /**
  * @author n1t4chi
@@ -26,21 +27,20 @@ public class WindowRenderer implements Renderer {
     public static WindowRenderer provide( SceneProvider sceneProvider ) {
         var grid2DRenderer = createGridRenderer(
             PropertiesUtil.getProperty( PropertiesUtil.WINDOW_RENDERER_GRID_2D_RENDERER_CLASS_NAME_PROPERTY ),
-            Grid2DRenderer.class,
-            DUMMY_GRID_2D_RENDERER
+            Grid2D.class, DUMMY_GRID_2D
         );
         var grid3DRenderer = createGridRenderer(
             PropertiesUtil.getProperty( PropertiesUtil.WINDOW_RENDERER_GRID_3D_RENDERER_CLASS_NAME_PROPERTY ),
-            Grid3DRenderer.class,
-            DUMMY_GRID_3D_RENDERER
+            Grid3D.class, DUMMY_GRID_3D
         );
         return new WindowRenderer(
             grid2DRenderer,
-            grid3DRenderer, sceneProvider
+            grid3DRenderer,
+            sceneProvider
         );
     }
     
-    private static < T extends Renderer > T createGridRenderer(
+    private static < T extends Grid > T createGridRenderer(
         String rendererClassName,
         Class< T > gridTypeClass,
         T defaultInstance
@@ -55,78 +55,68 @@ public class WindowRenderer implements Renderer {
         return defaultInstance;
     }
     
-    private final Grid2DRenderer grid2DRenderer;
-    private final Grid3DRenderer grid3DRenderer;
+    private final Grid2D grid2D;
+    private final Grid3D grid3D;
     private final SceneProvider sceneProvider;
     private final MutableCameraDataProvider cameraDataProvider = new MutableCameraDataProvider();
-    private RenderingContext renderingContext;
-    private double currentRenderTime;
     
     public WindowRenderer(
-        Grid2DRenderer grid2DRenderer,
-        Grid3DRenderer grid3DRenderer,
+        Grid2D grid2D,
+        Grid3D grid3D,
         SceneProvider sceneProvider
     ) {
-        this.grid2DRenderer = grid2DRenderer;
-        this.grid3DRenderer = grid3DRenderer;
+        this.grid2D = grid2D;
+        this.grid3D = grid3D;
         this.sceneProvider = sceneProvider;
     }
     
     @Override
     public void init() {
-        grid3DRenderer.init();
-        grid2DRenderer.init();
     }
     
     @Override
     public void dispose() {
-        grid3DRenderer.dispose();
-        grid2DRenderer.dispose();
+        grid3D.dispose();
+        grid2D.dispose();
     }
     
     @Override
     public void render( RenderingContext renderingContext, double currentRenderTime ) {
-        this.renderingContext = renderingContext;
-        this.currentRenderTime = currentRenderTime;
     
         var scene = sceneProvider.getNextScene();
         cameraDataProvider.setRotations( scene );
-        
-        setBackgroundColour( scene );
-        renderBackgroundAnd2dScene( scene );
-        render3dScene( scene );
-        renderOverlay( scene );
+        var cameraRotation2D = cameraDataProvider.getCameraRotation2D();
+        var cameraRotation3D = cameraDataProvider.getCameraRotation3D();
+    
+        renderingContext.renderBackground(
+            scene.getBackground().getBackgroundCamera(),
+            scene.getBackground().getBackgroundColour(),
+            scene.getBackground().getBackgroundRenderData( currentRenderTime, cameraRotation2D )
+        );
+        renderingContext.renderScene2D(
+            scene.getScene2D().getScene2DCamera(),
+            mergeLists(
+                scene.getScene2D().getObjects2DRenderData( currentRenderTime, cameraRotation2D ),
+                grid2D.toRenderDataList()
+            )
+        );
+        renderingContext.renderScene3D(
+            scene.getScene3D().getScene3DCamera(),
+            mergeLists(
+                scene.getScene3D().getObjects3DRenderData( currentRenderTime, cameraRotation3D ),
+                grid3D.toRenderDataList()
+            )
+        );
+        renderingContext.renderOverlay(
+            scene.getOverlay().getOverlayCamera(),
+            scene.getOverlay().getOverlayRenderData( currentRenderTime, cameraRotation2D )
+        );
     }
     
-    private void setBackgroundColour( RenderableScene scene ) {
-        renderingContext.setBackgroundColour( scene.getBackground().getBackgroundColour() );
-    }
-    
-    private void renderBackgroundAnd2dScene( RenderableScene scene ) {
-        renderingContext.useRendering2D( scene.getBackground().getBackgroundCamera(), false );
-        scene.renderBackground( renderingContext, currentRenderTime, cameraDataProvider );
-        renderingContext.useRendering2D( scene.getScene2D().getScene2DCamera(), false );
-        renderGrid2D();
-        scene.renderScene2D( renderingContext, currentRenderTime, cameraDataProvider );
-    }
-    
-    private void renderGrid2D() {
-        grid2DRenderer.render( renderingContext, currentRenderTime );
-    }
-    
-    private void render3dScene( RenderableScene scene ) {
-        renderingContext.useRendering3D( scene.getScene3D().getScene3DCamera(), true );
-        renderGrid3D();
-        scene.renderScene3D( renderingContext, currentRenderTime, cameraDataProvider );
-    }
-    
-    private void renderGrid3D(  ) {
-        grid3DRenderer.render( renderingContext, currentRenderTime );
-    }
-    
-    private void renderOverlay( RenderableScene scene ) {
-        renderingContext.useRendering2D( IdentityCamera2D.getCamera(), false );
-        scene.renderOverlay( renderingContext, currentRenderTime, cameraDataProvider );
+    private List< RenderData > mergeLists( List< RenderData > list1, List< RenderData > list2 ) {
+        var list = new ArrayList<>( list1 );
+        list.addAll( list2 );
+        return list;
     }
     
     private static class MutableCameraDataProvider implements CameraDataProvider {

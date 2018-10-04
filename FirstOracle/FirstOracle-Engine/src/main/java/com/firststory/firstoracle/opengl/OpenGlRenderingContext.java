@@ -9,12 +9,12 @@ import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.data.LineType;
-import com.firststory.firstoracle.rendering.Object2DRenderingContext;
-import com.firststory.firstoracle.rendering.Object3DRenderingContext;
 import com.firststory.firstoracle.rendering.RenderData;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+
+import java.util.List;
 
 /**
  * @author n1t4chi
@@ -23,17 +23,15 @@ public class OpenGlRenderingContext implements RenderingContext {
 
     private final OpenGlVertexAttributeLoader attributeLoader;
     private final OpenGlTextureLoader textureLoader;
-    private final OpenGlShaderProgram3D shaderProgram;
+    private final OpenGlShaderProgram shaderProgram;
     
     private final boolean useTexture;
     private final boolean drawBorder;
-    private final OpenGLObject2DRenderingContext context2D;
-    private final OpenGLObject3DRenderingContext context3D;
     
     OpenGlRenderingContext(
         OpenGlVertexAttributeLoader attributeLoader,
         OpenGlTextureLoader textureLoader,
-        OpenGlShaderProgram3D shaderProgram3D,
+        OpenGlShaderProgram shaderProgram3D,
         boolean useTexture,
         boolean drawBorder
     ) {
@@ -42,12 +40,40 @@ public class OpenGlRenderingContext implements RenderingContext {
         this.shaderProgram = shaderProgram3D;
         this.useTexture = useTexture;
         this.drawBorder = drawBorder;
-        
-        context2D = new OpenGLObject2DRenderingContext( this );
-        context3D = new OpenGLObject3DRenderingContext( this );
     }
     
-    void render( RenderData renderData ) {
+    @Override
+    public void renderOverlay( Camera2D camera, List< RenderData > renderDatas ) {
+        shaderProgram.bindCamera( camera.getMatrixRepresentation() );
+        disableDepth();
+        renderDatas.forEach( this::render );
+    }
+    
+    @Override
+    public void renderBackground( Camera2D camera, Colour backgroundColour, List< RenderData > renderDatas ) {
+        shaderProgram.bindCamera( camera.getMatrixRepresentation() );
+        GL11.glClearColor( backgroundColour.red(), backgroundColour.green(), backgroundColour.blue(), backgroundColour.alpha() );
+        disableDepth();
+        renderDatas.forEach( this::render );
+    }
+    
+    @Override
+    public void renderScene3D( Camera3D camera, List< RenderData > renderDatas ) {
+        shaderProgram.bindCamera( camera.getMatrixRepresentation() );
+        disableDepth();
+        enableDepth();
+        renderDatas.forEach( this::render );
+    }
+    
+    @Override
+    public void renderScene2D( Camera2D camera, List< RenderData > renderDatas ) {
+        shaderProgram.bindCamera( camera.getMatrixRepresentation() );
+        disableDepth();
+        enableDepth();
+        renderDatas.forEach( this::render );
+    }
+    
+    private void render( RenderData renderData ) {
     
         shaderProgram.bindPosition( renderData.getPosition() );
         shaderProgram.bindRotation( renderData.getRotation() );
@@ -117,11 +143,6 @@ public class OpenGlRenderingContext implements RenderingContext {
         GL20.glDisableVertexAttribArray( 1 );
     }
     
-    @Override
-    public void setBackgroundColour( Colour backgroundColour ) {
-        GL11.glClearColor( backgroundColour.red(), backgroundColour.green(), backgroundColour.blue(), backgroundColour.alpha() );
-    }
-    
     private void disableDepth() {
         GL11.glDepthMask( false );
         GL11.glDisable( GL11.GL_DEPTH_TEST );
@@ -133,34 +154,6 @@ public class OpenGlRenderingContext implements RenderingContext {
         GL11.glEnable( GL11.GL_DEPTH_TEST );
         GL11.glDepthFunc( GL11.GL_LEQUAL );
         GL11.glClear( GL11.GL_DEPTH_BUFFER_BIT );
-    }
-    
-    @Override
-    public void render2D( Render< Object2DRenderingContext > context ) {
-        context.render( context2D );
-    }
-    
-    @Override
-    public void render3D( Render< Object3DRenderingContext > context ) {
-        context.render( context3D );
-    }
-    
-    @Override
-    public void useRendering2D( Camera2D camera, boolean useDepth ) {
-        shaderProgram.bindCamera( camera.getMatrixRepresentation() );
-        disableDepth();
-        if( useDepth ) {
-            enableDepth();
-        }
-    }
-    
-    @Override
-    public void useRendering3D( Camera3D camera, boolean useDepth ) {
-        shaderProgram.bindCamera( camera.getMatrixRepresentation() );
-        disableDepth();
-        if( useDepth ) {
-            enableDepth();
-        }
     }
     
     boolean shouldUseTextures() {

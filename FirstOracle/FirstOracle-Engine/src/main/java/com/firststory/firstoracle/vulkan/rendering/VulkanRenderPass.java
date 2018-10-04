@@ -30,22 +30,23 @@ public class VulkanRenderPass {
         return renderPass;
     }
     
-    void updateRenderPass( VulkanSwapChain swapChain, VulkanDepthResources depthResources ) {
+    void updateRenderPass( VulkanSwapChain swapChain, VulkanDepthResources depthResources, boolean isBackground ) {
         VulkanHelper.updateAddress( renderPass,
             (address) -> VK10.vkCreateRenderPass(
-                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain, depthResources ), null, address ),
+                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain, depthResources, isBackground ), null, address ),
             resultCode -> new CannotCreateVulkanRenderPassException( device, resultCode )
         );
     }
     
     private VkRenderPassCreateInfo createRenderPassCreateInfo(
         VulkanSwapChain swapChain,
-        VulkanDepthResources depthResources
+        VulkanDepthResources depthResources,
+        boolean isBackground
     ) {
         return VkRenderPassCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
             .pAttachments( VkAttachmentDescription.calloc( 2 )
-                .put( 0, createColourAttachmentDescription( swapChain ) )
+                .put( 0, createColourAttachmentDescription( swapChain, isBackground ) )
                 .put( 1, createDepthAttachmentDescription( depthResources ) )
             )
             .pSubpasses( VkSubpassDescription.create( 1 )
@@ -58,35 +59,43 @@ public class VulkanRenderPass {
     }
     
     private VkAttachmentDescription createDepthAttachmentDescription( VulkanDepthResources depthResources ) {
-        return createAttachmentDescription( depthResources.getDepthFormat().getFormat(),
+        return createAttachmentDescription(
+            depthResources.getDepthFormat().getFormat(),
+            VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
             VK10.VK_ATTACHMENT_STORE_OP_DONT_CARE,
-            VK10.VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+            VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
+            VK10.VK_IMAGE_LAYOUT_UNDEFINED,
             VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
         );
     }
     
-    private VkAttachmentDescription createColourAttachmentDescription( VulkanSwapChain swapChain ) {
-        return createAttachmentDescription( swapChain.getImageFormat(),
+    private VkAttachmentDescription createColourAttachmentDescription( VulkanSwapChain swapChain, boolean isBackground ) {
+        return createAttachmentDescription(
+            swapChain.getImageFormat(),
+            isBackground ? VK10.VK_ATTACHMENT_LOAD_OP_CLEAR : VK10.VK_ATTACHMENT_LOAD_OP_LOAD,
             VK10.VK_ATTACHMENT_STORE_OP_STORE,
-            VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
+            isBackground ? VK10.VK_ATTACHMENT_LOAD_OP_CLEAR : VK10.VK_ATTACHMENT_LOAD_OP_LOAD,
+            isBackground ? VK10.VK_IMAGE_LAYOUT_UNDEFINED : KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
             KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
         );
     }
     
     private VkAttachmentDescription createAttachmentDescription(
         int imageFormat,
+        int loadOperation,
         int storeOperation,
         int stencilLoadOperation,
+        int initialLayout,
         int finalLayout
     ) {
         return VkAttachmentDescription.create()
             .format( imageFormat )
             .samples( VK10.VK_SAMPLE_COUNT_1_BIT )
-            .loadOp( VK10.VK_ATTACHMENT_LOAD_OP_CLEAR )
+            .loadOp( loadOperation )
             .storeOp( storeOperation )
             .stencilLoadOp( stencilLoadOperation )
             .stencilStoreOp( VK10.VK_ATTACHMENT_STORE_OP_DONT_CARE )
-            .initialLayout( VK10.VK_IMAGE_LAYOUT_UNDEFINED )
+            .initialLayout( initialLayout )
             .finalLayout( finalLayout );
     }
     

@@ -10,6 +10,7 @@ import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanPipelineLa
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.*;
@@ -17,7 +18,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.*;
 /**
  * @author n1t4chi
  */
-public class VulkanGraphicPipeline {
+public class VulkanGraphicPipelines {
     
     private static final int ATTRIBUTES_POSITION = 3;
     private static final int ATTRIBUTES_UV = 2;
@@ -32,22 +33,41 @@ public class VulkanGraphicPipeline {
     private static final int[] DYNAMIC_STATE_FLAGS = new int[]{ VK10.VK_DYNAMIC_STATE_LINE_WIDTH };
     
     private final VulkanPhysicalDevice device;
-    private final VulkanRenderPass renderPass;
+    
     private final VulkanAddress pipelineLayout = VulkanAddress.createNull();
-    private final VulkanAddress graphicsPipeline = VulkanAddress.createNull();
+    
+    private final Pipeline backgroundPipeline;
+    private final Pipeline overlayPipeline;
+    private final Pipeline scene2DPipeline;
+    private final Pipeline scene3DPipeline;
+    private final List< Pipeline > pipelines;
+    
     private final int topologyType;
     
-    public VulkanGraphicPipeline(  VulkanPhysicalDevice device, int topologyType ) {
+    public VulkanGraphicPipelines(  VulkanPhysicalDevice device, int topologyType ) {
         this.device = device;
-        renderPass = new VulkanRenderPass( device );
+        backgroundPipeline = new Pipeline( true );
+        overlayPipeline = new Pipeline( false );
+        scene2DPipeline = new Pipeline( false );
+        scene3DPipeline = new Pipeline( false );
+        pipelines = Arrays.asList(
+            backgroundPipeline,
+            overlayPipeline,
+            scene2DPipeline,
+            scene3DPipeline
+        );
         this.topologyType = topologyType;
     }
     
     public void dispose() {
-        if( graphicsPipeline.isNotNull() ) {
-            VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipeline.getValue(), null );
-            graphicsPipeline.setNull();
-        }
+        pipelines.forEach( pipeline -> {
+            var graphicsPipeline = pipeline.getGraphicPipeline();
+            if( graphicsPipeline.isNotNull() ) {
+                VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipeline.getValue(), null );
+                graphicsPipeline.setNull();
+            }
+        } );
+        
         if( pipelineLayout.isNotNull() ) {
             VK10.vkDestroyPipelineLayout( device.getLogicalDevice(), pipelineLayout.getValue(), null );
             pipelineLayout.setNull();
@@ -62,31 +82,41 @@ public class VulkanGraphicPipeline {
     ) {
         dispose();
         updateVulkanPipelineLayout( descriptorSet );
-        renderPass.updateRenderPass( swapChain, depthResources );
-        createGraphicPipeline( swapChain, shaderStages );
+        pipelines.forEach( pipeline ->  pipeline.update( swapChain, shaderStages, depthResources ) );
     }
     
-    public VulkanRenderPass getRenderPass() {
-        return renderPass;
+    public Pipeline getBackgroundPipeline() {
+        return backgroundPipeline;
+    }
+    
+    public Pipeline getScene2DPipeline() {
+        return scene2DPipeline;
+    }
+    
+    public Pipeline getScene3DPipeline() {
+        return scene2DPipeline;
+    }
+    
+    public Pipeline getOverlayPipeline() {
+        return overlayPipeline;
     }
     
     VulkanAddress getPipelineLayout() {
         return pipelineLayout;
     }
     
-    VulkanAddress getGraphicPipeline() {
-        return graphicsPipeline;
-    }
-    
     private void createGraphicPipeline(
-        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
+        VulkanAddress graphicsPipeline,
+        VulkanRenderPass renderPass,
+        VulkanSwapChain swapChain,
+        List< VkPipelineShaderStageCreateInfo > shaderStages
     ) {
     
         VulkanHelper.updateAddress( graphicsPipeline,
             ( address ) -> VK10.vkCreateGraphicsPipelines( device.getLogicalDevice(),
                 VK10.VK_NULL_HANDLE,
                 VkGraphicsPipelineCreateInfo.calloc( 1 )
-                    .put( 0, createGraphicPipelineCreateInfo( swapChain, shaderStages ) ),
+                    .put( 0, createGraphicPipelineCreateInfo( swapChain, shaderStages, renderPass ) ),
                 null,
                 address
             ),
@@ -95,7 +125,9 @@ public class VulkanGraphicPipeline {
     }
     
     private VkGraphicsPipelineCreateInfo createGraphicPipelineCreateInfo(
-        VulkanSwapChain swapChain, List< VkPipelineShaderStageCreateInfo > shaderStages
+        VulkanSwapChain swapChain,
+        List< VkPipelineShaderStageCreateInfo > shaderStages,
+        VulkanRenderPass renderPass
     ) {
         return VkGraphicsPipelineCreateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO )
@@ -350,5 +382,33 @@ public class VulkanGraphicPipeline {
             (address) -> VK10.vkCreatePipelineLayout( device.getLogicalDevice(), createInfo, null, address ),
             resultCode -> new CannotCreateVulkanPipelineLayoutException( device, resultCode )
         );
+    }
+    
+    public class Pipeline {
+        private final VulkanAddress graphicsPipeline = VulkanAddress.createNull();
+        private final VulkanRenderPass renderPass;
+        private final boolean isBackground;
+    
+        private Pipeline( boolean isBackground ) {
+            this.isBackground = isBackground;
+            this.renderPass = new VulkanRenderPass( device );
+        }
+        
+        private void update(
+            VulkanSwapChain swapChain,
+            List< VkPipelineShaderStageCreateInfo > shaderStages,
+            VulkanDepthResources depthResources
+        ) {
+            renderPass.updateRenderPass( swapChain, depthResources, isBackground );
+            createGraphicPipeline( graphicsPipeline, renderPass, swapChain, shaderStages );;
+        }
+    
+        public VulkanAddress getGraphicPipeline() {
+            return graphicsPipeline;
+        }
+    
+        public VulkanRenderPass getRenderPass() {
+            return renderPass;
+        }
     }
 }

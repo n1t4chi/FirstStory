@@ -5,10 +5,11 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.rendering.CameraDataProvider;
-import com.firststory.firstoracle.rendering.RenderingContext;
+import com.firststory.firstoracle.rendering.RenderData;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author n1t4chi
@@ -19,14 +20,14 @@ public interface RenderableOverlay {
     
     Collection< PositionableObject2D< ?, ? > > getOverlayObjects();
     
-    default void renderOverlay(
-        RenderingContext renderingContext, double currentRenderTime, CameraDataProvider cameraDataProvider
+    default List< RenderData > getOverlayRenderData(
+        double currentRenderTime,
+        double cameraRotation
     ) {
-        renderingContext.render2D( renderer -> {
-            var cameraRotation = cameraDataProvider.getCameraRotation2D();
-            for ( var object : getOverlayObjects() ) {
-                renderer.render( object.getRenderData( currentRenderTime, cameraRotation ) );
-            }
-        } );
+        return getOverlayObjects()
+            .stream()
+            .flatMap( object -> object.getRenderData( currentRenderTime, cameraRotation ).stream() )
+            .collect( Collectors.toList() )
+            ;
     }
 }

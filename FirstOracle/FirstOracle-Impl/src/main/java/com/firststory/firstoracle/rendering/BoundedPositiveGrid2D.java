@@ -10,6 +10,7 @@ import com.firststory.firstoracle.object2D.Vertices2D;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.firststory.firstoracle.FirstOracleConstants.singletonArray;
@@ -19,7 +20,7 @@ import static com.firststory.firstoracle.data.Position2D.pos2;
 /**
  * @author n1t4chi
  */
-public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
+public class BoundedPositiveGrid2D implements Grid2D {
     
     private static final LineData LINES_MAIN = lines( 1f, 1, 0f, 0f, 1f );
     private static final LineData LINES_INTER = lines( 0.5f, 0f, 0f, 1f, 0.75f );
@@ -33,11 +34,13 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     private Vertices2D interAxes;
     private Vertices2D smallAxes;
     private boolean render;
-    private RenderData mainRenderData;
-    private RenderData interRenderData;
-    private RenderData smallRenderData;
+    private final List< RenderData > renderData = new ArrayList<>(  );
+    private RenderData.RenderDataBuilder mainRenderDataBuilder;
+    private RenderData.RenderDataBuilder interRenderDataBuilder;
+    private RenderData.RenderDataBuilder smallRenderDataBuilder;
+    private boolean firstTime = true;
     
-    public BoundedPositiveGrid2DRenderer( int gridWidth, int gridHeight, int intermediateAxesStep ) {
+    public BoundedPositiveGrid2D( int gridWidth, int gridHeight, int intermediateAxesStep ) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.intermediateAxesStep = intermediateAxesStep;
@@ -78,14 +81,6 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     }
     
     @Override
-    public void init() {
-        if ( reload ) {
-            dispose();
-            createGrid();
-        }
-    }
-    
-    @Override
     public void dispose() {
         if ( mainAxes != null ) {
             mainAxes.dispose();
@@ -102,13 +97,12 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     }
     
     @Override
-    public void render( RenderingContext renderingContext, double currentRenderTime ) {
-        init();
-        if ( render ) {
-            renderGridArray( renderingContext, mainRenderData );
-            renderGridArray( renderingContext, interRenderData );
-            renderGridArray( renderingContext, smallRenderData );
+    public List< RenderData > toRenderDataList() {
+        if ( reload ) {
+            dispose();
+            createGrid();
         }
+        return render ? renderData : Collections.emptyList();
     }
     
     private void createGrid() {
@@ -153,10 +147,20 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
         this.mainAxes = new Vertices2D( singletonArray( mainAxes ) );
         this.interAxes = new Vertices2D( singletonArray( interAxes ) );
         this.smallAxes = new Vertices2D( singletonArray( smallAxes ) );
-        mainRenderData = createRenderData( this.mainAxes, LINES_MAIN );
-        interRenderData = createRenderData( this.interAxes, LINES_INTER );
-        smallRenderData = createRenderData( this.smallAxes, LINES_SMALL );
+        if( firstTime ) {
+            mainRenderDataBuilder = createRenderData( this.mainAxes, LINES_MAIN );
+            interRenderDataBuilder = createRenderData( this.interAxes, LINES_INTER );
+            smallRenderDataBuilder = createRenderData( this.smallAxes, LINES_SMALL );
+            renderData.add( mainRenderDataBuilder.build() );
+            renderData.add( interRenderDataBuilder.build() );
+            renderData.add( smallRenderDataBuilder.build() );
+        } else {
+            updateRenderData( mainRenderDataBuilder, this.mainAxes );
+            updateRenderData( interRenderDataBuilder, this.interAxes );
+            updateRenderData( smallRenderDataBuilder, this.smallAxes );
+        }
         
+        firstTime = false;
         reload = false;
     }
     
@@ -169,7 +173,7 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
     }
     
     
-    private RenderData createRenderData(
+    private RenderData.RenderDataBuilder createRenderData(
         Vertices2D vertices,
         LineData lineData
     ) {
@@ -180,13 +184,12 @@ public class BoundedPositiveGrid2DRenderer implements Grid2DRenderer {
             FirstOracleConstants.SCALE_ONE_2F,
             FirstOracleConstants.ROTATION_ZERO_2F,
             lineData
-        ).build();
+        );
     }
-    
-    private void renderGridArray(
-        RenderingContext renderingContext,
-        RenderData renderData
+    private void updateRenderData(
+        RenderData.RenderDataBuilder builder,
+        Vertices2D vertices
     ) {
-        renderingContext.render2D( renderer -> renderer.render( renderData ) );
+        builder.setVertices( vertices );
     }
 }

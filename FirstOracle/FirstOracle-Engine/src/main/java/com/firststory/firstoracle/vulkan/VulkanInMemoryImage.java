@@ -260,6 +260,18 @@ public class VulkanInMemoryImage extends VulkanImage {
         
             srcStageMask = VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             dstStageMask = VK10.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        } else if (oldLayout == VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+            srcAccessMask = VK10.VK_ACCESS_TRANSFER_WRITE_BIT;
+            dstAccessMask = VK10.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK10.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    
+            srcStageMask = VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            dstStageMask = VK10.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        } else if (oldLayout == VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL && newLayout == VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+            srcAccessMask = VK10.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK10.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            dstAccessMask = VK10.VK_ACCESS_TRANSFER_WRITE_BIT;
+    
+            srcStageMask = VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            dstStageMask = VK10.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         } else {
             throw new CannotTransitionVulkanImage( getDevice(), this, format, oldLayout, newLayout );
         }
