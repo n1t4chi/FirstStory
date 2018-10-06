@@ -8,7 +8,9 @@ import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.gui.GuiApplicationData;
 import com.firststory.firstoracle.gui.GuiFramework;
 import com.firststory.firstoracle.gui.GuiFrameworkProvider;
-import com.firststory.firstoracle.notyfying.*;
+import com.firststory.firstoracle.notyfying.FpsListener;
+import com.firststory.firstoracle.notyfying.QuitListener;
+import com.firststory.firstoracle.notyfying.TimeListener;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
@@ -21,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * @author n1t4chi
  */
-public class Window implements TimeNotifier, WindowListener, QuitNotifier, FpsNotifier {
+public class WindowImpl implements Window {
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private static final Logger logger = FirstOracleConstants.getLogger( Window.class );
@@ -36,7 +38,7 @@ public class Window implements TimeNotifier, WindowListener, QuitNotifier, FpsNo
     private final RenderingFrameworkProvider renderingFrameworkProvider;
     private final GuiFrameworkProvider< ? > guiFrameworkProvider;
     private final RenderLoop renderLoop;
-    private WindowContext window;
+    private WindowContext context;
     private WindowFramework windowFramework;
     private RenderingFramework renderingFramework;
     private GuiFramework guiFramework;
@@ -45,7 +47,7 @@ public class Window implements TimeNotifier, WindowListener, QuitNotifier, FpsNo
     private double lastFpsUpdate;
     private int lastFps;
     
-    public Window(
+    public WindowImpl(
         WindowSettings windowSettings,
         GuiApplicationData< ? > guiApplicationData,
         Renderer renderer,
@@ -63,70 +65,73 @@ public class Window implements TimeNotifier, WindowListener, QuitNotifier, FpsNo
         this.renderLoop = renderLoop;
     }
     
-    public void init() {
+    @Override
+    public void init()  {
         try {
             windowFramework = windowFrameworkProvider.getWindowFramework();
             logger.finest( this + ": Window context: " + windowFramework );
-            window = windowFramework.createWindowContext( settings, renderingFrameworkProvider.isOpenGL() );
-            renderingFramework = renderingFrameworkProvider.getRenderingFramework( window );
+            context = windowFramework.createWindowContext( settings, renderingFrameworkProvider.isOpenGL() );
+            renderingFramework = renderingFrameworkProvider.getRenderingFramework( context );
             logger.finest( this + ": Rendering context: " + renderingFramework );
             renderingFramework.invoke( instance -> {
                 setupCallbacks();
                 instance.compileShaders();
                 renderer.init();
             } );
-            
+        
             frameCount = 0;
             lastFps = 0;
-            lastFrameUpdate = windowFramework.getTime();
-            lastFpsUpdate = lastFrameUpdate;
+            lastFrameUpdate = getTime();
+            lastFpsUpdate = getLastFrameUpdate();
         } catch ( Exception ex ) {
             close(); //do not place in finally!
             throw new RuntimeException( ex );
         }
     }
     
-//    @Override
+    @Override
+    public void setupRenderCycleVariables() {
+        lastFrameUpdate = getTime();
+        if ( frameCount % 100 == 0 ) {
+            lastFps = ( int ) ( ( float ) frameCount / ( getLastFrameUpdate() - lastFpsUpdate ) );
+            lastFpsUpdate = getLastFrameUpdate();
+            frameCount = 0;
+            notifyFpsListeners( lastFps );
+        }
+        frameCount++;
+    }
+    
+    @Override
     @SuppressWarnings( "unchecked" )
-    public void run() {
+    public void setUpRunInsideRedneringFramework() {
+        context.show();
+        guiFramework = (( GuiFrameworkProvider< GuiApplicationData<?>> ) guiFrameworkProvider).provide( context, guiApplicationData );
+        logger.finest( this + ": GUI context: " + guiFramework );
+    }
+    
+    @Override
+    public void setUpRun() {
         Thread.currentThread().setName( "Window" + instanceCounter.getAndIncrement() );
-        try {
-            renderingFramework.invoke( instance -> {
-                window.show();
-                guiFramework = (( GuiFrameworkProvider< GuiApplicationData<?>> ) guiFrameworkProvider).provide( window, guiApplicationData );
-                logger.finest( this + ": GUI context: " + guiFramework );
-            } );
-            
-            renderLoop.loop( this, renderingFramework );
-            notifyQuitListeners();
-        } catch ( Exception ex ) {
-//            ex.printStackTrace();
-            throw new RuntimeException( ex );
-        } finally {
-            close();
+    }
+    
+    @Override
+    public void tearDownRun() { }
+    
+    public void close() {
+        if ( context != null ) {
+            context.destroy();
+            context = null;
         }
     }
     
-    /**
-     * Returns whether the window should close before next rendering cycle.
-     * <p>
-     * If this method is overridden then also {@link #quit()} needs to be overridden
-     * or there will be inconsistencies.
-     *
-     * @return true when window should close
-     */
-    public boolean shouldWindowClose() {
-        return window.shouldClose();
+    @Override
+    public String toString() {
+        return "FirstOracle Window@" + hashCode();
     }
     
-    /**
-     * Notifies window that it should stop rendering and close itself.
-     * <p>
-     * If this method is overridden then also {@link #shouldWindowClose()} needs to be overridden
-     * or there will be inconsistencies.
-     */
-    public void quit() {
-        window.quit();
+    @Override
+    public RenderLoop getRenderLoop() {
+        return renderLoop;
     }
     
     @Override
@@ -144,66 +149,43 @@ public class Window implements TimeNotifier, WindowListener, QuitNotifier, FpsNo
         return quitListeners;
     }
     
-    public void addKeyListener( KeyListener listener ) {
-        window.addKeyListener( listener );
-    }
-    
-    public void addMouseListener( MouseListener listener ) {
-        window.addMouseListener( listener );
-    }
-    
-    public void addWindowListener( WindowListener listener ) {
-        window.addWindowListener( listener );
-    }
-    
-    public void addJoystickListener( JoystickListener listener ) {
-        window.addJoystickListener( listener );
+    @Override
+    public WindowContext getContext() {
+        return context;
     }
     
     @Override
-    public void notify( WindowSizeEvent event ) {
-        renderingFramework.updateViewPort( 0, 0, event.getWidth(), event.getHeight() );
-        settings.setWidth( event.getWidth() );
-        settings.setHeight( event.getHeight() );
+    public WindowSettings getSettings() {
+        return settings;
     }
     
     @Override
-    public void notify( WindowCloseEvent event ) {
-    
+    public RenderingFramework getRenderingFramework() {
+        return renderingFramework;
     }
     
     @Override
-    public String toString() {
-        return "FirstOracle Window@" + hashCode();
+    public GuiFramework getGuiFramework() {
+        return guiFramework;
     }
     
-    public void invokedRender( RenderingFramework instance ) {
-        notifyTimeListener( windowFramework.getTime() );
-        window.setUpSingleRender();
-        
-        instance.render( renderer, lastFrameUpdate );
-        
-        guiFramework.render();
-        window.tearDownSingleRender();
+    @Override
+    public WindowFramework getWindowFramework() {
+        return windowFramework;
     }
     
-    public void setupRenderCycleVariables() {
-        lastFrameUpdate = windowFramework.getTime();
-        if ( frameCount % 100 == 0 ) {
-            lastFps = ( int ) ( ( float ) frameCount / ( lastFrameUpdate - lastFpsUpdate ) );
-            lastFpsUpdate = lastFrameUpdate;
-            frameCount = 0;
-            notifyFpsListeners( lastFps );
-        }
-        frameCount++;
+    @Override
+    public Renderer getRenderer() {
+        return renderer;
     }
     
-    private void setupCallbacks() {
-        window.addWindowListener( this );
+    @Override
+    public double getLastFrameUpdate() {
+        return lastFrameUpdate;
     }
     
-    private void close() {
-        if ( window != null ) { window.destroy(); }
+    @Override
+    public double getTime() {
+        return windowFramework.getTime();
     }
-    
 }

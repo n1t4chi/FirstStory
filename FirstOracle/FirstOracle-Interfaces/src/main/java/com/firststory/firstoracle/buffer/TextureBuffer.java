@@ -4,12 +4,14 @@
 
 package com.firststory.firstoracle.buffer;
 
+import com.firststory.firstoracle.data.TextureData;
+
 import java.io.IOException;
 
 /**
  * @author n1t4chi
  */
-public class TextureBuffer<Context> implements DataBuffer<TextureData > {
+public class TextureBuffer<Context> implements DataBuffer< TextureData > {
     
     private final TextureBufferLoader<Context> loader;
     

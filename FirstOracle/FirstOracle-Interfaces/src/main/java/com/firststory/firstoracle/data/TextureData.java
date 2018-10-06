@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.buffer;
+package com.firststory.firstoracle.data;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

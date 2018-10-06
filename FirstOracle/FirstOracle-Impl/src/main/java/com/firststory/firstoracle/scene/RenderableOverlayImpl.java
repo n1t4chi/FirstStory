@@ -18,7 +18,7 @@ public class RenderableOverlayImpl implements RenderableOverlay {
     private final Camera2D camera;
     private final List< PositionableObject2D< ?, ? > > objects;
     
-    private RenderableOverlayImpl( Camera2D camera, List< PositionableObject2D< ?, ? > > objects ) {
+    public RenderableOverlayImpl( Camera2D camera, List< PositionableObject2D< ?, ? > > objects ) {
         this.camera = camera;
         this.objects = objects;
     }

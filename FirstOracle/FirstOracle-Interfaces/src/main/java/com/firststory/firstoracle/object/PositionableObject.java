@@ -55,14 +55,20 @@ public interface PositionableObject<
     default List< RenderData > getRenderData( double timeSnapshot, double cameraRotation ) {
         var renderDataBuilders = getStoredRenderDataBuilderList();
         if( renderDataBuilders == null ) {
-            renderDataBuilders = createRenderDataBuilders();
-            storeRenderDataBuilderList( renderDataBuilders );
-            List< RenderData > renderDatas = new ArrayList<>( renderDataBuilders.size() );
-            renderDataBuilders.forEach( renderDataBuilder -> renderDatas.add( renderDataBuilder.build() ) );
-            storeRenderDataList( renderDatas );
+            update();
+            renderDataBuilders = getStoredRenderDataBuilderList();
         }
         updateRenderDataBuilders( renderDataBuilders, timeSnapshot, cameraRotation );
         return getStoredRenderDataList();
+    }
+    
+    default void update() {
+        List< RenderData.RenderDataBuilder > renderDataBuilders;
+        renderDataBuilders = createRenderDataBuilders();
+        storeRenderDataBuilderList( renderDataBuilders );
+        List< RenderData > renderDatas = new ArrayList<>( renderDataBuilders.size() );
+        renderDataBuilders.forEach( renderDataBuilder -> renderDatas.add( renderDataBuilder.build() ) );
+        storeRenderDataList( renderDatas );
     }
     
     private void updateRenderDataBuilders( List< RenderData.RenderDataBuilder > renderDataBuilders, double timeSnapshot, double cameraRotation ) {

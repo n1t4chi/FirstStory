@@ -17,6 +17,7 @@ import static com.firststory.firstoracle.data.Position2D.pos2;
 public class Plane2DVertices extends FramelessVertices2D {
     
     private static final Plane2DVertices Plane2DVertices = new Plane2DVertices();
+    private static final Plane2DVertices AbsolutePlane2DVertices = new Plane2DVertices(0, 1, 0, 1);
     private static final HashMap< Tuple, Plane2DVertices > instances = new HashMap<>( 2 );
     
     /**
@@ -28,15 +29,17 @@ public class Plane2DVertices extends FramelessVertices2D {
         return Plane2DVertices;
     }
     
+    public static Plane2DVertices getAbsolutePlane2DVertices() {
+        return AbsolutePlane2DVertices;
+    }
+    
     public static Plane2DVertices getPlane2DVertices( float minX, float maxX, float minY, float maxY ) {
         var tuple = new Tuple( minX, maxX, minY, maxY );
-        if ( instances.containsKey( tuple ) ) {
-            return instances.get( tuple );
-        } else {
+        return instances.computeIfAbsent( tuple, tuple1 -> {
             var instance = new Plane2DVertices( minX, maxX, minY, maxY );
             instances.put( tuple, instance );
             return instance;
-        }
+        } );
     }
     
     private static List< Position2D > createPlane2DVerticesArray() {

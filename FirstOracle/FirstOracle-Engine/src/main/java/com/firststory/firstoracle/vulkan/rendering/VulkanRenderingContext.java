@@ -132,9 +132,6 @@ public class VulkanRenderingContext implements RenderingContext {
         Map< Texture, List< RenderData > > renderDataByTexture,
         StageType type
     ) {
-        if ( renderDataByTexture.isEmpty() ) {
-            return;
-        }
         VulkanGraphicPipelines.Pipeline trianglePipeline;
         VulkanGraphicPipelines.Pipeline linePipeline;
         switch ( type ) {
@@ -160,28 +157,30 @@ public class VulkanRenderingContext implements RenderingContext {
 //        device.getDepthResources().clearDepthImage( buffer, buffer.getStencilValue() );
         buffer.beginRenderPass( trianglePipeline.getRenderPass(), backgroundColour );
         
-        var shader = getShader();
-        var descriptorPool = device.getDescriptor().createDescriptorPool( renderDataByTexture.size() );
-        descriptorsPools.add( descriptorPool );
-        
-        shader.bindCamera( camera.getMatrixRepresentation() );
-        var uniformBufferInfo = shader.bindUniformData();
-        renderDataByTexture.forEach( ( texture, renderDataList ) -> {
-            if ( !renderDataList.isEmpty() ) {
-                renderTextureData(
-                    trianglePipelines,
-                    trianglePipeline,
-                    linePipelines,
-                    linePipeline,
-                    buffer,
-                    availableDataBuffers,
-                    descriptorPool,
-                    uniformBufferInfo,
-                    texture,
-                    renderDataList
-                );
-            }
-        } );
+        if ( !renderDataByTexture.isEmpty() ) {
+            var shader = getShader();
+            var descriptorPool = device.getDescriptor().createDescriptorPool( renderDataByTexture.size() );
+            descriptorsPools.add( descriptorPool );
+    
+            shader.bindCamera( camera.getMatrixRepresentation() );
+            var uniformBufferInfo = shader.bindUniformData();
+            renderDataByTexture.forEach( ( texture, renderDataList ) -> {
+                if ( !renderDataList.isEmpty() ) {
+                    renderTextureData(
+                        trianglePipelines,
+                        trianglePipeline,
+                        linePipelines,
+                        linePipeline,
+                        buffer,
+                        availableDataBuffers,
+                        descriptorPool,
+                        uniformBufferInfo,
+                        texture,
+                        renderDataList
+                    );
+                }
+            } );
+        }
         buffer.endRenderPass();
     }
     

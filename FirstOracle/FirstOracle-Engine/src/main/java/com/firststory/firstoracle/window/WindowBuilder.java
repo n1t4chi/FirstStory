@@ -20,13 +20,13 @@ import com.firststory.firstoracle.scene.SceneProvider;
 /**
  * @author n1t4chi
  */
-public abstract class WindowBuilder< WindowType extends Window > {
+public abstract class WindowBuilder< WindowType extends WindowImpl > {
     
-    public static WindowBuilder< Window > simpleWindow( WindowSettings settings, Renderer renderer ) {
+    public static WindowBuilder< WindowImpl > simpleWindow( WindowSettings settings, Renderer renderer ) {
         return new SimpleWindowBuilder( settings, renderer );
     }
     
-    public static WindowBuilder< Window > simpleWindow( WindowSettings settings, SceneProvider provider ) {
+    public static WindowBuilder< WindowImpl > simpleWindow( WindowSettings settings, SceneProvider provider ) {
         return new SimpleWindowBuilder( settings, WindowRenderer.provide( provider ) );
     }
     
@@ -90,14 +90,14 @@ public abstract class WindowBuilder< WindowType extends Window > {
     
     protected abstract WindowType createWindowInstance();
     
-    public static class SimpleWindowBuilder extends WindowBuilder< Window > {
+    public static class SimpleWindowBuilder extends WindowBuilder< WindowImpl > {
     
         private SimpleWindowBuilder( WindowSettings settings, Renderer renderer ) {
             super( settings, renderer );
         }
     
-        protected Window createWindowInstance() {
-            return new Window(
+        protected WindowImpl createWindowInstance() {
+            return new WindowImpl(
                 settings,
                 application,
                 renderer,

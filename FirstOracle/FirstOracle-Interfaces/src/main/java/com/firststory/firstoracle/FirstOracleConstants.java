@@ -7,6 +7,8 @@ import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.text.TextData;
+import com.firststory.firstoracle.text.TextImageFactory;
 import org.joml.*;
 
 import java.awt.*;
@@ -101,6 +103,8 @@ public interface FirstOracleConstants {
     float SQRT3_DIV2 = 0.8660254037844386467637231707529361834714026269051903140279034897259665084544000185405730933786242878378130707077f;
     float[] EMPTY_FLOAT_ARRAY = new float[ 0 ];
     
+    TextData EMPTY_TEXT = TextImageFactory.provide().createText3D( "" );
+    
     static <T> List<T>[][][] singletonArray3D( List<T> value ){
         List< T >[][][] array = array( 1, 1, 1 );
         array[0][0][0] = value;
@@ -136,12 +140,12 @@ public interface FirstOracleConstants {
         var SIZE = 100;
         var image = new BufferedImage( SIZE, SIZE, BufferedImage.TYPE_INT_ARGB );
         var graphics = ( Graphics2D ) image.getGraphics();
-        graphics.setColor( new Color(0,0,0,0) );
+        graphics.setColor( new Color(1,1,1,1) );
         graphics.fillRect( 0, 0, SIZE, SIZE );
         graphics.dispose();
         Texture texture;
         try {
-            texture = new Texture( image );
+            texture = Texture.create( image );
         } catch ( Exception e ) {
             throw new RuntimeException( "Cannot create empty texture!", e );
         }

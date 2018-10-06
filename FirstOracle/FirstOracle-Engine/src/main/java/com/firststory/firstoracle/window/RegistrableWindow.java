@@ -27,7 +27,7 @@ import java.util.Collection;
 /**
  * @author n1t4chi
  */
-public class RegistrableWindow extends Window {
+public class RegistrableWindow extends WindowImpl {
     
     private final RegistrableSceneProvider< RegistrableScene > provider;
     

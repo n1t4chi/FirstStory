@@ -4,11 +4,13 @@
 package com.firststory.firstoracle.controller;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.key.Key;
 import com.firststory.firstoracle.key.KeyCode;
 import com.firststory.firstoracle.notyfying.*;
+import com.firststory.firstoracle.window.WindowImpl;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -49,15 +51,50 @@ public class CameraController extends Thread implements
     private volatile boolean keepWorking = true;
     private double currentTimeUpdate;
     
+    private final MovableCamera2D camera2D;
+    private final IsometricCamera3D camera3D;
     
-    public CameraController( CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
+    public static CameraController createAndStart( WindowImpl window, WindowSettings settings, CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
+        var cameraController = new CameraController( settings, cameraKeyMap, refreshLatency, speed );
+        cameraController.updateIsometricCamera3D( cameraController.camera3D );
+        cameraController.updateMovableCamera2D( cameraController.camera2D );
+    
+        cameraController.addCameraListener( ( event, source ) -> cameraController.updateMovableCamera2D( cameraController.camera2D ) );
+        cameraController.addCameraListener( ( event, source ) -> cameraController.updateIsometricCamera3D( cameraController.camera3D ) );
+    
+        window.addTimeListener( cameraController );
+        window.addQuitListener( cameraController );
+        window.addKeyListener( cameraController );
+        window.addMouseListener( cameraController );
+        window.addWindowListener( new WindowListener() {
+            @Override
+            public void notify( WindowSizeEvent event ) {
+                cameraController.camera2D.forceUpdate();
+                cameraController.camera3D.forceUpdate();
+            }
+        } );
+        cameraController.start();
+        return cameraController;
+    }
+    
+    public CameraController( WindowSettings settings, CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
         super("Camera Controller " + instanceCounter.getAndIncrement() );
         this.cameraKeyMap = cameraKeyMap;
         this.refreshLatency = refreshLatency;
         this.speed = speed;
         rotateVectors();
+        camera2D = new MovableCamera2D( settings, 0, 0, 0, 0 );
+        camera3D = new IsometricCamera3D( settings, 0, 0, 0, 0, 0, 0, 1 );
     }
-
+    
+    public MovableCamera2D getCamera2D() {
+        return camera2D;
+    }
+    
+    public IsometricCamera3D getCamera3D() {
+        return camera3D;
+    }
+    
     @Override
     public void notify( MouseScrollEvent event ) {
         cameraSize -= event.yoffset;

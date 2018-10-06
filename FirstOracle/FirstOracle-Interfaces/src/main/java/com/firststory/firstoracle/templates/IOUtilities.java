@@ -25,26 +25,29 @@ public class IOUtilities {
     
     public static java.awt.Font loadFontFromResource(
         String resourceName, boolean externalFile
-    ) throws IOException {
-        InputStream is;
-        if ( externalFile ) {
-            var file = new File( resourceName );
-            is = new FileInputStream( file );
-        } else {
-            is = IOUtilities.class.getResourceAsStream( resourceName );
-        }
-        java.awt.Font font;
+    ) {
         try {
-            font = java.awt.Font.createFont( TRUETYPE_FONT, is );
-        } catch ( FontFormatException ex ) {
-            try {
-                font = java.awt.Font.createFont( TYPE1_FONT, is );
-            } catch ( FontFormatException ex1 ) {
-                throw new IOException(
-                    "Invalid font file content. Error #1:\n" + ex + "\nError #2:\n" + ex1 );
+            InputStream is;
+            if ( externalFile ) {
+                var file = new File( resourceName );
+                is = new FileInputStream( file );
+            } else {
+                is = IOUtilities.class.getResourceAsStream( resourceName );
             }
+            java.awt.Font font;
+            try {
+                font = java.awt.Font.createFont( TRUETYPE_FONT, is );
+            } catch ( FontFormatException ex ) {
+                try {
+                    font = java.awt.Font.createFont( TYPE1_FONT, is );
+                } catch ( FontFormatException ex1 ) {
+                    throw new RuntimeException( "Invalid font file content. Error #1:\n" + ex + "\nError #2:\n" + ex1 );
+                }
+            }
+            return font;
+        } catch ( IOException ex ) {
+            throw new RuntimeException( " Cannot load font.", ex );
         }
-        return font;
     }
     
     /**

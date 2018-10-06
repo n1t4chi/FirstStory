@@ -6,14 +6,10 @@ package com.firststory.firstoracle.templates;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.WindowMode;
 import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.camera2D.MovableCamera2D;
-import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.notyfying.WindowListener;
-import com.firststory.firstoracle.notyfying.WindowSizeEvent;
 import com.firststory.firstoracle.object.DefaultDirectionController;
 import com.firststory.firstoracle.object.LoopedFrameController;
 import com.firststory.firstoracle.object.PlaneUvMap;
@@ -58,17 +54,17 @@ public class TestGlfwApplication {
             .setHeight( height )
             .build();
         
-        var texture2D = new Texture( "resources/First Oracle/texture2D.png" );
-        var texture3D_1 = new Texture( "resources/First Oracle/texture3Dc.png" );
-        var texture3D_2 = new Texture( "resources/First Oracle/texture3D.png" );
-        var textureTerrain2D = new Texture( "resources/First Oracle/textureGrid2D.png" );
-        var textureTerrain3D = new Texture( "resources/First Oracle/texture3DHEX2.png" );
-        var compoundTexture = Texture.createCompoundTexture( "resources/First Oracle/compound/tex_#frame#_#direction#.png",
+        var texture2D = Texture.create( "resources/First Oracle/texture2D.png" );
+        var texture3D_1 = Texture.create( "resources/First Oracle/texture3Dc.png" );
+        var texture3D_2 = Texture.create( "resources/First Oracle/texture3D.png" );
+        var textureTerrain2D = Texture.create( "resources/First Oracle/textureGrid2D.png" );
+        var textureTerrain3D = Texture.create( "resources/First Oracle/texture3DHEX2.png" );
+        var compoundTexture = Texture.createCompound( "resources/First Oracle/compound/tex_#frame#_#direction#.png",
             4,
             6
         );
-        var bgTex = new Texture( "resources/First Oracle/background.png" );
-        var ovTex = new Texture( "resources/First Oracle/overlay.png" );
+        var bgTex = Texture.create( "resources/First Oracle/background.png" );
+        var ovTex = Texture.create( "resources/First Oracle/overlay.png" );
     
         var bg = new NonAnimatedRectangle();
         bg.setTexture( bgTex );
@@ -132,21 +128,11 @@ public class TestGlfwApplication {
 
         List< PositionableObject3D< ?, ? > > renderables3D = Arrays.asList( cube1, cube2, emptyHex );
         List< PositionableObject2D< ?, ? > > renderables2D = Arrays.asList( rectangle, rectangleCompound );
-        
-        var camera3D = new IsometricCamera3D( settings, 0.5f, 40, 0, 0, 0, 0, 1 );
-        var camera2D = new MovableCamera2D( settings, 10, 0, 0, 0 );
-        
-        cameraController = new CameraController( CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
-        cameraController.setCameraSize( 10 );
-        cameraController.updateMovableCamera2D( camera2D );
-        cameraController.updateIsometricCamera3D( camera3D );
-        cameraController.addCameraListener( ( event, source ) -> {
-            cameraController.updateMovableCamera2D( camera2D );
-            cameraController.updateIsometricCamera3D( camera3D );
-        } );
-        
+    
         window = WindowBuilder.registrableWindow( settings ).build();
     
+        cameraController = CameraController.createAndStart( window, settings, CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
+        
         window.createNewScene( DEFAULT_SCENE, TERRAIN_2D_DIM, FirstOracleConstants.INDEX_ZERO_2I, TERRAIN_3D_DIM, FirstOracleConstants.INDEX_ZERO_3I );
         
         window.deregisterMultipleObjects2D( DEFAULT_SCENE, renderables2D );
@@ -158,22 +144,10 @@ public class TestGlfwApplication {
         window.setBackgroundColour( DEFAULT_SCENE, FirstOracleConstants.WHITE );
         window.registerBackground( DEFAULT_SCENE, bg );
         window.registerOverlay( DEFAULT_SCENE, ov );
-        window.setScene2DCamera( DEFAULT_SCENE, camera2D );
-        window.setScene3DCamera( DEFAULT_SCENE, camera3D );
-        
-        window.addTimeListener( cameraController );
-        
-        window.addQuitListener( cameraController );
-        window.addKeyListener( cameraController );
-        window.addMouseListener( cameraController );
-        window.addWindowListener( new WindowListener() {
-            @Override
-            public void notify( WindowSizeEvent event ) {
-                camera2D.forceUpdate();
-                camera3D.forceUpdate();
-            }
-        } );
-        cameraController.start();
+        window.setScene2DCamera( DEFAULT_SCENE, cameraController.getCamera2D() );
+        window.setScene3DCamera( DEFAULT_SCENE, cameraController.getCamera3D() );
+    
+        window.registerOverlay( DEFAULT_SCENE, new FpsCounter( window ) );
         
         window.run();
     }

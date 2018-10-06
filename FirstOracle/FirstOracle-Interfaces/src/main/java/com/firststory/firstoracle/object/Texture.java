@@ -5,7 +5,7 @@ package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.buffer.TextureBuffer;
 import com.firststory.firstoracle.buffer.TextureBufferLoader;
-import com.firststory.firstoracle.buffer.TextureData;
+import com.firststory.firstoracle.data.TextureData;
 import com.firststory.firstoracle.templates.IOUtilities;
 
 import javax.imageio.ImageIO;
@@ -49,19 +49,15 @@ public final class Texture {
     private static final String FRAME_KEYWORD = "#frame#";
     private static final String DIRECTION_KEYWORD = "#direction#";
     
-    /**
-     * Constructs compound texture from multiple files each corresponding to one frame with only one direction.<br>
-     * For more details see: (@link createCompoundTexture(String, int, int) },
-     *
-     * @param filePathMask mask for all files to load
-     * @param frames       how many frames to represent
-     * @return Texture instance
-     * @throws IOException              On any error while trying to load file
-     * @throws IllegalArgumentException On illegal parameters or mask being invalid to given frames/directions
-     * @throws RuntimeException         When images do not have same width/height.
-     */
-    public static Texture createCompoundTexture( String filePathMask, int frames ) throws IOException {
-        return createCompoundTexture( filePathMask, 1, frames );
+    public static Texture createText( String text ) throws IOException {
+    
+        var image = new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB );
+        
+        return create( image );
+    }
+    
+    public static Texture createCompound( String filePathMask, int frames ) throws IOException {
+        return createCompound( filePathMask, 1, frames );
     }
     
     /**
@@ -85,7 +81,7 @@ public final class Texture {
      * @throws IllegalArgumentException On illegal parameters or mask being invalid to given frames/directions
      * @throws RuntimeException         When images do not have same width/height.
      */
-    public static Texture createCompoundTexture( String filePathMask, int directions, int frames ) throws IOException {
+    public static Texture createCompound( String filePathMask, int directions, int frames ) throws IOException {
         if ( frames < 1 ) {
             throw new IllegalArgumentException( "Given frame count is less than 1." );
         }
@@ -98,7 +94,7 @@ public final class Texture {
         if ( directions > 1 && !filePathMask.contains( DIRECTION_KEYWORD ) ) {
             throw new IllegalArgumentException( "File path mask does not contain direction keyword" );
         }
-    
+        
         var inputStreams = new InputStream[frames][directions];
         for ( var frame = 0; frame < frames; frame++ ) {
             for ( var direction = 0; direction < directions; direction++ ) {
@@ -114,10 +110,10 @@ public final class Texture {
                 }
             }
         }
-    
+        
         var width = -1;
         var height = -1;
-    
+        
         var images = new BufferedImage[frames][directions];
         for ( var frame = 0; frame < frames; frame++ ) {
             for ( var direction = 0; direction < directions; direction++ ) {
@@ -129,13 +125,13 @@ public final class Texture {
                     if ( width != image.getWidth() && height != image.getHeight() ) {
                         throw new RuntimeException(
                             "Image:" + replaceKeywords( filePathMask, frame, direction ) +
-                            " has different height/width than others!" );
+                                " has different height/width than others!" );
                     }
                 }
                 images[frame][direction] = image;
             }
         }
-    
+        
         var image = new BufferedImage(
             directions * width, frames * height, BufferedImage.TYPE_INT_ARGB );
         var graphics = ( Graphics2D ) image.getGraphics();
@@ -145,7 +141,55 @@ public final class Texture {
             }
         }
         graphics.dispose();
-        return new Texture( image, directions, frames, directions, frames );
+        return create( image, directions, frames, directions, frames );
+    }
+    
+    public static Texture create( BufferedImage image ) {
+        return create( image, 1, 1, 1, 1 );
+    }
+    
+    public static Texture create( BufferedImage image, int directions, int frames, int columns, int rows ) {
+        return create( image, image.toString(), directions, frames, columns, rows );
+    }
+    
+    public static Texture create( String path ) throws IOException {
+        return create( path, 1, 1, 1, 1 );
+    }
+    
+    public static Texture create( String path, int directions, int frames, int columns, int rows ) throws IOException {
+        return create( ImageIO.read( IOUtilities.readResource(path) ) , path,  directions, frames, columns, rows );
+    }
+    
+    public static Texture create( BufferedImage image, String name, int directions, int frames, int columns, int rows ) {
+        if (
+            name == null || name.isEmpty() ||
+            frames < 1 || rows < 1 ||
+            frames > rows ||
+            directions < 1 ||
+            directions > columns
+        ) {
+            throw new IllegalArgumentException(
+                "Illegal arguments for Texture.\n" +
+                    "Image:" + image +
+                    ", Frames:" + frames +
+                    ", Rows:" + rows +
+                    ", Directions:" + directions +
+                    ", Columns:" + columns +
+                "." );
+        }
+        try {
+            return new Texture( new TextureData(
+                image,
+                imageToByteBuffer( image ),
+                name,
+                directions,
+                frames,
+                columns,
+                rows
+            ) );
+        } catch ( Exception ex ) {
+            throw new RuntimeException( "Exception of parsing the image to byte buffer:", ex );
+        }
     }
     
     private static String replaceKeywords( String filePathMask, int frame, int direction ) {
@@ -154,59 +198,10 @@ public final class Texture {
         return filePathMask.replace( FRAME_KEYWORD, frameString ).replace( DIRECTION_KEYWORD, directionString );
     }
     
-    private final TextureData data;
-    private final HashMap<TextureBufferLoader< ? >, TextureBuffer< ? > > buffers = new HashMap<>(  );
-    
-    /**
-     * Creates object containing texture data from given image.<br>
-     * Uses single frame and line count.
-     *
-     * @param image image to be used as texture
-     */
-    public Texture( BufferedImage image ) {
-        this( image, 1, 1, 1, 1 );
-    }
-    
-    /**
-     * Creates object containing texture data from given image.
-     *
-     * @param image      image
-     * @param directions How many directions this texture can represent.
-     * @param frames     How many frames this texture represent
-     * @param columns    How many columns for directions are in this texture.
-     * @param rows       How many rows for frames are in this texture.
-     */
-    public Texture( BufferedImage image, int directions, int frames, int columns, int rows ) {
-        this( image, image.toString(), directions, frames, columns, rows );
-    }
-    /**
-     * Creates object containing texture data from given image.
-     * @param image      image
-     * @param name       Name of texture.
-     * @param directions How many directions this texture can represent.
-     * @param frames     How many frames this texture represent
-     * @param columns    How many columns for directions are in this texture.
-     * @param rows       How many rows for frames are in this texture.
-     */
-    public Texture( BufferedImage image, String name, int directions, int frames, int columns, int rows ) {
-        if ( name == null || name.isEmpty() || frames < 1 || rows < 1 || frames > rows || directions < 1 ||
-            directions > columns )
-        {
-            throw new IllegalArgumentException(
-                "Illegal arguments for Texture.\n" + "Image:" + image + ", Frames:" + frames + ", Rows:" + rows +
-                    ", Directions:" + directions + ", Columns:" + columns + "." );
-        }
-        ByteBuffer bf = null;
-        try {
-            bf = imageToByteBuffer( image );
-        }catch (Exception ignore){}
-        data = new TextureData( image, bf, name, directions, frames, columns, rows );
-    }
-    
     private static ByteBuffer imageToByteBuffer( BufferedImage image ) throws IOException {
         ByteBuffer bf;
         byte[] b;
-    
+        
         var baos = new ByteArrayOutputStream();
         ImageIO.write( image, "PNG", baos );
         var arr = baos.toByteArray();
@@ -215,41 +210,17 @@ public final class Texture {
         bf.position( 0 );
         return bf;
     }
+    private final TextureData data;
     
-    /**
-     * Creates object containing texture data from image under given path.<br>
-     * Uses single frame and line count.
-     *
-     * @param path image file path
-     * @throws IOException on problems with loading the image
-     */
-    public Texture( String path ) throws IOException {
-        this( path, 1, 1, 1, 1 );
-    }
+    private final HashMap<TextureBufferLoader< ? >, TextureBuffer< ? > > buffers = new HashMap<>(  );
     
-    /**
-     * Creates object containing texture data from image under given path.
-     *
-     * @param path       path to texture resource
-     * @param directions How many directions this texture can represent.
-     * @param frames     How many frames this texture represent
-     * @param columns    How many columns for directions are in this texture.
-     * @param rows       How many rows for frames are in this texture.
-     * @throws IOException on problems with loading the image
-     */
-    public Texture( String path, int directions, int frames, int columns, int rows ) throws IOException {
-        this( ImageIO.read( IOUtilities.readResource(path) ) , path,  directions, frames, columns, rows );
+    public Texture( TextureData textureData ) {
+        data = textureData;
     }
     
     public BufferedImage getImage() {
         return data.getImage();
     }
-
-
-
-//    public Texture( ByteBuffer bf, String name, int directions, int frames, int columns, int rows ) throws IOException {
-//        this( byteBufferToImage( bf ),bf,name,directions,frames,columns,rows );
-//    }
     
     public int getFrames() {
         return data.getFrames();
