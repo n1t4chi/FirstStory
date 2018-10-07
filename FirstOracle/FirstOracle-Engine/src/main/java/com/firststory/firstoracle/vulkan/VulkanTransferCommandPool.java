@@ -28,7 +28,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
     
     @Override
     public VulkanTransferCommandBuffer extractNextCommandBuffer() {
-        return createNewCommandBuffer( new VulkanAddress( createCommandBufferBuffer( 1 ).get( 0 ) ) );
+        return createNewCommandBuffer( new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ) );
     }
     
     @Override

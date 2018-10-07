@@ -15,6 +15,6 @@ public class VulkanTransferCommandBuffer extends VulkanCommandBuffer {
         VulkanCommandPool< ? > commandPool,
         int... usedBeginInfoFlags
     ) {
-        super( device, address, commandPool, usedBeginInfoFlags );
+        super( device, address, commandPool, null, usedBeginInfoFlags );
     }
 }

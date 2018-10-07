@@ -35,15 +35,11 @@
                     <configuration>
                         <target>X</target>
                         <release>X</release>
-                        <compilerArgument>--enable-preview</compilerArgument>
                         <compilerArguments>
-                            <compilerArgument>--enable-preview</compilerArgument>
+                            <!--<compilerArgument>&#45;&#45;enable-preview</compilerArgument>-->
+                            <compilerArgument>-Xlint:all</compilerArgument>
+                            <compilerArgument>-Xdiags:verbose</compilerArgument>
                         </compilerArguments>
-                        <compilerArgs>--enable-preview</compilerArgs>
-                        <!--<compilerArgs>-->
-                            <!--<arg>-Xlint:all,-options,-path</arg>-->
-                            <!--<arg>-enable-preview</arg>-->
-                        <!--</compilerArgs>-->
                     </configuration>
                 </plugin>
                 <plugin>

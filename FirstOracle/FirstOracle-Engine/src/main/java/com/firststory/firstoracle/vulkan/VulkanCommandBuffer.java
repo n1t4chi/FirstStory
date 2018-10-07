@@ -9,6 +9,7 @@ import com.firststory.firstoracle.vulkan.exceptions.VulkanCommandBufferException
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkCommandBuffer;
 import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
+import org.lwjgl.vulkan.VkCommandBufferInheritanceInfo;
 
 import java.util.logging.Logger;
 
@@ -23,16 +24,19 @@ public abstract class VulkanCommandBuffer {
     private final VkCommandBufferBeginInfo beginInfo;
     private final VulkanCommandPool< ? extends VulkanCommandBuffer > commandPool;
     private final int[] usedBeginInfoFlags;
+    private final VkCommandBufferInheritanceInfo inheritanceInfo;
     
     public VulkanCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
         VulkanCommandPool< ? extends VulkanCommandBuffer > commandPool,
+        VkCommandBufferInheritanceInfo inheritanceInfo,
         int... usedBeginInfoFlags
     ) {
         this.device = device;
         this.address = address;
         this.commandPool = commandPool;
+        this.inheritanceInfo = inheritanceInfo;
         this.usedBeginInfoFlags = usedBeginInfoFlags;
         commandBuffer = createCommandBuffer();
         beginInfo = createBeginInfo();
@@ -102,6 +106,6 @@ public abstract class VulkanCommandBuffer {
         return VkCommandBufferBeginInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO )
             .flags( VulkanHelper.flagsToInt( usedBeginInfoFlags ) )
-            .pInheritanceInfo( null );
+            .pInheritanceInfo( inheritanceInfo );
     }
 }

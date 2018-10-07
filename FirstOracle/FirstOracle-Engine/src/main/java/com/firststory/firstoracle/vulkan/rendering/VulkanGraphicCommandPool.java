@@ -14,18 +14,20 @@ import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author n1t4chi
  */
-public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCommandBuffer > {
+public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPrimaryCommandBuffer > {
     
     private final VulkanSwapChain swapChain;
     private final VulkanSemaphore renderFinishedSemaphore;
     private final VulkanSemaphore imageAvailableSemaphore;
-    private final Map< Integer, VulkanGraphicCommandBuffer > commandBuffers = new HashMap<>(  );
+    private final Map< Integer, VulkanGraphicPrimaryCommandBuffer > commandBuffers = new HashMap<>(  );
     private Colour backgroundColour = FirstOracleConstants.BLACK;
     
     public VulkanGraphicCommandPool(
@@ -54,14 +56,12 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
         this.backgroundColour = backgroundColour;
     }
     
-    
-    
-    public VulkanGraphicCommandBuffer createNewCommandBuffer(
+    public VulkanGraphicPrimaryCommandBuffer createNewPrimaryCommandBuffer(
         int index,
         VulkanAddress address,
         Map< Integer, VulkanFrameBuffer > frameBuffers
     ) {
-        return new VulkanGraphicCommandBuffer(
+        return new VulkanGraphicPrimaryCommandBuffer(
             getDevice(),
             address,
             frameBuffers.get( index ),
@@ -71,28 +71,49 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicCo
             VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
         );
     }
+    public VulkanGraphicSecondaryCommandBuffer createNewSecondaryCommandBuffer(
+        VulkanGraphicPrimaryCommandBuffer primaryBuffer,
+        VulkanRenderPass renderPass,
+        VulkanAddress address
+    ) {
+        return new VulkanGraphicSecondaryCommandBuffer(
+            getDevice(),
+            address,
+            primaryBuffer,
+            this,
+            renderPass,
+            VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK10.VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT
+        );
+    }
     
-    public VulkanGraphicCommandBuffer getCommandBuffer( int index ) {
+    public VulkanGraphicPrimaryCommandBuffer getCommandBuffer( int index ) {
         return commandBuffers.get( index );
     }
     
-    public void refreshCommandBuffers(
-        Map< Integer, VulkanFrameBuffer > frameBuffers
-    ) {
+    public void refreshCommandBuffers( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
         disposeCommandBuffers();
-        VulkanHelper.iterate( createCommandBufferBuffer( frameBuffers.size() ),
+        VulkanHelper.iterate( createPrimaryCommandBufferBuffer( frameBuffers.size() ),
             ( index, address ) -> commandBuffers.put( index,
-                createNewCommandBuffer( index, new VulkanAddress( address ) , frameBuffers )
-            ) );
+                createNewPrimaryCommandBuffer( index, new VulkanAddress( address ) , frameBuffers )
+            )
+        );
+    }
+    
+    public List< VulkanGraphicSecondaryCommandBuffer > createSecondaryCommandBuffers( VulkanGraphicPrimaryCommandBuffer buffer, VulkanRenderPass renderPass, int size ) {
+        List< VulkanGraphicSecondaryCommandBuffer > buffers = new ArrayList<>( size );
+        VulkanHelper.iterate( createSecondaryCommandBufferBuffer( size ),
+            ( index, address ) -> buffers.add( createNewSecondaryCommandBuffer( buffer, renderPass, new VulkanAddress( address ) ) )
+        );
+        return buffers;
     }
     
     @Override
-    public VulkanGraphicCommandBuffer extractNextCommandBuffer() {
+    public VulkanGraphicPrimaryCommandBuffer extractNextCommandBuffer() {
         return getCommandBuffer( getDevice().acquireCurrentImageIndex() );
     }
     
     @Override
-    public void executeTearDown( VulkanGraphicCommandBuffer commandBuffer ) {
+    public void executeTearDown( VulkanGraphicPrimaryCommandBuffer commandBuffer ) {
         presentQueue( swapChain, commandBuffer.getIndex() );
     }
     

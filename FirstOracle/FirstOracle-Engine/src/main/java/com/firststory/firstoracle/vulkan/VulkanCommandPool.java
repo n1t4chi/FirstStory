@@ -86,21 +86,32 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         );
     }
     
-    public PointerBuffer createCommandBufferBuffer( int size ) {
+    public PointerBuffer createPrimaryCommandBufferBuffer( int size ) {
+        return createCommandBufferBuffer( size, VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY );
+    }
+    
+    public PointerBuffer createSecondaryCommandBufferBuffer( int size ) {
+        return createCommandBufferBuffer( size, VK10.VK_COMMAND_BUFFER_LEVEL_SECONDARY );
+    }
+    
+    private PointerBuffer createCommandBufferBuffer( int size, int bufferLevel ) {
         var commandBuffersBuffer = MemoryUtil.memAllocPointer( size );
         VulkanHelper.assertCallOrThrow(
             () -> VK10.vkAllocateCommandBuffers(
-                device.getLogicalDevice(), createAllocateInfo( size ), commandBuffersBuffer ),
+                device.getLogicalDevice(),
+                createAllocateInfo( size, bufferLevel ),
+                commandBuffersBuffer
+            ),
             resultCode -> new CannotAllocateVulkanCommandBuffersException( device, resultCode )
         );
         return commandBuffersBuffer;
     }
     
-    private VkCommandBufferAllocateInfo createAllocateInfo( int size ) {
+    private VkCommandBufferAllocateInfo createAllocateInfo( int size, int bufferLevel ) {
         return VkCommandBufferAllocateInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO )
             .commandPool( address.getValue() )
-            .level( VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY )
+            .level( bufferLevel )
             .commandBufferCount( size );
     }
     

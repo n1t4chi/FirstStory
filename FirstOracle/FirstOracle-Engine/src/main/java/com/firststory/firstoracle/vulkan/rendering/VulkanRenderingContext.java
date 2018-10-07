@@ -19,6 +19,7 @@ import org.joml.Matrix4fc;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 /**
@@ -39,8 +40,8 @@ public class VulkanRenderingContext implements RenderingContext {
     private Colour backgroundColour = FirstOracleConstants.BLACK;
     private final List< VulkanTextureSampler > samplers = new ArrayList<>();
     private final List< VulkanDescriptorPool > descriptorsPools = new ArrayList<>();
-    private VulkanGraphicPipelines.Pipeline lastPipeline = null;
     private VulkanTextureSampler textureSampler;
+    
     
     public VulkanRenderingContext( VulkanPhysicalDevice device ) {
         this( device,
@@ -93,29 +94,35 @@ public class VulkanRenderingContext implements RenderingContext {
         scene2D.setCamera( camera );
     }
     
+    private final Deque< VulkanDataBuffer > availableDataBuffers = new LinkedList<>();
+    private VulkanGraphicPipelines trianglePipelines;
+    private VulkanGraphicPipelines linePipelines;
+    
     public void tearDownSingleRender(
         VulkanGraphicPipelines trianglePipelines,
         VulkanGraphicPipelines linePipelines,
         VulkanGraphicCommandPool graphicCommandPool
     ) {
+        this.trianglePipelines = trianglePipelines;
+        this.linePipelines = linePipelines;
         samplers.forEach( VulkanTextureSampler::dispose );
         descriptorsPools.forEach( VulkanDescriptorPool::dispose );
+        availableDataBuffers.clear();
         samplers.clear();
         descriptorsPools.clear();
         
         textureSampler = new VulkanTextureSampler( device );
         
-        lastPipeline = null;
-        Deque< VulkanDataBuffer > availableDataBuffers = new LinkedList<>( dataBuffers );
+        availableDataBuffers.addAll( dataBuffers );
         
         var buffer = graphicCommandPool.extractNextCommandBuffer();
         buffer.fillQueueSetup();
         samplers.add( textureSampler );
 //        buffer.beginRenderPass( trianglePipelines.getBackgroundPipeline().getRenderPass(), backgroundColour );
-        background.forEach( ( camera, renderDataByTexture ) -> renderStage( trianglePipelines, linePipelines, availableDataBuffers, buffer, camera, renderDataByTexture, StageType.background ) );
-        scene2D.forEach( ( camera, renderDataByTexture ) -> renderStage( trianglePipelines, linePipelines, availableDataBuffers, buffer, camera, renderDataByTexture, StageType.scene2D ) );
-        scene3D.forEach( ( camera, renderDataByTexture ) -> renderStage( trianglePipelines, linePipelines, availableDataBuffers, buffer, camera, renderDataByTexture, StageType.scene3D ) );
-        overlay.forEach( ( camera, renderDataByTexture ) -> renderStage( trianglePipelines, linePipelines, availableDataBuffers, buffer, camera, renderDataByTexture, StageType.overlay ) );
+        background.forEach( ( camera, renderDataByTexture ) -> renderStage( buffer, camera, renderDataByTexture, StageType.background ) );
+        scene2D.forEach( ( camera, renderDataByTexture ) -> renderStage( buffer, camera, renderDataByTexture, StageType.scene2D ) );
+        scene3D.forEach( ( camera, renderDataByTexture ) -> renderStage( buffer, camera, renderDataByTexture, StageType.scene3D ) );
+        overlay.forEach( ( camera, renderDataByTexture ) -> renderStage( buffer, camera, renderDataByTexture, StageType.overlay ) );
         
         
         buffer.fillQueueTearDown();
@@ -124,10 +131,7 @@ public class VulkanRenderingContext implements RenderingContext {
     }
     
     private void renderStage(
-        VulkanGraphicPipelines trianglePipelines,
-        VulkanGraphicPipelines linePipelines,
-        Deque< VulkanDataBuffer > availableDataBuffers,
-        VulkanGraphicCommandBuffer buffer,
+        VulkanGraphicPrimaryCommandBuffer buffer,
         Camera camera,
         Map< Texture, List< RenderData > > renderDataByTexture,
         StageType type
@@ -153,58 +157,56 @@ public class VulkanRenderingContext implements RenderingContext {
                 break;
             default: throw new RuntimeException( "Unknown stage type: " + type );
         }
-        
-//        device.getDepthResources().clearDepthImage( buffer, buffer.getStencilValue() );
-        buffer.beginRenderPass( trianglePipeline.getRenderPass(), backgroundColour );
+    
+        var renderPass = trianglePipeline.getRenderPass();
+        buffer.beginRenderPass( renderPass, backgroundColour );
         
         if ( !renderDataByTexture.isEmpty() ) {
             var shader = getShader();
             var descriptorPool = device.getDescriptor().createDescriptorPool( renderDataByTexture.size() );
             descriptorsPools.add( descriptorPool );
-    
+            
             shader.bindCamera( camera.getMatrixRepresentation() );
             var uniformBufferInfo = shader.bindUniformData();
+            var secondaryBuffers = buffer.createSecondaryBuffers( renderPass, renderDataByTexture.size() );
+            var iterator = new AtomicInteger( 0 );
             renderDataByTexture.forEach( ( texture, renderDataList ) -> {
-                if ( !renderDataList.isEmpty() ) {
-                    renderTextureData(
-                        trianglePipelines,
-                        trianglePipeline,
-                        linePipelines,
-                        linePipeline,
-                        buffer,
-                        availableDataBuffers,
-                        descriptorPool,
-                        uniformBufferInfo,
-                        texture,
-                        renderDataList
-                    );
-                }
+                renderData(
+                    trianglePipeline,
+                    linePipeline,
+                    secondaryBuffers.get( iterator.getAndIncrement() ),
+                    descriptorPool,
+                    uniformBufferInfo,
+                    texture,
+                    renderDataList
+                );
             } );
+            buffer.executeSecondaryBuffers( secondaryBuffers );
         }
+    
         buffer.endRenderPass();
     }
     
-    private void renderTextureData(
-        VulkanGraphicPipelines trianglePipelines,
+    private void renderData(
         VulkanGraphicPipelines.Pipeline trianglePipeline,
-        VulkanGraphicPipelines linePipelines,
         VulkanGraphicPipelines.Pipeline linePipeline,
-        VulkanGraphicCommandBuffer buffer,
-        Deque< VulkanDataBuffer > availableDataBuffers,
+        VulkanGraphicSecondaryCommandBuffer buffer,
         VulkanDescriptorPool descriptorPool,
         VkDescriptorBufferInfo uniformBufferInfo,
         Texture texture,
         List< RenderData > renderDataList
     ) {
+        var holder = new LastPipelineHolder();
         var textureBuffer = device.getTextureLoader().bind( shouldDrawTextures ? texture : FirstOracleConstants.EMPTY_TEXTURE );
-        
+    
+    
         var descriptorSet = descriptorPool.getNextDescriptorSet();
         descriptorSet.updateDescriptorSet( textureSampler, textureBuffer.getContext(), uniformBufferInfo );
-        
+    
+        buffer.fillQueueSetup();
         buffer.bindDescriptorSets( linePipelines, descriptorSet );
         buffer.bindDescriptorSets( trianglePipelines, descriptorSet );
         
-        //bind data
         renderDataList.forEach( renderData -> {
             var dataBuffer = loadObjectData( availableDataBuffers, renderData );
             
@@ -232,13 +234,14 @@ public class VulkanRenderingContext implements RenderingContext {
                     pipeline = trianglePipeline;
                     break;
             }
-            if ( lastPipeline != pipeline ) {
+            if ( holder.lastPipeline != pipeline ) {
                 buffer.bindPipeline( pipeline );
-                lastPipeline = pipeline;
+                holder.lastPipeline = pipeline;
             }
             
             buffer.draw( vertexBuffer, uvBuffer, colouringBuffer, dataBuffer, bufferSize );
         } );
+        buffer.fillQueueTearDown();
     }
     
     private VulkanDataBuffer loadObjectData( Deque< VulkanDataBuffer > availableBuffers, RenderData renderData ) {
@@ -263,6 +266,10 @@ public class VulkanRenderingContext implements RenderingContext {
     
     private VulkanShaderProgram getShader() {
         return device.getShaderProgram3D();
+    }
+    
+    private static class LastPipelineHolder {
+        private VulkanGraphicPipelines.Pipeline lastPipeline = null;
     }
     
     private class Stage {

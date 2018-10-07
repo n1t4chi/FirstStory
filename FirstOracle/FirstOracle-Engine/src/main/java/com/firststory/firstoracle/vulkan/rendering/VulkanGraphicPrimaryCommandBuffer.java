@@ -6,33 +6,34 @@ package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.vulkan.*;
-import com.firststory.firstoracle.vulkan.buffer.VulkanDataBuffer;
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.*;
+
+import java.util.List;
 
 /**
  * @author n1t4chi
  */
-public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
+public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer {
     private final VulkanFrameBuffer frameBuffer;
     private final VulkanSwapChain swapChain;
+    private final VulkanGraphicCommandPool commandPool;
     private final int index;
-    private final VkClearDepthStencilValue stencilValue;
     
-    VulkanGraphicCommandBuffer(
+    VulkanGraphicPrimaryCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
         VulkanFrameBuffer frameBuffer,
         VulkanSwapChain swapChain,
-        VulkanCommandPool< VulkanGraphicCommandBuffer > commandPool,
+        VulkanGraphicCommandPool commandPool,
         int index,
         int... usedBeginInfoFlags
     ) {
-        super( device, address, commandPool, usedBeginInfoFlags );
+        super( device, address, commandPool, null, usedBeginInfoFlags );
         this.frameBuffer = frameBuffer;
         this.swapChain = swapChain;
+        this.commandPool = commandPool;
         this.index = index;
-        stencilValue = VkClearDepthStencilValue.create().depth( 1f ).stencil( 0 );
     }
     
     public int getIndex() {
@@ -45,53 +46,24 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
         super.fillQueueTearDown();
     }
     
-    public VkClearDepthStencilValue getStencilValue() {
-        return stencilValue;
+    public void executeSecondaryBuffers( List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers ) {
+        var buffers = PointerBuffer.allocateDirect( secondaryBuffers.size() );
+        for ( var i = 0; i < secondaryBuffers.size(); i++ ) {
+            buffers.put( i, secondaryBuffers.get( i ).getCommandBuffer().address() );
+        }
+        VK10.vkCmdExecuteCommands( getCommandBuffer(), buffers );
     }
     
-    void setLineWidth( Float lineWidth ) {
-        VK10.vkCmdSetLineWidth( getCommandBuffer(), lineWidth );
+    public VulkanSwapChain getSwapChain() {
+        return swapChain;
     }
     
-    void draw(
-        VulkanDataBuffer vertexBuffer,
-        VulkanDataBuffer uvBuffer,
-        VulkanDataBuffer colourBuffer,
-        VulkanDataBuffer dataBuffer,
-        int bufferSize
-    ) {
-        VK10.vkCmdBindVertexBuffers( getCommandBuffer(), 0,
-            new long[]{
-                vertexBuffer.getBufferAddress().getValue(),
-                uvBuffer.getBufferAddress().getValue(),
-                colourBuffer.getBufferAddress().getValue(),
-                dataBuffer.getBufferAddress().getValue()
-            },
-            new long[]{
-                vertexBuffer.getMemoryOffset(),
-                uvBuffer.getMemoryOffset(),
-                colourBuffer.getMemoryOffset(),
-                dataBuffer.getMemoryOffset(),
-            }
-        );
-        
-        VK10.vkCmdDraw(
-            getCommandBuffer(),
-            bufferSize,
-            1,
-            0,
-            0
-        );
+    List< VulkanGraphicSecondaryCommandBuffer > createSecondaryBuffers( VulkanRenderPass renderPass, int size ) {
+        return commandPool.createSecondaryCommandBuffers( this, renderPass, size );
     }
     
-    void bindDescriptorSets( VulkanGraphicPipelines graphicPipelines, VulkanDescriptorSet descriptorSet ) {
-        VK10.vkCmdBindDescriptorSets( getCommandBuffer(),
-            VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphicPipelines.getPipelineLayout().getValue(),
-            0,
-            MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getAddress().getValue() ),
-            null
-        );
+    public VulkanFrameBuffer getFrameBuffer() {
+        return frameBuffer;
     }
     
     private boolean activeRenderPass = false;
@@ -105,20 +77,12 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     void beginRenderPass( VulkanRenderPass renderPass, Colour backgroundColour ) {
         activeRenderPass = true;
         var renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, backgroundColour );
-        VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_INLINE );
+        VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
     }
     
     void endRenderPass() {
         activeRenderPass = false;
         VK10.vkCmdEndRenderPass( getCommandBuffer() );
-    }
-    
-    void bindPipeline( VulkanGraphicPipelines.Pipeline graphicPipeline ) {
-        VK10.vkCmdBindPipeline(
-            getCommandBuffer(),
-            VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphicPipeline.getGraphicPipeline().getValue()
-        );
     }
     
     private VkRenderPassBeginInfo createRenderPassBeginInfo(
@@ -148,7 +112,7 @@ public class VulkanGraphicCommandBuffer extends VulkanCommandBuffer {
     }
     
     private VkClearValue createDepthStencil() {
-        return VkClearValue.create().depthStencil( stencilValue );
+        return VkClearValue.create().depthStencil( VkClearDepthStencilValue.create().depth( 1f ).stencil( 0 ) );
     }
     
     private VkClearValue createClearColour( Colour colour ) {
