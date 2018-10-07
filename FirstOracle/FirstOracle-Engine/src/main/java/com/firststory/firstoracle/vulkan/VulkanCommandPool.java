@@ -49,19 +49,6 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
         return address;
     }
     
-    public void executeQueue( VulkanCommand< CommandBuffer > commands ) {
-        var commandBuffer = extractNextCommandBuffer();
-        commandBuffer.fillQueueSetup();
-        commandBuffer.fillQueue( commands );
-        commandBuffer.fillQueueTearDown();
-        submitQueue( commandBuffer );
-        executeTearDown( commandBuffer );
-    }
-    
-    public abstract CommandBuffer extractNextCommandBuffer();
-    
-    public abstract void executeTearDown( CommandBuffer commandBuffer );
-    
     public VkSubmitInfo createSubmitInfo( VulkanCommandBuffer... commandBuffers ) {
     
         var commandBuffersPointer = MemoryUtil.memAllocPointer( commandBuffers.length );

@@ -116,6 +116,7 @@ public class VulkanFramework implements RenderingFramework {
         }
         physicalDevices.forEach( VulkanPhysicalDevice::dispose );
         windowSurface.dispose( instance );
+        renderingContext.dispose();
         VK10.vkDestroyInstance( instance, null );
     }
     

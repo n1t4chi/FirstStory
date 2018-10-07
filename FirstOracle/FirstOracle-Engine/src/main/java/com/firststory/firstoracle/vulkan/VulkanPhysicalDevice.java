@@ -5,7 +5,6 @@
 package com.firststory.firstoracle.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.vulkan.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.exceptions.*;
 import com.firststory.firstoracle.vulkan.rendering.*;
@@ -163,6 +162,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return depthResources;
     }
     
+    public VulkanFrameBuffer getCurrentFrameBuffer() {
+        return frameBuffers.get( currentImageIndex );
+    }
+    
     private long extractUniformBufferOffsetAlignment() {
         return properties.limits().minUniformBufferOffsetAlignment();
     }
@@ -193,10 +196,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     public VulkanDescriptor getDescriptor() {
         return descriptor;
-    }
-    
-    void updateBackground( Colour backgroundColour ) {
-        graphicCommandPool.setBackgroundColour( backgroundColour );
     }
     
     public VulkanVertexAttributeLoader getVertexAttributeLoader() {
@@ -236,8 +235,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         updatePipeline( trianglePipelines );
         updatePipeline( linePipelines );
         refreshFrameBuffers( frameBuffers, swapChain, this.trianglePipelines.getOverlayPipeline().getRenderPass(), depthResources );
-        
-        refreshCommandBuffers();
     }
     
     public void updatePipeline( VulkanGraphicPipelines pipeline ) {
@@ -272,7 +269,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         commandPools.forEach( VulkanCommandPool::dispose );
         trianglePipelines.dispose();
         linePipelines.dispose();
-        graphicCommandPool.dispose();
         descriptor.dispose();
         swapChain.dispose();
         bufferProvider.dispose();
@@ -313,7 +309,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return buffer;
     }
     
-    public int acquireCurrentImageIndex() {
+    public int getCurrentImageIndex() {
         return currentImageIndex;
     }
     
@@ -385,10 +381,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         var memoryProperties = VkPhysicalDeviceMemoryProperties.create();
         VK10.vkGetPhysicalDeviceMemoryProperties( physicalDevice, memoryProperties );
         return memoryProperties;
-    }
-    
-    private void refreshCommandBuffers() {
-        graphicCommandPool.refreshCommandBuffers( frameBuffers );
     }
     
     private int tryToAcquireNextImageIndex() {

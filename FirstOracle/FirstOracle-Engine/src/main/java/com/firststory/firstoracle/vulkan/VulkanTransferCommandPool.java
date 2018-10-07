@@ -18,21 +18,28 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
         super( device, usedQueueFamily );
     }
     
-    private VulkanTransferCommandBuffer createNewCommandBuffer( VulkanAddress address ) {
+    public void executeQueue( VulkanCommand< VulkanTransferCommandBuffer > commands ) {
+        var commandBuffer = extractNextCommandBuffer();
+        commandBuffer.fillQueueSetup();
+        commandBuffer.fillQueue( commands );
+        commandBuffer.fillQueueTearDown();
+        submitQueue( commandBuffer );
+        executeTearDown();
+    }
+    
+    public VulkanTransferCommandBuffer extractNextCommandBuffer() {
+        return createNewCommandBuffer();
+    }
+    
+    private VulkanTransferCommandBuffer createNewCommandBuffer() {
         return new VulkanTransferCommandBuffer( getDevice(),
-            address,
+            new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ),
             this,
             VK10.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
         );
     }
     
-    @Override
-    public VulkanTransferCommandBuffer extractNextCommandBuffer() {
-        return createNewCommandBuffer( new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ) );
-    }
-    
-    @Override
-    public void executeTearDown( VulkanTransferCommandBuffer commandBuffer ) {
+    public void executeTearDown() {
         getUsedQueueFamily().waitForQueue();
     }
     

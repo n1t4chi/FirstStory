@@ -21,25 +21,20 @@ public abstract class VulkanCommandBuffer {
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;
     private final VkCommandBuffer commandBuffer;
-    private final VkCommandBufferBeginInfo beginInfo;
     private final VulkanCommandPool< ? extends VulkanCommandBuffer > commandPool;
     private final int[] usedBeginInfoFlags;
-    private final VkCommandBufferInheritanceInfo inheritanceInfo;
     
     public VulkanCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
         VulkanCommandPool< ? extends VulkanCommandBuffer > commandPool,
-        VkCommandBufferInheritanceInfo inheritanceInfo,
         int... usedBeginInfoFlags
     ) {
         this.device = device;
         this.address = address;
         this.commandPool = commandPool;
-        this.inheritanceInfo = inheritanceInfo;
         this.usedBeginInfoFlags = usedBeginInfoFlags;
         commandBuffer = createCommandBuffer();
-        beginInfo = createBeginInfo();
     }
     
     public VkCommandBuffer getCommandBuffer() {
@@ -68,6 +63,10 @@ public abstract class VulkanCommandBuffer {
         return address;
     }
     
+    protected VkCommandBufferInheritanceInfo createInheritanceInfo() {
+        return null;
+    }
+    
     private void resetCommandBuffer() {
         VulkanHelper.assertCallOrThrow(
             () -> VK10.vkResetCommandBuffer( commandBuffer, VK10.VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT ),
@@ -80,7 +79,7 @@ public abstract class VulkanCommandBuffer {
     
     private void beginRecordingCommandBuffer() {
         VulkanHelper.assertCallOrThrow(
-            () -> VK10.vkBeginCommandBuffer( commandBuffer, beginInfo ),
+            () -> VK10.vkBeginCommandBuffer( commandBuffer, createBeginInfo() ),
             resultCode -> {
                 logger.warning( "Failed to begin command buffer!" );
                 return new VulkanCommandBufferException( device, this, "Failed to begin command buffer" );
@@ -106,6 +105,6 @@ public abstract class VulkanCommandBuffer {
         return VkCommandBufferBeginInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO )
             .flags( VulkanHelper.flagsToInt( usedBeginInfoFlags ) )
-            .pInheritanceInfo( inheritanceInfo );
+            .pInheritanceInfo( createInheritanceInfo() );
     }
 }

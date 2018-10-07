@@ -6,6 +6,7 @@ package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanCommandBuffer;
+import com.firststory.firstoracle.vulkan.VulkanFrameBuffer;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.buffer.VulkanDataBuffer;
 import org.lwjgl.system.MemoryUtil;
@@ -17,29 +18,32 @@ import org.lwjgl.vulkan.VkCommandBufferInheritanceInfo;
  */
 public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer {
     
-    private static final int SUBPASS_INDEX = 0;
-    
-    private static VkCommandBufferInheritanceInfo createInheritanceInfo( VulkanGraphicPrimaryCommandBuffer primaryBuffer, VulkanRenderPass renderPass ) {
-        return VkCommandBufferInheritanceInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO )
-            .renderPass( renderPass.getAddress().getValue() )
-            .subpass( SUBPASS_INDEX )
-            .framebuffer( primaryBuffer.getFrameBuffer().getAddress().getValue() )
-        ;
-    }
-    
-    private final VulkanGraphicPrimaryCommandBuffer primaryBuffer;
+    private VkCommandBufferInheritanceInfo inheritanceInfo;
     
     VulkanGraphicSecondaryCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
-        VulkanGraphicPrimaryCommandBuffer primaryBuffer,
         VulkanGraphicCommandPool commandPool,
-        VulkanRenderPass renderPass,
         int... usedBeginInfoFlags
     ) {
-        super( device, address, commandPool, createInheritanceInfo( primaryBuffer, renderPass ), usedBeginInfoFlags );
-        this.primaryBuffer = primaryBuffer;
+        super( device, address, commandPool, usedBeginInfoFlags );
+    }
+    
+    public void update(
+        VulkanRenderPass renderPass,
+        int subpassIndex,
+        VulkanFrameBuffer frameBuffer
+    ) {
+        inheritanceInfo = VkCommandBufferInheritanceInfo.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO )
+            .renderPass( renderPass.getAddress().getValue() )
+            .subpass( subpassIndex )
+            .framebuffer( frameBuffer.getAddress().getValue() );
+    }
+    
+    @Override
+    protected VkCommandBufferInheritanceInfo createInheritanceInfo() {
+        return inheritanceInfo;
     }
     
     void setLineWidth( Float lineWidth ) {

@@ -15,29 +15,17 @@ import java.util.List;
  * @author n1t4chi
  */
 public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer {
-    private final VulkanFrameBuffer frameBuffer;
     private final VulkanSwapChain swapChain;
-    private final VulkanGraphicCommandPool commandPool;
-    private final int index;
     
     VulkanGraphicPrimaryCommandBuffer(
         VulkanPhysicalDevice device,
         VulkanAddress address,
-        VulkanFrameBuffer frameBuffer,
         VulkanSwapChain swapChain,
         VulkanGraphicCommandPool commandPool,
-        int index,
         int... usedBeginInfoFlags
     ) {
-        super( device, address, commandPool, null, usedBeginInfoFlags );
-        this.frameBuffer = frameBuffer;
+        super( device, address, commandPool, usedBeginInfoFlags );
         this.swapChain = swapChain;
-        this.commandPool = commandPool;
-        this.index = index;
-    }
-    
-    public int getIndex() {
-        return index;
     }
     
     @Override
@@ -47,23 +35,14 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer {
     }
     
     public void executeSecondaryBuffers( List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers ) {
+        if( secondaryBuffers.isEmpty() ) {
+            return;
+        }
         var buffers = PointerBuffer.allocateDirect( secondaryBuffers.size() );
         for ( var i = 0; i < secondaryBuffers.size(); i++ ) {
             buffers.put( i, secondaryBuffers.get( i ).getCommandBuffer().address() );
         }
         VK10.vkCmdExecuteCommands( getCommandBuffer(), buffers );
-    }
-    
-    public VulkanSwapChain getSwapChain() {
-        return swapChain;
-    }
-    
-    List< VulkanGraphicSecondaryCommandBuffer > createSecondaryBuffers( VulkanRenderPass renderPass, int size ) {
-        return commandPool.createSecondaryCommandBuffers( this, renderPass, size );
-    }
-    
-    public VulkanFrameBuffer getFrameBuffer() {
-        return frameBuffer;
     }
     
     private boolean activeRenderPass = false;
@@ -74,9 +53,9 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer {
         }
     }
     
-    void beginRenderPass( VulkanRenderPass renderPass, Colour backgroundColour ) {
+    void beginRenderPass( VulkanRenderPass renderPass, VulkanFrameBuffer frameBuffer, Colour backgroundColour ) {
         activeRenderPass = true;
-        var renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, backgroundColour );
+        var renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, frameBuffer, backgroundColour );
         VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
     }
     
@@ -88,6 +67,7 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer {
     private VkRenderPassBeginInfo createRenderPassBeginInfo(
         VulkanRenderPass renderPass,
         VulkanSwapChain swapChain,
+        VulkanFrameBuffer frameBuffer,
         Colour backgroundColour
     ) {
         return VkRenderPassBeginInfo.create()
