@@ -30,6 +30,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     private static final int[] VERTEX_MEMORY_BUFFER_USAGE_FLAGS = {
         VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT,
         VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT
     };
     
     private static final int[] MEMORY_BUFFER_MEMORY_FLAGS = {
@@ -44,14 +45,12 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
     };
     
-    public static boolean once = true;
-    
     static VulkanBufferMemory createUniformMemory(
         VulkanPhysicalDevice device,
         int byteLength,
         VulkanTransferCommandPool dataTransferCommandPool
     ) {
-        return create( device, byteLength, dataTransferCommandPool, UNIFORM_MEMORY_BUFFER_USAGE_FLAGS );
+        return create( device, byteLength, dataTransferCommandPool, UNIFORM_MEMORY_BUFFER_USAGE_FLAGS, false, false );
     }
     
     static VulkanBufferMemory createTextureMemory(
@@ -59,7 +58,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         int byteLength,
         VulkanTransferCommandPool dataTransferCommandPool
     ) {
-        return create( device, byteLength, dataTransferCommandPool, TEXTURE_MEMORY_BUFFER_USAGE_FLAGS );
+        return create( device, byteLength, dataTransferCommandPool, TEXTURE_MEMORY_BUFFER_USAGE_FLAGS, false, false );
     }
     
     static VulkanBufferMemory createVertexMemory(
@@ -67,16 +66,26 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         int byteLength,
         VulkanTransferCommandPool dataTransferCommandPool
     ) {
-        return create( device, byteLength, dataTransferCommandPool, VERTEX_MEMORY_BUFFER_USAGE_FLAGS );
+        return create( device, byteLength, dataTransferCommandPool, VERTEX_MEMORY_BUFFER_USAGE_FLAGS, true, true );
+    }
+    
+    static VulkanBufferMemory createVertexQuickMemory(
+        VulkanPhysicalDevice device,
+        int byteLength,
+        VulkanTransferCommandPool dataTransferCommandPool
+    ) {
+        return create( device, byteLength, dataTransferCommandPool, VERTEX_MEMORY_BUFFER_USAGE_FLAGS, true, true );
     }
     
     private static VulkanBufferMemory create(
         VulkanPhysicalDevice device,
         int byteLength,
         VulkanTransferCommandPool commandPool,
-        int[] usageFlags
+        int[] usageFlags,
+        boolean immediateTransfer,
+        boolean check
     ) {
-        return new VulkanBufferMemory( device, byteLength, commandPool, usageFlags, MEMORY_BUFFER_MEMORY_FLAGS );
+        return new VulkanBufferMemory( device, byteLength, commandPool, usageFlags, MEMORY_BUFFER_MEMORY_FLAGS, immediateTransfer, check );
     }
     
     private final VulkanPhysicalDevice device;
@@ -84,18 +93,25 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     private final VulkanTransferCommandPool commandPool;
     private final VulkanBuffer memoryBuffer;
     private VulkanBuffer copyBuffer = null;
+    private final boolean immediateTransfer;
+    private final boolean check;
+    private ByteBuffer lastBuffer;
     
     private VulkanBufferMemory(
         VulkanPhysicalDevice device,
         int byteLength,
         VulkanTransferCommandPool commandPool,
         int[] usageFlags,
-        int[] memoryFlags
+        int[] memoryFlags,
+        boolean immediateTransfer,
+        boolean check
     )
     {
         this.device = device;
         this.byteLength = byteLength;
         this.commandPool = commandPool;
+        this.immediateTransfer = immediateTransfer;
+        this.check = check;
         memoryBuffer = new VulkanBuffer( usageFlags, memoryFlags, length() );
     }
     
@@ -107,6 +123,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     @Override
     protected void writeUnsafe( LinearMemoryLocation location, ByteBuffer byteBuffer ) {
         location.setLength( byteBuffer.remaining() );
+        lastBuffer = byteBuffer;
         
         if ( copyBuffer != null && copyBuffer.length < location.getLength() ) {
             copyBuffer.delete();
@@ -122,7 +139,6 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         copyBuffer.copyBuffer( memoryBuffer, commandPool, location );
         
         checkData( location );
-        
     }
     
     @Override
@@ -138,22 +154,22 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         memoryBuffer.delete();
     }
     
+    boolean debug = false;
     private void checkData( LinearMemoryLocation location ) {
-        if ( once ) {
+        if ( !(check && debug) ) {
             return;
         }
-        once = true;
+        
+        try {
+            Thread.sleep( 100 );
+        } catch ( InterruptedException e ) {
+            e.printStackTrace();
+        }
     
         var location1 = new LinearMemoryLocation( location.getPosition(),
             location.getLength(),
             location.getTrueLength()
         );
-        
-        try {
-            Thread.sleep( 5000 );
-        } catch ( InterruptedException e ) {
-            e.printStackTrace();
-        }
     
         var readGpuMemoryBuffer = new VulkanBuffer( new int[]{
             VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT
@@ -161,7 +177,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
             VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
         }, location1.getLength() );
         
-        memoryBuffer.copyBuffer( readGpuMemoryBuffer, commandPool, location1 );
+        memoryBuffer.copyBuffer2( readGpuMemoryBuffer, commandPool, location1 );
     
         var readLocalMemory = MemoryUtil.memAlloc( ( int ) location1.getLength() );
         MemoryUtil.memCopy( readGpuMemoryBuffer.mapMemory().getValue(),
@@ -170,15 +186,17 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         );
         readGpuMemoryBuffer.unmapMemory();
     
-        var dst = new byte[ ( int ) location1.getLength() ];
-        readLocalMemory.get( dst );
-        System.out.println( " byte gpu: " + Arrays.toString( dst ) );
-    
+//        var dst = new byte[ ( int ) location1.getLength() ];
+//        readLocalMemory.get( dst );
+//        System.out.println( "byte gpu: " + Arrays.toString( dst ) );
+//        readLocalMemory.rewind();
+        
         var fdst = new float[ ( int ) location1.getLength() / 4 ];
         readLocalMemory.asFloatBuffer().get( fdst );
+
+        System.out.println( "float gpu: " + Arrays.toString( fdst ) );
         
-        System.out.println( " float gpu: " + Arrays.toString( fdst ) );
-        
+        System.out.println();
     }
     
     private void copyMemory( ByteBuffer dataBuffer, VulkanBuffer copyBuffer, LinearMemoryLocation location ) {
@@ -207,22 +225,51 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
             allocatedMemoryAddress = allocateMemory( memoryAllocateInfo );
             bindMemoryToBuffer( bufferAddress, allocatedMemoryAddress );
         }
-        
-        private void copyBuffer(
-            VulkanBuffer dstBuffer, VulkanTransferCommandPool commandPool, LinearMemoryLocation location
-        )
-        {
-            commandPool.executeQueue( commandBuffer -> {
-                var copyRegion = VkBufferCopy.create().srcOffset( 0 ) // Optional
-                    .dstOffset( location.getPosition() ) // Optional
+    
+        private void copyBuffer2(
+            VulkanBuffer dstBuffer,
+            VulkanTransferCommandPool commandPool,
+            LinearMemoryLocation location
+        ) {
+            VulkanCommand< VulkanTransferCommandBuffer > transferCommands = commandBuffer -> {
+                var copyRegion = VkBufferCopy.create()
+                    .srcOffset( location.getPosition( ) )
+                    .dstOffset( 0 )
                     .size( location.getLength() );
-                
-                VK10.vkCmdCopyBuffer( commandBuffer.getCommandBuffer(),
+        
+                VK10.vkCmdCopyBuffer(
+                    commandBuffer.getCommandBuffer(),
                     this.bufferAddress.getValue(),
                     dstBuffer.bufferAddress.getValue(),
                     VkBufferCopy.create( 1 ).put( 0, copyRegion )
                 );
-            } );
+            };
+            commandPool.executeQueue( transferCommands );
+        }
+        
+        private void copyBuffer(
+            VulkanBuffer dstBuffer,
+            VulkanTransferCommandPool commandPool,
+            LinearMemoryLocation location
+        ) {
+            VulkanCommand< VulkanTransferCommandBuffer > transferCommands = commandBuffer -> {
+                var copyRegion = VkBufferCopy.create()
+                    .srcOffset( 0 )
+                    .dstOffset( location.getPosition() )
+                    .size( location.getLength() );
+                
+                VK10.vkCmdCopyBuffer(
+                    commandBuffer.getCommandBuffer(),
+                    this.bufferAddress.getValue(),
+                    dstBuffer.bufferAddress.getValue(),
+                    VkBufferCopy.create( 1 ).put( 0, copyRegion )
+                );
+            };
+            if( immediateTransfer ) {
+                commandPool.executeQueue( transferCommands );
+            } else {
+                commandPool.executeQueueLater( transferCommands );
+            }
         }
         
         private VulkanAddress mapMemory() {

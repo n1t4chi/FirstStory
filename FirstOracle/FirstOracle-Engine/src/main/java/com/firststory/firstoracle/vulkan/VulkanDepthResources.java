@@ -5,8 +5,6 @@
 package com.firststory.firstoracle.vulkan;
 
 import org.lwjgl.vulkan.VK10;
-import org.lwjgl.vulkan.VkClearDepthStencilValue;
-import org.lwjgl.vulkan.VkImageSubresourceRange;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,30 +41,6 @@ public class VulkanDepthResources {
     
     public VulkanFormatProperty getDepthFormat() {
         return depthFormat;
-    }
-    
-    public void clearDepthImage( VulkanCommandBuffer buffer, VkClearDepthStencilValue stencilValue ) {
-        depthImage.transitionImageLayout(
-            depthFormat.getFormat(),
-            VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-        );
-        VK10.vkCmdClearDepthStencilImage(
-            buffer.getCommandBuffer(),
-            depthImage.getAddress().getValue(),
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            stencilValue,
-            VkImageSubresourceRange.create()
-                .aspectMask( VK10.VK_IMAGE_ASPECT_DEPTH_BIT )
-                .baseArrayLayer( 0 )
-                .layerCount( 1 )
-                .levelCount( 1 )
-        );
-        depthImage.transitionImageLayout(
-            depthFormat.getFormat(),
-            VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-        );
     }
     
     private VulkanImageView createDepthImageView( VulkanFormatProperty depthFormat, VulkanImage depthImage ) {

@@ -14,21 +14,43 @@ import java.nio.IntBuffer;
  */
 public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommandBuffer > {
     
+    private VulkanTransferCommandBuffer commandBuffer;
+    
     VulkanTransferCommandPool( VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily ) {
         super( device, usedQueueFamily );
     }
     
     public void executeQueue( VulkanCommand< VulkanTransferCommandBuffer > commands ) {
         var commandBuffer = extractNextCommandBuffer();
-        commandBuffer.fillQueueSetup();
-        commandBuffer.fillQueue( commands );
-        commandBuffer.fillQueueTearDown();
-        submitQueue( commandBuffer );
-        executeTearDown();
+        commands.execute( commandBuffer );
+        executeTransfers();
     }
     
-    public VulkanTransferCommandBuffer extractNextCommandBuffer() {
-        return createNewCommandBuffer();
+    public void executeQueueLater( VulkanCommand< VulkanTransferCommandBuffer > commands ) {
+        var commandBuffer = extractNextCommandBuffer();
+        commands.execute( commandBuffer );
+    }
+    
+    public void executeTransfers() {
+        if( commandBuffer != null ) {
+            commandBuffer.fillQueueTearDown();
+            submitQueue( commandBuffer );
+            executeTearDown();
+            commandBuffer = null;
+        }
+    }
+    
+    private synchronized VulkanTransferCommandBuffer extractNextCommandBuffer() {
+        if( commandBuffer == null ) {
+            commandBuffer = createNewCommandBuffer();
+            commandBuffer.fillQueueSetup();
+        }
+        return commandBuffer;
+    }
+    
+    @Override
+    public IntBuffer createWaitStageMaskBuffer() {
+        return MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT );
     }
     
     private VulkanTransferCommandBuffer createNewCommandBuffer() {
@@ -39,12 +61,8 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
         );
     }
     
-    public void executeTearDown() {
+    private void executeTearDown() {
+        getDevice().waitForQueues();
         getUsedQueueFamily().waitForQueue();
-    }
-    
-    @Override
-    public IntBuffer createWaitStageMaskBuffer() {
-        return MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT );
     }
 }

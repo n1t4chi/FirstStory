@@ -41,11 +41,6 @@ public abstract class VulkanCommandBuffer {
         return commandBuffer;
     }
     
-    @SuppressWarnings( "unchecked" )
-    public < CommandBuffer extends VulkanCommandBuffer > void fillQueue( VulkanCommand< CommandBuffer > commands ) {
-        commands.execute( ( CommandBuffer ) this );
-    }
-    
     public void fillQueueSetup() {
         resetCommandBuffer();
         beginRecordingCommandBuffer();

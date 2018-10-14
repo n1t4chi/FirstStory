@@ -15,6 +15,7 @@ import com.firststory.firstoracle.rendering.RenderData;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.vulkan.VulkanFrameBuffer;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
+import com.firststory.firstoracle.vulkan.VulkanTransferCommandPool;
 import com.firststory.firstoracle.vulkan.buffer.VulkanDataBuffer;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
@@ -47,6 +48,36 @@ public class VulkanRenderingContext implements RenderingContext {
     private final List< VulkanTextureSampler > samplers = new ArrayList<>();
     private final List< VulkanDescriptorPool > descriptorsPools = new ArrayList<>();
     private final ExecutorService executorService;
+    
+    private final Deque< VulkanDataBuffer > availableDataBuffers = new LinkedList<>();
+    
+    private VulkanGraphicPipelines trianglePipelines;
+    private VulkanGraphicPipelines linePipelines;
+    private VulkanTextureSampler textureSampler;
+    private VulkanGraphicCommandPool graphicCommandPool;
+    private VulkanFrameBuffer frameBuffer;
+    private VulkanGraphicPrimaryCommandBuffer primaryBuffer;
+    
+    private RenderStageWorker backgroundWorker = new RenderStageWorker(
+        background,
+        () -> trianglePipelines.getBackgroundPipeline(),
+        () -> linePipelines.getBackgroundPipeline()
+    );
+    private RenderStageWorker scene2DWorker = new RenderStageWorker(
+        scene2D,
+        () -> trianglePipelines.getScene2DPipeline(),
+        () -> linePipelines.getScene2DPipeline()
+    );
+    private RenderStageWorker scene3DWorker = new RenderStageWorker(
+        scene3D,
+        () -> trianglePipelines.getScene3DPipeline(),
+        () -> linePipelines.getScene3DPipeline()
+    );
+    private RenderStageWorker overlayWorker = new RenderStageWorker(
+        overlay,
+        () -> trianglePipelines.getOverlayPipeline(),
+        () -> linePipelines.getOverlayPipeline()
+    );
     
     public VulkanRenderingContext( VulkanPhysicalDevice device ) {
         this( device,
@@ -99,40 +130,11 @@ public class VulkanRenderingContext implements RenderingContext {
         scene2D.setCamera( camera );
     }
     
-    private final Deque< VulkanDataBuffer > availableDataBuffers = new LinkedList<>();
-    
-    private VulkanGraphicPipelines trianglePipelines;
-    private VulkanGraphicPipelines linePipelines;
-    private VulkanTextureSampler textureSampler;
-    private VulkanGraphicCommandPool graphicCommandPool;
-    private VulkanFrameBuffer frameBuffer;
-    private VulkanGraphicPrimaryCommandBuffer primaryBuffer;
-    
-    private RenderStageWorker backgroundWorker = new RenderStageWorker(
-        background,
-        () -> trianglePipelines.getBackgroundPipeline(),
-        () -> linePipelines.getBackgroundPipeline()
-    );
-    private RenderStageWorker scene2DWorker = new RenderStageWorker(
-        scene2D,
-        () -> trianglePipelines.getScene2DPipeline(),
-        () -> linePipelines.getScene2DPipeline()
-    );
-    private RenderStageWorker scene3DWorker = new RenderStageWorker(
-        scene3D,
-        () -> trianglePipelines.getScene3DPipeline(),
-        () -> linePipelines.getScene3DPipeline()
-    );
-    private RenderStageWorker overlayWorker = new RenderStageWorker(
-        overlay,
-        () -> trianglePipelines.getOverlayPipeline(),
-        () -> linePipelines.getOverlayPipeline()
-    );
-    
     public void tearDownSingleRender(
         VulkanGraphicPipelines trianglePipelines,
         VulkanGraphicPipelines linePipelines,
-        VulkanGraphicCommandPool graphicCommandPool
+        VulkanGraphicCommandPool graphicCommandPool,
+        VulkanTransferCommandPool transferCommandPool
     ) {
         this.trianglePipelines = trianglePipelines;
         this.linePipelines = linePipelines;
@@ -147,7 +149,8 @@ public class VulkanRenderingContext implements RenderingContext {
         textureSampler = new VulkanTextureSampler( device );
         
         availableDataBuffers.addAll( dataBuffers );
-        
+    
+        transferCommandPool.executeTransfers();
         frameBuffer = device.getCurrentFrameBuffer();
         graphicCommandPool.resetPrimaryBuffers();
         graphicCommandPool.resetSecondaryBuffers();
@@ -171,7 +174,8 @@ public class VulkanRenderingContext implements RenderingContext {
 //        getAndRenderStageInfo( scene2DFuture, SCENE_2D );
 //        getAndRenderStageInfo( scene3DFuture, SCENE_3D );
 //        getAndRenderStageInfo( overlayFuture, OVERLAY );
-        
+    
+        transferCommandPool.executeTransfers();
         primaryBuffer.fillQueueTearDown();
         graphicCommandPool.submitQueue( primaryBuffer );
         graphicCommandPool.executeTearDown( device.getCurrentImageIndex() );
@@ -265,16 +269,6 @@ public class VulkanRenderingContext implements RenderingContext {
         buffer.bindDescriptorSets( trianglePipelines, descriptorSet );
         
         renderDataList.forEach( renderData -> {
-            var dataBuffer = loadObjectData( availableDataBuffers, renderData );
-            
-            var loader = device.getVertexAttributeLoader();
-            
-            var uvBuffer = loader.extractUvMapBuffer( renderData.getUvMap(), renderData.getUvDirection(), renderData.getUvFrame() );
-            var vertexBuffer = loader.extractVerticesBuffer( renderData.getVertices(), renderData.getVertexFrame() );
-            var colouringBuffer = loader.extractColouringBuffer( renderData.getColouring() );
-            
-            var bufferSize = renderData.getVertices().getVertexLength( renderData.getVertexFrame() );
-            
             VulkanGraphicPipelines.Pipeline pipeline;
             switch ( renderData.getType() ) {
                 case BORDER:
@@ -295,6 +289,16 @@ public class VulkanRenderingContext implements RenderingContext {
                 buffer.bindPipeline( pipeline );
                 holder.lastPipeline = pipeline;
             }
+    
+            var dataBuffer = loadObjectData( availableDataBuffers, renderData );
+    
+            var loader = device.getVertexAttributeLoader();
+    
+            var uvBuffer = loader.extractUvMapBuffer( renderData.getUvMap(), renderData.getUvDirection(), renderData.getUvFrame() );
+            var vertexBuffer = loader.extractVerticesBuffer( renderData.getVertices(), renderData.getVertexFrame() );
+            var colouringBuffer = loader.extractColouringBuffer( renderData.getColouring() );
+    
+            var bufferSize = renderData.getVertices().getVertexLength( renderData.getVertexFrame() );
             
             buffer.draw( vertexBuffer, uvBuffer, colouringBuffer, dataBuffer, bufferSize );
         } );
@@ -313,9 +317,9 @@ public class VulkanRenderingContext implements RenderingContext {
         VulkanDataBuffer dataBuffer;
         if ( !availableBuffers.isEmpty() ) {
             dataBuffer = availableBuffers.poll();
-            dataBuffer.load( data );
+            dataBuffer.load2( data );
         } else {
-            dataBuffer = device.getBufferProvider().createVertexBuffer( data );
+            dataBuffer = device.getBufferProvider().createQuickVertexBuffer( data );
             dataBuffers.add( dataBuffer );
         }
         return dataBuffer;

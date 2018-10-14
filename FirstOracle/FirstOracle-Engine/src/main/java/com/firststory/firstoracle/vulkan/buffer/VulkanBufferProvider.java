@@ -4,10 +4,13 @@
 
 package com.firststory.firstoracle.vulkan.buffer;
 
+import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.VulkanTransferCommandPool;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author n1t4chi
@@ -30,8 +33,11 @@ public class VulkanBufferProvider {
     private VulkanDataBufferProvider textureBufferProvider;
     private VulkanBufferMemory vertexMemory;
     private VulkanDataBufferProvider vertexBufferProvider;
+    private VulkanBufferMemory vertexQuickMemory;
+    private VulkanDataBufferProvider vertexQuickBufferProvider;
     private VulkanBufferMemory uniformMemory;
     private VulkanDataBufferProvider uniformBufferProvider;
+    private final List< VulkanAddress > memoryAddresses = new ArrayList<>();
     
     private VulkanBufferProvider(
         VulkanPhysicalDevice device,
@@ -43,8 +49,16 @@ public class VulkanBufferProvider {
         this.textureTransferCommandPool = textureTransferCommandPool;
     }
     
+    public List< VulkanAddress  > getMemoryAddresses() {
+        return memoryAddresses;
+    }
+    
     public VulkanDataBuffer createVertexBuffer( float[] array ) {
-        return vertexBufferProvider.create( array );
+        return vertexBufferProvider.create2( array );
+    }
+    
+    public VulkanDataBuffer createQuickVertexBuffer( float[] array ) {
+        return vertexQuickBufferProvider.create2( array );
     }
     
     public VulkanDataBuffer createUniformBuffer( float[] uniformBufferData ) {
@@ -78,9 +92,17 @@ public class VulkanBufferProvider {
         
         vertexMemory = VulkanBufferMemory.createVertexMemory( device, getSuitableVertexDataMemoryLength(), dataTransferCommandPool );
         vertexBufferProvider = new VulkanDataBufferProvider( vertexMemory, 1 );
+    
+        vertexQuickMemory = VulkanBufferMemory.createVertexQuickMemory( device, getSuitableVertexDataMemoryLength(), dataTransferCommandPool );
+        vertexQuickBufferProvider = new VulkanDataBufferProvider( vertexQuickMemory, 1 );
         
         uniformMemory = VulkanBufferMemory.createUniformMemory( device, getSuitableUniformMemoryLength(), dataTransferCommandPool );
         uniformBufferProvider = new VulkanDataBufferProvider( uniformMemory, uniformBufferOffsetAlignment );
+        
+        memoryAddresses.clear();
+        memoryAddresses.add( textureMemory.getAddress() );
+        memoryAddresses.add( vertexMemory.getAddress() );
+        memoryAddresses.add( uniformMemory.getAddress() );
         return this;
     }
     

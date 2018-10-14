@@ -12,7 +12,6 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
 
 /**
  * @author n1t4chi
@@ -23,7 +22,9 @@ public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
     private ByteBuffer byteBuffer = MemoryUtil.memAlloc( 1024 * 4 );
     
     VulkanDataBuffer(
-        VulkanDataBufferProvider controller, VulkanBufferMemory memory, LinearMemoryLocation memoryLocation
+        VulkanDataBufferProvider controller,
+        VulkanBufferMemory memory,
+        LinearMemoryLocation memoryLocation
     )
     {
         super( controller, memoryLocation );
@@ -46,17 +47,12 @@ public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
         load( data.length, () -> byteBuffer.put( data ) );
     }
     
-    
     public void load( float[] data ) throws CannotCreateBufferException {
-        if( false ) {
-            var bb = MemoryUtil.memAlloc( data.length * 4 );
-            bb.asFloatBuffer().put( data );
-            var ba = new byte[ data.length * 4];
-            bb.get( ba );
-            System.out.println( " float local: " + Arrays.toString( data ) );
-            System.out.println( " byte local: " + Arrays.toString( ba ) );
-        }
-        
+        load( data.length*4, () -> byteBuffer.asFloatBuffer().put( data ) );
+    }
+    
+    public void load2( float[] data ) throws CannotCreateBufferException {
+//        System.out.println( "input data: "+Arrays.toString( data ) );
         load( data.length*4, () -> byteBuffer.asFloatBuffer().put( data ) );
     }
     
@@ -73,5 +69,11 @@ public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
         putData.run();
         byteBuffer.limit( dataLength );
         load( byteBuffer );
+    }
+    
+    @Override
+    public String toString() {
+        return "Buffer@" + hashCode() + "{ buf: " + getBufferAddress().getValue() + ", of: " + getMemoryOffset() +" }";
+        
     }
 }

@@ -82,7 +82,7 @@ public class WindowImpl implements Window {
             frameCount = 0;
             lastFps = 0;
             lastFrameUpdate = getTime();
-            lastFpsUpdate = getLastFrameUpdate();
+            lastFpsUpdate = lastFrameUpdate;
         } catch ( Exception ex ) {
             close(); //do not place in finally!
             throw new RuntimeException( ex );
@@ -91,13 +91,14 @@ public class WindowImpl implements Window {
     
     @Override
     public void setupRenderCycleVariables() {
-        lastFrameUpdate = getTime();
-        if ( frameCount % 100 == 0 ) {
-            lastFps = ( int ) ( ( float ) frameCount / ( getLastFrameUpdate() - lastFpsUpdate ) );
-            lastFpsUpdate = getLastFrameUpdate();
+        var currentFrameUpdate = getTime();
+        if ( currentFrameUpdate - lastFpsUpdate > 1 ) {
+            lastFps = ( int ) ( ( float ) frameCount / ( currentFrameUpdate - lastFpsUpdate ) );
+            lastFpsUpdate = currentFrameUpdate;
             frameCount = 0;
             notifyFpsListeners( lastFps );
         }
+        lastFrameUpdate = currentFrameUpdate;
         frameCount++;
     }
     

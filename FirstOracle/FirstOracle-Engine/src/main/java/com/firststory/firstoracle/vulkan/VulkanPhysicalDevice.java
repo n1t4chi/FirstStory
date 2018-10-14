@@ -166,6 +166,14 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return frameBuffers.get( currentImageIndex );
     }
     
+    public List< VulkanAddress > getMemoryAddresses() {
+        return bufferProvider.getMemoryAddresses();
+    }
+    
+    public void waitForQueues() {
+        usedQueueFamilies.forEach( VulkanQueueFamily::waitForQueue );
+    }
+    
     private long extractUniformBufferOffsetAlignment() {
         return properties.limits().minUniformBufferOffsetAlignment();
     }
@@ -210,7 +218,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return textureLoader;
     }
     
-    VulkanTransferCommandPool getTextureTransferCommandPool() {
+    public VulkanTransferCommandPool getTextureTransferCommandPool() {
         return textureTransferCommandPool;
     }
     
@@ -252,15 +260,16 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
         currentImageIndex = acquireNextImageIndex();
-        renderingContext.tearDownSingleRender( trianglePipelines, linePipelines, graphicCommandPool );
+        renderingContext.tearDownSingleRender( trianglePipelines, linePipelines, graphicCommandPool, vertexDataTransferCommandPool );
     
-        if( currentImageIndex == swapChain.getImageViews().size() - 1 ) {
-            updateRenderingContext();
-        }
+//        if( currentImageIndex == swapChain.getImageViews().size() - 1 ) {
+//            updateRenderingContext();
+//        }
         
-        if ( VulkanFramework.validationLayersAreEnabled() ) {
+        // todo: fix
+//        if ( VulkanFramework.validationLayersAreEnabled() ) {
             presentationFamily.waitForQueue();
-        }
+//        }
     }
     
     void dispose() {

@@ -38,6 +38,13 @@ public class VulkanDataBufferProvider extends LinearMemoryController< VulkanBuff
         return buffer;
     }
     
+    public VulkanDataBuffer create2( float[] data ) throws CannotCreateBufferException {
+        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
+        buffer.create();
+        buffer.load2( data );
+        return buffer;
+    }
+    
     public VulkanDataBuffer create( FloatBuffer data ) throws CannotCreateBufferException {
         return create( MemoryUtil.memByteBuffer( MemoryUtil.memAddress( data ), data.remaining()*4 ) );
     }

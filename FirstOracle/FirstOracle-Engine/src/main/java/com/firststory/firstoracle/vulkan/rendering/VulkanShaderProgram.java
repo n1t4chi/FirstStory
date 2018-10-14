@@ -92,7 +92,7 @@ public class VulkanShaderProgram implements ShaderProgram {
     }
     
     float[] getInputData() {
-        return inBufferData;
+        return inBufferData.clone();
     }
     
     void bindPosition( Vector3fc vector ) {
