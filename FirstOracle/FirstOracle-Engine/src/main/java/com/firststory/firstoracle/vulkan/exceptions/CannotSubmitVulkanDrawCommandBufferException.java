@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.vulkan.exceptions;
 
-import com.firststory.firstoracle.vulkan.VulkanCommandPool;
+import com.firststory.firstoracle.vulkan.commands.VulkanCommandPool;
 import org.lwjgl.vulkan.VkQueue;
 
 /**

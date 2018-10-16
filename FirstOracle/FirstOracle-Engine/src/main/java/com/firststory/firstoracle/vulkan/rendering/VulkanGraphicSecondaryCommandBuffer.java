@@ -5,10 +5,10 @@
 package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
-import com.firststory.firstoracle.vulkan.VulkanCommandBuffer;
 import com.firststory.firstoracle.vulkan.VulkanFrameBuffer;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.buffer.VulkanDataBuffer;
+import com.firststory.firstoracle.vulkan.commands.VulkanCommandBuffer;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkCommandBufferInheritanceInfo;

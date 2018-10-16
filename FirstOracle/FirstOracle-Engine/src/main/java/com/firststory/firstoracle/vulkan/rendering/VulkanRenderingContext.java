@@ -15,8 +15,8 @@ import com.firststory.firstoracle.rendering.RenderData;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.vulkan.VulkanFrameBuffer;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
-import com.firststory.firstoracle.vulkan.VulkanTransferCommandPool;
 import com.firststory.firstoracle.vulkan.buffer.VulkanDataBuffer;
+import com.firststory.firstoracle.vulkan.transfer.VulkanTransferCommandPool;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
 import java.util.*;

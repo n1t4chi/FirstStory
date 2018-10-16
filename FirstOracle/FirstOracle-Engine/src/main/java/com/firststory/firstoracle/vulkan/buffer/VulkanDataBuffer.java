@@ -25,8 +25,7 @@ public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
         VulkanDataBufferProvider controller,
         VulkanBufferMemory memory,
         LinearMemoryLocation memoryLocation
-    )
-    {
+    ) {
         super( controller, memoryLocation );
         this.memory = memory;
     }

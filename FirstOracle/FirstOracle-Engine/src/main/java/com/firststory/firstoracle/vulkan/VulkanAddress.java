@@ -58,4 +58,9 @@ public class VulkanAddress {
     public boolean isNotNull() {
         return value != NULL_HANDLE;
     }
+    
+    @Override
+    public String toString() {
+        return "Adr=" + value;
+    }
 }

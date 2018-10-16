@@ -4,8 +4,8 @@
 
 package com.firststory.firstoracle.vulkan.exceptions;
 
-import com.firststory.firstoracle.vulkan.VulkanCommandBuffer;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
+import com.firststory.firstoracle.vulkan.commands.VulkanCommandBuffer;
 
 /**
  * @author n1t4chi

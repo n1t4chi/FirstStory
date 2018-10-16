@@ -29,7 +29,7 @@ public class VulkanQueueFamily {
         return queue;
     }
     
-    void waitForQueue() {
+    public void waitForQueue() {
         VK10.vkQueueWaitIdle( getQueue() );
     }
     
@@ -44,7 +44,7 @@ public class VulkanQueueFamily {
         return properties;
     }
     
-    int getIndex() {
+    public int getIndex() {
         return index;
     }
     

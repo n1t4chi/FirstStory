@@ -8,6 +8,7 @@ import com.firststory.firstoracle.vulkan.exceptions.CannotAllocateVulkanImageMem
 import com.firststory.firstoracle.vulkan.exceptions.CannotBindVulkanImageMemoryException;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanImageException;
 import com.firststory.firstoracle.vulkan.exceptions.CannotTransitionVulkanImage;
+import com.firststory.firstoracle.vulkan.transfer.VulkanTransferCommandBuffer;
 import org.lwjgl.vulkan.*;
 
 /**
@@ -277,17 +278,19 @@ public class VulkanInMemoryImage extends VulkanImage {
         }
         
         
-        getDevice().getTextureTransferCommandPool().executeQueue( commandBuffer -> invokePipelineBarrier(
-            srcStageMask,
-            dstStageMask,
-            commandBuffer,
-            createBarrierBuffer( oldLayout,
-                newLayout,
-                format,
-                srcAccessMask,
-                dstAccessMask
+        getDevice().getTextureTransferCommandPool().executeQueue( commandBuffer ->
+            invokePipelineBarrier(
+                srcStageMask,
+                dstStageMask,
+                commandBuffer,
+                createBarrierBuffer( oldLayout,
+                    newLayout,
+                    format,
+                    srcAccessMask,
+                    dstAccessMask
+                )
             )
-        ) );
+        );
     }
     
     private void invokePipelineBarrier(

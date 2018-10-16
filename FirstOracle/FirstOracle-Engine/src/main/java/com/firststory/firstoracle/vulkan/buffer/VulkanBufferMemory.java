@@ -4,13 +4,20 @@
 
 package com.firststory.firstoracle.vulkan.buffer;
 
-import com.firststory.firstoracle.vulkan.*;
+import com.firststory.firstoracle.vulkan.VulkanAddress;
+import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.VulkanMemoryType;
+import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.exceptions.CannotAllocateVulkanMemoryException;
 import com.firststory.firstoracle.vulkan.exceptions.CannotBindVulkanMemoryException;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanVertexBufferException;
 import com.firststory.firstoracle.vulkan.exceptions.CannotMapVulkanMemoryException;
+import com.firststory.firstoracle.vulkan.transfer.VulkanTransferCommandPool;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.vulkan.*;
+import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkBufferCreateInfo;
+import org.lwjgl.vulkan.VkMemoryAllocateInfo;
+import org.lwjgl.vulkan.VkMemoryRequirements;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -50,7 +57,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         int byteLength,
         VulkanTransferCommandPool dataTransferCommandPool
     ) {
-        return create( device, byteLength, dataTransferCommandPool, UNIFORM_MEMORY_BUFFER_USAGE_FLAGS, false, false );
+        return create( device, byteLength, dataTransferCommandPool, UNIFORM_MEMORY_BUFFER_USAGE_FLAGS, false );
     }
     
     static VulkanBufferMemory createTextureMemory(
@@ -58,7 +65,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         int byteLength,
         VulkanTransferCommandPool dataTransferCommandPool
     ) {
-        return create( device, byteLength, dataTransferCommandPool, TEXTURE_MEMORY_BUFFER_USAGE_FLAGS, false, false );
+        return create( device, byteLength, dataTransferCommandPool, TEXTURE_MEMORY_BUFFER_USAGE_FLAGS, false );
     }
     
     static VulkanBufferMemory createVertexMemory(
@@ -66,7 +73,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         int byteLength,
         VulkanTransferCommandPool dataTransferCommandPool
     ) {
-        return create( device, byteLength, dataTransferCommandPool, VERTEX_MEMORY_BUFFER_USAGE_FLAGS, true, true );
+        return create( device, byteLength, dataTransferCommandPool, VERTEX_MEMORY_BUFFER_USAGE_FLAGS, true );
     }
     
     static VulkanBufferMemory createVertexQuickMemory(
@@ -74,7 +81,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         int byteLength,
         VulkanTransferCommandPool dataTransferCommandPool
     ) {
-        return create( device, byteLength, dataTransferCommandPool, VERTEX_MEMORY_BUFFER_USAGE_FLAGS, true, true );
+        return create( device, byteLength, dataTransferCommandPool, VERTEX_MEMORY_BUFFER_USAGE_FLAGS, true );
     }
     
     private static VulkanBufferMemory create(
@@ -82,10 +89,9 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         int byteLength,
         VulkanTransferCommandPool commandPool,
         int[] usageFlags,
-        boolean immediateTransfer,
         boolean check
     ) {
-        return new VulkanBufferMemory( device, byteLength, commandPool, usageFlags, MEMORY_BUFFER_MEMORY_FLAGS, immediateTransfer, check );
+        return new VulkanBufferMemory( device, byteLength, commandPool, usageFlags, MEMORY_BUFFER_MEMORY_FLAGS, check );
     }
     
     private final VulkanPhysicalDevice device;
@@ -93,7 +99,6 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     private final VulkanTransferCommandPool commandPool;
     private final VulkanBuffer memoryBuffer;
     private VulkanBuffer copyBuffer = null;
-    private final boolean immediateTransfer;
     private final boolean check;
     private ByteBuffer lastBuffer;
     
@@ -103,14 +108,12 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         VulkanTransferCommandPool commandPool,
         int[] usageFlags,
         int[] memoryFlags,
-        boolean immediateTransfer,
         boolean check
     )
     {
         this.device = device;
         this.byteLength = byteLength;
         this.commandPool = commandPool;
-        this.immediateTransfer = immediateTransfer;
         this.check = check;
         memoryBuffer = new VulkanBuffer( usageFlags, memoryFlags, length() );
     }
@@ -125,18 +128,13 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         location.setLength( byteBuffer.remaining() );
         lastBuffer = byteBuffer;
         
-        if ( copyBuffer != null && copyBuffer.length < location.getLength() ) {
-            copyBuffer.delete();
-            copyBuffer = null;
-        }
-        
-        if ( copyBuffer == null ) {
-            copyBuffer = new VulkanBuffer( COPY_BUFFER_USAGE_FLAGS, COPY_BUFFER_MEMORY_FLAGS, location.getLength() );
-        }
+        var copyBuffer = new VulkanBuffer( COPY_BUFFER_USAGE_FLAGS, COPY_BUFFER_MEMORY_FLAGS, location.getLength() );
         
         copyMemory( byteBuffer, copyBuffer, location );
         copyBuffer.unmapMemory();
         copyBuffer.copyBuffer( memoryBuffer, commandPool, location );
+    
+//        copyBuffer.delete();
         
         checkData( location );
     }
@@ -229,22 +227,15 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         private void copyBuffer2(
             VulkanBuffer dstBuffer,
             VulkanTransferCommandPool commandPool,
-            LinearMemoryLocation location
+            LinearMemoryLocation sourceLocation
         ) {
-            VulkanCommand< VulkanTransferCommandBuffer > transferCommands = commandBuffer -> {
-                var copyRegion = VkBufferCopy.create()
-                    .srcOffset( location.getPosition( ) )
-                    .dstOffset( 0 )
-                    .size( location.getLength() );
-        
-                VK10.vkCmdCopyBuffer(
-                    commandBuffer.getCommandBuffer(),
-                    this.bufferAddress.getValue(),
-                    dstBuffer.bufferAddress.getValue(),
-                    VkBufferCopy.create( 1 ).put( 0, copyRegion )
-                );
-            };
-            commandPool.executeQueue( transferCommands );
+            commandPool.putDataToTransferForNow(
+                this.bufferAddress,
+                sourceLocation.getPosition(),
+                dstBuffer.bufferAddress,
+                0,
+                sourceLocation.getLength()
+            );
         }
         
         private void copyBuffer(
@@ -252,24 +243,13 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
             VulkanTransferCommandPool commandPool,
             LinearMemoryLocation location
         ) {
-            VulkanCommand< VulkanTransferCommandBuffer > transferCommands = commandBuffer -> {
-                var copyRegion = VkBufferCopy.create()
-                    .srcOffset( 0 )
-                    .dstOffset( location.getPosition() )
-                    .size( location.getLength() );
-                
-                VK10.vkCmdCopyBuffer(
-                    commandBuffer.getCommandBuffer(),
-                    this.bufferAddress.getValue(),
-                    dstBuffer.bufferAddress.getValue(),
-                    VkBufferCopy.create( 1 ).put( 0, copyRegion )
-                );
-            };
-            if( immediateTransfer ) {
-                commandPool.executeQueue( transferCommands );
-            } else {
-                commandPool.executeQueueLater( transferCommands );
-            }
+            commandPool.putDataToTransferForLater(
+                this.bufferAddress,
+                0,
+                dstBuffer.bufferAddress,
+                location.getPosition(),
+                location.getLength()
+            );
         }
         
         private VulkanAddress mapMemory() {

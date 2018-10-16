@@ -6,8 +6,10 @@ package com.firststory.firstoracle.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.vulkan.buffer.VulkanBufferProvider;
+import com.firststory.firstoracle.vulkan.commands.VulkanCommandPool;
 import com.firststory.firstoracle.vulkan.exceptions.*;
 import com.firststory.firstoracle.vulkan.rendering.*;
+import com.firststory.firstoracle.vulkan.transfer.VulkanTransferCommandPool;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -114,8 +116,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             swapChain,
             imageAvailableSemaphore
         );
-        vertexDataTransferCommandPool = new VulkanTransferCommandPool( this, transferFamily );
+//        vertexDataTransferCommandPool = new VulkanTransferCommandPool( this, transferFamily );
         textureTransferCommandPool = new VulkanTransferCommandPool( this, graphicFamily );
+        vertexDataTransferCommandPool = textureTransferCommandPool;
         commandPools.add( graphicCommandPool );
         commandPools.add( vertexDataTransferCommandPool );
         commandPools.add( textureTransferCommandPool );

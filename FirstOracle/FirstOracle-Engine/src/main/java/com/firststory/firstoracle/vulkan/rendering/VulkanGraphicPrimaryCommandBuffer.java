@@ -5,7 +5,11 @@
 package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.vulkan.*;
+import com.firststory.firstoracle.vulkan.VulkanAddress;
+import com.firststory.firstoracle.vulkan.VulkanFrameBuffer;
+import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
+import com.firststory.firstoracle.vulkan.VulkanSwapChain;
+import com.firststory.firstoracle.vulkan.commands.VulkanCommandBuffer;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.*;
 

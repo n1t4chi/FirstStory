@@ -6,7 +6,7 @@ package com.firststory.firstoracle.vulkan.buffer;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
-import com.firststory.firstoracle.vulkan.VulkanTransferCommandPool;
+import com.firststory.firstoracle.vulkan.transfer.VulkanTransferCommandPool;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

@@ -2,9 +2,12 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.vulkan;
+package com.firststory.firstoracle.vulkan.commands;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.vulkan.VulkanAddress;
+import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.exceptions.VulkanCommandBufferException;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkCommandBuffer;

@@ -5,6 +5,8 @@
 package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.vulkan.*;
+import com.firststory.firstoracle.vulkan.commands.VulkanCommandBuffer;
+import com.firststory.firstoracle.vulkan.commands.VulkanCommandPool;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.KHRSwapchain;
 import org.lwjgl.vulkan.VK10;
@@ -139,7 +141,6 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPr
         ;
     }
     
-    @Override
     public IntBuffer createWaitStageMaskBuffer() {
         return MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
     }

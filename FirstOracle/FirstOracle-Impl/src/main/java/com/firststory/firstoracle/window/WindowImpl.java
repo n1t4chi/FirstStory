@@ -29,9 +29,9 @@ public class WindowImpl implements Window {
     private static final Logger logger = FirstOracleConstants.getLogger( Window.class );
     
     private final WindowSettings settings;
-    private final ArrayList< TimeListener > timeListeners = new ArrayList<>( 3 );
-    private final ArrayList< QuitListener > quitListeners = new ArrayList<>( 3 );
-    private final ArrayList< FpsListener > fpsListeners = new ArrayList<>( 5 );
+    private final ArrayList< TimeListener > timeListeners = new ArrayList<>();
+    private final ArrayList< QuitListener > quitListeners = new ArrayList<>();
+    private final ArrayList< FpsListener > fpsListeners = new ArrayList<>();
     private final GuiApplicationData< ? > guiApplicationData;
     private final Renderer renderer;
     private final WindowFrameworkProvider windowFrameworkProvider;
