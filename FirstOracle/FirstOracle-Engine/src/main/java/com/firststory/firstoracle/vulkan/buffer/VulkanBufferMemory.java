@@ -110,6 +110,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         this.byteLength = byteLength;
         this.commandPool = commandPool;
         memoryBuffer = new VulkanBuffer( usageFlags, memoryFlags, length() );
+        commandPool.registerMemory( this );
     }
     
     @Override

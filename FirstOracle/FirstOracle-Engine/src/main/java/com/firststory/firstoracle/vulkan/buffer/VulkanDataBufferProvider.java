@@ -20,7 +20,7 @@ public class VulkanDataBufferProvider
     implements BufferProvider< VulkanDataBuffer, ByteBuffer >
 {
     
-    public VulkanDataBufferProvider( VulkanBufferMemory memory, long memoryOffsetAlignment ) {
+    public VulkanDataBufferProvider( VulkanBufferMemory memory, long memoryOffsetAlignment ){
         super( memory, memoryOffsetAlignment );
     }
     

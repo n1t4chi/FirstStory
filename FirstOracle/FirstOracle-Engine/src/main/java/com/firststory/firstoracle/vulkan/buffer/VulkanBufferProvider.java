@@ -23,7 +23,8 @@ public class VulkanBufferProvider {
         VulkanTransferCommandPool textureTransferCommandPool,
         long uniformBufferOffsetAlignment
     ) {
-        return new VulkanBufferProvider( device, dataTransferCommandPool, textureTransferCommandPool ).init( uniformBufferOffsetAlignment );
+        return new VulkanBufferProvider( device, dataTransferCommandPool, textureTransferCommandPool )
+            .init( uniformBufferOffsetAlignment );
     }
     
     private final VulkanPhysicalDevice device;

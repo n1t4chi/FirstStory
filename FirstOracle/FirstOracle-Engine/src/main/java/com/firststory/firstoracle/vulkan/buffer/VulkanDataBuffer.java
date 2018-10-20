@@ -18,20 +18,20 @@ import java.nio.IntBuffer;
  */
 public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
     
-    private final VulkanBufferMemory memory;
+    private final VulkanBufferMemory deviceMemory;
     private ByteBuffer byteBuffer = MemoryUtil.memAlloc( 1024 * 4 );
     
     VulkanDataBuffer(
         VulkanDataBufferProvider controller,
-        VulkanBufferMemory memory,
-        LinearMemoryLocation memoryLocation
+        VulkanBufferMemory deviceMemory,
+        LinearMemoryLocation deviceMemoryLocation
     ) {
-        super( controller, memoryLocation );
-        this.memory = memory;
+        super( controller, deviceMemoryLocation );
+        this.deviceMemory = deviceMemory;
     }
     
     public VulkanAddress getBufferAddress() {
-        return memory.getAddress();
+        return deviceMemory.getAddress();
     }
     
     public void load( FloatBuffer data ) throws BufferNotCreatedException {
