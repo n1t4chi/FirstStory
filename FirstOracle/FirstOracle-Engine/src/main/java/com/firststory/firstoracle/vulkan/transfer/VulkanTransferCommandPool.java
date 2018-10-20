@@ -58,6 +58,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
         buffer.fillQueueTearDown();
         submitQueue( buffer );
         executeTearDown();
+        memories.forEach( VulkanBufferMemory::resetLocalTransferBuffers );
     }
     
     private void executeTransferDatas( VulkanTransferCommandBuffer buffer ) {
