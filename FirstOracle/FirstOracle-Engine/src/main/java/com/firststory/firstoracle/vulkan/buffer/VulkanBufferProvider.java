@@ -54,11 +54,11 @@ public class VulkanBufferProvider {
     }
     
     public VulkanDataBuffer createVertexBuffer( float[] array ) {
-        return vertexBufferProvider.create2( array );
+        return vertexBufferProvider.create( array );
     }
     
     public VulkanDataBuffer createQuickVertexBuffer( float[] array ) {
-        return vertexQuickBufferProvider.create2( array );
+        return vertexQuickBufferProvider.create( array );
     }
     
     public VulkanDataBuffer createUniformBuffer( float[] uniformBufferData ) {

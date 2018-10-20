@@ -317,7 +317,7 @@ public class VulkanRenderingContext implements RenderingContext {
         VulkanDataBuffer dataBuffer;
         if ( !availableBuffers.isEmpty() ) {
             dataBuffer = availableBuffers.poll();
-            dataBuffer.load2( data );
+            dataBuffer.load( data );
         } else {
             dataBuffer = device.getBufferProvider().createQuickVertexBuffer( data );
             dataBuffers.add( dataBuffer );

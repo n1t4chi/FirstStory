@@ -46,15 +46,16 @@ public interface FirstOracleConstants {
     int NO_FLAGS = 0;
     String FIRST_ORACLE = "FirstOracle";
     int FIRST_ORACLE_VERSION_MAJOR = 0;
-    int FIRST_ORACLE_VERSION_MINOR = 4;
+    int FIRST_ORACLE_VERSION_MINOR = 5;
     int FIRST_ORACLE_VERSION_PATCH = 0;
     
     float UV_DELTA = 0.00001f;
     
-    int SIZE_FLOAT = 4;
-    int SIZE_INT = 4;
-    int SIZE_MATRIX_4F = 4 * 4;
-    int SIZE_VEC_4F = 4;
+    int BYTE_SIZE_BYTE = 1;
+    int BYTE_SIZE_FLOAT = 4;
+    int BYTE_SIZE_INT = 4;
+    int FLOAT_SIZE_MATRIX_4F = 4*4;
+    int FLOAT_SIZE_VEC_4F = 4;
     
     Matrix4fc MATRIX_4F_IDENTIFY = new Matrix4f();
     

@@ -23,12 +23,12 @@ public class VulkanGraphicPipelines {
     private static final int ATTRIBUTES_POSITION = 3;
     private static final int ATTRIBUTES_UV = 2;
     private static final int ATTRIBUTES_COLOUR = 4;
-    private static final int VERTEX_POSITION_DATA_SIZE = ATTRIBUTES_POSITION * SIZE_FLOAT;
-    private static final int VERTEX_UVMAP_DATA_SIZE = ATTRIBUTES_UV * SIZE_FLOAT;
-    private static final int VERTEX_COLOUR_DATA_SIZE = ATTRIBUTES_COLOUR * SIZE_FLOAT;
+    private static final int VERTEX_POSITION_DATA_SIZE = ATTRIBUTES_POSITION * BYTE_SIZE_FLOAT;
+    private static final int VERTEX_UVMAP_DATA_SIZE = ATTRIBUTES_UV * BYTE_SIZE_FLOAT;
+    private static final int VERTEX_COLOUR_DATA_SIZE = ATTRIBUTES_COLOUR * BYTE_SIZE_FLOAT;
     private static final int UNIFORM_COUNT_VEC4 = 5;
     private static final int UNIFORM_COUNT_INT = 1;
-    private static final int UNIFORM_DATA_SIZE = SIZE_FLOAT * SIZE_VEC_4F * UNIFORM_COUNT_VEC4 + SIZE_INT * UNIFORM_COUNT_INT ;
+    private static final int UNIFORM_DATA_SIZE = BYTE_SIZE_FLOAT * FLOAT_SIZE_VEC_4F * UNIFORM_COUNT_VEC4 + BYTE_SIZE_INT * UNIFORM_COUNT_INT ;
     private static final int ATTRIBUTE_UNIFORM_SIZE = UNIFORM_COUNT_VEC4 + UNIFORM_COUNT_INT;
     private static final int[] DYNAMIC_STATE_FLAGS = new int[]{ VK10.VK_DYNAMIC_STATE_LINE_WIDTH };
     
@@ -356,7 +356,7 @@ public class VulkanGraphicPipelines {
             .binding( 3 )
             .location( 4 + location )
             .format( VK10.VK_FORMAT_R32G32B32A32_SFLOAT )
-            .offset( SIZE_VEC_4F * SIZE_FLOAT * location );
+            .offset( FLOAT_SIZE_VEC_4F * BYTE_SIZE_FLOAT * location );
     }
     
     /**
@@ -369,7 +369,7 @@ public class VulkanGraphicPipelines {
             .binding( 3 )
             .location( 4 + UNIFORM_COUNT_VEC4 + location )
             .format( VK10.VK_FORMAT_R32_SINT )
-            .offset( SIZE_VEC_4F * SIZE_FLOAT * ( UNIFORM_COUNT_VEC4 + location ) );
+            .offset( FLOAT_SIZE_VEC_4F * BYTE_SIZE_FLOAT * ( UNIFORM_COUNT_VEC4 + location ) );
     }
     
     private void updateVulkanPipelineLayout( VulkanAddress descriptorSet ) {

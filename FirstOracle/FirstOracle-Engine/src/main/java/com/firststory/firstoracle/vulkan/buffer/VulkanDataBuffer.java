@@ -50,11 +50,6 @@ public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
         load( data.length*4, () -> byteBuffer.asFloatBuffer().put( data ) );
     }
     
-    public void load2( float[] data ) throws CannotCreateBufferException {
-//        System.out.println( "input data: "+Arrays.toString( data ) );
-        load( data.length*4, () -> byteBuffer.asFloatBuffer().put( data ) );
-    }
-    
     public void load( int[] data ) throws CannotCreateBufferException {
         load( data.length*4, () -> byteBuffer.asIntBuffer().put( data ) );
     }

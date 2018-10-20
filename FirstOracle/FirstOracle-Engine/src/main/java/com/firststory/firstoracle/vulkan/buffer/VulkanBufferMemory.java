@@ -20,7 +20,6 @@ import org.lwjgl.vulkan.VkMemoryAllocateInfo;
 import org.lwjgl.vulkan.VkMemoryRequirements;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * @author n1t4chi
@@ -98,9 +97,6 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     private final int byteLength;
     private final VulkanTransferCommandPool commandPool;
     private final VulkanBuffer memoryBuffer;
-    private VulkanBuffer copyBuffer = null;
-    private final boolean check;
-    private ByteBuffer lastBuffer;
     
     private VulkanBufferMemory(
         VulkanPhysicalDevice device,
@@ -109,12 +105,10 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         int[] usageFlags,
         int[] memoryFlags,
         boolean check
-    )
-    {
+    ) {
         this.device = device;
         this.byteLength = byteLength;
         this.commandPool = commandPool;
-        this.check = check;
         memoryBuffer = new VulkanBuffer( usageFlags, memoryFlags, length() );
     }
     
@@ -126,17 +120,12 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     @Override
     protected void writeUnsafe( LinearMemoryLocation location, ByteBuffer byteBuffer ) {
         location.setLength( byteBuffer.remaining() );
-        lastBuffer = byteBuffer;
         
         var copyBuffer = new VulkanBuffer( COPY_BUFFER_USAGE_FLAGS, COPY_BUFFER_MEMORY_FLAGS, location.getLength() );
         
         copyMemory( byteBuffer, copyBuffer, location );
         copyBuffer.unmapMemory();
         copyBuffer.copyBuffer( memoryBuffer, commandPool, location );
-    
-//        copyBuffer.delete();
-        
-        checkData( location );
     }
     
     @Override
@@ -150,51 +139,6 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     
     public void close() {
         memoryBuffer.delete();
-    }
-    
-    boolean debug = false;
-    private void checkData( LinearMemoryLocation location ) {
-        if ( !(check && debug) ) {
-            return;
-        }
-        
-        try {
-            Thread.sleep( 100 );
-        } catch ( InterruptedException e ) {
-            e.printStackTrace();
-        }
-    
-        var location1 = new LinearMemoryLocation( location.getPosition(),
-            location.getLength(),
-            location.getTrueLength()
-        );
-    
-        var readGpuMemoryBuffer = new VulkanBuffer( new int[]{
-            VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT
-        }, new int[]{
-            VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-        }, location1.getLength() );
-        
-        memoryBuffer.copyBuffer2( readGpuMemoryBuffer, commandPool, location1 );
-    
-        var readLocalMemory = MemoryUtil.memAlloc( ( int ) location1.getLength() );
-        MemoryUtil.memCopy( readGpuMemoryBuffer.mapMemory().getValue(),
-            MemoryUtil.memAddress( readLocalMemory ),
-            location1.getLength()
-        );
-        readGpuMemoryBuffer.unmapMemory();
-    
-//        var dst = new byte[ ( int ) location1.getLength() ];
-//        readLocalMemory.get( dst );
-//        System.out.println( "byte gpu: " + Arrays.toString( dst ) );
-//        readLocalMemory.rewind();
-        
-        var fdst = new float[ ( int ) location1.getLength() / 4 ];
-        readLocalMemory.asFloatBuffer().get( fdst );
-
-        System.out.println( "float gpu: " + Arrays.toString( fdst ) );
-        
-        System.out.println();
     }
     
     private void copyMemory( ByteBuffer dataBuffer, VulkanBuffer copyBuffer, LinearMemoryLocation location ) {
@@ -212,30 +156,14 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         private final VulkanMemoryType memoryType;
         private final VkMemoryAllocateInfo memoryAllocateInfo;
         private final VulkanAddress allocatedMemoryAddress;
-        private final long length;
         
         private VulkanBuffer( int[] bufferUsageFlags, int[] bufferMemoryFlags, long length ) {
-            this.length = length;
             bufferAddress = createBuffer( bufferUsageFlags, length );
             memoryRequirements = createMemoryRequirements( bufferAddress );
             memoryType = selectRequiredMemoryType( bufferMemoryFlags );
             memoryAllocateInfo = createMemoryAllocateInfo( memoryRequirements, memoryType );
             allocatedMemoryAddress = allocateMemory( memoryAllocateInfo );
             bindMemoryToBuffer( bufferAddress, allocatedMemoryAddress );
-        }
-    
-        private void copyBuffer2(
-            VulkanBuffer dstBuffer,
-            VulkanTransferCommandPool commandPool,
-            LinearMemoryLocation sourceLocation
-        ) {
-            commandPool.putDataToTransferForNow(
-                this.bufferAddress,
-                sourceLocation.getPosition(),
-                dstBuffer.bufferAddress,
-                0,
-                sourceLocation.getLength()
-            );
         }
         
         private void copyBuffer(

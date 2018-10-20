@@ -15,8 +15,9 @@ import java.nio.IntBuffer;
 /**
  * @author n1t4chi
  */
-public class VulkanDataBufferProvider extends LinearMemoryController< VulkanBufferMemory, ByteBuffer > implements
-    BufferProvider< VulkanDataBuffer, ByteBuffer >
+public class VulkanDataBufferProvider
+    extends LinearMemoryController< VulkanBufferMemory, ByteBuffer >
+    implements BufferProvider< VulkanDataBuffer, ByteBuffer >
 {
     
     public VulkanDataBufferProvider( VulkanBufferMemory memory, long memoryOffsetAlignment ) {
@@ -35,13 +36,6 @@ public class VulkanDataBufferProvider extends LinearMemoryController< VulkanBuff
         var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
         buffer.create();
         buffer.load( data );
-        return buffer;
-    }
-    
-    public VulkanDataBuffer create2( float[] data ) throws CannotCreateBufferException {
-        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
-        buffer.create();
-        buffer.load2( data );
         return buffer;
     }
     
