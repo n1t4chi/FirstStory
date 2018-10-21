@@ -11,7 +11,6 @@ import org.lwjgl.vulkan.VK10;
  */
 public class VulkanAddress {
     
-    private static final VulkanAddress NULL = createNull();
     private static final long NULL_HANDLE = VK10.VK_NULL_HANDLE;
     
     public static VulkanAddress createNull() { return new VulkanAddress(); }
@@ -35,10 +34,15 @@ public class VulkanAddress {
     public boolean equals( Object o ) {
         if ( this == o ) { return true; }
         if ( o == null || getClass() != o.getClass() ) { return false; }
-    
+        
         var that = ( VulkanAddress ) o;
         
         return value == that.value;
+    }
+    
+    @Override
+    public String toString() {
+        return "Adr=" + value;
     }
     
     public VulkanAddress setNull() {
@@ -56,11 +60,10 @@ public class VulkanAddress {
     }
     
     public boolean isNotNull() {
-        return value != NULL_HANDLE;
+        return !isNull();
     }
     
-    @Override
-    public String toString() {
-        return "Adr=" + value;
+    public boolean isNull() {
+        return value == NULL_HANDLE;
     }
 }

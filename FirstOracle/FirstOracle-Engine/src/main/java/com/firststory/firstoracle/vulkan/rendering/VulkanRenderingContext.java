@@ -150,7 +150,6 @@ public class VulkanRenderingContext implements RenderingContext {
         
         availableDataBuffers.addAll( dataBuffers );
     
-        transferCommandPool.executeTransfers();
         frameBuffer = device.getCurrentFrameBuffer();
         graphicCommandPool.resetPrimaryBuffers();
         graphicCommandPool.resetSecondaryBuffers();

@@ -14,28 +14,32 @@ import org.lwjgl.vulkan.VkBufferCopy;
 class TransferData {
     
     private static int id_t = 0;
-    private final VulkanAddress source;
-    private final long sourceOffset;
-    private final VulkanAddress destination;
-    private final long destinationOffset;
-    private final long length;
-    private final int id;
+    private VulkanAddress source;
+    private long sourceOffset;
+    private VulkanAddress destination;
+    private long destinationOffset;
+    private long length;
+    private int id;
     private final VkBufferCopy region = VkBufferCopy.create();
     private final VkBufferCopy.Buffer regions = VkBufferCopy.create( 1 ).put( 0, region );
     
-    TransferData(
+    TransferData() {
+        id = id_t++;
+    }
+    
+    TransferData set(
         VulkanAddress source,
         long sourceOffset,
         VulkanAddress destination,
         long destinationOffset,
         long length
     ) {
-        id = id_t++;
         this.source = source;
         this.sourceOffset = sourceOffset;
         this.destination = destination;
         this.destinationOffset = destinationOffset;
         this.length = length;
+        return this;
     }
     
     @Override
@@ -50,12 +54,9 @@ class TransferData {
     }
     
     void execute( VulkanTransferCommandBuffer commandBuffer ) {
-        if ( !( source.isNotNull() && destination.isNotNull() ) ) {
-            System.err.println( "skip: " + this );
+        if ( source.isNull() || destination.isNull() ) {
             return;
         }
-        System.err.println( "execute:  " + this );
-    
         
         VK10.vkCmdCopyBuffer(
             commandBuffer.getCommandBuffer(),

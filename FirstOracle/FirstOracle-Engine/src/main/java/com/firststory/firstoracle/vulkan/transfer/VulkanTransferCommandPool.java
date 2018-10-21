@@ -13,6 +13,8 @@ import com.firststory.firstoracle.vulkan.commands.VulkanCommandPool;
 import org.lwjgl.vulkan.VK10;
 
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -21,7 +23,9 @@ import java.util.List;
 public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransferCommandBuffer > {
     
     private final List< VulkanBufferMemory > memories = new ArrayList<>();
-    private final List< TransferData > transferDatas = new ArrayList<>();
+    private final List< TransferData > allDatas = new ArrayList<>();
+    private final Deque< TransferData > availableDatas = new LinkedList<>();
+    private final List< TransferData > datasToTransfer = new ArrayList<>();
     
     public VulkanTransferCommandPool( VulkanPhysicalDevice device, VulkanQueueFamily usedQueueFamily ) {
         super( device, usedQueueFamily );
@@ -38,9 +42,18 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
         long destinationOffset,
         long length
     ) {
-        var transferData = new TransferData( source, sourceOffset, destination, destinationOffset, length );
-        transferDatas.add( transferData );
-        System.err.println( "add:  " + transferData + ", size:" + transferDatas.size() );
+        var transferData = availableDatas.poll();
+        if( transferData == null ) {
+            transferData = new TransferData();
+            allDatas.add( transferData );
+        }
+        datasToTransfer.add( transferData.set(
+            source,
+            sourceOffset,
+            destination,
+            destinationOffset,
+            length
+        ) );
     }
     
     public void executeTransfers() {
@@ -53,7 +66,6 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
         
         executeTransferDatas( buffer );
         commands.execute( buffer );
-        System.err.println( "end transfer" );
         
         buffer.fillQueueTearDown();
         submitQueue( buffer );
@@ -62,8 +74,10 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
     }
     
     private void executeTransferDatas( VulkanTransferCommandBuffer buffer ) {
-        transferDatas.forEach( data -> data.execute( buffer ) );
-        transferDatas.clear();
+        datasToTransfer.forEach( data -> data.execute( buffer ) );
+        datasToTransfer.clear();
+        availableDatas.clear();
+        availableDatas.addAll( allDatas );
     }
     
     private VulkanTransferCommandBuffer createNewCommandBuffer() {

@@ -9,6 +9,7 @@ import com.firststory.firstoracle.buffer.TextureBufferLoader;
 import com.firststory.firstoracle.vulkan.buffer.VulkanBufferProvider;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
@@ -86,6 +87,7 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
         textureData.setWidth( width );
         textureData.setHeight( height );
         textureData.setBuffer( bufferLoader.createTextureBuffer( pixels ) );
+        MemoryUtil.memFree( pixels );
         createImage( textureData );
         
         initialTransitionImageLayout( textureData, VK10.VK_FORMAT_R8G8B8A8_UNORM );

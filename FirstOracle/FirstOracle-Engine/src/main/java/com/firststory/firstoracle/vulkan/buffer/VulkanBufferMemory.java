@@ -20,7 +20,6 @@ import org.lwjgl.vulkan.VkMemoryAllocateInfo;
 import org.lwjgl.vulkan.VkMemoryRequirements;
 
 import java.nio.ByteBuffer;
-import java.util.*;
 
 /**
  * @author n1t4chi
@@ -98,6 +97,8 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     private final int byteLength;
     private final VulkanTransferCommandPool commandPool;
     private final VulkanBuffer memoryBuffer;
+    private final VulkanBuffer localMemoryCopyBuffer;
+    private final VulkanAddress mappedLocalMemory;
     
     private VulkanBufferMemory(
         VulkanPhysicalDevice device,
@@ -110,6 +111,8 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         this.byteLength = byteLength;
         this.commandPool = commandPool;
         memoryBuffer = new VulkanBuffer( usageFlags, memoryFlags, length() );
+        localMemoryCopyBuffer = new VulkanBuffer( COPY_BUFFER_USAGE_FLAGS, COPY_BUFFER_MEMORY_FLAGS, length() );
+        mappedLocalMemory = new VulkanAddress();
         commandPool.registerMemory( this );
     }
     
@@ -118,46 +121,21 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         return byteLength;
     }
     
-    private long bufferSizeEqualizer( long length ) {
-        return length + BLOCK_SIZE - length % BLOCK_SIZE;
-    }
-    
-    private final Map< Long, List< VulkanBuffer > > copyBuffersMap = new HashMap<>(  );
-    private final Map< Long, Deque< VulkanBuffer > > availableCopyBuffersMap = new HashMap<>(  );
-    
     public void resetLocalTransferBuffers() {
-        availableCopyBuffersMap.clear();
-        copyBuffersMap.forEach( ( length, vulkanBuffers ) -> {
-            var buffers = availableCopyBuffersMap.computeIfAbsent( length, len -> new LinkedList<>() );
-            buffers.clear();
-            buffers.addAll( vulkanBuffers );
-        } );
+        if ( mappedLocalMemory.isNotNull() ) {
+            localMemoryCopyBuffer.unmapMemory();
+            mappedLocalMemory.setNull();
+        }
     }
     
     @Override
     protected void writeUnsafe( LinearMemoryLocation location, ByteBuffer byteBuffer ) {
         location.setLength( byteBuffer.remaining() );
-        
-        var length = bufferSizeEqualizer( location.getLength() );
-    
-        var copyBuffer = computeNewCopyBuffer( length );
-        copyMemory( byteBuffer, copyBuffer, location );
-        copyBuffer.unmapMemory();
-        copyBuffer.copyBuffer( memoryBuffer, commandPool, location );
-    }
-    
-    private VulkanBuffer computeNewCopyBuffer( long length ) {
-        VulkanBuffer copyBuffer;
-        var copyBuffersWithGoodLength = availableCopyBuffersMap.computeIfAbsent( length, len -> new LinkedList<>() );
-        
-        if( copyBuffersWithGoodLength.isEmpty() ) {
-            copyBuffer = new VulkanBuffer( COPY_BUFFER_USAGE_FLAGS, COPY_BUFFER_MEMORY_FLAGS, length );
-            var buffers = copyBuffersMap.computeIfAbsent( length, len -> new ArrayList<>() );
-            buffers.add( copyBuffer );
-        } else {
-            copyBuffer = copyBuffersWithGoodLength.poll();
+        if ( mappedLocalMemory.isNull() ) {
+            localMemoryCopyBuffer.mapMemory();
         }
-        return copyBuffer;
+        copyMemory( byteBuffer, location );
+        localMemoryCopyBuffer.copyBuffer( memoryBuffer, commandPool, location );
     }
     
     @Override
@@ -173,12 +151,12 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         memoryBuffer.delete();
     }
     
-    private void copyMemory( ByteBuffer dataBuffer, VulkanBuffer copyBuffer, LinearMemoryLocation location ) {
-        MemoryUtil.memCopy( MemoryUtil.memAddress( dataBuffer ),
-            copyBuffer.mapMemory().getValue(),
+    private void copyMemory( ByteBuffer dataBuffer, LinearMemoryLocation location ) {
+        MemoryUtil.memCopy(
+            MemoryUtil.memAddress( dataBuffer ),
+            mappedLocalMemory.getValue() + location.getPosition(),
             location.getLength()
         );
-//        MemoryUtil.memFree( dataBuffer );
     }
     
     private class VulkanBuffer {
@@ -205,15 +183,15 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         ) {
             commandPool.putDataToTransferForLater(
                 this.bufferAddress,
-                0,
+                location.getPosition(),
                 dstBuffer.bufferAddress,
                 location.getPosition(),
                 location.getLength()
             );
         }
         
-        private VulkanAddress mapMemory() {
-            return VulkanHelper.createAddressViaBuffer( address -> VK10.vkMapMemory( device.getLogicalDevice(),
+        private void mapMemory() {
+            VulkanHelper.updateAddressViaBuffer( mappedLocalMemory, address -> VK10.vkMapMemory( device.getLogicalDevice(),
                 allocatedMemoryAddress.getValue(),
                 0,
                 memoryAllocateInfo.allocationSize(),
@@ -259,9 +237,9 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         }
         
         private VkMemoryAllocateInfo createMemoryAllocateInfo(
-            VkMemoryRequirements memoryRequirements, VulkanMemoryType type
-        )
-        {
+            VkMemoryRequirements memoryRequirements,
+            VulkanMemoryType type
+        ) {
             return VkMemoryAllocateInfo.create()
                 .sType( VK10.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO )
                 .pNext( VK10.VK_NULL_HANDLE )

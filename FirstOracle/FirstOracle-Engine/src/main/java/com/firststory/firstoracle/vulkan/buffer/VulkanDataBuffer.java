@@ -68,6 +68,5 @@ public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
     @Override
     public String toString() {
         return "Buffer@" + hashCode() + "{ buf: " + getBufferAddress().getValue() + ", of: " + getMemoryOffset() +" }";
-        
     }
 }

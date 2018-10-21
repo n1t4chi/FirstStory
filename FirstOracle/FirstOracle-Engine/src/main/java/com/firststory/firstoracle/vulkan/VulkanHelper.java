@@ -36,13 +36,16 @@ public class VulkanHelper {
     }
     
     public static VulkanAddress createAddress(
-        ArrayCreator creator, ExceptionThrower thrower
+        ArrayCreator creator,
+        ExceptionThrower thrower
     ) {
         return createAddress( creator, VK_SUCCESS_TEST, thrower );
     }
     
     public static VulkanAddress createAddress(
-        ArrayCreator creator, FailTest test, ExceptionThrower thrower
+        ArrayCreator creator,
+        FailTest test,
+        ExceptionThrower thrower
     ) {
         return updateAddress( new VulkanAddress(), creator, test, thrower );
     }
@@ -68,14 +71,17 @@ public class VulkanHelper {
     
     public static VulkanAddress updateAddress(
         VulkanAddress address,
-        ArrayCreator creator, ExceptionThrower thrower
+        ArrayCreator creator,
+        ExceptionThrower thrower
     ) {
         return updateAddress( address, creator, VK_SUCCESS_TEST, thrower );
     }
     
     public static VulkanAddress updateAddress(
         VulkanAddress address,
-        ArrayCreator creator, FailTest test, ExceptionThrower thrower
+        ArrayCreator creator,
+        FailTest test,
+        ExceptionThrower thrower
     ) {
         var addressA = new long[1];
         VulkanHelper.assertCallOrThrow( () -> creator.create( addressA ), test, thrower );
@@ -101,27 +107,33 @@ public class VulkanHelper {
     }
     
     public static VulkanAddress createAddressViaBuffer(
-        PointerBufferCreator creator, ExceptionThrower thrower
+        PointerBufferCreator creator,
+        ExceptionThrower thrower
     ) {
         return createAddressViaBuffer( creator, VK_SUCCESS_TEST, thrower );
     }
     
     public static VulkanAddress createAddressViaBuffer(
-        PointerBufferCreator creator, FailTest test, ExceptionThrower thrower
+        PointerBufferCreator creator,
+        FailTest test,
+        ExceptionThrower thrower
     ) {
         return updateAddressViaBuffer( new VulkanAddress(), creator, test, thrower );
     }
     
     public static VulkanAddress updateAddressViaBuffer(
         VulkanAddress address,
-        PointerBufferCreator creator, ExceptionThrower thrower
+        PointerBufferCreator creator,
+        ExceptionThrower thrower
     ) {
         return updateAddressViaBuffer( address, creator, VK_SUCCESS_TEST, thrower );
     }
     
     public static VulkanAddress updateAddressViaBuffer(
         VulkanAddress address,
-        PointerBufferCreator creator, FailTest test, ExceptionThrower thrower
+        PointerBufferCreator creator,
+        FailTest test,
+        ExceptionThrower thrower
     ) {
         var pointerBuffer = MemoryUtil.memAllocPointer( 1 );
         VulkanHelper.assertCallOrThrow( () -> creator.create( pointerBuffer ), test, thrower );
@@ -131,7 +143,8 @@ public class VulkanHelper {
     }
     
     public static void assertCallOrThrow(
-        ResultCodeSupplier supplier, ExceptionThrower thrower
+        ResultCodeSupplier supplier,
+        ExceptionThrower thrower
     ) {
         assertCallOrThrow( supplier, VK_SUCCESS_TEST, thrower );
     }
@@ -143,13 +156,17 @@ public class VulkanHelper {
     }
     
     public static void assertCallOrThrow(
-        ResultCodeSupplier supplier, FailTest test, ExceptionThrower thrower
+        ResultCodeSupplier supplier,
+        FailTest test,
+        ExceptionThrower thrower
     ) {
         assertCall( supplier, test, resultCode -> { throw thrower.create( resultCode ); } );
     }
     
     public static void assertCall(
-        ResultCodeSupplier supplier, FailTest test, FailAction action
+        ResultCodeSupplier supplier,
+        FailTest test,
+        FailAction action
     ) {
         int resultCode;
         if ( test.test( resultCode = supplier.get() ) ) {
