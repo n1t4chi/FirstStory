@@ -15,7 +15,9 @@ public class BufferMap {
     private final HashMap< Long, DataBuffer< ? > > buffers = new HashMap<>();
     
     public DataBuffer< ? > get( long key, AbsentArrayBufferProvider provider ) {
-        return buffers.computeIfAbsent( key, provider );
+        synchronized ( buffers ) {
+            return buffers.computeIfAbsent( key, provider );
+        }
     }
     
     public void close() {

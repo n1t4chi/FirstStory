@@ -46,7 +46,9 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final Set< VulkanQueueFamily > usedQueueFamilies = new HashSet<>();
     private final VulkanQueueFamily graphicFamily;
     private final VulkanQueueFamily presentationFamily;
-    private final VulkanQueueFamily transferFamily;
+    private final VulkanQueueFamily vertexTransferFamily;
+    private final VulkanQueueFamily uniformTransferFamily;
+    private final VulkanQueueFamily quickTransferFamily;
     private final VkDevice logicalDevice;
     private final VulkanWindowSurface windowSurface;
     private final List< VkExtensionProperties > availableExtensionProperties;
@@ -56,6 +58,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private final VulkanGraphicCommandPool graphicCommandPool;
     private final VulkanTransferCommandPool vertexDataTransferCommandPool;
+    private final VulkanTransferCommandPool uniformDataTransferCommandPool ;
+    private final VulkanTransferCommandPool quickDataTransferCommandPool;
     private final VulkanTransferCommandPool textureTransferCommandPool;
     private final Set< VulkanCommandPool< ? > > commandPools = new HashSet<>();
     private final VulkanSemaphore imageAvailableSemaphore;
@@ -94,9 +98,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         availableQueueFamilies = getAvailableQueueFamilies();
         graphicFamily = selectGraphicFamily();
         presentationFamily = selectPresentationFamily();
-        transferFamily = selectTransferFamily();
         
-        addUsedQueueFamily( graphicFamily, presentationFamily, transferFamily );
+        Deque< VulkanQueueFamily > transferFamilies = new LinkedList<>();
+        quickTransferFamily = selectTransferFamily( transferFamilies );
+        transferFamilies.add( quickTransferFamily );
+        uniformTransferFamily = selectTransferFamily( transferFamilies );
+        transferFamilies.add( uniformTransferFamily );
+        vertexTransferFamily = selectTransferFamily( transferFamilies );
+        transferFamilies.add( vertexTransferFamily );
+        
+        usedQueueFamilies.add( graphicFamily );
+        usedQueueFamilies.add( presentationFamily );
+        usedQueueFamilies.addAll( transferFamilies );
         logicalDevice = createLogicalDevice( validationLayerNamesBuffer );
         
         memoryProperties = createPhysicalDeviceMemoryProperties();
@@ -116,16 +129,22 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             swapChain,
             imageAvailableSemaphore
         );
-//        vertexDataTransferCommandPool = new VulkanTransferCommandPool( this, transferFamily );
+        vertexDataTransferCommandPool = new VulkanTransferCommandPool( this, vertexTransferFamily );
+        uniformDataTransferCommandPool = new VulkanTransferCommandPool( this, uniformTransferFamily );
+        quickDataTransferCommandPool = new VulkanTransferCommandPool( this, quickTransferFamily );
         textureTransferCommandPool = new VulkanTransferCommandPool( this, graphicFamily );
-        vertexDataTransferCommandPool = textureTransferCommandPool;
+        
         commandPools.add( graphicCommandPool );
         commandPools.add( vertexDataTransferCommandPool );
+        commandPools.add( quickDataTransferCommandPool );
+        commandPools.add( uniformDataTransferCommandPool );
         commandPools.add( textureTransferCommandPool );
     
         bufferProvider = VulkanBufferProvider.createProvider(
             this,
             vertexDataTransferCommandPool,
+            quickDataTransferCommandPool,
+            uniformDataTransferCommandPool,
             textureTransferCommandPool,
             extractUniformBufferOffsetAlignment()
         );
@@ -154,7 +173,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             "\nscore: " + getScore() +
             "\ngraphic family: " + graphicFamily +
             "\npresentation family: " + presentationFamily +
-            "\ntransfer family: " + transferFamily +
+            "\ntransfer family: " + vertexTransferFamily +
             "\nqueues: " + availableQueueFamilies.size() +
             "\nextensions: " + availableExtensionProperties.size() +
             "\nmemory types: " + memoryTypesToString() +
@@ -263,7 +282,15 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
         currentImageIndex = acquireNextImageIndex();
-        renderingContext.tearDownSingleRender( trianglePipelines, linePipelines, graphicCommandPool, vertexDataTransferCommandPool );
+        renderingContext.tearDownSingleRender(
+            trianglePipelines,
+            linePipelines,
+            graphicCommandPool,
+            vertexDataTransferCommandPool,
+            quickDataTransferCommandPool,
+            uniformDataTransferCommandPool,
+            textureTransferCommandPool
+        );
     
 //        if( currentImageIndex == swapChain.getImageViews().size() - 1 ) {
 //            updateRenderingContext();
@@ -438,12 +465,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         frameBuffers.clear();
     }
     
-    private void addUsedQueueFamily( VulkanQueueFamily... family ) {
-        if ( family != null ) {
-            usedQueueFamilies.addAll( Arrays.asList( family ) );
-        }
-    }
-    
     private void assertDeviceProperties() {
         if ( features == null ) {
             throw new CannotCreateVulkanPhysicalDeviceException( this, "Null features" );
@@ -550,13 +571,23 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return extensionsBuffer;
     }
     
-    private VulkanQueueFamily selectTransferFamily() {
-        return selectSuitableFamily( family -> family.isFlagSet( VK10.VK_QUEUE_TRANSFER_BIT ) &&
-                family != graphicFamily,
+    private VulkanQueueFamily selectTransferFamily( Deque< VulkanQueueFamily > alreadySelectedFamilies ) {
+        return selectSuitableFamily(
+            family ->
+                family.isFlagSet( VK10.VK_QUEUE_TRANSFER_BIT ) &&
+                family != graphicFamily &&
+                !alreadySelectedFamilies.contains( family )
+            ,
             ( first, second ) -> VulkanQueueFamily.compare( first, second ),
             () -> {
-                logger.warning( "Selecting graphic family for transfer family." );
-                return graphicFamily;
+                var family = alreadySelectedFamilies.poll();
+                if( family != null ) {
+                    logger.warning( "Selecting previous family for transfer family." );
+                    return family;
+                } else {
+                    logger.warning( "Selecting graphic family for transfer family." );
+                    return graphicFamily;
+                }
             }
         );
     }

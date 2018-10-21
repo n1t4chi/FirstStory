@@ -25,8 +25,10 @@ public abstract class VertexAttribute< Data extends FloatData > {
         int... parameters
     ) {
         var key = getKey( parameters );
-        return ( VertexBuffer ) bufferMaps.computeIfAbsent( loader, ignored -> new BufferMap() )
-            .get( key, () -> loader.provideBuffer( floatDataToArray( getData( parameters ) ) ) );
+        synchronized ( bufferMaps ) {
+            return ( VertexBuffer ) bufferMaps.computeIfAbsent( loader, ignored -> new BufferMap() )
+                .get( key, () -> loader.provideBuffer( floatDataToArray( getData( parameters ) ) ) );
+        }
     }
     
     public void dispose() {

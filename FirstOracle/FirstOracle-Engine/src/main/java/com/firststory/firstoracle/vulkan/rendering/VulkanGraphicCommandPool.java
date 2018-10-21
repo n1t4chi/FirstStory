@@ -72,23 +72,31 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPr
         return buffer;
     }
     
-    public synchronized Deque< VulkanGraphicSecondaryCommandBuffer > provideNextSecondaryBuffers( int size ) {
-        var buffers = new LinkedList<VulkanGraphicSecondaryCommandBuffer>();
-        for ( var i = 0; i < size ; i++ ) {
-            buffers.add( provideNextSecondaryBuffer() );
-        }
+    public Deque< VulkanGraphicSecondaryCommandBuffer > provideNextSecondaryBuffers( int size ) {
+        var buffers = new LinkedList< VulkanGraphicSecondaryCommandBuffer >();
+        provideNextSecondaryBuffer( size, buffers );
         return buffers;
     }
     
-    private VulkanGraphicSecondaryCommandBuffer provideNextSecondaryBuffer() {
-        var buffer = availableSecondaryBuffers.poll();
-        if( buffer == null ) {
-            var buffers = createSecondaryCommandBuffers( DEFAULT_NEW_BUFFERS );
-            availableSecondaryBuffers.addAll( buffers );
-            secondaryBuffers.addAll( buffers );
-            buffer = availableSecondaryBuffers.poll();
+    private void provideNextSecondaryBuffer(
+        int size,
+        LinkedList< VulkanGraphicSecondaryCommandBuffer > buffers
+    ) {
+        while ( buffers.size() < size ) {
+            synchronized ( availableSecondaryBuffers ) {
+                var buffer = availableSecondaryBuffers.poll();
+                if ( buffer == null ) {
+                    var newBuffers = createSecondaryCommandBuffers( Math.max( size, DEFAULT_NEW_BUFFERS ) );
+                    availableSecondaryBuffers.addAll( newBuffers );
+                    secondaryBuffers.addAll( newBuffers );
+                    while ( buffers.size() < size ) {
+                        buffers.add( availableSecondaryBuffers.poll() );
+                    }
+                } else {
+                    buffers.add( buffer );
+                }
+            }
         }
-        return buffer;
     }
     
     private void disposeCommandBuffers() {

@@ -22,19 +22,11 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
         this.memoryOffsetAlignment = memoryOffsetAlignment;
         this.memory = memory;
         var location = newLoc( 0, memory.length(), memory.length() );
-        addLocation( location );
+        freeSpace.add( location );
     }
     
     protected Memory getMemory() {
         return memory;
-    }
-    
-    private void addLocation( LinearMemoryLocation location ) {
-        freeSpace.add( location );
-    }
-    
-    private void removeLocation( LinearMemoryLocation location ) {
-        freeSpace.remove( location );
     }
     
     void write( LinearMemoryLocation location, Data data ) {
@@ -42,34 +34,37 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
     }
     
     void free( LinearMemoryLocation location ) {
-    
-        var adjacentLocations = freeSpace.stream()
-            .sorted()
-            .filter( location::adjacent )
-            .collect( Collectors.toList() )
-        ;
-        removeLocation( location );
-        freeSpace.removeAll( adjacentLocations );
-        adjacentLocations.forEach( location::merge );
-        addLocation( location );
+        synchronized ( freeSpace ) {
+            var adjacentLocations = freeSpace.stream()
+                .sorted()
+                .filter( location::adjacent )
+                .collect( Collectors.toList() )
+            ;
+            freeSpace.remove( location );
+            freeSpace.removeAll( adjacentLocations );
+            adjacentLocations.forEach( location::merge );
+            freeSpace.add( location );
+        }
     }
     
     LinearMemoryLocation allocate( long length ) {
-        var memoryLocation = freeSpace.stream()
-            .sorted( LinearMemoryLocation::compareTrueLengthTo )
-            .filter( Location -> Location.getLength() >= length )
-            .min( LinearMemoryLocation::compareTrueLengthTo )
-            .orElseThrow( () -> new OutOfMemoryException( length ) );
+        synchronized ( freeSpace ) {
+            var memoryLocation = freeSpace.stream()
+                .sorted( LinearMemoryLocation::compareTrueLengthTo )
+                .filter( Location -> Location.getLength() >= length )
+                .min( LinearMemoryLocation::compareTrueLengthTo )
+                .orElseThrow( () -> new OutOfMemoryException( length ) );
     
-        var newLocation = memoryLocation.split( length, memoryOffsetAlignment );
-        removeLocation( memoryLocation );
-        if( newLocation != null ) {
-            addLocation( memoryLocation );
-        } else {
-            newLocation = memoryLocation;
+            var newLocation = memoryLocation.split( length, memoryOffsetAlignment );
+            freeSpace.remove( memoryLocation );
+            if ( newLocation != null ) {
+                freeSpace.add( memoryLocation );
+            } else {
+                newLocation = memoryLocation;
+            }
+            return newLocation;
         }
         
-        return newLocation;
     }
     
     private LinearMemoryLocation newLoc( long offset, long length, long trueLength ) {

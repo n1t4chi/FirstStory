@@ -19,16 +19,25 @@ public class VulkanBufferProvider {
     
     public static VulkanBufferProvider createProvider(
         VulkanPhysicalDevice device,
-        VulkanTransferCommandPool dataTransferCommandPool,
+        VulkanTransferCommandPool vertexDataTransferCommandPool,
+        VulkanTransferCommandPool quickDataTransferCommandPool,
+        VulkanTransferCommandPool uniformDataTransferCommandPool,
         VulkanTransferCommandPool textureTransferCommandPool,
         long uniformBufferOffsetAlignment
     ) {
-        return new VulkanBufferProvider( device, dataTransferCommandPool, textureTransferCommandPool )
-            .init( uniformBufferOffsetAlignment );
+        return new VulkanBufferProvider(
+            device,
+            vertexDataTransferCommandPool,
+            quickDataTransferCommandPool,
+            uniformDataTransferCommandPool,
+            textureTransferCommandPool
+        ).init( uniformBufferOffsetAlignment );
     }
     
     private final VulkanPhysicalDevice device;
-    private final VulkanTransferCommandPool dataTransferCommandPool;
+    private final VulkanTransferCommandPool vertexDataTransferCommandPool;
+    private final VulkanTransferCommandPool quickDataTransferCommandPool;
+    private final VulkanTransferCommandPool uniformDataTransferCommandPool;
     private final VulkanTransferCommandPool textureTransferCommandPool;
     private VulkanBufferMemory textureMemory;
     private VulkanDataBufferProvider textureBufferProvider;
@@ -42,11 +51,15 @@ public class VulkanBufferProvider {
     
     private VulkanBufferProvider(
         VulkanPhysicalDevice device,
-        VulkanTransferCommandPool dataTransferCommandPool,
+        VulkanTransferCommandPool vertexDataTransferCommandPool,
+        VulkanTransferCommandPool quickDataTransferCommandPool,
+        VulkanTransferCommandPool uniformDataTransferCommandPool,
         VulkanTransferCommandPool textureTransferCommandPool
     ) {
         this.device = device;
-        this.dataTransferCommandPool = dataTransferCommandPool;
+        this.vertexDataTransferCommandPool = vertexDataTransferCommandPool;
+        this.quickDataTransferCommandPool = quickDataTransferCommandPool;
+        this.uniformDataTransferCommandPool = uniformDataTransferCommandPool;
         this.textureTransferCommandPool = textureTransferCommandPool;
     }
     
@@ -91,13 +104,13 @@ public class VulkanBufferProvider {
         textureMemory = VulkanBufferMemory.createTextureMemory( device, getSuitableTextureMemoryLength(), textureTransferCommandPool );
         textureBufferProvider = new VulkanDataBufferProvider( textureMemory, 1 );
         
-        vertexMemory = VulkanBufferMemory.createVertexMemory( device, getSuitableVertexDataMemoryLength(), dataTransferCommandPool );
+        vertexMemory = VulkanBufferMemory.createVertexMemory( device, getSuitableVertexDataMemoryLength(), vertexDataTransferCommandPool );
         vertexBufferProvider = new VulkanDataBufferProvider( vertexMemory, 1 );
     
-        vertexQuickMemory = VulkanBufferMemory.createVertexQuickMemory( device, getSuitableVertexDataMemoryLength(), dataTransferCommandPool );
+        vertexQuickMemory = VulkanBufferMemory.createVertexQuickMemory( device, getSuitableQuickDataMemoryLength(), quickDataTransferCommandPool );
         vertexQuickBufferProvider = new VulkanDataBufferProvider( vertexQuickMemory, 1 );
         
-        uniformMemory = VulkanBufferMemory.createUniformMemory( device, getSuitableUniformMemoryLength(), dataTransferCommandPool );
+        uniformMemory = VulkanBufferMemory.createUniformMemory( device, getSuitableUniformMemoryLength(), uniformDataTransferCommandPool );
         uniformBufferProvider = new VulkanDataBufferProvider( uniformMemory, uniformBufferOffsetAlignment );
         
         memoryAddresses.clear();
@@ -113,6 +126,10 @@ public class VulkanBufferProvider {
     
     private int getSuitableVertexDataMemoryLength() {
         return 64 * 1024 * 1024;
+    }
+    
+    private int getSuitableQuickDataMemoryLength() {
+        return 256 * 1024 * 1024;
     }
     
     private int getSuitableUniformMemoryLength() {

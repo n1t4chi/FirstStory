@@ -122,20 +122,24 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     }
     
     public void resetLocalTransferBuffers() {
-        if ( mappedLocalMemory.isNotNull() ) {
-            localMemoryCopyBuffer.unmapMemory();
-            mappedLocalMemory.setNull();
+        synchronized ( mappedLocalMemory ) {
+            if ( mappedLocalMemory.isNotNull() ) {
+                localMemoryCopyBuffer.unmapMemory();
+                mappedLocalMemory.setNull();
+            }
         }
     }
     
     @Override
     protected void writeUnsafe( LinearMemoryLocation location, ByteBuffer byteBuffer ) {
-        location.setLength( byteBuffer.remaining() );
-        if ( mappedLocalMemory.isNull() ) {
-            localMemoryCopyBuffer.mapMemory();
+        synchronized ( mappedLocalMemory ) {
+            location.setLength( byteBuffer.remaining() );
+            if ( mappedLocalMemory.isNull() ) {
+                localMemoryCopyBuffer.mapMemory();
+            }
+            copyMemory( byteBuffer, location );
+            localMemoryCopyBuffer.copyBuffer( memoryBuffer, commandPool, location );
         }
-        copyMemory( byteBuffer, location );
-        localMemoryCopyBuffer.copyBuffer( memoryBuffer, commandPool, location );
     }
     
     @Override

@@ -42,42 +42,70 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
         long destinationOffset,
         long length
     ) {
-        var transferData = availableDatas.poll();
-        if( transferData == null ) {
-            transferData = new TransferData();
-            allDatas.add( transferData );
+        synchronized ( datasToTransfer ) {
+            var transferData = availableDatas.poll();
+            if( transferData == null ) {
+                transferData = new TransferData();
+                allDatas.add( transferData );
+            }
+            datasToTransfer.add( transferData.set(
+                source,
+                sourceOffset,
+                destination,
+                destinationOffset,
+                length
+            ) );
         }
-        datasToTransfer.add( transferData.set(
-            source,
-            sourceOffset,
-            destination,
-            destinationOffset,
-            length
-        ) );
+    }
+    
+    private final List< VulkanCommand< VulkanTransferCommandBuffer > > allCommands = new ArrayList<>(  );
+    public void executeQueueLater( VulkanCommand< VulkanTransferCommandBuffer > commands ) {
+        synchronized ( allCommands ) {
+            allCommands.add( commands );
+        }
     }
     
     public void executeTransfers() {
-        executeQueue( buffer -> {} );
+        synchronized ( this ) {
+            if( !execute ) {
+                executeQueue();
+            }
+        }
     }
     
-    public void executeQueue( VulkanCommand< VulkanTransferCommandBuffer > commands ) {
-        var buffer = createNewCommandBuffer();
-        buffer.fillQueueSetup();
-        
-        executeTransferDatas( buffer );
-        commands.execute( buffer );
-        
-        buffer.fillQueueTearDown();
-        submitQueue( buffer );
-        executeTearDown();
-        memories.forEach( VulkanBufferMemory::resetLocalTransferBuffers );
+    public volatile boolean execute = false;
+    
+    public void executeQueue() {
+        synchronized ( this ) {
+            execute = true;
+            var buffer = createNewCommandBuffer();
+            buffer.fillQueueSetup();
+    
+            executeCommands( buffer );
+            executeTransferDatas( buffer );
+    
+            buffer.fillQueueTearDown();
+            submitQueue( buffer );
+            executeTearDown();
+            memories.forEach( VulkanBufferMemory::resetLocalTransferBuffers );
+            notifyAll();
+            execute = false;
+        }
     }
     
+    private void executeCommands( VulkanTransferCommandBuffer buffer ) {
+        synchronized ( allCommands ) {
+            allCommands.forEach( command -> command.execute( buffer ) );
+            allCommands.clear();
+        }
+    }
     private void executeTransferDatas( VulkanTransferCommandBuffer buffer ) {
-        datasToTransfer.forEach( data -> data.execute( buffer ) );
-        datasToTransfer.clear();
-        availableDatas.clear();
-        availableDatas.addAll( allDatas );
+        synchronized ( datasToTransfer ) {
+            datasToTransfer.forEach( data -> data.execute( buffer ) );
+            datasToTransfer.clear();
+            availableDatas.clear();
+            availableDatas.addAll( allDatas );
+        }
     }
     
     private VulkanTransferCommandBuffer createNewCommandBuffer() {

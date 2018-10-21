@@ -57,10 +57,11 @@ public class VulkanDescriptorPool {
                 .put( 0, createPoolSize( VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ) )
                 .put( 1, createPoolSize( VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ) ) )
             .maxSets( setCount );
-        return VulkanHelper.createAddress( address -> VK10.vkCreateDescriptorPool( device.getLogicalDevice(),
-            createInfo,
-            null,
-            address
+        return VulkanHelper.createAddress( address -> VK10.vkCreateDescriptorPool(
+                device.getLogicalDevice(),
+                createInfo,
+                null,
+                address
             ),
             resultCode -> new CannotCreateVulkanDescriptorPoolException( device, resultCode )
         );

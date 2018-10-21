@@ -23,13 +23,11 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     private final HashSet< VulkanTextureData > textureData = new HashSet<>();
     private final VulkanPhysicalDevice device;
     private final VulkanBufferProvider bufferLoader;
-    private VulkanTextureData lastTexture = null;
     
     VulkanTextureLoader(
         VulkanPhysicalDevice physicalDevice,
         VulkanBufferProvider bufferLoader
-    )
-    {
+    ) {
         
         device = physicalDevice;
         this.bufferLoader = bufferLoader;
@@ -43,9 +41,7 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     }
     
     @Override
-    public void bindUnsafe( VulkanTextureData textureData ) {
-        lastTexture = textureData;
-    }
+    public void bindUnsafe( VulkanTextureData textureData ) {}
     
     @Override
     public void loadUnsafe( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) {
@@ -63,10 +59,6 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     public void close() {
         this.textureData.forEach( VulkanTextureData::close );
         this.textureData.clear();
-    }
-    
-    public VulkanTextureData getLastTexture() {
-        return lastTexture;
     }
     
     private void createTextureImageView( VulkanTextureData textureData ) {
@@ -97,7 +89,7 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     }
     
     private void copyBufferToImage( VulkanTextureData textureData ) {
-        device.getTextureTransferCommandPool().executeQueue( commandBuffer -> {
+        device.getTextureTransferCommandPool().executeQueueLater( commandBuffer -> {
             var region = VkBufferImageCopy.create()
                 .bufferOffset( textureData.getBuffer().getMemoryOffset() )
                 .bufferRowLength( 0 )
@@ -130,13 +122,6 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
                 VK10.VK_IMAGE_LAYOUT_UNDEFINED,
                 VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
             );
-    }
-    
-    private void postCopyTransitionImageLayout( VulkanTextureData textureData, int format ) {
-        textureData.getImage().transitionImageLayout( format,
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-        );
     }
     
     private void createImage( VulkanTextureData textureData ) {

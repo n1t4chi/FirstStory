@@ -271,15 +271,56 @@ public class VulkanFramework implements RenderingFramework {
         return vulkanInfo;
     }
     
-    private void setupDebugCallback() {
-        callback = VkDebugReportCallbackEXT.create( ( flags, objectType, object, location, messageCode, pLayerPrefix, pMessage, pUserData ) -> {
-            logger.finest( "Validation layer: " + MemoryUtil.memUTF8( pMessage ) );
+    class DebugLogger extends VkDebugReportCallbackEXT {
+    
+        @Override
+        public int invoke( int flags, int objectType, long object, long location, int messageCode, long pLayerPrefix, long pMessage, long pUserData ) {
+            logger.log(
+                getLoggerLevel( flags ),
+                "Validation layer: { " +
+                    " flags:" + Integer.toBinaryString( flags ) +
+                    ", objType:" + objectType +
+                    ", objAddr: "+ object +
+                    ", loc: "+ location +
+                    ", msgCode: "+ messageCode +
+                    ", layer: "+ pLayerPrefix +
+                "} msg:\n"
+                + MemoryUtil.memUTF8( pMessage )
+            );
             return VK10.VK_FALSE;
-        } );
+        }
+    
+        private Level getLoggerLevel( int flags ) {
+            var level = Level.FINEST;
+            if( ( flags & EXTDebugReport.VK_DEBUG_REPORT_INFORMATION_BIT_EXT ) != 0 ) {
+                level = Level.INFO;
+            }
+            if( ( flags & EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT ) != 0 ) {
+                level = Level.WARNING;
+            }
+            if( ( flags & EXTDebugReport.VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT ) != 0 ) {
+                level = Level.WARNING;
+            }
+            if( ( flags & EXTDebugReport.VK_DEBUG_REPORT_ERROR_BIT_EXT ) != 0 ) {
+                level = Level.SEVERE;
+            }
+            if( ( flags & EXTDebugReport.VK_DEBUG_REPORT_DEBUG_BIT_EXT ) != 0 ) {
+                level = Level.FINEST;
+            }
+            return level;
+        }
+    }
+    
+    private void setupDebugCallback() {
+        callback = VkDebugReportCallbackEXT.create( new DebugLogger() );
         var createInfo = VkDebugReportCallbackCreateInfoEXT.create()
             .sType( EXTDebugReport.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT )
-            .flags( EXTDebugReport.VK_DEBUG_REPORT_ERROR_BIT_EXT | EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT
-                //| EXTDebugReport.VK_DEBUG_REPORT_INFORMATION_BIT_EXT
+            .flags(
+                EXTDebugReport.VK_DEBUG_REPORT_DEBUG_BIT_EXT |
+                EXTDebugReport.VK_DEBUG_REPORT_ERROR_BIT_EXT |
+                EXTDebugReport.VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT |
+                EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT |
+                EXTDebugReport.VK_DEBUG_REPORT_INFORMATION_BIT_EXT
             )
             .pfnCallback( callback )
             .pNext( VK10.VK_NULL_HANDLE )

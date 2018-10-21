@@ -128,7 +128,7 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
     
     void createMipMaps() {
-        getDevice().getTextureTransferCommandPool().executeQueue( commandBuffer -> {
+        getDevice().getTextureTransferCommandPool().executeQueueLater( commandBuffer -> {
             var barrier = createImageMemoryBarrier( VkImageSubresourceRange.create()
                 .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
                 .baseArrayLayer( 0 )
@@ -278,7 +278,7 @@ public class VulkanInMemoryImage extends VulkanImage {
         }
         
         
-        getDevice().getTextureTransferCommandPool().executeQueue( commandBuffer ->
+        getDevice().getTextureTransferCommandPool().executeQueueLater( commandBuffer ->
             invokePipelineBarrier(
                 srcStageMask,
                 dstStageMask,
@@ -291,6 +291,7 @@ public class VulkanInMemoryImage extends VulkanImage {
                 )
             )
         );
+        getDevice().getTextureTransferCommandPool().executeTransfers();
     }
     
     private void invokePipelineBarrier(
