@@ -11,13 +11,11 @@ import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.VulkanQueueFamily;
 import com.firststory.firstoracle.vulkan.exceptions.CannotAllocateVulkanCommandBuffersException;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanCommandPoolException;
-import com.firststory.firstoracle.vulkan.exceptions.CannotSubmitVulkanDrawCommandBufferException;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
 import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
-import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.util.logging.Logger;
 
@@ -50,28 +48,6 @@ public abstract class VulkanCommandPool<CommandBuffer extends VulkanCommandBuffe
     
     VulkanAddress getAddress() {
         return address;
-    }
-    
-    public VkSubmitInfo createSubmitInfo( VulkanCommandBuffer... commandBuffers ) {
-    
-        var commandBuffersPointer = MemoryUtil.memAllocPointer( commandBuffers.length );
-        for ( var i = 0; i < commandBuffers.length; i++ ) {
-            commandBuffersPointer.put( i, commandBuffers[ i ].getAddress().getValue() );
-        }
-    
-        return VkSubmitInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
-            .pCommandBuffers( commandBuffersPointer );
-    }
-    
-    @SafeVarargs
-    public final void submitQueue( CommandBuffer... currentCommandBuffers ) {
-        var submitInfo = createSubmitInfo( currentCommandBuffers ) ;
-        
-        VulkanHelper.assertCallOrThrow(
-            ()-> VK10.vkQueueSubmit( usedQueueFamily.getQueue(), submitInfo, VK10.VK_NULL_HANDLE ),
-            resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode, usedQueueFamily.getQueue() )
-        );
     }
     
     public PointerBuffer createPrimaryCommandBufferBuffer( int size ) {

@@ -7,10 +7,9 @@ package com.firststory.firstoracle.vulkan.rendering;
 import com.firststory.firstoracle.vulkan.*;
 import com.firststory.firstoracle.vulkan.commands.VulkanCommandBuffer;
 import com.firststory.firstoracle.vulkan.commands.VulkanCommandPool;
+import com.firststory.firstoracle.vulkan.exceptions.CannotSubmitVulkanDrawCommandBufferException;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.vulkan.KHRSwapchain;
 import org.lwjgl.vulkan.VK10;
-import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.nio.IntBuffer;
@@ -25,9 +24,6 @@ import java.util.List;
 public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPrimaryCommandBuffer > {
     
     public static final int DEFAULT_NEW_BUFFERS = 10;
-    private final VulkanSwapChain swapChain;
-    private final VulkanSemaphore renderFinishedSemaphore;
-    private final VulkanSemaphore imageAvailableSemaphore;
     
     private final List< VulkanGraphicPrimaryCommandBuffer > primaryBuffers = new ArrayList<>(  );
     private final List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers = new ArrayList<>(  );
@@ -37,45 +33,108 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPr
     
     public VulkanGraphicCommandPool(
         VulkanPhysicalDevice device,
-        VulkanQueueFamily usedQueueFamily,
-        VulkanSwapChain swapChain,
-        VulkanSemaphore imageAvailableSemaphore
+        VulkanQueueFamily usedQueueFamily
     ) {
         super( device, usedQueueFamily );
-        this.swapChain = swapChain;
-        renderFinishedSemaphore = new VulkanSemaphore( device );
-        this.imageAvailableSemaphore = imageAvailableSemaphore;
     }
     
     public void dispose() {
         super.dispose();
         disposeCommandBuffers();
-        renderFinishedSemaphore.dispose();
     }
     
-    public void resetPrimaryBuffers() {
+    void resetPrimaryBuffers() {
         availablePrimaryBuffer.clear();
         availablePrimaryBuffer.addAll( primaryBuffers );
     }
     
-    public void resetSecondaryBuffers() {
+    void resetSecondaryBuffers() {
         availableSecondaryBuffers.clear();
         availableSecondaryBuffers.addAll( secondaryBuffers );
     }
     
-    public VulkanGraphicPrimaryCommandBuffer provideNextPrimaryBuffer() {
+    VulkanGraphicPrimaryCommandBuffer provideNextPrimaryBuffer( VulkanSwapChain swapChain ) {
         var buffer = availablePrimaryBuffer.poll();
         if( buffer == null ) {
-            buffer = createPrimaryCommandBuffer();
+            buffer = createPrimaryCommandBuffer( swapChain );
             primaryBuffers.add( buffer );
         }
         return buffer;
     }
     
-    public Deque< VulkanGraphicSecondaryCommandBuffer > provideNextSecondaryBuffers( int size ) {
+    Deque< VulkanGraphicSecondaryCommandBuffer > provideNextSecondaryBuffers( int size ) {
         var buffers = new LinkedList< VulkanGraphicSecondaryCommandBuffer >();
         provideNextSecondaryBuffer( size, buffers );
         return buffers;
+    }
+    
+    void submitQueue(
+        VulkanGraphicPrimaryCommandBuffer commandBuffer,
+        List< VulkanSemaphore > waitSemaphores,
+        VulkanSemaphore signalSemaphore
+    ) {
+        submitQueue( createSubmitInfo(
+            commandBuffer,
+            waitSemaphores,
+            signalSemaphore
+        ) );
+    }
+    
+    private void submitQueue( VkSubmitInfo submitInfo ) {
+        VulkanHelper.assertCallOrThrow( () -> VK10.vkQueueSubmit(
+                getUsedQueueFamily().getQueue(),
+                submitInfo,
+                VK10.VK_NULL_HANDLE
+            ),
+            resultCode -> new CannotSubmitVulkanDrawCommandBufferException(
+                this, resultCode, getUsedQueueFamily().getQueue()
+            )
+        );
+    }
+    
+    private VulkanGraphicPrimaryCommandBuffer createPrimaryCommandBuffer( VulkanSwapChain swapChain ) {
+        return new VulkanGraphicPrimaryCommandBuffer(
+            getDevice(),
+            new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ),
+            swapChain,
+            this,
+            VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
+        );
+    }
+    
+    private List< VulkanGraphicSecondaryCommandBuffer > createSecondaryCommandBuffers( int size ) {
+        List< VulkanGraphicSecondaryCommandBuffer > buffers = new ArrayList<>( size );
+        VulkanHelper.iterate( createSecondaryCommandBufferBuffer( size ),
+            ( index, address ) -> buffers.add( createSecondaryCommandBuffer( new VulkanAddress( address ) ) )
+        );
+        return buffers;
+    }
+    
+    private VkSubmitInfo createSubmitInfo(
+        VulkanGraphicPrimaryCommandBuffer commandBuffer,
+        List< VulkanSemaphore > waitSemaphores,
+        VulkanSemaphore signalSemaphore
+    ) {
+        var waitSemaphoresBuffer = MemoryUtil.memAllocLong( waitSemaphores.size() );
+        for ( var i = 0; i < waitSemaphores.size(); i++ ) {
+            waitSemaphoresBuffer.put( i, waitSemaphores.get( i ).getAddress().getValue() );
+        }
+    
+        return VkSubmitInfo.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
+            .pCommandBuffers( MemoryUtil.memAllocPointer( 1 )
+                .put( 0, commandBuffer.getAddress().getValue() )
+            )
+            .pWaitDstStageMask( createWaitStageMaskBuffer() )
+            .pWaitSemaphores( waitSemaphoresBuffer )
+            .pSignalSemaphores( MemoryUtil.memAllocLong( 1 )
+                .put( 0, signalSemaphore.getAddress().getValue() )
+            )
+        ;
+    }
+    
+    private IntBuffer createWaitStageMaskBuffer() {
+        return MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
     }
     
     private void provideNextSecondaryBuffer(
@@ -106,24 +165,6 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPr
         secondaryBuffers.clear();
     }
     
-    public VulkanGraphicPrimaryCommandBuffer createPrimaryCommandBuffer() {
-        return new VulkanGraphicPrimaryCommandBuffer(
-            getDevice(),
-            new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ),
-            swapChain,
-            this,
-            VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
-        );
-    }
-    
-    public List< VulkanGraphicSecondaryCommandBuffer > createSecondaryCommandBuffers( int size ) {
-        List< VulkanGraphicSecondaryCommandBuffer > buffers = new ArrayList<>( size );
-        VulkanHelper.iterate( createSecondaryCommandBufferBuffer( size ),
-            ( index, address ) -> buffers.add( createSecondaryCommandBuffer( new VulkanAddress( address ) ) )
-        );
-        return buffers;
-    }
-    
     private VulkanGraphicSecondaryCommandBuffer createSecondaryCommandBuffer( VulkanAddress address ) {
         return new VulkanGraphicSecondaryCommandBuffer(
             getDevice(),
@@ -131,38 +172,5 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPr
             this,
             VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK10.VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT
         );
-    }
-    
-    public void executeTearDown( int index ) {
-        presentQueue( swapChain, index );
-    }
-    
-    @Override
-    public VkSubmitInfo createSubmitInfo( VulkanCommandBuffer... currentCommandBuffer ) {
-        return super.createSubmitInfo( currentCommandBuffer )
-            .pSignalSemaphores( MemoryUtil.memAllocLong( 1 ).put(
-                0, renderFinishedSemaphore.getAddress().getValue() ) )
-            .waitSemaphoreCount( 1 )
-            .pWaitDstStageMask( createWaitStageMaskBuffer() )
-            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put(
-                0, imageAvailableSemaphore.getAddress().getValue() ) )
-        ;
-    }
-    
-    public IntBuffer createWaitStageMaskBuffer() {
-        return MemoryUtil.memAllocInt( 1 ).put( 0, VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
-    }
-    
-    private void presentQueue( VulkanSwapChain swapChain, int index ) {
-        var presentInfo = VkPresentInfoKHR.create()
-            .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
-            .pWaitSemaphores(
-                MemoryUtil.memAllocLong( 1 ).put( 0, renderFinishedSemaphore.getAddress().getValue() ) )
-            .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, swapChain.getAddress().getValue() ) )
-            .swapchainCount( 1 )
-            .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index ) )
-            .pResults( null )
-        ;
-        KHRSwapchain.vkQueuePresentKHR( getUsedQueueFamily().getQueue() , presentInfo );
     }
 }

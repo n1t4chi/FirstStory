@@ -29,15 +29,19 @@ public class VulkanSemaphore {
         return address;
     }
     
-    private VkSemaphoreCreateInfo createSemaphoreCreateInfo() {
-        return VkSemaphoreCreateInfo.create().sType( VK10.VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO );
-    }
-    
     private VulkanAddress createSemaphore( VulkanPhysicalDevice device ) {
         return VulkanHelper.createAddress(
             address -> VK10.vkCreateSemaphore(
-                device.getLogicalDevice(), createSemaphoreCreateInfo(), null, address ),
+                device.getLogicalDevice(),
+                createSemaphoreCreateInfo(),
+                null,
+                address
+            ),
             resultCode -> new CannotCreateVulkanSemaphoreException( device, resultCode )
         );
+    }
+    
+    private VkSemaphoreCreateInfo createSemaphoreCreateInfo() {
+        return VkSemaphoreCreateInfo.create().sType( VK10.VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO );
     }
 }

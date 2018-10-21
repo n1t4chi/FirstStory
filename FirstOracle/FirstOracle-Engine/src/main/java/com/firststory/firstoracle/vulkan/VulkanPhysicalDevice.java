@@ -55,14 +55,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanSwapChain swapChain;
     private final VulkanGraphicPipelines trianglePipelines;
     private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>();
+    private final Deque< VulkanSemaphore > semaphores = new LinkedList<>();
     
-    private final VulkanGraphicCommandPool graphicCommandPool;
+    private final VulkanGraphicCommandPool backgroundGraphicCommandPool;
+    private final VulkanGraphicCommandPool scene2DGraphicCommandPool;
+    private final VulkanGraphicCommandPool scene3DGraphicCommandPool;
+    private final VulkanGraphicCommandPool overlayGraphicCommandPool;
+    
     private final VulkanTransferCommandPool vertexDataTransferCommandPool;
     private final VulkanTransferCommandPool uniformDataTransferCommandPool ;
     private final VulkanTransferCommandPool quickDataTransferCommandPool;
     private final VulkanTransferCommandPool textureTransferCommandPool;
     private final Set< VulkanCommandPool< ? > > commandPools = new HashSet<>();
-    private final VulkanSemaphore imageAvailableSemaphore;
     private final VulkanBufferProvider bufferProvider;
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
@@ -74,7 +78,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanShaderProgram shaderProgram3D;
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
     
-    private int currentImageIndex;
+    private VulkanImageIndex currentImageIndex;
     private final VulkanGraphicPipelines linePipelines;
     
     VulkanPhysicalDevice(
@@ -82,8 +86,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VkInstance instance,
         PointerBuffer validationLayerNamesBuffer,
         VulkanWindowSurface surface
-    ) throws CannotCreateVulkanPhysicalDeviceException
-    {
+    ) throws CannotCreateVulkanPhysicalDeviceException {
         windowSurface = surface;
         physicalDevice = new VkPhysicalDevice( deviceAddress, instance );
         capabilities = physicalDevice.getCapabilities();
@@ -116,25 +119,26 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         fillMemoryTypes();
         fillMemoryHeaps();
         
-        imageAvailableSemaphore = new VulkanSemaphore( this );
-        
         swapChain = new VulkanSwapChain( this );
     
         trianglePipelines = new VulkanGraphicPipelines( this, VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
         linePipelines = new VulkanGraphicPipelines( this, VK10.VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
     
-        graphicCommandPool = new VulkanGraphicCommandPool(
-            this,
-            graphicFamily,
-            swapChain,
-            imageAvailableSemaphore
-        );
+        backgroundGraphicCommandPool = new VulkanGraphicCommandPool( this, graphicFamily );
+        scene2DGraphicCommandPool = new VulkanGraphicCommandPool( this, graphicFamily );
+        scene3DGraphicCommandPool = new VulkanGraphicCommandPool( this, graphicFamily );
+        overlayGraphicCommandPool = new VulkanGraphicCommandPool( this, graphicFamily );
+        
         vertexDataTransferCommandPool = new VulkanTransferCommandPool( this, vertexTransferFamily );
         uniformDataTransferCommandPool = new VulkanTransferCommandPool( this, uniformTransferFamily );
         quickDataTransferCommandPool = new VulkanTransferCommandPool( this, quickTransferFamily );
         textureTransferCommandPool = new VulkanTransferCommandPool( this, graphicFamily );
         
-        commandPools.add( graphicCommandPool );
+        commandPools.add( backgroundGraphicCommandPool );
+        commandPools.add( scene2DGraphicCommandPool );
+        commandPools.add( scene3DGraphicCommandPool );
+        commandPools.add( overlayGraphicCommandPool );
+        
         commandPools.add( vertexDataTransferCommandPool );
         commandPools.add( quickDataTransferCommandPool );
         commandPools.add( uniformDataTransferCommandPool );
@@ -185,7 +189,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     public VulkanFrameBuffer getCurrentFrameBuffer() {
-        return frameBuffers.get( currentImageIndex );
+        return frameBuffers.get( currentImageIndex.getIndex() );
     }
     
     public List< VulkanAddress > getMemoryAddresses() {
@@ -194,6 +198,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     public void waitForQueues() {
         usedQueueFamilies.forEach( VulkanQueueFamily::waitForQueue );
+    }
+    
+    VulkanQueueFamily getGraphicFamily() {
+        return graphicFamily;
     }
     
     private long extractUniformBufferOffsetAlignment() {
@@ -264,7 +272,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
         updatePipeline( trianglePipelines );
         updatePipeline( linePipelines );
-        refreshFrameBuffers( frameBuffers, swapChain, this.trianglePipelines.getOverlayPipeline().getRenderPass(), depthResources );
+        refreshFrameBuffers( swapChain, this.trianglePipelines.getOverlayPipeline().getRenderPass(), depthResources );
     }
     
     public void updatePipeline( VulkanGraphicPipelines pipeline ) {
@@ -285,7 +293,12 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         renderingContext.tearDownSingleRender(
             trianglePipelines,
             linePipelines,
-            graphicCommandPool,
+            backgroundGraphicCommandPool,
+            scene2DGraphicCommandPool,
+            scene3DGraphicCommandPool,
+            overlayGraphicCommandPool,
+            getCurrentImageIndex(),
+            swapChain,
             vertexDataTransferCommandPool,
             quickDataTransferCommandPool,
             uniformDataTransferCommandPool,
@@ -304,7 +317,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     void dispose() {
         presentationFamily.waitForQueue();
-        disposeFrameBuffers( frameBuffers );
+        disposeFrameBuffers();
         commandPools.forEach( VulkanCommandPool::dispose );
         trianglePipelines.dispose();
         linePipelines.dispose();
@@ -315,7 +328,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         depthResources.dispose();
         
         shaderProgram3D.dispose();
-        imageAvailableSemaphore.dispose();
+        
+        semaphores.forEach( VulkanSemaphore::dispose );
+        semaphores.clear();
+        
         VK10.vkDestroyDevice( logicalDevice, null );
     }
     
@@ -348,12 +364,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return buffer;
     }
     
-    public int getCurrentImageIndex() {
+    public VulkanImageIndex getCurrentImageIndex() {
         return currentImageIndex;
     }
     
-    
-    private int acquireNextImageIndex() {
+    private VulkanImageIndex acquireNextImageIndex() {
         try {
             return tryToAcquireNextImageIndex();
         } catch ( VulkanNextImageIndexException ex1 ) {
@@ -422,37 +437,51 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return memoryProperties;
     }
     
-    private int tryToAcquireNextImageIndex() {
+    private VulkanImageIndex tryToAcquireNextImageIndex() {
         var imageIndex = new int[1];
+        var semaphore = getNextSemaphore();
         var result = KHRSwapchain.vkAcquireNextImageKHR(
             logicalDevice,
             swapChain.getAddress().getValue(),
             Long.MAX_VALUE,
-            imageAvailableSemaphore.getAddress().getValue(),
+            semaphore.getAddress().getValue(),
             VK10.VK_NULL_HANDLE,
             imageIndex
         );
         
-        switch ( result ) {
-            case KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR:
-                throw new OutOfDateSwapChainException( this, imageIndex[0] );
-            case KHRSwapchain.VK_SUBOPTIMAL_KHR:
-                logger.warning( "Swap chain images no longer match surface. Update might be required at later time" );
-            case VK10.VK_SUCCESS:
-                break;
-            default:
-                throw new CannotAcquireNextImageIndexException( this, imageIndex[0], result );
+        try{
+            switch ( result ) {
+                case KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR:
+                    throw new OutOfDateSwapChainException( this, imageIndex[0] );
+                case KHRSwapchain.VK_SUBOPTIMAL_KHR:
+                    logger.warning( "Swap chain images no longer match surface. Update might be required at later time" );
+                case VK10.VK_SUCCESS:
+                    break;
+                default:
+                    throw new CannotAcquireNextImageIndexException( this, imageIndex[0], result );
+            }
+        } catch ( RuntimeException ex ) {
+            semaphores.add( semaphore );
+            throw ex;
         }
-        return imageIndex[0];
+        
+        return new VulkanImageIndex( imageIndex[0], semaphore, getNextSemaphore() );
+    }
+    
+    private VulkanSemaphore getNextSemaphore() {
+        var semaphore = semaphores.poll();
+        if ( semaphore == null ) {
+           semaphore = new VulkanSemaphore( this );
+        }
+        return semaphore;
     }
     
     private void refreshFrameBuffers(
-        Map< Integer, VulkanFrameBuffer > frameBuffers,
         VulkanSwapChain swapChain,
         VulkanRenderPass renderPass,
         VulkanDepthResources depthResources
     ) {
-        disposeFrameBuffers( frameBuffers );
+        disposeFrameBuffers();
         for ( var entry : swapChain.getImageViews().entrySet() ) {
             frameBuffers.put( entry.getKey(),
                 new VulkanFrameBuffer( this, entry.getValue(), renderPass, swapChain, depthResources )
@@ -460,7 +489,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         }
     }
     
-    private void disposeFrameBuffers( Map< Integer, VulkanFrameBuffer > frameBuffers ) {
+    private void disposeFrameBuffers() {
         frameBuffers.forEach( ( integer, vulkanFrameBuffer ) -> vulkanFrameBuffer.dispose() );
         frameBuffers.clear();
     }
@@ -668,4 +697,5 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 return 4;
         }
     }
+    
 }

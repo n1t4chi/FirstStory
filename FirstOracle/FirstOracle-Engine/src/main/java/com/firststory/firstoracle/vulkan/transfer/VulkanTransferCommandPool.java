@@ -4,13 +4,15 @@
 
 package com.firststory.firstoracle.vulkan.transfer;
 
-import com.firststory.firstoracle.vulkan.VulkanAddress;
-import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
-import com.firststory.firstoracle.vulkan.VulkanQueueFamily;
+import com.firststory.firstoracle.vulkan.*;
 import com.firststory.firstoracle.vulkan.buffer.VulkanBufferMemory;
 import com.firststory.firstoracle.vulkan.commands.VulkanCommand;
+import com.firststory.firstoracle.vulkan.commands.VulkanCommandBuffer;
 import com.firststory.firstoracle.vulkan.commands.VulkanCommandPool;
+import com.firststory.firstoracle.vulkan.exceptions.CannotSubmitVulkanDrawCommandBufferException;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -65,17 +67,21 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
         }
     }
     
-    public void executeTransfers() {
+    public void executeTransfers( ) {
+        executeTransfers( null );
+    }
+    
+    public void executeTransfers( VulkanSemaphore signalSemaphore ) {
         synchronized ( this ) {
             if( !execute ) {
-                executeQueue();
+                executeQueue( signalSemaphore );
             }
         }
     }
     
-    public volatile boolean execute = false;
+    private volatile boolean execute = false;
     
-    public void executeQueue() {
+    private void executeQueue( VulkanSemaphore signalSemaphore ) {
         synchronized ( this ) {
             execute = true;
             var buffer = createNewCommandBuffer();
@@ -85,12 +91,42 @@ public class VulkanTransferCommandPool extends VulkanCommandPool< VulkanTransfer
             executeTransferDatas( buffer );
     
             buffer.fillQueueTearDown();
-            submitQueue( buffer );
+            submitQueue( buffer, signalSemaphore );
             executeTearDown();
             memories.forEach( VulkanBufferMemory::resetLocalTransferBuffers );
             notifyAll();
             execute = false;
         }
+    }
+    
+    private void submitQueue(
+        VulkanTransferCommandBuffer currentCommandBuffers,
+        VulkanSemaphore signalSemaphore
+    ) {
+        var submitInfo = createSubmitInfo( currentCommandBuffers, signalSemaphore ) ;
+        
+        VulkanHelper.assertCallOrThrow(
+            ()-> VK10.vkQueueSubmit( getUsedQueueFamily().getQueue(), submitInfo, VK10.VK_NULL_HANDLE ),
+            resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode, getUsedQueueFamily().getQueue() )
+        );
+    }
+    
+    private VkSubmitInfo createSubmitInfo(
+        VulkanCommandBuffer commandBuffer,
+        VulkanSemaphore signalSemaphore
+    ) {
+        var submitInfo = VkSubmitInfo.create()
+            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
+            .pCommandBuffers( MemoryUtil.memAllocPointer( 1 )
+                .put( 0, commandBuffer.getAddress().getValue() )
+            )
+        ;
+        if( signalSemaphore != null ) {
+            submitInfo.pSignalSemaphores( MemoryUtil.memAllocLong( 1 )
+                .put( 0, signalSemaphore.getAddress().getValue() )
+            );
+        }
+        return submitInfo;
     }
     
     private void executeCommands( VulkanTransferCommandBuffer buffer ) {

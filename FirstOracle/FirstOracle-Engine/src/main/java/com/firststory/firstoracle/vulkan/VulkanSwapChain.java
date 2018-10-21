@@ -8,6 +8,7 @@ import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanSwapChainException;
 import com.firststory.firstoracle.vulkan.exceptions.SwapChainIsNotSupportedException;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.util.HashMap;
@@ -271,9 +272,9 @@ public class VulkanSwapChain {
     }
     
     private VkSurfaceCapabilitiesKHR createCapabilities(
-        VkPhysicalDevice physicalDevice, VulkanWindowSurface windowSurface
-    )
-    {
+        VkPhysicalDevice physicalDevice,
+        VulkanWindowSurface windowSurface
+    ) {
         var capabilities = VkSurfaceCapabilitiesKHR.create();
         KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR( physicalDevice,
             windowSurface.getAddress().getValue(),
@@ -282,4 +283,16 @@ public class VulkanSwapChain {
         return capabilities;
     }
     
+    public void presentQueue( VulkanImageIndex index ) {
+        var presentInfo = VkPresentInfoKHR.create()
+            .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
+            .pWaitSemaphores( MemoryUtil
+                .memAllocLong( 1 ).put( 0, index.getRenderFinishedSemaphore().getAddress().getValue() ) )
+            .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, address.getValue() ) )
+            .swapchainCount( 1 )
+            .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index.getIndex() ) )
+            .pResults( null )
+        ;
+        KHRSwapchain.vkQueuePresentKHR( device.getGraphicFamily().getQueue() , presentInfo );
+    }
 }

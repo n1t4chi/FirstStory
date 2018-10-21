@@ -38,7 +38,7 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer {
         super.fillQueueTearDown();
     }
     
-    public void executeSecondaryBuffers( List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers ) {
+    void executeSecondaryBuffers( List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers ) {
         if( secondaryBuffers.isEmpty() ) {
             return;
         }
