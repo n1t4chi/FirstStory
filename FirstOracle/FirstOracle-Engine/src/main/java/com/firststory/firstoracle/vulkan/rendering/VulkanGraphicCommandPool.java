@@ -7,7 +7,6 @@ package com.firststory.firstoracle.vulkan.rendering;
 import com.firststory.firstoracle.vulkan.*;
 import com.firststory.firstoracle.vulkan.commands.VulkanCommandBuffer;
 import com.firststory.firstoracle.vulkan.commands.VulkanCommandPool;
-import com.firststory.firstoracle.vulkan.exceptions.CannotSubmitVulkanDrawCommandBufferException;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkSubmitInfo;
@@ -39,8 +38,8 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPr
     }
     
     public void dispose() {
-        super.dispose();
         disposeCommandBuffers();
+        super.dispose();
     }
     
     void resetPrimaryBuffers() {
@@ -68,30 +67,6 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPr
         return buffers;
     }
     
-    void submitQueue(
-        VulkanGraphicPrimaryCommandBuffer commandBuffer,
-        List< VulkanSemaphore > waitSemaphores,
-        VulkanSemaphore signalSemaphore
-    ) {
-        submitQueue( createSubmitInfo(
-            commandBuffer,
-            waitSemaphores,
-            signalSemaphore
-        ) );
-    }
-    
-    private void submitQueue( VkSubmitInfo submitInfo ) {
-        VulkanHelper.assertCallOrThrow( () -> VK10.vkQueueSubmit(
-                getUsedQueueFamily().getQueue(),
-                submitInfo,
-                VK10.VK_NULL_HANDLE
-            ),
-            resultCode -> new CannotSubmitVulkanDrawCommandBufferException(
-                this, resultCode, getUsedQueueFamily().getQueue()
-            )
-        );
-    }
-    
     private VulkanGraphicPrimaryCommandBuffer createPrimaryCommandBuffer( VulkanSwapChain swapChain ) {
         return new VulkanGraphicPrimaryCommandBuffer(
             getDevice(),
@@ -110,15 +85,11 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPr
         return buffers;
     }
     
-    private VkSubmitInfo createSubmitInfo(
+    VkSubmitInfo createSubmitInfo(
         VulkanGraphicPrimaryCommandBuffer commandBuffer,
-        List< VulkanSemaphore > waitSemaphores,
+        VulkanSemaphore waitSemaphore,
         VulkanSemaphore signalSemaphore
     ) {
-        var waitSemaphoresBuffer = MemoryUtil.memAllocLong( waitSemaphores.size() );
-        for ( var i = 0; i < waitSemaphores.size(); i++ ) {
-            waitSemaphoresBuffer.put( i, waitSemaphores.get( i ).getAddress().getValue() );
-        }
     
         return VkSubmitInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
@@ -126,7 +97,9 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool< VulkanGraphicPr
                 .put( 0, commandBuffer.getAddress().getValue() )
             )
             .pWaitDstStageMask( createWaitStageMaskBuffer() )
-            .pWaitSemaphores( waitSemaphoresBuffer )
+            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 )
+                .put( 0, waitSemaphore.getAddress().getValue() )
+            )
             .pSignalSemaphores( MemoryUtil.memAllocLong( 1 )
                 .put( 0, signalSemaphore.getAddress().getValue() )
             )

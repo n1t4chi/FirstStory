@@ -7,6 +7,7 @@ package com.firststory.firstoracle.vulkan.buffer;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
+import static com.firststory.firstoracle.vulkan.buffer.LinearMemoryLocation.BY_POSITION;
 import static com.firststory.firstoracle.vulkan.buffer.LinearMemoryLocation.BY_TRUE_SIZE;
 
 /**
@@ -36,7 +37,7 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
     void free( LinearMemoryLocation location ) {
         synchronized ( freeSpace ) {
             var adjacentLocations = freeSpace.stream()
-                .sorted()
+                .sorted( BY_POSITION )
                 .filter( location::adjacent )
                 .collect( Collectors.toList() )
             ;

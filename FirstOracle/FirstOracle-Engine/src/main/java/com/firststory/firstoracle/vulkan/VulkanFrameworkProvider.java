@@ -32,7 +32,9 @@ public class VulkanFrameworkProvider implements RenderingFrameworkProvider {
         return instances.computeIfAbsent( Thread.currentThread(), thread -> new VulkanFramework( window ) );
     }
     @Override
-    public void terminate() {}
+    public void terminate() {
+        instances.forEach( ( thread, vulkanFramework ) -> vulkanFramework.close() );
+    }
     
     @Override
     public boolean isOpenGL() {

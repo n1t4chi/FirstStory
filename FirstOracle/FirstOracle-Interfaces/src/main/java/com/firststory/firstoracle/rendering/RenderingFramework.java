@@ -8,8 +8,6 @@ import java.io.IOException;
 
 public interface RenderingFramework {
     
-    RenderingContext getRenderingContext();
-    
     void updateViewPort( int x, int y, int width, int height );
     
     void invoke( FrameworkCommands commands ) throws Exception;

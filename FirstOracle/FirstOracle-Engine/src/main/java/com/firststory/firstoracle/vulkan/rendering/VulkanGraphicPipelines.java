@@ -60,13 +60,7 @@ public class VulkanGraphicPipelines {
     }
     
     public void dispose() {
-        pipelines.forEach( pipeline -> {
-            var graphicsPipeline = pipeline.getGraphicPipeline();
-            if( graphicsPipeline.isNotNull() ) {
-                VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipeline.getValue(), null );
-                graphicsPipeline.setNull();
-            }
-        } );
+        pipelines.forEach( Pipeline::dispose );
         
         if( pipelineLayout.isNotNull() ) {
             VK10.vkDestroyPipelineLayout( device.getLogicalDevice(), pipelineLayout.getValue(), null );
@@ -409,6 +403,14 @@ public class VulkanGraphicPipelines {
     
         public VulkanRenderPass getRenderPass() {
             return renderPass;
+        }
+        
+        public void dispose() {
+            renderPass.dispose();
+            if( graphicsPipeline.isNotNull() ) {
+                VK10.vkDestroyPipeline( device.getLogicalDevice(), graphicsPipeline.getValue(), null );
+                graphicsPipeline.setNull();
+            }
         }
     }
 }

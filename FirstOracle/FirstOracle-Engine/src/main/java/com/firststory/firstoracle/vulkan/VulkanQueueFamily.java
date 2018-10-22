@@ -4,10 +4,12 @@
 
 package com.firststory.firstoracle.vulkan;
 
+import com.firststory.firstoracle.vulkan.exceptions.CannotSubmitVulkanDrawCommandBufferException;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
+import org.lwjgl.vulkan.VkSubmitInfo;
 
 public class VulkanQueueFamily {
     
@@ -59,6 +61,20 @@ public class VulkanQueueFamily {
                 ? -family2.compare( null )
                 : family1.compare( family2 )
         ;
+    }
+    
+    public void submit( VkSubmitInfo... submitInfos ) {
+        var buffer = VkSubmitInfo.create( submitInfos.length );
+        for ( var i = 0; i < submitInfos.length; i++ ) {
+            buffer.put( i, submitInfos[ i ] );
+        }
+        VulkanHelper.assertCallOrThrow( () -> VK10.vkQueueSubmit(
+                getQueue(),
+                buffer,
+                VK10.VK_NULL_HANDLE
+            ),
+            resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode )
+        );
     }
     
     @Override

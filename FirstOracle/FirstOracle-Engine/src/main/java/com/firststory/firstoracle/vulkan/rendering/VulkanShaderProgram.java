@@ -5,7 +5,6 @@
 package com.firststory.firstoracle.vulkan.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.buffer.DataBuffer;
 import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.data.Rotation;
@@ -75,7 +74,7 @@ public class VulkanShaderProgram implements ShaderProgram {
     
     @Override
     public void dispose() {
-        uniformBuffers.forEach( DataBuffer::close );
+        uniformBuffers.forEach( VulkanDataBuffer::close );
         uniformBuffers.clear();
         uniformBuffersIterator.clear();
         vertexShader.dispose();

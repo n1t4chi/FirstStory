@@ -19,10 +19,7 @@ import com.firststory.firstoracle.vulkan.transfer.VulkanTransferCommandPool;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,10 +29,10 @@ import java.util.logging.Logger;
 public class VulkanRenderingContext implements RenderingContext {
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanRenderingContext.class );
-    private static final String OVERLAY = "overlay";
-    private static final String SCENE_3D = "scene3D";
-    private static final String SCENE_2D = "scene2D";
-    private static final String BACKGROUND = "background";
+    public static final String OVERLAY = "overlay";
+    public static final String SCENE_3D = "scene3D";
+    public static final String SCENE_2D = "scene2D";
+    public static final String BACKGROUND = "background";
     
     private final VulkanPhysicalDevice device;
     private final List< VulkanDataBuffer > dataBuffers = new ArrayList<>( 5000 );
@@ -56,6 +53,12 @@ public class VulkanRenderingContext implements RenderingContext {
     private VulkanGraphicPipelines trianglePipelines;
     private VulkanGraphicPipelines linePipelines;
     private VulkanTextureSampler textureSampler;
+    VulkanGraphicCommandPool backgroundGraphicCommandPool;
+    VulkanGraphicCommandPool scene2DGraphicCommandPool;
+    VulkanGraphicCommandPool scene3DGraphicCommandPool;
+    VulkanGraphicCommandPool overlayGraphicCommandPool;
+    private VulkanSwapChain swapChain;
+    private VulkanImageIndex imageIndex;
     private VulkanFrameBuffer frameBuffer;
     
     private final RenderStageWorker backgroundWorker = new RenderStageWorker( background );
@@ -70,7 +73,11 @@ public class VulkanRenderingContext implements RenderingContext {
         );
     }
     
-    public VulkanRenderingContext( VulkanPhysicalDevice device, boolean shouldDrawBorder, boolean shouldDrawTextures ) {
+    private VulkanRenderingContext(
+        VulkanPhysicalDevice device,
+        boolean shouldDrawBorder,
+        boolean shouldDrawTextures
+    ) {
         this.device = device;
         this.shouldDrawBorder = shouldDrawBorder;
         this.shouldDrawTextures = shouldDrawTextures;
@@ -78,7 +85,8 @@ public class VulkanRenderingContext implements RenderingContext {
     }
     
     public void dispose() {
-        executorService.shutdown();
+        List< Runnable > runnables = executorService.shutdownNow();
+        System.err.println(runnables);
     }
     
     public void setUpSingleRender() {
@@ -142,166 +150,154 @@ public class VulkanRenderingContext implements RenderingContext {
         
         samplers.add( textureSampler );
     
-    
-        var initialWaitSemaphores = new ArrayList< VulkanSemaphore >();
-        var backgroundToScene2dSemaphore = new VulkanSemaphore( device );
-        var scene2dToScene3dSemaphore = new VulkanSemaphore( device );
-        var scene3dToOverlaySemaphore = new VulkanSemaphore( device );
-        initialWaitSemaphores.add( imageIndex.getImageAvailableSemaphore() );
-        
-        
         var backgroundFuture = executorService.submit( backgroundWorker.prepare(
             backgroundGraphicCommandPool,
-            swapChain,
             trianglePipelines.getBackgroundPipeline(),
             linePipelines.getBackgroundPipeline(),
-            initialWaitSemaphores,
-            backgroundToScene2dSemaphore
+            swapChain
         ) );
-//        var scene2DFuture = executorService.submit( scene2DWorker.prepare(
-//            scene2DGraphicCommandPool,
-//            swapChain,
-//            trianglePipelines.getScene2DPipeline(),
-//            linePipelines.getScene2DPipeline(),
-//            Collections.singletonList( backgroundToScene2dSemaphore ),
-//            scene2dToScene3dSemaphore
-//        ) );
-//        var scene3DFuture = executorService.submit( scene3DWorker.prepare(
-//            scene3DGraphicCommandPool,
-//            swapChain,
-//            trianglePipelines.getScene3DPipeline(),
-//            linePipelines.getScene3DPipeline(),
-//            Collections.singletonList( scene2dToScene3dSemaphore ),
-//            scene3dToOverlaySemaphore
-//        ) );
+        var scene2DFuture = executorService.submit( scene2DWorker.prepare(
+            scene2DGraphicCommandPool,
+            trianglePipelines.getScene2DPipeline(),
+            linePipelines.getScene2DPipeline(),
+            swapChain
+            
+        ) );
+        var scene3DFuture = executorService.submit( scene3DWorker.prepare(
+            scene3DGraphicCommandPool,
+            trianglePipelines.getScene3DPipeline(),
+            linePipelines.getScene3DPipeline(),
+            swapChain
+            
+        ) );
         var overlayFuture = executorService.submit( overlayWorker.prepare(
             overlayGraphicCommandPool,
-            swapChain,
             trianglePipelines.getOverlayPipeline(),
             linePipelines.getOverlayPipeline(),
-//            Collections.singletonList( scene3dToOverlaySemaphore ),
-            Collections.singletonList( backgroundToScene2dSemaphore ),
-            imageIndex.getRenderFinishedSemaphore()
+            swapChain
+            
         ) );
-        
-        waitThenRenderStageInfo( BACKGROUND, backgroundFuture );
-//        waitThenRenderStageInfo( SCENE_2D, scene2DFuture );
-//        waitThenRenderStageInfo( SCENE_3D, scene3DFuture );
-        waitThenRenderStageInfo( OVERLAY, overlayFuture );
-        
-        for ( var commandPool : transferCommandPools ) {
-            var transferSemaphore = new VulkanSemaphore( device );
-            initialWaitSemaphores.add( transferSemaphore );
-            commandPool.executeTransfers( transferSemaphore );
+
+        var bgPrimaryBuffer = waitThenRenderStageInfo( backgroundFuture, BACKGROUND );
+        var s2PrimaryBuffer = waitThenRenderStageInfo( scene2DFuture, SCENE_2D );
+        var s3PrimaryBuffer = waitThenRenderStageInfo( scene3DFuture, SCENE_3D );
+        var ovPrimaryBuffer = waitThenRenderStageInfo( overlayFuture, OVERLAY );
+    
+        for ( var transferCommandPool : transferCommandPools ) {
+            transferCommandPool.executeTransfers();
         }
+        
+        var bgs2 = new VulkanSemaphore( device );
+        var backgroundSubmitInfo = backgroundGraphicCommandPool.createSubmitInfo(
+            bgPrimaryBuffer,
+            imageIndex.getImageAvailableSemaphore(),
+            bgs2
+        );
+        var s2s3 = new VulkanSemaphore( device );
+        var scene2DSubmitInfo = scene2DGraphicCommandPool.createSubmitInfo(
+            s2PrimaryBuffer,
+            bgs2,
+            s2s3
+        );
+        var s3ov = new VulkanSemaphore( device );
+        var scene3DSubmitInfo = scene3DGraphicCommandPool.createSubmitInfo(
+            s3PrimaryBuffer,
+            s2s3,
+            s3ov
+        );
+        var overlaySubmitInfo = overlayGraphicCommandPool.createSubmitInfo(
+            ovPrimaryBuffer,
+            s3ov,
+            imageIndex.getRenderFinishedSemaphore()
+        );
+        device.getGraphicQueueFamily().submit(
+            backgroundSubmitInfo,
+            scene2DSubmitInfo,
+            scene3DSubmitInfo,
+            overlaySubmitInfo
+        );
         swapChain.presentQueue( imageIndex );
     }
     
-    private VulkanGraphicPrimaryCommandBuffer setUpPrimaryBufferForPool(
-        VulkanGraphicCommandPool commandPool,
-        VulkanSwapChain swapChain
-    ) {
-        commandPool.resetPrimaryBuffers();
-        commandPool.resetSecondaryBuffers();
-        var buffer = commandPool.provideNextPrimaryBuffer( swapChain );
-        buffer.fillQueueSetup();
-        return buffer;
-    }
-    
-    private void waitThenRenderStageInfo(
-        String stageName,
-        Future< ? > stageFuture
+    private VulkanGraphicPrimaryCommandBuffer waitThenRenderStageInfo(
+        Future< VulkanGraphicPrimaryCommandBuffer > stageFuture,
+        String stageName
     ) {
         try {
-            stageFuture.get();
+            return stageFuture.get();
         } catch ( InterruptedException | ExecutionException ex ) {
             logger.log( Level.WARNING, ex, () -> "Exception while rendering  " + stageName + "." );
         }
+        return null;
     }
     
     private class StageRenderInfo {
         private final VulkanRenderPass renderPass;
         private final List< VulkanGraphicSecondaryCommandBuffer > buffers;
+        private final VulkanGraphicPrimaryCommandBuffer primaryBuffer;
     
         private StageRenderInfo(
             VulkanRenderPass renderPass,
-            List< VulkanGraphicSecondaryCommandBuffer > buffers
+            List< VulkanGraphicSecondaryCommandBuffer > buffers,
+            VulkanGraphicPrimaryCommandBuffer primaryBuffer
         ) {
             this.renderPass = renderPass;
             this.buffers = buffers;
+            this.primaryBuffer = primaryBuffer;
         }
     }
     
-    private void renderStage(
+    private VulkanGraphicPrimaryCommandBuffer renderStage(
         Stage stage,
-        VulkanGraphicCommandPool graphicCommandPool,
-        VulkanSwapChain swapChain,
         VulkanGraphicPipelines.Pipeline trianglePipeline,
         VulkanGraphicPipelines.Pipeline linePipeline,
-        List< VulkanSemaphore > initialWaitSemaphores,
-        VulkanSemaphore signalSemaphore
+        VulkanGraphicCommandPool graphicCommandPool,
+        VulkanSwapChain swapChain
     ) {
-        synchronized ( VulkanRenderingContext.class ) {
-            var primaryBuffer = setUpPrimaryBufferForPool(
-                graphicCommandPool,
-                swapChain
-            );
-            var camera = stage.camera;
-            var renderDataByTexture = stage.renderDataByTexture;
-            var renderPass = trianglePipeline.getRenderPass();
-            primaryBuffer.beginRenderPass(
-                renderPass,
-                frameBuffer,
-                backgroundColour
-            );
-    
-            var secondaryBuffersDeque = graphicCommandPool.provideNextSecondaryBuffers( renderDataByTexture.size() );
-            var secondaryBuffers = new ArrayList<>( secondaryBuffersDeque );
-    
-            if ( !renderDataByTexture.isEmpty() ) {
-                var shader = getShader();
-                var
-                    descriptorPool =
-                    device
-                        .getDescriptor()
-                        .createDescriptorPool( renderDataByTexture.size() );
-                descriptorsPools.add( descriptorPool );
+        var camera = stage.camera;
+        var renderDataByTexture = stage.renderDataByTexture;
+        var renderPass = trianglePipeline.getRenderPass();
         
-                shader.bindCamera( camera.getMatrixRepresentation() );
-                var uniformBufferInfo = shader.bindUniformData();
+        graphicCommandPool.resetPrimaryBuffers();
+        graphicCommandPool.resetSecondaryBuffers();
+        var primaryBuffer = graphicCommandPool.provideNextPrimaryBuffer( swapChain );
+        primaryBuffer.fillQueueSetup();
+        primaryBuffer.beginRenderPass( renderPass, frameBuffer, backgroundColour );
         
-                renderDataByTexture.forEach( ( texture, renderDataList ) -> {
+        var secondaryBuffersDeque = graphicCommandPool.provideNextSecondaryBuffers( renderDataByTexture.size() );
+        var secondaryBuffers = new ArrayList<>( secondaryBuffersDeque );
+    
+        if ( !renderDataByTexture.isEmpty() ) {
+            var shader = getShader();
+            var descriptorPool = device.getDescriptor().createDescriptorPool( renderDataByTexture.size() );
+            descriptorsPools.add( descriptorPool );
             
-                    VulkanGraphicSecondaryCommandBuffer secondaryBuffer;
-                    synchronized ( secondaryBuffersDeque ) {
-                        secondaryBuffer = secondaryBuffersDeque.pop();
-                    }
-                    secondaryBuffer.update(
-                        renderPass,
-                        0,
-                        frameBuffer
-                    );
-                    renderData(
-                        trianglePipeline,
-                        linePipeline,
-                        secondaryBuffer,
-                        descriptorPool,
-                        uniformBufferInfo,
-                        texture,
-                        renderDataList
-                    );
-                } );
-            }
+            shader.bindCamera( camera.getMatrixRepresentation() );
+            var uniformBufferInfo = shader.bindUniformData();
+            
+            renderDataByTexture.forEach( ( texture, renderDataList ) -> {
     
-            primaryBuffer.executeSecondaryBuffers( secondaryBuffers );
-            primaryBuffer.endRenderPass();
-            primaryBuffer.fillQueueTearDown();
-            graphicCommandPool.submitQueue(
-                primaryBuffer,
-                initialWaitSemaphores,
-                signalSemaphore
-            );
+                VulkanGraphicSecondaryCommandBuffer secondaryBuffer;
+                synchronized ( secondaryBuffersDeque ) {
+                    secondaryBuffer = secondaryBuffersDeque.pop();
+                }
+                secondaryBuffer.update( renderPass, 0, frameBuffer );
+                renderData(
+                    trianglePipeline,
+                    linePipeline,
+                    secondaryBuffer,
+                    descriptorPool,
+                    uniformBufferInfo,
+                    texture,
+                    renderDataList
+                );
+            } );
         }
+    
+        primaryBuffer.executeSecondaryBuffers( secondaryBuffers );
+        primaryBuffer.endRenderPass();
+        primaryBuffer.fillQueueTearDown();
+        return primaryBuffer;
     }
     
     private void renderData(
@@ -387,14 +383,12 @@ public class VulkanRenderingContext implements RenderingContext {
         return device.getShaderProgram3D();
     }
     
-    private class RenderStageWorker implements Runnable {
-    
+    private class RenderStageWorker implements Callable< VulkanGraphicPrimaryCommandBuffer > {
+        
         private final Stage stage;
         private VulkanGraphicCommandPool commandPool;
         private VulkanGraphicPipelines.Pipeline trianglePipeline;
         private VulkanGraphicPipelines.Pipeline linePipeline;
-        private List< VulkanSemaphore > initialWaitSemaphores;
-        private VulkanSemaphore signalSemaphore;
         private VulkanSwapChain swapChain;
     
         private RenderStageWorker( Stage stage ) {
@@ -403,40 +397,31 @@ public class VulkanRenderingContext implements RenderingContext {
         
         RenderStageWorker prepare(
             VulkanGraphicCommandPool commandPool,
-            VulkanSwapChain swapChain,
             VulkanGraphicPipelines.Pipeline trianglePipeline,
             VulkanGraphicPipelines.Pipeline linePipeline,
-            List< VulkanSemaphore > initialWaitSemaphores,
-            VulkanSemaphore signalSemaphore
+            VulkanSwapChain swapChain
         ) {
             this.commandPool = commandPool;
-            this.swapChain = swapChain;
             this.trianglePipeline = trianglePipeline;
             this.linePipeline = linePipeline;
-            this.initialWaitSemaphores = initialWaitSemaphores;
-            this.signalSemaphore = signalSemaphore;
+            this.swapChain = swapChain;
             return this;
         }
+        
         @Override
-        public void run() {
-            renderStage(
+        public VulkanGraphicPrimaryCommandBuffer call() {
+            return renderStage(
                 stage,
-                commandPool,
-                swapChain,
                 trianglePipeline,
                 linePipeline,
-                initialWaitSemaphores,
-                signalSemaphore
+                commandPool,
+                swapChain
             );
         }
     }
     
     private interface PipelineSupplier {
         VulkanGraphicPipelines.Pipeline get();
-    }
-    
-    private interface CommandPoolSupplier {
-        VulkanGraphicCommandPool get();
     }
     
     private static class LastPipelineHolder {

@@ -200,6 +200,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         usedQueueFamilies.forEach( VulkanQueueFamily::waitForQueue );
     }
     
+    public VulkanQueueFamily getGraphicQueueFamily() {
+        return graphicFamily;
+    }
+    
     VulkanQueueFamily getGraphicFamily() {
         return graphicFamily;
     }

@@ -46,11 +46,6 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
             PropertiesUtil.isPropertyTrue( PropertiesUtil.DRAW_BORDER_PROPERTY )
         );
     }
-
-    @Override
-    public OpenGlRenderingContext getRenderingContext() {
-        return renderingContext;
-    }
     
     @Override
     public void updateViewPort( int x, int y, int width, int height ) {
@@ -70,7 +65,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     public void render( Renderer renderer, double lastFrameUpdate ) {
         clearCanvas();
         renderingContext.enableVertexAttributes();
-        renderer.render( getRenderingContext(), lastFrameUpdate );
+        renderer.render( renderingContext, lastFrameUpdate );
         renderingContext.disableVertexAttributes();
     }
     

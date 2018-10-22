@@ -8,7 +8,6 @@ import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.rendering.FrameworkCommands;
 import com.firststory.firstoracle.rendering.Renderer;
-import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.rendering.RenderingFramework;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanInstanceException;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanPhysicalDeviceException;
@@ -92,11 +91,6 @@ public class VulkanFramework implements RenderingFramework {
     }
     
     @Override
-    public RenderingContext getRenderingContext() {
-        return renderingContext;
-    }
-    
-    @Override
     public void updateViewPort( int x, int y, int width, int height ) {
         mainPhysicalDevice.updateRenderingContext();
     }
@@ -111,12 +105,12 @@ public class VulkanFramework implements RenderingFramework {
     
     @Override
     public void close() {
+        renderingContext.dispose();
+        physicalDevices.forEach( VulkanPhysicalDevice::dispose );
+        windowSurface.dispose( instance );
         if ( PropertiesUtil.isDebugMode() ) {
             disposeDebugCallback();
         }
-        physicalDevices.forEach( VulkanPhysicalDevice::dispose );
-        windowSurface.dispose( instance );
-        renderingContext.dispose();
         VK10.vkDestroyInstance( instance, null );
     }
     
@@ -349,6 +343,7 @@ public class VulkanFramework implements RenderingFramework {
         }
         if ( instance.getCapabilities().vkDestroyDebugReportCallbackEXT != VK10.VK_NULL_HANDLE ) {
             logger.fine( "Method vkDestroyDebugReportCallbackEXT is supported." );
+            callback.free();
             EXTDebugReport.vkDestroyDebugReportCallbackEXT( instance, callback.address(), null );
         } else {
             logger.warning( "Method vkDestroyDebugReportCallbackEXT is not supported!" );

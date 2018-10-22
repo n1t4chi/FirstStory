@@ -4,19 +4,17 @@
 
 package com.firststory.firstoracle.vulkan.exceptions;
 
-import com.firststory.firstoracle.vulkan.commands.VulkanCommandPool;
-import org.lwjgl.vulkan.VkQueue;
+import com.firststory.firstoracle.vulkan.VulkanQueueFamily;
 
 /**
  * @author n1t4chi
  */
 public class CannotSubmitVulkanDrawCommandBufferException extends VulkanException {
+    
     public CannotSubmitVulkanDrawCommandBufferException(
-        VulkanCommandPool< ? > pool,
-        Integer errorCode,
-        VkQueue presentationQueue
+        VulkanQueueFamily queueFamily,
+        Integer errorCode
     ) {
-        super( errorCode,
-            "Cannot submit vulkan draw command buffer for " + presentationQueue + " at command pool:" + pool );
+        super( errorCode, "Cannot submit vulkan draw command buffer for queue family: " + queueFamily + "." );
     }
 }
