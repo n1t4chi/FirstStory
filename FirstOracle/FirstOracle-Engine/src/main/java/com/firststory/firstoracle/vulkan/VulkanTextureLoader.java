@@ -55,8 +55,7 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
         textureData.close();
     }
     
-    @Override
-    public void close() {
+    public void dispose() {
         this.textureData.forEach( VulkanTextureData::close );
         this.textureData.clear();
     }

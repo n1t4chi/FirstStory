@@ -31,6 +31,7 @@ public class VulkanFrameworkProvider implements RenderingFrameworkProvider {
     public synchronized RenderingFramework getRenderingFramework( WindowContext window ) {
         return instances.computeIfAbsent( Thread.currentThread(), thread -> new VulkanFramework( window ) );
     }
+    
     @Override
     public void terminate() {
         instances.forEach( ( thread, vulkanFramework ) -> vulkanFramework.close() );

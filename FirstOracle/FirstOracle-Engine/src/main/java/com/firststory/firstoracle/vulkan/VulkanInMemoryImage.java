@@ -228,7 +228,7 @@ public class VulkanInMemoryImage extends VulkanImage {
         return super.createImageView( format, aspectMask, calculateMipLevels() );
     }
     
-    void close() {
+    public void dispose() {
         VK10.vkFreeMemory( getDevice().getLogicalDevice(), memoryAddress.getValue(), null );
         VK10.vkDestroyImage( getDevice().getLogicalDevice(), getAddress().getValue(), null );
     }

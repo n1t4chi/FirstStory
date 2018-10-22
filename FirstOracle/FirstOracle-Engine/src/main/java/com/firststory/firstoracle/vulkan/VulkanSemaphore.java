@@ -16,6 +16,7 @@ public class VulkanSemaphore {
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;
     
+    
     public VulkanSemaphore( VulkanPhysicalDevice device ) {
         this.device = device;
         this.address = createSemaphore( device );

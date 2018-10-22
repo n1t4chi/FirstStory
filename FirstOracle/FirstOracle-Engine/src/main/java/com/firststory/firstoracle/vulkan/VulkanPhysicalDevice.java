@@ -55,7 +55,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanSwapChain swapChain;
     private final VulkanGraphicPipelines trianglePipelines;
     private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>();
-    private final Deque< VulkanSemaphore > semaphores = new LinkedList<>();
+    private final List< VulkanSemaphore > semaphores = new ArrayList<>();
     
     private final VulkanGraphicCommandPool backgroundGraphicCommandPool;
     private final VulkanGraphicCommandPool scene2DGraphicCommandPool;
@@ -184,20 +184,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         "]" );
     }
     
-    public VulkanDepthResources getDepthResources() {
-        return depthResources;
-    }
-    
     public VulkanFrameBuffer getCurrentFrameBuffer() {
         return frameBuffers.get( currentImageIndex.getIndex() );
-    }
-    
-    public List< VulkanAddress > getMemoryAddresses() {
-        return bufferProvider.getMemoryAddresses();
-    }
-    
-    public void waitForQueues() {
-        usedQueueFamilies.forEach( VulkanQueueFamily::waitForQueue );
     }
     
     public VulkanQueueFamily getGraphicQueueFamily() {
@@ -294,7 +282,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
         currentImageIndex = acquireNextImageIndex();
-        renderingContext.tearDownSingleRender(
+        var semaphoresToDestroy = renderingContext.tearDownSingleRender(
             trianglePipelines,
             linePipelines,
             backgroundGraphicCommandPool,
@@ -315,7 +303,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
         // todo: fix
 //        if ( VulkanFramework.validationLayersAreEnabled() ) {
-            presentationFamily.waitForQueue();
+        presentationFamily.waitForQueue();
+        semaphoresToDestroy.forEach( VulkanSemaphore::dispose );
+        currentImageIndex.getRenderFinishedSemaphore().dispose();
+        currentImageIndex.getImageAvailableSemaphore().dispose();
 //        }
     }
     
@@ -327,15 +318,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         linePipelines.dispose();
         descriptor.dispose();
         swapChain.dispose();
+        textureLoader.dispose();
         bufferProvider.dispose();
-        
         depthResources.dispose();
-        
         shaderProgram3D.dispose();
         
         semaphores.forEach( VulkanSemaphore::dispose );
         semaphores.clear();
-        
         VK10.vkDestroyDevice( logicalDevice, null );
     }
     
@@ -386,6 +375,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                 throw new VulkanNextImageIndexException( this, ex1, ex2 );
             }
         }
+    }
+    
+    void registerSemaphore( VulkanSemaphore semaphore ) {
+        semaphores.add( semaphore );
     }
     
     VulkanFormatProperty findFormatProperty( Set< Integer > candidates, Integer tiling, Integer features ) {
@@ -443,7 +436,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private VulkanImageIndex tryToAcquireNextImageIndex() {
         var imageIndex = new int[1];
-        var semaphore = getNextSemaphore();
+        var semaphore = new VulkanSemaphore( this );
         var result = KHRSwapchain.vkAcquireNextImageKHR(
             logicalDevice,
             swapChain.getAddress().getValue(),
@@ -465,19 +458,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                     throw new CannotAcquireNextImageIndexException( this, imageIndex[0], result );
             }
         } catch ( RuntimeException ex ) {
-            semaphores.add( semaphore );
+            semaphore.dispose();
             throw ex;
         }
-        
-        return new VulkanImageIndex( imageIndex[0], semaphore, getNextSemaphore() );
-    }
     
-    private VulkanSemaphore getNextSemaphore() {
-        var semaphore = semaphores.poll();
-        if ( semaphore == null ) {
-           semaphore = new VulkanSemaphore( this );
-        }
-        return semaphore;
+        return new VulkanImageIndex( imageIndex[0], semaphore, new VulkanSemaphore( this ) );
     }
     
     private void refreshFrameBuffers(

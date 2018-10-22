@@ -48,6 +48,7 @@ public class VulkanFramework implements RenderingFramework {
     private final VulkanWindowSurface windowSurface;
     private VkDebugReportCallbackEXT callback = null;
     private final VulkanRenderingContext renderingContext;
+    private VulkanAddress debugCallbackAddress;
     
     VulkanFramework( WindowContext window ) {
         this.window = window;
@@ -322,29 +323,33 @@ public class VulkanFramework implements RenderingFramework {
         
         if ( instance.getCapabilities().vkCreateDebugReportCallbackEXT != VK10.VK_NULL_HANDLE ) {
             logger.fine( "Method vkCreateDebugReportCallbackEXT is supported." );
+            var addr = new long[1];
             VulkanHelper.assertCall(
                 () -> EXTDebugReport.vkCreateDebugReportCallbackEXT( instance,
                     createInfo,
                     null,
-                    new long[]{ callback.address() }
+                    addr
                 ) ,
-                resultCode ->
-                    logger.warning( "Cannot set up debug callback. Error code: " + resultCode )
+                resultCode -> {
+                    logger.warning( "Cannot set up debug callback. Error code: " + resultCode );
+                    addr[0] = addr[0] = VK10.VK_NULL_HANDLE;
+                }
             );
+            debugCallbackAddress = new VulkanAddress( addr[0] );
         } else {
             logger.warning( "Method vkCreateDebugReportCallbackEXT is not supported!" );
         }
     }
     
     private void disposeDebugCallback() {
-        if ( callback == null ) {
+        if ( debugCallbackAddress.isNull() ) {
             logger.warning( "Debug Callback is a null pointer when closing it." );
             return;
         }
         if ( instance.getCapabilities().vkDestroyDebugReportCallbackEXT != VK10.VK_NULL_HANDLE ) {
             logger.fine( "Method vkDestroyDebugReportCallbackEXT is supported." );
-            callback.free();
-            EXTDebugReport.vkDestroyDebugReportCallbackEXT( instance, callback.address(), null );
+//            callback.free();
+            EXTDebugReport.vkDestroyDebugReportCallbackEXT( instance, debugCallbackAddress.getValue(), null );
         } else {
             logger.warning( "Method vkDestroyDebugReportCallbackEXT is not supported!" );
         }

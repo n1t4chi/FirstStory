@@ -16,8 +16,6 @@ class VulkanSwapChainImage extends VulkanImage {
         this.index = index;
     }
     
-    
-    
     @Override
     public int hashCode() {
         var result = getAddress() != null ? getAddress().hashCode() : 0;

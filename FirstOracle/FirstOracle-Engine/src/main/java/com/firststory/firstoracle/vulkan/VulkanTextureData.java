@@ -60,6 +60,6 @@ public class VulkanTextureData {
     void close() {
         if ( buffer != null ) { buffer.close(); }
         if ( imageView != null ) { imageView.close(); }
-        if ( image != null ) { image.close(); }
+        if ( image != null ) { image.dispose(); }
     }
 }

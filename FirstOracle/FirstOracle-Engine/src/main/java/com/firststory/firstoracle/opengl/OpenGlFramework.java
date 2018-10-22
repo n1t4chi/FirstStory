@@ -61,6 +61,10 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
         releaseLock();
     }
     
+    public void dispose() {
+        textureLoader.dispose();
+    }
+    
     @Override
     public void render( Renderer renderer, double lastFrameUpdate ) {
         clearCanvas();

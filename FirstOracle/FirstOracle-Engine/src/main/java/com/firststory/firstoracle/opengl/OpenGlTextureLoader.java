@@ -23,8 +23,7 @@ public class OpenGlTextureLoader implements TextureBufferLoader<Integer> {
     
     private final HashSet<Integer> textures = new HashSet<>();
     
-    @Override
-    public void close() {
+    public void dispose() {
         new ArrayList<>( textures ).forEach( this::deleteUnsafe );
     }
     

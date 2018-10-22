@@ -69,7 +69,7 @@ public class VulkanDepthResources {
     
     void dispose() {
         if( depthImage != null ) {
-            depthImage.close();
+            depthImage.dispose();
         }
         if( depthImageView != null ) {
             depthImageView.close();

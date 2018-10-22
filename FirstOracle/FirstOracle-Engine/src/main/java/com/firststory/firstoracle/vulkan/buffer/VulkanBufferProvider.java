@@ -4,7 +4,6 @@
 
 package com.firststory.firstoracle.vulkan.buffer;
 
-import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.transfer.VulkanTransferCommandPool;
 
@@ -30,41 +29,41 @@ public class VulkanBufferProvider {
             vertexDataTransferCommandPool,
             quickDataTransferCommandPool,
             uniformDataTransferCommandPool,
-            textureTransferCommandPool
-        ).init( uniformBufferOffsetAlignment );
+            textureTransferCommandPool,
+            uniformBufferOffsetAlignment
+        );
     }
     
-    private final VulkanPhysicalDevice device;
-    private final VulkanTransferCommandPool vertexDataTransferCommandPool;
-    private final VulkanTransferCommandPool quickDataTransferCommandPool;
-    private final VulkanTransferCommandPool uniformDataTransferCommandPool;
-    private final VulkanTransferCommandPool textureTransferCommandPool;
-    private VulkanBufferMemory textureMemory;
-    private VulkanDataBufferProvider textureBufferProvider;
-    private VulkanBufferMemory vertexMemory;
-    private VulkanDataBufferProvider vertexBufferProvider;
-    private VulkanBufferMemory vertexQuickMemory;
-    private VulkanDataBufferProvider vertexQuickBufferProvider;
-    private VulkanBufferMemory uniformMemory;
-    private VulkanDataBufferProvider uniformBufferProvider;
-    private final List< VulkanAddress > memoryAddresses = new ArrayList<>();
+    private final VulkanDataBufferProvider textureBufferProvider;
+    private final VulkanDataBufferProvider vertexBufferProvider;
+    private final VulkanDataBufferProvider vertexQuickBufferProvider;
+    private final VulkanDataBufferProvider uniformBufferProvider;
+    private final List< VulkanBufferMemory > memories = new ArrayList<>(  );
     
     private VulkanBufferProvider(
         VulkanPhysicalDevice device,
         VulkanTransferCommandPool vertexDataTransferCommandPool,
         VulkanTransferCommandPool quickDataTransferCommandPool,
         VulkanTransferCommandPool uniformDataTransferCommandPool,
-        VulkanTransferCommandPool textureTransferCommandPool
+        VulkanTransferCommandPool textureTransferCommandPool,
+        long uniformBufferOffsetAlignment
     ) {
-        this.device = device;
-        this.vertexDataTransferCommandPool = vertexDataTransferCommandPool;
-        this.quickDataTransferCommandPool = quickDataTransferCommandPool;
-        this.uniformDataTransferCommandPool = uniformDataTransferCommandPool;
-        this.textureTransferCommandPool = textureTransferCommandPool;
-    }
+        var textureMemory = VulkanBufferMemory.createTextureMemory( device, getSuitableTextureMemoryLength(), textureTransferCommandPool );
+        textureBufferProvider = new VulkanDataBufferProvider( textureMemory, 1 );
     
-    public List< VulkanAddress  > getMemoryAddresses() {
-        return memoryAddresses;
+        var vertexMemory = VulkanBufferMemory.createVertexMemory( device, getSuitableVertexDataMemoryLength(), vertexDataTransferCommandPool );
+        vertexBufferProvider = new VulkanDataBufferProvider( vertexMemory, 1 );
+    
+        var vertexQuickMemory = VulkanBufferMemory.createVertexQuickMemory( device, getSuitableQuickDataMemoryLength(), quickDataTransferCommandPool );
+        vertexQuickBufferProvider = new VulkanDataBufferProvider( vertexQuickMemory, 1 );
+    
+        var uniformMemory = VulkanBufferMemory.createUniformMemory( device, getSuitableUniformMemoryLength(), uniformDataTransferCommandPool );
+        uniformBufferProvider = new VulkanDataBufferProvider( uniformMemory, uniformBufferOffsetAlignment );
+    
+        memories.add( textureMemory );
+        memories.add( vertexMemory );
+        memories.add( vertexQuickMemory );
+        memories.add( uniformMemory );
     }
     
     public VulkanDataBuffer createVertexBuffer( float[] array ) {
@@ -80,44 +79,11 @@ public class VulkanBufferProvider {
     }
     
     public void dispose() {
-        if ( textureMemory != null ) {
-            textureMemory.close();
-            textureMemory = null;
-        }
-        
-        if ( vertexMemory != null ) {
-            vertexMemory.close();
-            vertexMemory = null;
-        }
-        
-        if ( uniformMemory != null ) {
-            uniformMemory.close();
-            uniformMemory = null;
-        }
+        memories.forEach( VulkanBufferMemory::dispose );
     }
     
     public VulkanDataBuffer createTextureBuffer( ByteBuffer pixels ) {
         return textureBufferProvider.create( pixels );
-    }
-    
-    private VulkanBufferProvider init( long uniformBufferOffsetAlignment ) {
-        textureMemory = VulkanBufferMemory.createTextureMemory( device, getSuitableTextureMemoryLength(), textureTransferCommandPool );
-        textureBufferProvider = new VulkanDataBufferProvider( textureMemory, 1 );
-        
-        vertexMemory = VulkanBufferMemory.createVertexMemory( device, getSuitableVertexDataMemoryLength(), vertexDataTransferCommandPool );
-        vertexBufferProvider = new VulkanDataBufferProvider( vertexMemory, 1 );
-    
-        vertexQuickMemory = VulkanBufferMemory.createVertexQuickMemory( device, getSuitableQuickDataMemoryLength(), quickDataTransferCommandPool );
-        vertexQuickBufferProvider = new VulkanDataBufferProvider( vertexQuickMemory, 1 );
-        
-        uniformMemory = VulkanBufferMemory.createUniformMemory( device, getSuitableUniformMemoryLength(), uniformDataTransferCommandPool );
-        uniformBufferProvider = new VulkanDataBufferProvider( uniformMemory, uniformBufferOffsetAlignment );
-        
-        memoryAddresses.clear();
-        memoryAddresses.add( textureMemory.getAddress() );
-        memoryAddresses.add( vertexMemory.getAddress() );
-        memoryAddresses.add( uniformMemory.getAddress() );
-        return this;
     }
     
     private int getSuitableTextureMemoryLength() {

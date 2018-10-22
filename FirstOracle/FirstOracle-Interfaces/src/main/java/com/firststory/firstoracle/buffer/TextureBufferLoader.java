@@ -67,6 +67,4 @@ public interface TextureBufferLoader< Context > {
     void loadUnsafe( Context context, ByteBuffer imageBuffer, String name ) throws BufferNotCreatedException;
     
     void deleteUnsafe( Context context );
-    
-    void close();
 }

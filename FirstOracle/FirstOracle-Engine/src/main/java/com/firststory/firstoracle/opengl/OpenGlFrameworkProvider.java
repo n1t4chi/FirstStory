@@ -33,7 +33,9 @@ public class OpenGlFrameworkProvider implements RenderingFrameworkProvider {
         return instances.computeIfAbsent( Thread.currentThread(), thread -> new OpenGlFramework() );
     }
     @Override
-    public void terminate() {}
+    public void terminate() {
+        instances.forEach( ( thread, openGlFramework ) -> openGlFramework.dispose() );
+    }
     
     @Override
     public boolean isOpenGL() {

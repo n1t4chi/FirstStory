@@ -50,7 +50,6 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     private static final int[] COPY_BUFFER_MEMORY_FLAGS = {
         VK10.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK10.VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
     };
-    public static final int BLOCK_SIZE = 256;
     
     static VulkanBufferMemory createUniformMemory(
         VulkanPhysicalDevice device,
@@ -130,6 +129,12 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         }
     }
     
+    public void dispose() {
+        resetLocalTransferBuffers();
+        memoryBuffer.delete();
+        localMemoryCopyBuffer.delete();
+    }
+    
     @Override
     protected void writeUnsafe( LinearMemoryLocation location, ByteBuffer byteBuffer ) {
         synchronized ( mappedLocalMemory ) {
@@ -149,10 +154,6 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     
     public VulkanAddress getAddress() {
         return memoryBuffer.bufferAddress;
-    }
-    
-    public void close() {
-        memoryBuffer.delete();
     }
     
     private void copyMemory( ByteBuffer dataBuffer, LinearMemoryLocation location ) {
