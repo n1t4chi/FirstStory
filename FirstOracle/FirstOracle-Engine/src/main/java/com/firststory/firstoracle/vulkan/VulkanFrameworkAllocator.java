@@ -4,67 +4,67 @@
 
 package com.firststory.firstoracle.vulkan;
 
-import com.firststory.firstoracle.vulkan.rendering.VulkanRenderingContext;
+import com.firststory.firstoracle.vulkan.physicaldevice.VulkanDeviceAllocator;
+import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
+import com.firststory.firstoracle.vulkan.physicaldevice.rendering.VulkanRenderingContext;
 import com.firststory.firstoracle.window.WindowContext;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.VkInstance;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author n1t4chi
  */
 public class VulkanFrameworkAllocator {
     
-    private final List< VulkanWindowSurface > windowSurfaces = new ArrayList<>();
-    private final List< VulkanPhysicalDevice > physicalDevices = new ArrayList<>();
-    private final List< VulkanInstanceAllocator > deviceAllocators = new ArrayList<>();
-    private final List< VulkanRenderingContext > renderingContexts = new ArrayList<>();
-    private final List< VulkanDebugCallback > debugCallbacks = new ArrayList<>();
+    private final Set< VulkanWindowSurface > windowSurfaces = new HashSet<>();
+    private final Set< VulkanPhysicalDevice > physicalDevices = new HashSet<>();
+    private final Set< VulkanDeviceAllocator > deviceAllocators = new HashSet<>();
+    private final Set< VulkanRenderingContext > renderingContexts = new HashSet<>();
+    private final Set< VulkanDebugCallback > debugCallbacks = new HashSet<>();
     
     public void dispose() {
-        copy( renderingContexts ).forEach( this::deregisterRenderingContext );
-        copy( physicalDevices ).forEach( this::deregisterPhysicalDevice );
-        copy( deviceAllocators ).forEach( this::deregisterPhysicalDeviceAllocator );
-        copy( windowSurfaces ).forEach( this::deregisterWindowSuface );
-        copy( debugCallbacks ).forEach( this::deregisterDebugCallback );
+        VulkanHelper.safeForEach( renderingContexts, this::deregisterRenderingContext );
+        VulkanHelper.safeForEach( physicalDevices, this::deregisterPhysicalDevice );
+        VulkanHelper.safeForEach( deviceAllocators, this::deregisterPhysicalDeviceAllocator );
+        VulkanHelper.safeForEach( windowSurfaces, this::deregisterWindowSuface );
+        VulkanHelper.safeForEach( debugCallbacks, this::deregisterDebugCallback );
     }
     
     VulkanDebugCallback createDebugCallback( VkInstance instance ) {
-        return register( debugCallbacks, () -> new VulkanDebugCallback( this, instance ) );
+        return VulkanHelper.register( debugCallbacks, () -> new VulkanDebugCallback( this, instance ) );
     }
     
     void deregisterDebugCallback( VulkanDebugCallback callback ) {
-        deregister( debugCallbacks, callback, VulkanDebugCallback::disposeUnsafe );
+        VulkanHelper.deregister( debugCallbacks, callback, VulkanDebugCallback::disposeUnsafe );
     }
     
     VulkanRenderingContext createRenderingContext( VulkanPhysicalDevice device ) {
-        return register( renderingContexts, () -> new VulkanRenderingContext( this, device ) );
+        return VulkanHelper.register( renderingContexts, () -> new VulkanRenderingContext( this, device ) );
     }
     
     public void deregisterRenderingContext( VulkanRenderingContext context ) {
-        deregister( renderingContexts, context, VulkanRenderingContext::disposeUnsafe );
+        VulkanHelper.deregister( renderingContexts, context, VulkanRenderingContext::disposeUnsafe );
     }
     
-    VulkanInstanceAllocator createPhysicalDeviceAllocator() {
-        return register( deviceAllocators, () -> new VulkanInstanceAllocator( this ) );
+    VulkanDeviceAllocator createPhysicalDeviceAllocator() {
+        return VulkanHelper.register( deviceAllocators, () -> new VulkanDeviceAllocator( this ) );
     }
     
-    void deregisterPhysicalDeviceAllocator( VulkanInstanceAllocator deviceAllocator ) {
-        deregister( deviceAllocators, deviceAllocator, VulkanInstanceAllocator::disposeUnsafe );
+    public void deregisterPhysicalDeviceAllocator( VulkanDeviceAllocator deviceAllocator ) {
+        VulkanHelper.deregister( deviceAllocators, deviceAllocator, VulkanDeviceAllocator::disposeUnsafe );
     }
     
     VulkanPhysicalDevice createPhysicalDevice(
         long deviceBuffer,
-        VulkanInstanceAllocator allocator,
+        VulkanDeviceAllocator allocator,
         VkInstance instance,
         PointerBuffer validationLayerNamesBuffer,
         VulkanWindowSurface windowSurface
     ) {
-        return register( physicalDevices, () -> new VulkanPhysicalDevice(
+        return VulkanHelper.register( physicalDevices, () -> new VulkanPhysicalDevice(
             this,
             allocator,
             deviceBuffer,
@@ -74,31 +74,16 @@ public class VulkanFrameworkAllocator {
         ) );
     }
     
-    void deregisterPhysicalDevice( VulkanPhysicalDevice device ) {
-        deregister( physicalDevices, device, VulkanPhysicalDevice::disposeUnsafe );
+    public void deregisterPhysicalDevice( VulkanPhysicalDevice device ) {
+        VulkanHelper.deregister( physicalDevices, device, VulkanPhysicalDevice::disposeUnsafe );
     }
     
     VulkanWindowSurface createWindowSurface( VkInstance instance, WindowContext window ) {
-        return register( windowSurfaces, () -> new VulkanWindowSurface( this, instance, window ) );
+        return VulkanHelper.register( windowSurfaces, () -> new VulkanWindowSurface( this, instance, window ) );
     }
     
     void deregisterWindowSuface( VulkanWindowSurface surface ) {
-        deregister( windowSurfaces, surface, VulkanWindowSurface::disposeUnsafe );
+        VulkanHelper.deregister( windowSurfaces, surface, VulkanWindowSurface::disposeUnsafe );
     }
     
-    private <T> List< T > copy( List< T > list ) {
-        return new ArrayList<>( list );
-    }
-    
-    private < T > void deregister( List< T > list, T object, Consumer< T > dispose ) {
-        if( list.remove( object ) ) {
-            dispose.accept( object );
-        }
-    }
-    
-    private < T > T register( List< T > list, Supplier< T > create ) {
-        var object = create.get();
-        list.add( object );
-        return object;
-    }
 }

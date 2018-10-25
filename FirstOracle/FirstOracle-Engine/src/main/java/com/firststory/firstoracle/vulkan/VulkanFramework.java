@@ -18,7 +18,7 @@ public class VulkanFramework implements RenderingFramework {
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanFramework.class );
     
-    static boolean validationLayersAreEnabled() {
+    public static boolean validationLayersAreEnabled() {
         return PropertiesUtil.isPropertyTrue( PropertiesUtil.VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY );
     }
     

@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanWindowSurfaceException;
+import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanWindowSurfaceException;
 import com.firststory.firstoracle.window.WindowContext;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.vulkan.KHRSurface;
@@ -52,7 +52,7 @@ public class VulkanWindowSurface {
         KHRSurface.vkDestroySurfaceKHR( instance, address.getValue(), null );
     }
     
-    VulkanAddress getAddress() {
+    public VulkanAddress getAddress() {
         return address;
     }
     
