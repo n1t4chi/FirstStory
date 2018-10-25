@@ -34,6 +34,7 @@ public class VulkanRenderingContext implements RenderingContext {
     private static final String SCENE_2D = "scene2D";
     private static final String BACKGROUND = "background";
     
+    private final VulkanFrameworkAllocator allocator;
     private final VulkanPhysicalDevice device;
     private final List< VulkanDataBuffer > dataBuffers = new ArrayList<>( 5000 );
     private final boolean shouldDrawBorder;
@@ -59,28 +60,36 @@ public class VulkanRenderingContext implements RenderingContext {
     private VulkanFrameBuffer frameBuffer;
     private Colour backgroundColour;
     
-    public VulkanRenderingContext( VulkanPhysicalDevice device ) {
-        this( device,
+    public VulkanRenderingContext(
+        VulkanFrameworkAllocator allocator,
+        VulkanPhysicalDevice device
+    ) {
+        this( allocator, device,
             PropertiesUtil.isPropertyTrue( PropertiesUtil.DRAW_BORDER_PROPERTY ),
             !PropertiesUtil.isPropertyTrue( PropertiesUtil.DISABLE_TEXTURES_PROPERTY )
         );
     }
     
     private VulkanRenderingContext(
+        VulkanFrameworkAllocator allocator,
         VulkanPhysicalDevice device,
         boolean shouldDrawBorder,
         boolean shouldDrawTextures
     ) {
+        this.allocator = allocator;
         this.device = device;
         this.shouldDrawBorder = shouldDrawBorder;
         this.shouldDrawTextures = shouldDrawTextures;
         executorService = Executors.newFixedThreadPool( 4 );
-        textureSampler = new VulkanTextureSampler( device );
+        textureSampler = device.getTextureSampler();
     }
     
     public void dispose() {
+        allocator.deregisterRenderingContext( this );
+    }
+    
+    public void disposeUnsafe() {
         executorService.shutdownNow();
-        textureSampler.dispose();
         descriptorsPools.forEach( VulkanDescriptorPool::dispose );
         descriptorsPools.clear();
     }

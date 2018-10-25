@@ -70,10 +70,10 @@ public class VulkanInMemoryImage extends VulkanImage {
             .memoryTypeIndex( memoryType.getIndex() );
     
         var textureImageMemory = VulkanHelper.createAddress( address -> VK10.vkAllocateMemory(
-            device.getLogicalDevice(),
-            allocateInfo,
-            null,
-            address
+                device.getLogicalDevice(),
+                allocateInfo,
+                null,
+                address
             ),
             resultCode -> new CannotAllocateVulkanImageMemoryException( device, resultCode )
         );

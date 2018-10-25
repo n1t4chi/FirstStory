@@ -20,20 +20,35 @@ public class VulkanWindowSurface {
     
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanWindowSurface.class );
     
-    public static VulkanWindowSurface create( VkInstance instance, WindowContext window ) {
-        return new VulkanWindowSurface( VulkanHelper.createAddress(
-            address -> GLFWVulkan.glfwCreateWindowSurface( instance, window.getAddress(), null, address ),
-            resultCode -> new CannotCreateVulkanWindowSurfaceException( resultCode, instance, window )
-        ) );
-    }
-    
+    private final VulkanFrameworkAllocator allocator;
+    private final VkInstance instance;
     private final VulkanAddress address;
     
-    private VulkanWindowSurface( VulkanAddress address ) {
-        this.address = address;
+    VulkanWindowSurface(
+        VulkanFrameworkAllocator allocator,
+        VkInstance instance,
+        WindowContext window
+    ) {
+        this.allocator = allocator;
+        this.instance = instance;
+        this.address = createWindowSurface( instance, window);
     }
     
-    void dispose( VkInstance instance ) {
+    private VulkanAddress createWindowSurface(
+        VkInstance instance,
+        WindowContext window
+    ) {
+        return VulkanHelper.createAddress(
+            address -> GLFWVulkan.glfwCreateWindowSurface( instance, window.getAddress(), null, address ),
+            resultCode -> new CannotCreateVulkanWindowSurfaceException( resultCode, instance, window )
+        );
+    }
+    
+    void dispose() {
+        allocator.deregisterWindowSuface( this );
+    }
+    
+    void disposeUnsafe() {
         KHRSurface.vkDestroySurfaceKHR( instance, address.getValue(), null );
     }
     

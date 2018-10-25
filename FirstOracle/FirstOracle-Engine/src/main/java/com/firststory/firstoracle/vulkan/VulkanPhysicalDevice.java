@@ -38,6 +38,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         requiredExtensions.add( KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME );
     }
     
+    private final VulkanFrameworkAllocator instanceAllocator;
+    private final VulkanInstanceAllocator allocator;
     private final VkPhysicalDevice physicalDevice;
     private final VkPhysicalDeviceFeatures features;
     private final VkPhysicalDeviceProperties properties;
@@ -80,13 +82,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private VulkanImageIndex currentImageIndex;
     private final VulkanGraphicPipelines linePipelines;
+    private final VulkanTextureSampler textureSampler;
     
     VulkanPhysicalDevice(
+        VulkanFrameworkAllocator instanceAllocator,
+        VulkanInstanceAllocator allocator,
         long deviceAddress,
         VkInstance instance,
         PointerBuffer validationLayerNamesBuffer,
         VulkanWindowSurface surface
     ) throws CannotCreateVulkanPhysicalDeviceException {
+        this.instanceAllocator = instanceAllocator;
+        this.allocator = allocator;
         windowSurface = surface;
         physicalDevice = new VkPhysicalDevice( deviceAddress, instance );
         capabilities = physicalDevice.getCapabilities();
@@ -157,6 +164,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         depthResources = new VulkanDepthResources( this );
         descriptor = new VulkanDescriptor( this );
         textureLoader = new VulkanTextureLoader( this, bufferProvider );
+        textureSampler = new VulkanTextureSampler( this );
         
         shaderProgram3D = new VulkanShaderProgram( this, bufferProvider );
         //shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
@@ -190,6 +198,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     public VulkanQueueFamily getGraphicQueueFamily() {
         return graphicFamily;
+    }
+    
+    public VulkanTextureSampler getTextureSampler() {
+        return textureSampler;
     }
     
     VulkanQueueFamily getGraphicFamily() {
@@ -311,6 +323,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     void dispose() {
+        instanceAllocator.deregisterPhysicalDevice( this );
+    }
+    
+    void disposeUnsafe() {
         presentationFamily.waitForQueue();
         disposeFrameBuffers();
         commandPools.forEach( VulkanCommandPool::dispose );
@@ -322,6 +338,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         bufferProvider.dispose();
         depthResources.dispose();
         shaderProgram3D.dispose();
+        textureSampler.dispose();
         
         semaphores.forEach( VulkanSemaphore::dispose );
         semaphores.clear();
