@@ -82,9 +82,9 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool {
     private VulkanGraphicPrimaryCommandBuffer createPrimaryCommandBuffer( VulkanSwapChain swapChain ) {
         return new VulkanGraphicPrimaryCommandBuffer(
             getDevice(),
+            this,
             new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ),
             swapChain,
-            this,
             VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
         );
     }
@@ -153,8 +153,8 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool {
     private VulkanGraphicSecondaryCommandBuffer createSecondaryCommandBuffer( VulkanAddress address ) {
         return new VulkanGraphicSecondaryCommandBuffer(
             getDevice(),
-            address,
             this,
+            address,
             VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK10.VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT
         );
     }

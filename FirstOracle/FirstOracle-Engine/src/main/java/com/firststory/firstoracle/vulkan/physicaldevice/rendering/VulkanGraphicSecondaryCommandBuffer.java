@@ -22,11 +22,15 @@ public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer {
     
     VulkanGraphicSecondaryCommandBuffer(
         VulkanPhysicalDevice device,
-        VulkanAddress address,
         VulkanGraphicCommandPool commandPool,
+        VulkanAddress address,
         int... usedBeginInfoFlags
     ) {
-        super( device, address, commandPool, usedBeginInfoFlags );
+        super(
+            device,
+            commandPool,
+            address,
+            usedBeginInfoFlags );
     }
     
     public void update(

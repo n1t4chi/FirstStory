@@ -15,6 +15,13 @@ import java.util.function.Supplier;
 class VulkanImmutableObjectsRegistry< T > {
     
     private final Set< T > usedInstances = new HashSet<>();
+    private final Consumer< T > disposeAction;
+    
+    VulkanImmutableObjectsRegistry(
+        Consumer< T > disposeAction
+    ) {
+        this.disposeAction = disposeAction;
+    }
     
     T register( Supplier< T > supplier ) {
         return VulkanAllocatorHelper.add(
@@ -24,20 +31,19 @@ class VulkanImmutableObjectsRegistry< T > {
     }
     
     void deregister(
-        T object,
-        Consumer< T > dispose
+        T object
     ) {
         VulkanAllocatorHelper.disposeOnRemoval(
             usedInstances,
             object,
-            dispose
+            disposeAction
         );
     }
     
-    void forEach( Consumer< T > consumer ) {
-        VulkanAllocatorHelper.safeForEach(
-            usedInstances,
-            consumer
-        );
+    void dispose() {
+        synchronized ( usedInstances ) {
+            usedInstances.forEach( disposeAction );
+            usedInstances.clear();
+        }
     }
 }

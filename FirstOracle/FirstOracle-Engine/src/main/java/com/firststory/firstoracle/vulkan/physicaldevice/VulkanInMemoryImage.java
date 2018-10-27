@@ -46,7 +46,8 @@ public class VulkanInMemoryImage extends VulkanImage {
                 format,
                 tiling,
                 usageFlags
-            ) );
+            )
+        );
         memoryAddress = bindImageMemory( getDevice(), desiredMemoryFlags, getAddress() );
         this.width = width;
         this.height = height;
@@ -130,7 +131,7 @@ public class VulkanInMemoryImage extends VulkanImage {
     public void disposeUnsafe() {
         VK10.vkFreeMemory( getDevice().getLogicalDevice(), memoryAddress.getValue(), null );
         VK10.vkDestroyImage( getDevice().getLogicalDevice(), getAddress().getValue(), null );
-        getAddress().setNull();
+        updateAddress( new VulkanAddress() );
         memoryAddress.setNull();
         width = 0;
         height = 0;

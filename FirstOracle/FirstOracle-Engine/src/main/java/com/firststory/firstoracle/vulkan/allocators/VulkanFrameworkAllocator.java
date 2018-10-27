@@ -17,18 +17,18 @@ import org.lwjgl.vulkan.VkInstance;
  */
 public class VulkanFrameworkAllocator {
     
-    private final VulkanImmutableObjectsRegistry< VulkanWindowSurface > windowSurfaces = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanPhysicalDevice > physicalDevices = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanDeviceAllocator > deviceAllocators = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanRenderingContext > renderingContexts = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanDebugCallback > debugCallbacks = new VulkanImmutableObjectsRegistry<>();
+    private final VulkanImmutableObjectsRegistry< VulkanWindowSurface > windowSurfaces = new VulkanImmutableObjectsRegistry<>( VulkanWindowSurface::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanPhysicalDevice > physicalDevices = new VulkanImmutableObjectsRegistry<>( VulkanPhysicalDevice::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDeviceAllocator > deviceAllocators = new VulkanImmutableObjectsRegistry<>( VulkanDeviceAllocator::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanRenderingContext > renderingContexts = new VulkanImmutableObjectsRegistry<>( VulkanRenderingContext::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDebugCallback > debugCallbacks = new VulkanImmutableObjectsRegistry<>( VulkanDebugCallback::disposeUnsafe );
     
     public void dispose() {
-        renderingContexts.forEach( this::deregisterRenderingContext );
-        physicalDevices.forEach( this::deregisterPhysicalDevice );
-        deviceAllocators.forEach( this::deregisterPhysicalDeviceAllocator );
-        windowSurfaces.forEach( this::deregisterWindowSuface );
-        debugCallbacks.forEach( this::deregisterDebugCallback );
+        renderingContexts.dispose();
+        physicalDevices.dispose();
+        deviceAllocators.dispose();
+        windowSurfaces.dispose();
+        debugCallbacks.dispose();
     }
     
     public VulkanDebugCallback createDebugCallback( VkInstance instance ) {
@@ -36,7 +36,7 @@ public class VulkanFrameworkAllocator {
     }
     
     public void deregisterDebugCallback( VulkanDebugCallback callback ) {
-        debugCallbacks.deregister( callback, VulkanDebugCallback::disposeUnsafe );
+        debugCallbacks.deregister( callback );
     }
     
     public VulkanRenderingContext createRenderingContext( VulkanPhysicalDevice device ) {
@@ -44,15 +44,15 @@ public class VulkanFrameworkAllocator {
     }
     
     public void deregisterRenderingContext( VulkanRenderingContext context ) {
-        renderingContexts.deregister( context, VulkanRenderingContext::disposeUnsafe );
+        renderingContexts.deregister( context );
     }
     
     public VulkanDeviceAllocator createPhysicalDeviceAllocator( VulkanPhysicalDevice device ) {
         return deviceAllocators.register( () -> new VulkanDeviceAllocator( this, device ) );
     }
     
-    public void deregisterPhysicalDeviceAllocator( VulkanDeviceAllocator deviceAllocator ) {
-        deviceAllocators.deregister( deviceAllocator, VulkanDeviceAllocator::disposeUnsafe );
+    void deregisterPhysicalDeviceAllocator( VulkanDeviceAllocator deviceAllocator ) {
+        deviceAllocators.deregister( deviceAllocator );
     }
     
     public VulkanPhysicalDevice createPhysicalDevice(
@@ -71,7 +71,7 @@ public class VulkanFrameworkAllocator {
     }
     
     public void deregisterPhysicalDevice( VulkanPhysicalDevice device ) {
-        physicalDevices.deregister( device, VulkanPhysicalDevice::disposeUnsafe );
+        physicalDevices.deregister( device );
     }
     
     public VulkanWindowSurface createWindowSurface( VkInstance instance, WindowContext window ) {
@@ -79,7 +79,7 @@ public class VulkanFrameworkAllocator {
     }
     
     public void deregisterWindowSuface( VulkanWindowSurface surface ) {
-        windowSurfaces.deregister( surface, VulkanWindowSurface::disposeUnsafe );
+        windowSurfaces.deregister( surface );
     }
     
 }

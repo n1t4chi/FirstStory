@@ -130,9 +130,10 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
     }
     
     private VulkanTransferCommandBuffer createNewCommandBuffer() {
-        return new VulkanTransferCommandBuffer( getDevice(),
-            new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ),
+        return new VulkanTransferCommandBuffer(
+            getDevice(),
             this,
+            new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ),
             VK10.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
         );
     }

@@ -29,8 +29,8 @@ public abstract class VulkanCommandBuffer {
     
     public VulkanCommandBuffer(
         VulkanPhysicalDevice device,
-        VulkanAddress address,
         VulkanCommandPool commandPool,
+        VulkanAddress address,
         int... usedBeginInfoFlags
     ) {
         this.device = device;

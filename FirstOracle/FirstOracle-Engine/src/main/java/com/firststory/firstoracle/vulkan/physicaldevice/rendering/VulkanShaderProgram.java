@@ -81,7 +81,7 @@ public class VulkanShaderProgram implements ShaderProgram {
     
     @Override
     public void dispose() {
-        allocator.deregisterShaderProgram3D( this );
+        allocator.deregisterShaderProgram( this );
     }
     
     public void disposeUnsafe() {

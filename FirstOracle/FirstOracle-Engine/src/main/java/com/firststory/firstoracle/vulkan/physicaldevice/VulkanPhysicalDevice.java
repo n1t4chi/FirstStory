@@ -160,7 +160,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             textureLoader = allocator.createTextureLoader( bufferProvider );
             textureSampler = allocator.createTextureSampler();
             
-            shaderProgram3D = allocator.createShaderProgram3D( bufferProvider );
+            shaderProgram3D = allocator.createShaderProgram( bufferProvider );
             //shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
             try {
                 shaderProgram3D.compile();

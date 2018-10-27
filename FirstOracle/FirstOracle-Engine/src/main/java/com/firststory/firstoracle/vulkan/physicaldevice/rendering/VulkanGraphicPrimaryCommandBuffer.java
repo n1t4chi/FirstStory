@@ -23,12 +23,16 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer {
     
     VulkanGraphicPrimaryCommandBuffer(
         VulkanPhysicalDevice device,
+        VulkanGraphicCommandPool commandPool,
         VulkanAddress address,
         VulkanSwapChain swapChain,
-        VulkanGraphicCommandPool commandPool,
         int... usedBeginInfoFlags
     ) {
-        super( device, address, commandPool, usedBeginInfoFlags );
+        super(
+            device,
+            commandPool,
+            address,
+            usedBeginInfoFlags );
         this.swapChain = swapChain;
     }
     

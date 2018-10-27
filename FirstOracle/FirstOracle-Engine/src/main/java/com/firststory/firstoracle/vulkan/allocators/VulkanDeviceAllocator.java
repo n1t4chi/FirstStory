@@ -17,23 +17,24 @@ public class VulkanDeviceAllocator {
     
     private final VulkanFrameworkAllocator allocator;
     private final VulkanPhysicalDevice device;
-    private final VulkanImmutableObjectsRegistry< VulkanFrameBuffer > frameBuffers = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanTransferCommandPool > transferCommandPools = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanGraphicCommandPool > graphicCommandPools = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanGraphicPipelines > graphicPipelines = new VulkanImmutableObjectsRegistry<>();
     
-    private final VulkanImmutableObjectsRegistry< VulkanSwapChain > swapChains = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanBufferProvider > bufferProviders = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanDescriptor > descriptors = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanTextureLoader > textureLoaders = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanDepthResources > depthResources = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanShaderProgram > shaderPrograms3D = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanTextureSampler > textureSamplers = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanImageView > imageViews = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanReusableObjectsRegistry< VulkanInMemoryImage > inMemoryImages = new VulkanReusableObjectsRegistry<>();
-    private final VulkanReusableObjectsRegistry< VulkanSwapChainImage > swapChainImages = new VulkanReusableObjectsRegistry<>();
-    private final VulkanImmutableObjectsRegistry< VulkanSemaphore > semaphores = new VulkanImmutableObjectsRegistry<>();
-    private final VulkanReusableObjectsRegistry< VulkanTextureData > textureDatas = new VulkanReusableObjectsRegistry<>();
+    private final VulkanImmutableObjectsRegistry< VulkanFrameBuffer > frameBuffers = new VulkanImmutableObjectsRegistry<>( VulkanFrameBuffer::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanTransferCommandPool > transferCommandPools = new VulkanImmutableObjectsRegistry<>( VulkanTransferCommandPool::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanGraphicCommandPool > graphicCommandPools = new VulkanImmutableObjectsRegistry<>( VulkanGraphicCommandPool::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanGraphicPipelines > graphicPipelines = new VulkanImmutableObjectsRegistry<>( VulkanGraphicPipelines::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanSwapChain > swapChains = new VulkanImmutableObjectsRegistry<>( VulkanSwapChain::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanBufferProvider > bufferProviders = new VulkanImmutableObjectsRegistry<>( VulkanBufferProvider::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDescriptor > descriptors = new VulkanImmutableObjectsRegistry<>( VulkanDescriptor::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanTextureLoader > textureLoaders = new VulkanImmutableObjectsRegistry<>( VulkanTextureLoader::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDepthResources > depthResources = new VulkanImmutableObjectsRegistry<>( VulkanDepthResources::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanShaderProgram > shaderPrograms = new VulkanImmutableObjectsRegistry<>( VulkanShaderProgram::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanTextureSampler > textureSamplers = new VulkanImmutableObjectsRegistry<>(VulkanTextureSampler::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanImageView > imageViews = new VulkanImmutableObjectsRegistry<>( VulkanImageView::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanInMemoryImage > inMemoryImages = new VulkanReusableObjectsRegistry<>( VulkanInMemoryImage::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanSwapChainImage > swapChainImages = new VulkanReusableObjectsRegistry<>( VulkanSwapChainImage::disposeUnsafe );
+//    private final VulkanReusableObjectsRegistry< VulkanSemaphore > semaphores = new VulkanReusableObjectsRegistry<>( VulkanSemaphore::disposeUnsafe, semaphore -> {} );
+    private final VulkanImmutableObjectsRegistry< VulkanSemaphore > semaphores = new VulkanImmutableObjectsRegistry<>( VulkanSemaphore::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanTextureData > textureDatas = new VulkanReusableObjectsRegistry<>( VulkanTextureData::disposeUnsafe );
     
     
     public VulkanDeviceAllocator(
@@ -45,23 +46,23 @@ public class VulkanDeviceAllocator {
     }
     
     public void disposeUnsafe() {
-        frameBuffers.forEach( this::deregisterFrameBuffer );
-        transferCommandPools.forEach( this::deregisterTransferCommandPool );
-        graphicCommandPools.forEach( this::deregisterGraphicCommandPool );
-        graphicPipelines.forEach( this::deregisterGraphicPipelines );
-        swapChains.forEach( this::deregisterSwapChain );
-        bufferProviders.forEach( this::deregisterBufferProvider );
-        descriptors.forEach( this::deregisterDescriptor );
-        textureLoaders.forEach( this::deregisterTextureLoader );
-        textureDatas.forEach( this::deregisterTextureData );
-        inMemoryImages.forEach( this::deregisterInMemoryImage );
-        swapChainImages.forEach( this::deregisterSwapChainImage );
-        imageViews.forEach( this::deregisterImageView );
+        frameBuffers.dispose();
+        transferCommandPools.dispose();
+        graphicCommandPools.dispose();
+        graphicPipelines.dispose();
+        swapChains.dispose();
+        bufferProviders.dispose();
+        descriptors.dispose();
+        textureLoaders.dispose();
+        textureDatas.dispose();
+        inMemoryImages.dispose();
+        swapChainImages.dispose();
+        imageViews.dispose();
         
-        depthResources.forEach( this::deregisterDepthResource );
-        shaderPrograms3D.forEach( this::deregisterShaderProgram3D );
-        textureSamplers.forEach( this::deregisterTextureSampler );
-        semaphores.forEach( this::deregisterSemaphore );
+        depthResources.dispose();
+        shaderPrograms.dispose();
+        textureSamplers.dispose();
+        semaphores.dispose();
     }
     
     public VulkanSwapChainImage createSwapChainImage(
@@ -75,7 +76,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterSwapChainImage( VulkanSwapChainImage image ) {
-        swapChainImages.deregister( image, VulkanSwapChainImage::disposeUnsafe );
+        swapChainImages.deregister( image );
     }
     
     public VulkanInMemoryImage createInMemoryImage(
@@ -100,7 +101,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterInMemoryImage( VulkanInMemoryImage image ) {
-        inMemoryImages.deregister( image, VulkanInMemoryImage::disposeUnsafe );
+        inMemoryImages.deregister( image );
     }
     
     public VulkanImageView createImageView(
@@ -115,7 +116,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterImageView( VulkanImageView sampler ) {
-        imageViews.deregister( sampler, VulkanImageView::disposeUnsafe );
+        imageViews.deregister( sampler );
     }
     
     public VulkanTextureData createTextureData() {
@@ -123,17 +124,18 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterTextureData( VulkanTextureData textureData ) {
-        textureDatas.deregister( textureData, VulkanTextureData::disposeUnsafe );
+        textureDatas.deregister( textureData );
     }
     
     public VulkanSemaphore createSemaphore() {
         return semaphores.register(
             () -> new VulkanSemaphore( this, device )
+//            , semaphore -> {}
         );
     }
     
     public void deregisterSemaphore( VulkanSemaphore semaphore ) {
-        semaphores.deregister( semaphore, VulkanSemaphore::disposeUnsafe );
+        semaphores.deregister( semaphore );
     }
     
     public VulkanTextureSampler createTextureSampler() {
@@ -143,17 +145,17 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterTextureSampler( VulkanTextureSampler sampler ) {
-        textureSamplers.deregister( sampler, VulkanTextureSampler::disposeUnsafe );
+        textureSamplers.deregister( sampler );
     }
     
-    public VulkanShaderProgram createShaderProgram3D( VulkanBufferProvider bufferLoader ) {
-        return shaderPrograms3D.register(
+    public VulkanShaderProgram createShaderProgram( VulkanBufferProvider bufferLoader ) {
+        return shaderPrograms.register(
             () -> new VulkanShaderProgram( this, device, bufferLoader )
         );
     }
     
-    public void deregisterShaderProgram3D( VulkanShaderProgram shader ) {
-        shaderPrograms3D.deregister( shader, VulkanShaderProgram::disposeUnsafe );
+    public void deregisterShaderProgram( VulkanShaderProgram shader ) {
+        shaderPrograms.deregister( shader );
     }
     
     public VulkanDepthResources createDepthResource() {
@@ -163,7 +165,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterDepthResource( VulkanDepthResources depthResources ) {
-        this.depthResources.deregister( depthResources, VulkanDepthResources::disposeUnsafe );
+        this.depthResources.deregister( depthResources );
     }
     
     public VulkanTextureLoader createTextureLoader( VulkanBufferProvider bufferLoader ) {
@@ -173,7 +175,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterTextureLoader( VulkanTextureLoader textureLoader ) {
-        textureLoaders.deregister( textureLoader, VulkanTextureLoader::disposeUnsafe );
+        textureLoaders.deregister( textureLoader );
     }
     
     public VulkanDescriptor createDescriptor() {
@@ -183,7 +185,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterDescriptor( VulkanDescriptor descriptor ) {
-        descriptors.deregister( descriptor, VulkanDescriptor::disposeUnsafe );
+        descriptors.deregister( descriptor );
     }
     
     
@@ -205,7 +207,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterBufferProvider( VulkanBufferProvider bufferProvider ) {
-        bufferProviders.deregister( bufferProvider, VulkanBufferProvider::disposeUnsafe );
+        bufferProviders.deregister( bufferProvider );
     }
     
     public VulkanSwapChain createSwapChain() {
@@ -215,11 +217,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterSwapChain( VulkanSwapChain swapChain ) {
-        swapChains.deregister( swapChain, VulkanSwapChain::disposeUnsafe );
-    }
-    
-    public void dispose() {
-        allocator.deregisterPhysicalDeviceAllocator( this );
+        swapChains.deregister( swapChain );
     }
     
     public VulkanGraphicPipelines createGraphicPipelines(
@@ -231,7 +229,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterGraphicPipelines( VulkanGraphicPipelines pipelines ) {
-        graphicPipelines.deregister( pipelines, VulkanGraphicPipelines::disposeUnsafe );
+        graphicPipelines.deregister( pipelines );
     }
     
     public VulkanGraphicCommandPool createGraphicCommandPool(
@@ -243,7 +241,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterGraphicCommandPool( VulkanGraphicCommandPool pool ) {
-        graphicCommandPools.deregister( pool, VulkanGraphicCommandPool::disposeUnsafe );
+        graphicCommandPools.deregister( pool );
     }
     
     public VulkanTransferCommandPool createTransferCommandPool(
@@ -255,7 +253,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterTransferCommandPool( VulkanTransferCommandPool pool ) {
-        transferCommandPools.deregister( pool, VulkanTransferCommandPool::disposeUnsafe );
+        transferCommandPools.deregister( pool );
     }
     
     public VulkanFrameBuffer createFrameBuffer(
@@ -275,7 +273,10 @@ public class VulkanDeviceAllocator {
     }
     
     public void deregisterFrameBuffer( VulkanFrameBuffer buffer ) {
-        frameBuffers.deregister( buffer, VulkanFrameBuffer::disposeUnsafe );
+        frameBuffers.deregister( buffer );
     }
     
+    public void dispose() {
+        allocator.deregisterPhysicalDeviceAllocator( this );
+    }
 }

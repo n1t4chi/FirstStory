@@ -4,10 +4,7 @@
 
 package com.firststory.firstoracle.vulkan.allocators;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -17,7 +14,7 @@ import java.util.function.Supplier;
 public interface VulkanAllocatorHelper {
     
     static <T> void safeForEach(
-        Set< T > collection,
+        Collection< T > collection,
         Consumer< T > consumer
     ) {
         List< T > copy;
