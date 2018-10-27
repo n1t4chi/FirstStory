@@ -7,6 +7,7 @@ package com.firststory.firstoracle.vulkan;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.rendering.Renderer;
+import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanInstanceException;
 import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanPhysicalDeviceException;
@@ -158,18 +159,15 @@ class VulkanInstance {
         VK10.vkEnumeratePhysicalDevices( instance, deviceCount, devicesBuffer );
         var queue = new PriorityQueue<>( VulkanPhysicalDevice::compareTo );
         while ( devicesBuffer.hasRemaining() ) {
-            var allocator = this.allocator.createPhysicalDeviceAllocator();
             try {
                 queue.add( this.allocator.createPhysicalDevice(
                     devicesBuffer.get(),
-                    allocator,
                     instance,
                     createValidationLayerNamesBuffer(),
                     windowSurface
                 ) );
             } catch ( CannotCreateVulkanPhysicalDeviceException ex ) {
                 logger.log( Level.WARNING, "Could not create physical device ", ex );
-                allocator.dispose();
             }
         }
         if ( queue.isEmpty() ) {

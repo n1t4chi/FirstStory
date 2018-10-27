@@ -16,7 +16,7 @@ import java.nio.IntBuffer;
  * @author n1t4chi
  */
 public class VulkanDataBufferProvider
-    extends LinearMemoryController< VulkanBufferMemory, ByteBuffer >
+    extends VulkanLinearMemoryController< VulkanBufferMemory, ByteBuffer >
     implements BufferProvider< VulkanDataBuffer, ByteBuffer >
 {
     

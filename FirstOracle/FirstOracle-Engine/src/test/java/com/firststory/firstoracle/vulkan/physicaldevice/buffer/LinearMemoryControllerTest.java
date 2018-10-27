@@ -22,7 +22,7 @@ public class LinearMemoryControllerTest {
         var controller = new TestableLinearMemoryController( new TestableLinearMemory( 10 ) );
         
         assertException(
-            LinearMemoryController.OutOfMemoryException.class,
+            VulkanLinearMemoryController.OutOfMemoryException.class,
             () -> controller.createBuffer( outOfMemoryLength )
         );
         var buffer = controller.createBuffer( length );
@@ -36,7 +36,7 @@ public class LinearMemoryControllerTest {
         
         assertException( TestableLinearMemory.ReadMemoryOutOfBoundException.class,
             () -> new TestableDataBufferInLinearMemory( controller,
-                new LinearMemoryLocation( 0, outOfMemoryLength, outOfMemoryLength )
+                new VulkanLinearMemoryLocation( 0, outOfMemoryLength, outOfMemoryLength )
             ).readBuffer()
         );
         Assert.assertArrayEquals( data1, buffer.readBuffer() );
@@ -56,7 +56,7 @@ public class LinearMemoryControllerTest {
     
         var buffer1 = controller.createBuffer( length );
         var buffer2 = controller.createBuffer( length );
-        assertException( LinearMemoryController.OutOfMemoryException.class, () -> controller.createBuffer( length ) );
+        assertException( VulkanLinearMemoryController.OutOfMemoryException.class, () -> controller.createBuffer( length ) );
         
         buffer1.load( data1 );
         buffer2.load( data2 );

@@ -11,7 +11,7 @@ import org.lwjgl.vulkan.VkBufferCopy;
 /**
  * @author n1t4chi
  */
-class TransferData {
+class VulkanTransferData {
     
     private static int id_t = 0;
     private VulkanAddress source;
@@ -23,11 +23,11 @@ class TransferData {
     private final VkBufferCopy region = VkBufferCopy.create();
     private final VkBufferCopy.Buffer regions = VkBufferCopy.create( 1 ).put( 0, region );
     
-    TransferData() {
+    VulkanTransferData() {
         id = id_t++;
     }
     
-    TransferData set(
+    VulkanTransferData set(
         VulkanAddress source,
         long sourceOffset,
         VulkanAddress destination,

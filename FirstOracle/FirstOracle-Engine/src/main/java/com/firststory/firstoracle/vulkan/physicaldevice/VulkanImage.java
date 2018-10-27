@@ -5,17 +5,26 @@
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 
 /**
  * @author n1t4chi
  */
-abstract class VulkanImage {
+public abstract class VulkanImage {
     
-    private final VulkanAddress address;
+    private final VulkanDeviceAllocator allocator;
     private final VulkanPhysicalDevice device;
+    private VulkanAddress address;
     
-    VulkanImage( VulkanPhysicalDevice device, VulkanAddress address ) {
+    VulkanImage(
+        VulkanDeviceAllocator allocator,
+        VulkanPhysicalDevice device
+    ) {
+        this.allocator = allocator;
         this.device = device;
+    }
+    
+    protected void updateAddress( VulkanAddress address ) {
         this.address = address;
     }
     
@@ -23,8 +32,12 @@ abstract class VulkanImage {
         return address;
     }
     
+    protected VulkanDeviceAllocator getAllocator() {
+        return allocator;
+    }
+    
     VulkanImageView createImageView( int format, int aspectMask, int mipLevels ) {
-        return new VulkanImageView( device, this, format, aspectMask, mipLevels );
+        return allocator.createImageView( this, format, aspectMask, mipLevels );
     }
     
     VulkanPhysicalDevice getDevice() {

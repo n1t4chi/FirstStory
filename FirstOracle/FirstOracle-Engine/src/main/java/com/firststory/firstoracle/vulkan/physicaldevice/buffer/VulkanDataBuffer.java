@@ -16,7 +16,7 @@ import java.nio.IntBuffer;
 /**
  * @author n1t4chi
  */
-public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
+public class VulkanDataBuffer extends VulkanDataBufferInLinearMemory< ByteBuffer > {
     
     private final VulkanBufferMemory deviceMemory;
     private ByteBuffer byteBuffer = MemoryUtil.memAlloc( 1024 * 4 );
@@ -24,7 +24,7 @@ public class VulkanDataBuffer extends DataBufferInLinearMemory< ByteBuffer > {
     VulkanDataBuffer(
         VulkanDataBufferProvider controller,
         VulkanBufferMemory deviceMemory,
-        LinearMemoryLocation deviceMemoryLocation
+        VulkanLinearMemoryLocation deviceMemoryLocation
     ) {
         super( controller, deviceMemoryLocation );
         this.deviceMemory = deviceMemory;

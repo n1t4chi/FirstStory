@@ -12,16 +12,16 @@ import com.firststory.firstoracle.buffer.DataBuffer;
 /**
  * @author n1t4chi
  */
-public class DataBufferInLinearMemory< Data > implements DataBuffer<Data> {
+public class VulkanDataBufferInLinearMemory< Data > implements DataBuffer<Data> {
     
-    private final LinearMemoryLocation location;
-    private final LinearMemoryController< ?, Data > controller;
+    private final VulkanLinearMemoryLocation location;
+    private final VulkanLinearMemoryController< ?, Data > controller;
     private boolean usable = true;
     private boolean loaded = false;
     
-    public DataBufferInLinearMemory(
-        LinearMemoryController< ?, Data > controller,
-        LinearMemoryLocation memoryLocation
+    public VulkanDataBufferInLinearMemory(
+        VulkanLinearMemoryController< ?, Data > controller,
+        VulkanLinearMemoryLocation memoryLocation
     ) {
         this.controller = controller;
         this.location = memoryLocation;
@@ -32,7 +32,7 @@ public class DataBufferInLinearMemory< Data > implements DataBuffer<Data> {
         return location.getLength();
     }
     
-    public LinearMemoryLocation getLocation() {
+    public VulkanLinearMemoryLocation getLocation() {
         return location;
     }
     

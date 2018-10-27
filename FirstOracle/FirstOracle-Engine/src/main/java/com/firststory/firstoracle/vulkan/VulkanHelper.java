@@ -9,9 +9,6 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.function.*;
 
 /**
@@ -202,30 +199,6 @@ public interface VulkanHelper {
             returnedFlag |= flag;
         }
         return returnedFlag;
-    }
-    
-    static <T> void safeForEach( Collection< T > collection, Consumer< T > consumer ) {
-        List< T > copy;
-        synchronized ( collection ) {
-            copy = new ArrayList<>( collection );
-        }
-        copy.forEach( consumer );
-    }
-    
-    static < T > void deregister( Collection< T > collection, T object, Consumer< T > dispose ) {
-        synchronized ( collection ) {
-            if ( collection.remove( object ) ) {
-                dispose.accept( object );
-            }
-        }
-    }
-    
-    static < T > T register( Collection< T > collection, Supplier< T > create ) {
-        var object = create.get();
-        synchronized ( collection ) {
-            collection.add( object );
-        }
-        return object;
     }
     
     interface IterationAction< Product > extends BiConsumer< Integer, Product > {

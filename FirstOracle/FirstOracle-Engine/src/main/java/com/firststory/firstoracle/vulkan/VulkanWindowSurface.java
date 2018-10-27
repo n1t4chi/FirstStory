@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanWindowSurfaceException;
 import com.firststory.firstoracle.window.WindowContext;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -24,7 +25,7 @@ public class VulkanWindowSurface {
     private final VkInstance instance;
     private final VulkanAddress address;
     
-    VulkanWindowSurface(
+    public VulkanWindowSurface(
         VulkanFrameworkAllocator allocator,
         VkInstance instance,
         WindowContext window
@@ -48,7 +49,7 @@ public class VulkanWindowSurface {
         allocator.deregisterWindowSuface( this );
     }
     
-    void disposeUnsafe() {
+    public void disposeUnsafe() {
         KHRSurface.vkDestroySurfaceKHR( instance, address.getValue(), null );
     }
     

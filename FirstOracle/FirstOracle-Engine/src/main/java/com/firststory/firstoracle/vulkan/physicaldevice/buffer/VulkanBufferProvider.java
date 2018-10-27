@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanDeviceAllocator;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
 

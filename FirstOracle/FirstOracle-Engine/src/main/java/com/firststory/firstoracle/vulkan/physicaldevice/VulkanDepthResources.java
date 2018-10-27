@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import org.lwjgl.vulkan.VK10;
 
 import java.util.Arrays;
@@ -20,7 +21,7 @@ public class VulkanDepthResources {
     private VulkanInMemoryImage depthImage;
     private VulkanImageView depthImageView;
     
-    VulkanDepthResources(
+    public VulkanDepthResources(
         VulkanDeviceAllocator allocator,
         VulkanPhysicalDevice device
     ) {
@@ -48,13 +49,12 @@ public class VulkanDepthResources {
         return depthFormat;
     }
     
-    private VulkanImageView createDepthImageView( VulkanFormatProperty depthFormat, VulkanImage depthImage ) {
+    private VulkanImageView createDepthImageView( VulkanFormatProperty depthFormat, VulkanInMemoryImage depthImage ) {
         return depthImage.createImageView( depthFormat.getFormat(), VK10.VK_IMAGE_ASPECT_DEPTH_BIT, 1 );
     }
     
     private VulkanInMemoryImage createDepthImage( VulkanSwapChain swapChain, VulkanFormatProperty depthFormat ) {
-        return new VulkanInMemoryImage(
-            device,
+        return allocator.createInMemoryImage(
             swapChain.getExtent().width(),
             swapChain.getExtent().height(),
             depthFormat.getFormat(),
@@ -81,7 +81,7 @@ public class VulkanDepthResources {
             depthImage.dispose();
         }
         if( depthImageView != null ) {
-            depthImageView.close();
+            depthImageView.dispose();
         }
     }
 }

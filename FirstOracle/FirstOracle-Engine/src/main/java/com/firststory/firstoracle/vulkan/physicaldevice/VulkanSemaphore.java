@@ -6,6 +6,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanSemaphoreException;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
@@ -20,7 +21,7 @@ public class VulkanSemaphore {
     private final VulkanAddress address;
     
     
-    VulkanSemaphore( VulkanDeviceAllocator allocator, VulkanPhysicalDevice device ) {
+    public VulkanSemaphore( VulkanDeviceAllocator allocator, VulkanPhysicalDevice device ) {
         this.allocator = allocator;
         this.device = device;
         this.address = createSemaphore( device );
@@ -30,7 +31,7 @@ public class VulkanSemaphore {
         allocator.deregisterSemaphore( this );
     }
     
-    void disposeUnsafe() {
+    public void disposeUnsafe() {
         VK10.vkDestroySemaphore( device.getLogicalDevice(), address.getValue(), null );
     }
     

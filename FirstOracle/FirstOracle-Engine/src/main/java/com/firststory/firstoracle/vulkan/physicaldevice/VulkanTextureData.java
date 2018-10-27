@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 
 /**
@@ -11,11 +12,16 @@ import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
  */
 public class VulkanTextureData {
     
+    private final VulkanDeviceAllocator allocator;
     private VulkanDataBuffer buffer;
     private VulkanInMemoryImage image;
     private int width;
     private int height;
     private VulkanImageView imageView;
+    
+    public VulkanTextureData( VulkanDeviceAllocator allocator ) {
+        this.allocator = allocator;
+    }
     
     public VulkanImageView getImageView() {
         return imageView;
@@ -57,9 +63,24 @@ public class VulkanTextureData {
         this.image = image;
     }
     
-    void close() {
-        if ( buffer != null ) { buffer.close(); }
-        if ( imageView != null ) { imageView.close(); }
-        if ( image != null ) { image.dispose(); }
+    void dispose() {
+        allocator.deregisterTextureData( this );
+    }
+    
+    public void disposeUnsafe() {
+        if ( buffer != null ) {
+            buffer.close();
+        }
+        if ( imageView != null ) {
+            imageView.dispose();
+        }
+        if ( image != null ) {
+            image.dispose();
+        }
+        buffer = null;
+        image = null;
+        width = 0;
+        height = 0;
+        imageView = null;
     }
 }

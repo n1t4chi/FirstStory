@@ -9,6 +9,7 @@ import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.VulkanWindowSurface;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanSwapChainException;
 import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.SwapChainIsNotSupportedException;
 import org.lwjgl.system.MemoryUtil;
@@ -31,17 +32,17 @@ public class VulkanSwapChain {
     private final Set< VkSurfaceFormatKHR > formats = new HashSet<>();
     private final Map< Integer, VulkanSwapChainImage > images = new HashMap<>();
     private final Map< Integer, VulkanImageView > imageViews = new HashMap<>();
+    private final VulkanPhysicalDevice device;
     private VkSurfaceCapabilitiesKHR capabilities;
     private VkSurfaceFormatKHR usedFormat;
     private int[] presentModes;
     private int usedPresentMode;
-    private final VulkanPhysicalDevice device;
     private VkExtent2D extent;
     private int imageCount;
     private VkSwapchainCreateInfoKHR createInfo;
     private VulkanAddress address = VulkanAddress.createNull();
     
-    VulkanSwapChain(
+    public VulkanSwapChain(
         VulkanDeviceAllocator allocator,
         VulkanPhysicalDevice device
     ) {
@@ -62,15 +63,43 @@ public class VulkanSwapChain {
         }
     }
     
-    private void clearImageViews() {
-        imageViews.values().forEach( VulkanImageView::close );
-        imageViews.clear();
-    }
-    
     @Override
     public String toString() {
         return "VulkanSwapChain@" + hashCode() + "[ " + "format:" + usedFormat.format() + ", colorSpace: " +
             usedFormat.colorSpace() + ", presentMode:" + usedPresentMode + ']';
+    }
+    
+    public float getWidth() {
+        return extent.width();
+    }
+    
+    public float getHeight() {
+        return extent.height();
+    }
+    
+    public VkExtent2D getExtent() {
+        return extent;
+    }
+    
+    public int getImageFormat() {
+        return usedFormat.format();
+    }
+    
+    public VulkanAddress getAddress() {
+        return address;
+    }
+    
+    public void presentQueue( VulkanImageIndex index ) {
+        var presentInfo = VkPresentInfoKHR.create()
+            .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
+            .pWaitSemaphores( MemoryUtil
+                .memAllocLong( 1 ).put( 0, index.getRenderFinishedSemaphore().getAddress().getValue() ) )
+            .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, address.getValue() ) )
+            .swapchainCount( 1 )
+            .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index.getIndex() ) )
+            .pResults( null )
+        ;
+        KHRSwapchain.vkQueuePresentKHR( device.getGraphicFamily().getQueue() , presentInfo );
     }
     
     void update( VulkanWindowSurface windowSurface ) {
@@ -98,24 +127,9 @@ public class VulkanSwapChain {
         return imageViews;
     }
     
-    public float getWidth() {
-        return extent.width();
-    }
-    
-    public float getHeight() {
-        return extent.height();
-    }
-    
-    public VkExtent2D getExtent() {
-        return extent;
-    }
-    
-    public int getImageFormat() {
-        return usedFormat.format();
-    }
-    
-    public VulkanAddress getAddress() {
-        return address;
+    private void clearImageViews() {
+        imageViews.values().forEach( VulkanImageView::dispose );
+        imageViews.clear();
     }
     
     private boolean isSupported() {
@@ -137,11 +151,12 @@ public class VulkanSwapChain {
         clearImages();
         KHRSwapchain.vkGetSwapchainImagesKHR( device.getLogicalDevice(), address.getValue(), count, addresses );
         for ( var i = 0; i < addresses.length; i++ ) {
-            images.put( i, new VulkanSwapChainImage( device, new VulkanAddress( addresses[i] ), i ) );
+            images.put( i, allocator.createSwapChainImage( new VulkanAddress( addresses[i] ), i ) );
         }
     }
     
     private void clearImages() {
+        images.forEach( ( integer, vulkanSwapChainImage ) -> vulkanSwapChainImage.dispose() );
         images.clear();
     }
     
@@ -293,18 +308,5 @@ public class VulkanSwapChain {
             capabilities
         );
         return capabilities;
-    }
-    
-    public void presentQueue( VulkanImageIndex index ) {
-        var presentInfo = VkPresentInfoKHR.create()
-            .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
-            .pWaitSemaphores( MemoryUtil
-                .memAllocLong( 1 ).put( 0, index.getRenderFinishedSemaphore().getAddress().getValue() ) )
-            .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, address.getValue() ) )
-            .swapchainCount( 1 )
-            .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index.getIndex() ) )
-            .pResults( null )
-        ;
-        KHRSwapchain.vkQueuePresentKHR( device.getGraphicFamily().getQueue() , presentInfo );
     }
 }

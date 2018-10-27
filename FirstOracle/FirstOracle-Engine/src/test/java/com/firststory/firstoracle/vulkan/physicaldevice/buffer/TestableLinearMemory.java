@@ -7,7 +7,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 /**
  * @author n1t4chi
  */
-class TestableLinearMemory extends LinearMemory< char[] > {
+class TestableLinearMemory extends VulkanLinearMemory< char[] > {
     
     private final char[] data;
     
@@ -20,11 +20,11 @@ class TestableLinearMemory extends LinearMemory< char[] > {
         return data.length;
     }
     
-    protected void writeUnsafe( LinearMemoryLocation location, char[] data ) {
+    protected void writeUnsafe( VulkanLinearMemoryLocation location, char[] data ) {
         System.arraycopy( data, 0, this.data, ( int ) location.getPosition(), data.length );
     }
     
-    protected char[] readUnsafe( LinearMemoryLocation location ) {
+    protected char[] readUnsafe( VulkanLinearMemoryLocation location ) {
         var data = new char[ ( int ) location.getLength() ];
         System.arraycopy( this.data, ( int ) location.getPosition(), data, 0, ( int ) location.getLength() );
         return data;
@@ -35,12 +35,12 @@ class TestableLinearMemory extends LinearMemory< char[] > {
         return array.length;
     }
     
-    public char[] read( LinearMemoryLocation location ) {
+    public char[] read( VulkanLinearMemoryLocation location ) {
         assertReadLength( location );
         return readUnsafe( location );
     }
     
-    private void assertReadLength( LinearMemoryLocation location ) {
+    private void assertReadLength( VulkanLinearMemoryLocation location ) {
         if ( location.getLength() + location.getPosition() > length() ) {
             throw new ReadMemoryOutOfBoundException( location );
         }
@@ -48,7 +48,7 @@ class TestableLinearMemory extends LinearMemory< char[] > {
     
     static class ReadMemoryOutOfBoundException extends RuntimeException {
         
-        private ReadMemoryOutOfBoundException( LinearMemoryLocation location ) {
+        private ReadMemoryOutOfBoundException( VulkanLinearMemoryLocation location ) {
             super( "Cannot read memory block: " + location + " " );
         }
     }

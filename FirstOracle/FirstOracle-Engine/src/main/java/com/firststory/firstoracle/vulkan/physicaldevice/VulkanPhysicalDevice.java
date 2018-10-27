@@ -6,9 +6,10 @@ package com.firststory.firstoracle.vulkan.physicaldevice;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.vulkan.VulkanFramework;
-import com.firststory.firstoracle.vulkan.VulkanFrameworkAllocator;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.VulkanWindowSurface;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
+import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.*;
@@ -90,100 +91,106 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     public VulkanPhysicalDevice(
         VulkanFrameworkAllocator instanceAllocator,
-        VulkanDeviceAllocator allocator,
         long deviceAddress,
         VkInstance instance,
         PointerBuffer validationLayerNamesBuffer,
         VulkanWindowSurface surface
     ) throws CannotCreateVulkanPhysicalDeviceException {
         this.instanceAllocator = instanceAllocator;
-        this.allocator = allocator;
-        windowSurface = surface;
-        physicalDevice = new VkPhysicalDevice( deviceAddress, instance );
-        capabilities = physicalDevice.getCapabilities();
-        features = createDeviceFeatures();
-        properties = createDeviceProperties();
-        
-        assertDeviceProperties();
-        
-        availableExtensionProperties = createExtensionProperties();
-        assertRequiredExtensions();
-        
-        availableQueueFamilies = getAvailableQueueFamilies();
-        graphicFamily = selectGraphicFamily();
-        presentationFamily = selectPresentationFamily();
-        
-        var transferFamilies = new LinkedList< VulkanQueueFamily >();
-        quickTransferFamily = selectTransferFamily( transferFamilies );
-        transferFamilies.add( quickTransferFamily );
-        uniformTransferFamily = selectTransferFamily( transferFamilies );
-        transferFamilies.add( uniformTransferFamily );
-        vertexTransferFamily = selectTransferFamily( transferFamilies );
-        transferFamilies.add( vertexTransferFamily );
-        
-        usedQueueFamilies.add( graphicFamily );
-        usedQueueFamilies.add( presentationFamily );
-        usedQueueFamilies.addAll( transferFamilies );
-        logicalDevice = createLogicalDevice( validationLayerNamesBuffer );
-        
-        memoryProperties = createPhysicalDeviceMemoryProperties();
-        fillMemoryTypes();
-        fillMemoryHeaps();
-        
-        swapChain = allocator.createSwapChain(this );
-    
-        trianglePipelines = allocator.createGraphicPipelines( this, VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
-        linePipelines = allocator.createGraphicPipelines( this, VK10.VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
-        
-        backgroundGraphicCommandPool = allocator.createGraphicCommandPool( this, graphicFamily );
-        scene2DGraphicCommandPool = allocator.createGraphicCommandPool( this, graphicFamily );
-        scene3DGraphicCommandPool = allocator.createGraphicCommandPool( this, graphicFamily );
-        overlayGraphicCommandPool = allocator.createGraphicCommandPool( this, graphicFamily );
-        
-        vertexDataTransferCommandPool = allocator.createTransferCommandPool(this, vertexTransferFamily );
-        uniformDataTransferCommandPool = allocator.createTransferCommandPool( this, uniformTransferFamily );
-        quickDataTransferCommandPool = allocator.createTransferCommandPool( this, quickTransferFamily );
-        textureTransferCommandPool = allocator.createTransferCommandPool( this, graphicFamily );
-    
-        bufferProvider = allocator.createBufferProvider(
-            this,
-            vertexDataTransferCommandPool,
-            quickDataTransferCommandPool,
-            uniformDataTransferCommandPool,
-            textureTransferCommandPool,
-            extractUniformBufferOffsetAlignment()
-        );
-    
-    
-        depthResources = allocator.createDepthResource( this );
-        descriptor = allocator.createDescriptor( this );
-        textureLoader = allocator.createTextureLoader( this, bufferProvider );
-        textureSampler = allocator.createTextureSampler( this );
-        
-        shaderProgram3D = allocator.createShaderProgram3D( this, bufferProvider );
-        //shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
+        allocator = instanceAllocator.createPhysicalDeviceAllocator( this );
         try {
-            shaderProgram3D.compile();
-            //shaderProgram2D.compile();
-        } catch ( IOException ex ) {
+            windowSurface = surface;
+            physicalDevice = new VkPhysicalDevice( deviceAddress, instance );
+            capabilities = physicalDevice.getCapabilities();
+            features = createDeviceFeatures();
+            properties = createDeviceProperties();
+            
+            assertDeviceProperties();
+            
+            availableExtensionProperties = createExtensionProperties();
+            assertRequiredExtensions();
+            
+            availableQueueFamilies = getAvailableQueueFamilies();
+            graphicFamily = selectGraphicFamily();
+            presentationFamily = selectPresentationFamily();
+            
+            var transferFamilies = new LinkedList< VulkanQueueFamily >();
+            quickTransferFamily = selectTransferFamily( transferFamilies );
+            transferFamilies.add( quickTransferFamily );
+            uniformTransferFamily = selectTransferFamily( transferFamilies );
+            transferFamilies.add( uniformTransferFamily );
+            vertexTransferFamily = selectTransferFamily( transferFamilies );
+            transferFamilies.add( vertexTransferFamily );
+            
+            usedQueueFamilies.add( graphicFamily );
+            usedQueueFamilies.add( presentationFamily );
+            usedQueueFamilies.addAll( transferFamilies );
+            logicalDevice = createLogicalDevice( validationLayerNamesBuffer );
+            
+            memoryProperties = createPhysicalDeviceMemoryProperties();
+            fillMemoryTypes();
+            fillMemoryHeaps();
+            
+            swapChain = allocator.createSwapChain();
+        
+            trianglePipelines = allocator.createGraphicPipelines( VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
+            linePipelines = allocator.createGraphicPipelines( VK10.VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
+            
+            backgroundGraphicCommandPool = allocator.createGraphicCommandPool( graphicFamily );
+            scene2DGraphicCommandPool = allocator.createGraphicCommandPool( graphicFamily );
+            scene3DGraphicCommandPool = allocator.createGraphicCommandPool( graphicFamily );
+            overlayGraphicCommandPool = allocator.createGraphicCommandPool( graphicFamily );
+            
+            vertexDataTransferCommandPool = allocator.createTransferCommandPool(vertexTransferFamily );
+            uniformDataTransferCommandPool = allocator.createTransferCommandPool( uniformTransferFamily );
+            quickDataTransferCommandPool = allocator.createTransferCommandPool( quickTransferFamily );
+            textureTransferCommandPool = allocator.createTransferCommandPool( graphicFamily );
+        
+            bufferProvider = allocator.createBufferProvider(
+                vertexDataTransferCommandPool,
+                quickDataTransferCommandPool,
+                uniformDataTransferCommandPool,
+                textureTransferCommandPool,
+                extractUniformBufferOffsetAlignment()
+            );
+        
+        
+            depthResources = allocator.createDepthResource();
+            descriptor = allocator.createDescriptor();
+            textureLoader = allocator.createTextureLoader( bufferProvider );
+            textureSampler = allocator.createTextureSampler();
+            
+            shaderProgram3D = allocator.createShaderProgram3D( bufferProvider );
+            //shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
+            try {
+                shaderProgram3D.compile();
+                //shaderProgram2D.compile();
+            } catch ( IOException ex ) {
+                throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
+            }
+            
+            updateRenderingContext();
+            
+            vertexAttributeLoader = new VulkanVertexAttributeLoader( bufferProvider );
+            
+            
+            
+            logger.finer( "finished creating " + this + "[" +
+                "\nscore: " + getScore() +
+                "\ngraphic family: " + graphicFamily +
+                "\npresentation family: " + presentationFamily +
+                "\ntransfer family: " + vertexTransferFamily +
+                "\nqueues: " + availableQueueFamilies.size() +
+                "\nextensions: " + availableExtensionProperties.size() +
+                "\nmemory types: " + memoryTypesToString() +
+            "]" );
+        } catch ( CannotCreateVulkanPhysicalDeviceException ex ) {
+            allocator.dispose();
+            throw ex;
+        } catch ( Exception ex ) {
+            allocator.dispose();
             throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
         }
-        
-        updateRenderingContext();
-        
-        vertexAttributeLoader = new VulkanVertexAttributeLoader( bufferProvider );
-        
-        
-        
-        logger.finer( "finished creating " + this + "[" +
-            "\nscore: " + getScore() +
-            "\ngraphic family: " + graphicFamily +
-            "\npresentation family: " + presentationFamily +
-            "\ntransfer family: " + vertexTransferFamily +
-            "\nqueues: " + availableQueueFamilies.size() +
-            "\nextensions: " + availableExtensionProperties.size() +
-            "\nmemory types: " + memoryTypesToString() +
-        "]" );
     }
     
     public VulkanFrameBuffer getCurrentFrameBuffer() {
@@ -433,7 +440,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private VulkanImageIndex tryToAcquireNextImageIndex() {
         var imageIndex = new int[1];
-        var semaphore = allocator.createSemaphore( this );
+        var semaphore = allocator.createSemaphore();
         var result = KHRSwapchain.vkAcquireNextImageKHR(
             logicalDevice,
             swapChain.getAddress().getValue(),
@@ -459,7 +466,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             throw ex;
         }
     
-        return new VulkanImageIndex( imageIndex[0], semaphore, allocator.createSemaphore( this ) );
+        return new VulkanImageIndex( imageIndex[0], semaphore, allocator.createSemaphore() );
     }
     
     private void refreshFrameBuffers(
@@ -470,7 +477,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         disposeFrameBuffers();
         for ( var entry : swapChain.getImageViews().entrySet() ) {
             frameBuffers.put( entry.getKey(),
-                allocator.createFrameBuffer( this, entry.getValue(), renderPass, swapChain, depthResources )
+                allocator.createFrameBuffer( entry.getValue(), renderPass, swapChain, depthResources )
             );
         }
     }

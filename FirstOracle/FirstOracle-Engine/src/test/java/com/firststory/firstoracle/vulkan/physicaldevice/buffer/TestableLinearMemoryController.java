@@ -7,13 +7,13 @@ package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 /**
  * @author n1t4chi
  */
-class TestableLinearMemoryController extends LinearMemoryController< TestableLinearMemory, char[]> {
+class TestableLinearMemoryController extends VulkanLinearMemoryController< TestableLinearMemory, char[]> {
     
     TestableLinearMemoryController( TestableLinearMemory memory ) {
         super( memory, 1 );
     }
     
-    char[] read( LinearMemoryLocation location ) {
+    char[] read( VulkanLinearMemoryLocation location ) {
         return getMemory().read( location );
     }
     

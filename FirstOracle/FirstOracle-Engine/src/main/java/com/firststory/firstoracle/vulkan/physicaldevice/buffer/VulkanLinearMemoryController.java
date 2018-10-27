@@ -7,19 +7,19 @@ package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
-import static com.firststory.firstoracle.vulkan.physicaldevice.buffer.LinearMemoryLocation.BY_POSITION;
-import static com.firststory.firstoracle.vulkan.physicaldevice.buffer.LinearMemoryLocation.BY_TRUE_SIZE;
+import static com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanLinearMemoryLocation.BY_POSITION;
+import static com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanLinearMemoryLocation.BY_TRUE_SIZE;
 
 /**
  * @author n1t4chi
  */
-class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
+class VulkanLinearMemoryController< Memory extends VulkanLinearMemory< Data >, Data > {
     
     private final long memoryOffsetAlignment;
     private final Memory memory;
-    private final PriorityQueue< LinearMemoryLocation > freeSpace = new PriorityQueue<>( BY_TRUE_SIZE );
+    private final PriorityQueue< VulkanLinearMemoryLocation > freeSpace = new PriorityQueue<>( BY_TRUE_SIZE );
     
-    LinearMemoryController( Memory memory, long memoryOffsetAlignment ) {
+    VulkanLinearMemoryController( Memory memory, long memoryOffsetAlignment ) {
         this.memoryOffsetAlignment = memoryOffsetAlignment;
         this.memory = memory;
         var location = newLoc( 0, memory.length(), memory.length() );
@@ -30,11 +30,11 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
         return memory;
     }
     
-    void write( LinearMemoryLocation location, Data data ) {
+    void write( VulkanLinearMemoryLocation location, Data data ) {
         memory.write( location, data );
     }
     
-    void free( LinearMemoryLocation location ) {
+    void free( VulkanLinearMemoryLocation location ) {
         synchronized ( freeSpace ) {
             var adjacentLocations = freeSpace.stream()
                 .sorted( BY_POSITION )
@@ -48,12 +48,12 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
         }
     }
     
-    LinearMemoryLocation allocate( long length ) {
+    VulkanLinearMemoryLocation allocate( long length ) {
         synchronized ( freeSpace ) {
             var memoryLocation = freeSpace.stream()
-                .sorted( LinearMemoryLocation::compareTrueLengthTo )
+                .sorted( VulkanLinearMemoryLocation::compareTrueLengthTo )
                 .filter( Location -> Location.getLength() >= length )
-                .min( LinearMemoryLocation::compareTrueLengthTo )
+                .min( VulkanLinearMemoryLocation::compareTrueLengthTo )
                 .orElseThrow( () -> new OutOfMemoryException( length ) );
     
             var newLocation = memoryLocation.split( length, memoryOffsetAlignment );
@@ -68,8 +68,8 @@ class LinearMemoryController< Memory extends LinearMemory< Data >, Data > {
         
     }
     
-    private LinearMemoryLocation newLoc( long offset, long length, long trueLength ) {
-        return new LinearMemoryLocation( offset, length, trueLength );
+    private VulkanLinearMemoryLocation newLoc( long offset, long length, long trueLength ) {
+        return new VulkanLinearMemoryLocation( offset, length, trueLength );
     }
     
     static class OutOfMemoryException extends RuntimeException {

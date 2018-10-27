@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 /**
  * @author n1t4chi
  */
-public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
+public class VulkanBufferMemory extends VulkanLinearMemory< ByteBuffer > {
     
     private static final int[] TEXTURE_MEMORY_BUFFER_USAGE_FLAGS = {
         VK10.VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK10.VK_BUFFER_USAGE_TRANSFER_DST_BIT
@@ -136,7 +136,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
     }
     
     @Override
-    protected void writeUnsafe( LinearMemoryLocation location, ByteBuffer byteBuffer ) {
+    protected void writeUnsafe( VulkanLinearMemoryLocation location, ByteBuffer byteBuffer ) {
         synchronized ( mappedLocalMemory ) {
             location.setLength( byteBuffer.remaining() );
             if ( mappedLocalMemory.isNull() ) {
@@ -156,7 +156,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         return memoryBuffer.bufferAddress;
     }
     
-    private void copyMemory( ByteBuffer dataBuffer, LinearMemoryLocation location ) {
+    private void copyMemory( ByteBuffer dataBuffer, VulkanLinearMemoryLocation location ) {
         MemoryUtil.memCopy(
             MemoryUtil.memAddress( dataBuffer ),
             mappedLocalMemory.getValue() + location.getPosition(),
@@ -184,7 +184,7 @@ public class VulkanBufferMemory extends LinearMemory< ByteBuffer > {
         private void copyBuffer(
             VulkanBuffer dstBuffer,
             VulkanTransferCommandPool commandPool,
-            LinearMemoryLocation location
+            VulkanLinearMemoryLocation location
         ) {
             commandPool.putDataToTransferForLater(
                 this.bufferAddress,

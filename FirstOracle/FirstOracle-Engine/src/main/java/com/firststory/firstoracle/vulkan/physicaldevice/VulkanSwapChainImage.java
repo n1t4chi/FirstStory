@@ -5,17 +5,20 @@
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 
 /**
  * @author n1t4chi
  */
-class VulkanSwapChainImage extends VulkanImage {
+public class VulkanSwapChainImage extends VulkanImage {
     
-    private final int index;
+    private int index = -1;
     
-    VulkanSwapChainImage( VulkanPhysicalDevice device, VulkanAddress address, int index ) {
-        super( device, address );
-        this.index = index;
+    public VulkanSwapChainImage(
+        VulkanDeviceAllocator allocator,
+        VulkanPhysicalDevice device
+    ) {
+        super( allocator, device );
     }
     
     @Override
@@ -34,6 +37,23 @@ class VulkanSwapChainImage extends VulkanImage {
         
         if ( index != that.index ) { return false; }
         return getAddress() != null ? getAddress().equals( that.getAddress() ) : that.getAddress() == null;
+    }
+    
+    public VulkanSwapChainImage update( VulkanAddress address, int index ) {
+        super.updateAddress( address );
+        this.index = index;
+        return this;
+    }
+    
+    void dispose() {
+        getAllocator().deregisterSwapChainImage( this );
+        
+    }
+    
+    public void disposeUnsafe() {
+//        VK10.vkDestroyImage( getDevice().getLogicalDevice(), getAddress().getValue(), null );
+        getAddress().setNull();
+        index = -1;
     }
     
     int getIndex() {

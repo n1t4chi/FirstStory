@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.vulkan.physicaldevice.transfer;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanDeviceAllocator;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanQueueFamily;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferMemory;
@@ -27,9 +27,9 @@ import java.util.List;
 public class VulkanTransferCommandPool extends VulkanCommandPool {
     
     private final List< VulkanBufferMemory > memories = new ArrayList<>();
-    private final List< TransferData > allDatas = new ArrayList<>();
-    private final Deque< TransferData > availableDatas = new LinkedList<>();
-    private final List< TransferData > datasToTransfer = new ArrayList<>();
+    private final List< VulkanTransferData > allDatas = new ArrayList<>();
+    private final Deque< VulkanTransferData > availableDatas = new LinkedList<>();
+    private final List< VulkanTransferData > datasToTransfer = new ArrayList<>();
     private final List< VulkanCommand< VulkanTransferCommandBuffer > > allCommands = new ArrayList<>(  );
     private volatile boolean execute = false;
     
@@ -55,7 +55,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         synchronized ( datasToTransfer ) {
             var transferData = availableDatas.poll();
             if( transferData == null ) {
-                transferData = new TransferData();
+                transferData = new VulkanTransferData();
                 allDatas.add( transferData );
             }
             datasToTransfer.add( transferData.set(

@@ -7,11 +7,11 @@ package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 /**
  * @author n1t4chi
  */
-class TestableDataBufferInLinearMemory extends DataBufferInLinearMemory< char[] > {
+class TestableDataBufferInLinearMemory extends VulkanDataBufferInLinearMemory< char[] > {
     
     private final TestableLinearMemoryController controller;
     
-    TestableDataBufferInLinearMemory( TestableLinearMemoryController controller, LinearMemoryLocation memoryLocation ) {
+    TestableDataBufferInLinearMemory( TestableLinearMemoryController controller, VulkanLinearMemoryLocation memoryLocation ) {
         super( controller, memoryLocation );
         this.controller = controller;
     }

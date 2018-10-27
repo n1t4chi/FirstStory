@@ -7,20 +7,20 @@ package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 /**
  * @author n1t4chi
  */
-public abstract class LinearMemory< Data > {
+public abstract class VulkanLinearMemory< Data > {
     
     public abstract int length();
     
-    public void write( LinearMemoryLocation location, Data data ) {
+    public void write( VulkanLinearMemoryLocation location, Data data ) {
         assertWriteLength( location, data );
         writeUnsafe( location, data );
     }
     
-    protected abstract void writeUnsafe( LinearMemoryLocation location, Data data );
+    protected abstract void writeUnsafe( VulkanLinearMemoryLocation location, Data data );
     
     protected abstract int getDataLength( Data data );
     
-    private void assertWriteLength( LinearMemoryLocation location, Data data ) {
+    private void assertWriteLength( VulkanLinearMemoryLocation location, Data data ) {
         if ( location.getLength() < getDataLength( data ) ) {
             throw new WriteMemoryOutOfBoundException( location, getDataLength( data ) );
         }
@@ -28,7 +28,7 @@ public abstract class LinearMemory< Data > {
     
     static class WriteMemoryOutOfBoundException extends RuntimeException {
         
-        private WriteMemoryOutOfBoundException( LinearMemoryLocation location, int length ) {
+        private WriteMemoryOutOfBoundException( VulkanLinearMemoryLocation location, int length ) {
             super( "Provided data length: " + length + ", Maximum buffer length: " + location.getLength() );
         }
     }

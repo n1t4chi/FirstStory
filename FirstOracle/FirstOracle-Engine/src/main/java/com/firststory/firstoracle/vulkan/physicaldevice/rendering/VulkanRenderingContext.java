@@ -13,7 +13,7 @@ import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.rendering.RenderData;
 import com.firststory.firstoracle.rendering.RenderingContext;
-import com.firststory.firstoracle.vulkan.VulkanFrameworkAllocator;
+import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
@@ -185,9 +185,9 @@ public class VulkanRenderingContext implements RenderingContext {
         var s3PrimaryBuffer = waitThenRenderStageInfo( scene3DFuture, SCENE_3D );
         var ovPrimaryBuffer = waitThenRenderStageInfo( overlayFuture, OVERLAY );
         
-        var semaphoreBackgroundToScene2d = deviceAllocator.createSemaphore( device );
-        var semaphoreScene2dToScene3d = deviceAllocator.createSemaphore( device );
-        var semaphoreScene3dToOverlay = deviceAllocator.createSemaphore( device );
+        var semaphoreBackgroundToScene2d = deviceAllocator.createSemaphore();
+        var semaphoreScene2dToScene3d = deviceAllocator.createSemaphore();
+        var semaphoreScene3dToOverlay = deviceAllocator.createSemaphore();
         
         for ( var transferCommandPool : transferCommandPools ) {
             transferCommandPool.executeTransfers();

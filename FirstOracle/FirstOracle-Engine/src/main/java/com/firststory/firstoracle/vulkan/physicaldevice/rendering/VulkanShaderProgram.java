@@ -10,7 +10,7 @@ import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.data.Rotation;
 import com.firststory.firstoracle.data.Scale;
 import com.firststory.firstoracle.shader.ShaderProgram;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanDeviceAllocator;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanShaderType;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;

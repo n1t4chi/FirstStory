@@ -6,6 +6,7 @@ package com.firststory.firstoracle.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.PropertiesUtil;
+import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
 /**
  * @author n1t4chi
  */
-class VulkanDebugCallback {
+public class VulkanDebugCallback {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanDebugCallback.class );
     private final VulkanFrameworkAllocator allocator;
     private final VkInstance instance;
@@ -25,7 +26,7 @@ class VulkanDebugCallback {
         allocator.deregisterDebugCallback( this );
     }
     
-    VulkanDebugCallback( VulkanFrameworkAllocator allocator, VkInstance instance ) {
+    public VulkanDebugCallback( VulkanFrameworkAllocator allocator, VkInstance instance ) {
         this.allocator = allocator;
         this.instance = instance;
         if( PropertiesUtil.isDebugMode() ) {
@@ -65,7 +66,7 @@ class VulkanDebugCallback {
         }
     }
     
-    void disposeUnsafe() {
+    public void disposeUnsafe() {
         if ( debugCallbackAddress.isNull() ) {
             return;
         }

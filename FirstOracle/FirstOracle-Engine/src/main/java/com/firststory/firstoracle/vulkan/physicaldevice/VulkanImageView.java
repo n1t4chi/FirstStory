@@ -6,6 +6,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanImageViewException;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkComponentMapping;
@@ -17,13 +18,20 @@ import org.lwjgl.vulkan.VkImageViewCreateInfo;
  */
 public class VulkanImageView {
     
+    private final VulkanDeviceAllocator allocator;
     private final VulkanPhysicalDevice device;
-    private final VulkanImage image;
     private final VulkanAddress address;
     
-    VulkanImageView( VulkanPhysicalDevice device, VulkanImage image, int format, int aspectMask, int mipLevels ) {
+    public VulkanImageView(
+        VulkanDeviceAllocator allocator,
+        VulkanPhysicalDevice device,
+        VulkanImage image,
+        int format,
+        int aspectMask,
+        int mipLevels
+    ) {
+        this.allocator = allocator;
         this.device = device;
-        this.image = image;
         this.address = createImageView( image, format, aspectMask, mipLevels );
     }
     
@@ -49,7 +57,11 @@ public class VulkanImageView {
         return address;
     }
     
-    void close() {
+    void dispose() {
+        allocator.deregisterImageView( this );
+    }
+    
+    public void disposeUnsafe() {
         VK10.vkDestroyImageView( device.getLogicalDevice(), address.getValue(), null );
     }
     

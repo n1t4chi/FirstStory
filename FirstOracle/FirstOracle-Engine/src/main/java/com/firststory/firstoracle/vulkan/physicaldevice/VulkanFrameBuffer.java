@@ -6,6 +6,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanFrameBufferException;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.VulkanRenderPass;
 import org.lwjgl.system.MemoryUtil;

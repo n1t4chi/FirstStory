@@ -6,6 +6,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice;
 
 import com.firststory.firstoracle.buffer.BufferNotCreatedException;
 import com.firststory.firstoracle.buffer.TextureBufferLoader;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
@@ -20,12 +21,12 @@ import java.util.HashSet;
  */
 public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureData > {
     
-    private final HashSet< VulkanTextureData > textureData = new HashSet<>();
+    private final HashSet< VulkanTextureData > textureDatas = new HashSet<>();
     private final VulkanPhysicalDevice device;
     private final VulkanBufferProvider bufferLoader;
     private final VulkanDeviceAllocator allocator;
     
-    VulkanTextureLoader(
+    public VulkanTextureLoader(
         VulkanDeviceAllocator allocator,
         VulkanPhysicalDevice device,
         VulkanBufferProvider bufferLoader
@@ -37,8 +38,8 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     
     @Override
     public VulkanTextureData create() {
-        var textureData = new VulkanTextureData();
-        this.textureData.add( textureData );
+        var textureData = allocator.createTextureData();
+        this.textureDatas.add( textureData );
         return textureData;
     }
     
@@ -53,8 +54,8 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     
     @Override
     public void deleteUnsafe( VulkanTextureData textureData ) {
-        this.textureData.remove( textureData );
-        textureData.close();
+        this.textureDatas.remove( textureData );
+        textureData.dispose();
     }
     
     public void dispose() {
@@ -62,8 +63,8 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     }
     
     public void disposeUnsafe() {
-        this.textureData.forEach( VulkanTextureData::close );
-        this.textureData.clear();
+        this.textureDatas.forEach( VulkanTextureData::dispose );
+        this.textureDatas.clear();
     }
     
     private void createTextureImageView( VulkanTextureData textureData ) {
@@ -130,8 +131,7 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     }
     
     private void createImage( VulkanTextureData textureData ) {
-        textureData.setImage( new VulkanInMemoryImage(
-            this.device,
+        textureData.setImage( allocator.createInMemoryImage(
             textureData.getWidth(),
             textureData.getHeight(),
             VK10.VK_FORMAT_R8G8B8A8_UNORM,
