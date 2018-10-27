@@ -7,7 +7,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanImageViewException;
+import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanImageViewException;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkComponentMapping;
 import org.lwjgl.vulkan.VkImageSubresourceRange;

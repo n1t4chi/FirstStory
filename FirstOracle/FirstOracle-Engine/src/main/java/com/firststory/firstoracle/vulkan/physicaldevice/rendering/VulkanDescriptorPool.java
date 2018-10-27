@@ -6,8 +6,8 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanDescriptorPoolException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanDescriptorPoolException;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkDescriptorPoolCreateInfo;
 import org.lwjgl.vulkan.VkDescriptorPoolSize;

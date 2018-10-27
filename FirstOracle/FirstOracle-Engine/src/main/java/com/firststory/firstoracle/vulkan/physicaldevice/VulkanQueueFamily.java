@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
 import com.firststory.firstoracle.vulkan.VulkanHelper;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotSubmitVulkanDrawCommandBufferException;
+import com.firststory.firstoracle.vulkan.exceptions.CannotSubmitVulkanDrawCommandBufferException;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkQueue;

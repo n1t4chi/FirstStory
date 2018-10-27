@@ -7,11 +7,11 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
+import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanGraphicPipelineException;
+import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanPipelineLayoutException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanDepthResources;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanSwapChain;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanGraphicPipelineException;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanPipelineLayoutException;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 

@@ -6,9 +6,9 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanDescriptorSetException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanTextureData;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanDescriptorSetException;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 

@@ -6,7 +6,7 @@ package com.firststory.firstoracle.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanWindowSurfaceException;
+import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanWindowSurfaceException;
 import com.firststory.firstoracle.window.WindowContext;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.vulkan.KHRSurface;

@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.vulkan;
 
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.VulkanException;
+import com.firststory.firstoracle.vulkan.exceptions.VulkanException;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;

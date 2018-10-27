@@ -6,12 +6,12 @@ package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.exceptions.CannotAllocateVulkanMemoryException;
+import com.firststory.firstoracle.vulkan.exceptions.CannotBindVulkanMemoryException;
+import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanVertexBufferException;
+import com.firststory.firstoracle.vulkan.exceptions.CannotMapVulkanMemoryException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanMemoryType;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotAllocateVulkanMemoryException;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotBindVulkanMemoryException;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanVertexBufferException;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotMapVulkanMemoryException;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;

@@ -10,8 +10,8 @@ import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.VulkanWindowSurface;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.CannotCreateVulkanSwapChainException;
-import com.firststory.firstoracle.vulkan.physicaldevice.exceptions.SwapChainIsNotSupportedException;
+import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanSwapChainException;
+import com.firststory.firstoracle.vulkan.exceptions.SwapChainIsNotSupportedException;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
