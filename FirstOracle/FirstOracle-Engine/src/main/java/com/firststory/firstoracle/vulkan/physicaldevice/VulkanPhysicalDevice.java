@@ -67,11 +67,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private final Map< Integer, VulkanFrameBuffer > frameBuffers = new HashMap<>();
     
-    private final VulkanGraphicCommandPool backgroundGraphicCommandPool;
-    private final VulkanGraphicCommandPool scene2DGraphicCommandPool;
-    private final VulkanGraphicCommandPool scene3DGraphicCommandPool;
-    private final VulkanGraphicCommandPool overlayGraphicCommandPool;
-    
     private final VulkanTransferCommandPool vertexDataTransferCommandPool;
     private final VulkanTransferCommandPool uniformDataTransferCommandPool ;
     private final VulkanTransferCommandPool quickDataTransferCommandPool;
@@ -140,11 +135,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         
             trianglePipelines = allocator.createGraphicPipelines( VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
             linePipelines = allocator.createGraphicPipelines( VK10.VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
-            
-            backgroundGraphicCommandPool = allocator.createGraphicCommandPool( graphicFamily );
-            scene2DGraphicCommandPool = allocator.createGraphicCommandPool( graphicFamily );
-            scene3DGraphicCommandPool = allocator.createGraphicCommandPool( graphicFamily );
-            overlayGraphicCommandPool = allocator.createGraphicCommandPool( graphicFamily );
             
             vertexDataTransferCommandPool = allocator.createTransferCommandPool(vertexTransferFamily );
             uniformDataTransferCommandPool = allocator.createTransferCommandPool( uniformTransferFamily );
@@ -311,10 +301,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         renderingContext.tearDownSingleRender(
             trianglePipelines,
             linePipelines,
-            backgroundGraphicCommandPool,
-            scene2DGraphicCommandPool,
-            scene3DGraphicCommandPool,
-            overlayGraphicCommandPool,
             getCurrentImageIndex(),
             swapChain,
             vertexDataTransferCommandPool,

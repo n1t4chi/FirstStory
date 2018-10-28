@@ -24,7 +24,7 @@ public class VulkanDeviceAllocator {
     
     private final VulkanImmutableObjectsRegistry< VulkanFrameBuffer > frameBuffers = new VulkanImmutableObjectsRegistry<>( VulkanFrameBuffer::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanTransferCommandPool > transferCommandPools = new VulkanImmutableObjectsRegistry<>( VulkanTransferCommandPool::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanGraphicCommandPool > graphicCommandPools = new VulkanImmutableObjectsRegistry<>( VulkanGraphicCommandPool::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanGraphicCommandPool > graphicCommandPools = new VulkanReusableObjectsRegistry<>( VulkanGraphicCommandPool::disposeUnsafe, pool -> {} );
     private final VulkanImmutableObjectsRegistry< VulkanGraphicPipelines > graphicPipelines = new VulkanImmutableObjectsRegistry<>( VulkanGraphicPipelines::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanSwapChain > swapChains = new VulkanImmutableObjectsRegistry<>( VulkanSwapChain::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanBufferProvider > bufferProviders = new VulkanImmutableObjectsRegistry<>( VulkanBufferProvider::disposeUnsafe );
@@ -280,10 +280,10 @@ public class VulkanDeviceAllocator {
     }
     
     public VulkanGraphicCommandPool createGraphicCommandPool(
-        VulkanQueueFamily usedQueueFamily
     ) {
         return graphicCommandPools.register(
-            () -> new VulkanGraphicCommandPool( this, device, usedQueueFamily )
+            () -> new VulkanGraphicCommandPool( this, device ),
+            pool -> {}
         );
     }
     

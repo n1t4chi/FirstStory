@@ -195,7 +195,7 @@ public class VulkanInMemoryImage extends VulkanImage {
                 )
             )
         );
-        getDevice().getTextureTransferCommandPool().executeTransfers();
+        getDevice().getTextureTransferCommandPool().executeTransfersAndForget();
     }
     
     private VulkanAddress createImage(

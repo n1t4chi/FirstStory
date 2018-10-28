@@ -12,6 +12,8 @@ import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
+import java.util.List;
+
 public class VulkanQueueFamily {
     
     private final VulkanPhysicalDevice device;
@@ -64,33 +66,31 @@ public class VulkanQueueFamily {
         ;
     }
     
-    public void submit( VulkanFence fence, VkSubmitInfo... submitInfos ) {
-        var buffer = VkSubmitInfo.create( submitInfos.length );
-        for ( var i = 0; i < submitInfos.length; i++ ) {
-            buffer.put( i, submitInfos[ i ] );
+    public void submit( VulkanFence fence, VkSubmitInfo submitInfo ) {
+        var buffer = VkSubmitInfo.create( 1 ).put( 0, submitInfo );
+        submit( fence, buffer );
+    }
+    
+    public void submit( VulkanFence fence, List< VkSubmitInfo > submitInfos ) {
+        var buffer = VkSubmitInfo.create( submitInfos.size() );
+        for ( int i = 0, length = submitInfos.size(); i < length; i++ ) {
+            buffer.put( i, submitInfos.get( i ) );
         }
+        submit( fence, buffer );
+    }
+    
+    private void submit(
+        VulkanFence fence,
+        VkSubmitInfo.Buffer submitInfoBuffer
+    ) {
         VulkanHelper.assertCallOrThrow( () -> VK10.vkQueueSubmit(
                 getQueue(),
-                buffer,
-                fence.getAddress().getValue()
+                submitInfoBuffer,
+                fence == null ? VK10.VK_NULL_HANDLE : fence.getAddress().getValue()
             ),
             resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode )
         );
     }
-    
-//    public void submit( VkSubmitInfo... submitInfos ) {
-//        var buffer = VkSubmitInfo.create( submitInfos.length );
-//        for ( var i = 0; i < submitInfos.length; i++ ) {
-//            buffer.put( i, submitInfos[ i ] );
-//        }
-//        VulkanHelper.assertCallOrThrow( () -> VK10.vkQueueSubmit(
-//                getQueue(),
-//                buffer,
-//                VK10.VK_NULL_HANDLE
-//            ),
-//            resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode )
-//        );
-//    }
     
     @Override
     public boolean equals( Object o ) {

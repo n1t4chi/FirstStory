@@ -90,16 +90,16 @@ public class VulkanGraphicPipelines {
         pipelines.forEach( pipeline ->  pipeline.update( swapChain, shaderStages, depthResources ) );
     }
     
-    public Pipeline getBackgroundPipeline() {
+    Pipeline getBackgroundPipeline() {
         return backgroundPipeline;
     }
     
-    public Pipeline getScene2DPipeline() {
+    Pipeline getScene2DPipeline() {
         return scene2DPipeline;
     }
     
-    public Pipeline getScene3DPipeline() {
-        return scene2DPipeline;
+    Pipeline getScene3DPipeline() {
+        return scene3DPipeline;
     }
     
     public Pipeline getOverlayPipeline() {

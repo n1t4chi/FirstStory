@@ -79,13 +79,21 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
     
     private final Holder< VulkanSemaphore > currentSemaphore = new Holder<>();
     
+    public void executeTransfersAndForget() {
+        executeTransfers( true );
+    }
+    
     public VulkanSemaphore executeTransfers() {
+        return executeTransfers( false );
+    }
+    
+    private VulkanSemaphore executeTransfers( boolean disposeSemaphore ) {
         synchronized ( currentSemaphore ) {
             var semaphore = currentSemaphore.get();
             if( semaphore == null ) {
                 currentSemaphore.hold( semaphore = getAllocator().createSemaphore() );
                 currentSemaphore.notifyAll();
-                executeTransferUnsafe( semaphore );
+                executeTransferUnsafe( semaphore, disposeSemaphore );
                 currentSemaphore.remove();
             }
             return semaphore;
@@ -103,7 +111,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         allocator.deregisterTransferCommandPool( this );
     }
     
-    private void executeTransferUnsafe( VulkanSemaphore semaphore ) {
+    private void executeTransferUnsafe( VulkanSemaphore semaphore, boolean disposeSemaphore ) {
         ArrayList<VulkanCommand<VulkanTransferCommandBuffer>> allCommandsCopy;
         List<VulkanTransferData> datasToTransferCopy;
         synchronized ( allCommands ) {
@@ -125,7 +133,9 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         getUsedQueueFamily().submit( fence, createSubmitInfo( buffer, semaphore ) );
         fence.executeWhenFinishedThenDispose( () -> {
             buffer.dispose();
-            semaphore.dispose();
+            if( disposeSemaphore ) {
+                semaphore.dispose();
+            }
         } );
     }
     
@@ -133,15 +143,17 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         VulkanTransferCommandBuffer commandBuffer,
         VulkanSemaphore semaphore
     ) {
-        return VkSubmitInfo.create()
+        var submitInfo = VkSubmitInfo.create()
             .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
             .pCommandBuffers( MemoryUtil.memAllocPointer( 1 )
                 .put( 0, commandBuffer.getAddress().getValue() )
-            )
-            .pSignalSemaphores( MemoryUtil.memAllocLong( 1 )
+            );
+        if( semaphore != null ) {
+            submitInfo.pSignalSemaphores( MemoryUtil.memAllocLong( 1 )
                 .put( 0, semaphore.getAddress().getValue() )
-            )
-        ;
+            );
+        }
+        return submitInfo;
     }
     
     private VulkanTransferCommandBuffer createNewCommandBuffer() {
