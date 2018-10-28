@@ -17,8 +17,6 @@ import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -28,8 +26,6 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
     private final VulkanCommandBufferAllocator< VulkanTransferCommandBuffer > bufferAllocator;
     
     private final List< VulkanBufferMemory > memories = new ArrayList<>();
-    private final List< VulkanTransferData > allDatas = new ArrayList<>();
-    private final Deque< VulkanTransferData > availableDatas = new LinkedList<>();
     private final List< VulkanTransferData > datasToTransfer = new ArrayList<>();
     private final List< VulkanCommand< VulkanTransferCommandBuffer > > allCommands = new ArrayList<>(  );
     private volatile boolean execute = false;
@@ -55,12 +51,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         long length
     ) {
         synchronized ( datasToTransfer ) {
-            var transferData = availableDatas.poll();
-            if( transferData == null ) {
-                transferData = new VulkanTransferData();
-                allDatas.add( transferData );
-            }
-            datasToTransfer.add( transferData.set(
+            datasToTransfer.add( getAllocator().createTransferData(
                 source,
                 sourceOffset,
                 destination,
@@ -96,21 +87,31 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
     }
     
     private void executeQueue() {
+        ArrayList<VulkanCommand<VulkanTransferCommandBuffer>> allCommandsCopy;
+        List<VulkanTransferData> datasToTransferCopy;
         synchronized ( this ) {
             execute = true;
             notifyAll();
-            var buffer = createNewCommandBuffer();
-            buffer.fillQueueSetup();
-    
-            executeCommands( buffer );
-            executeTransferDatas( buffer );
-    
-            buffer.fillQueueTearDown();
-            getUsedQueueFamily().submit( createSubmitInfo( buffer ) );
-            getUsedQueueFamily().waitForQueue();
-            memories.forEach( VulkanBufferMemory::resetLocalTransferBuffers );
+            synchronized ( allCommands ) {
+                allCommandsCopy = new ArrayList<>( allCommands );
+                allCommands.clear();
+            }
+            synchronized ( datasToTransfer ) {
+                datasToTransferCopy = new ArrayList<>( datasToTransfer );
+                datasToTransfer.clear();
+            }
             execute = false;
         }
+        
+        var buffer = bufferAllocator.createBuffer();
+        buffer.fillQueueSetup();
+        allCommandsCopy.forEach( command -> command.execute( buffer ) );
+        datasToTransferCopy.forEach( data -> data.execute( buffer ) );
+
+        buffer.fillQueueTearDown();
+        var fence = getAllocator().createFence();
+        getUsedQueueFamily().submit( fence, createSubmitInfo( buffer ) );
+        fence.executeWhenFinishedThenDispose( buffer::dispose );
     }
     
     private VkSubmitInfo createSubmitInfo( VulkanTransferCommandBuffer commandBuffer ) {
@@ -120,21 +121,6 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
                 .put( 0, commandBuffer.getAddress().getValue() )
             )
         ;
-    }
-    
-    private void executeCommands( VulkanTransferCommandBuffer buffer ) {
-        synchronized ( allCommands ) {
-            allCommands.forEach( command -> command.execute( buffer ) );
-            allCommands.clear();
-        }
-    }
-    private void executeTransferDatas( VulkanTransferCommandBuffer buffer ) {
-        synchronized ( datasToTransfer ) {
-            datasToTransfer.forEach( data -> data.execute( buffer ) );
-            datasToTransfer.clear();
-            availableDatas.clear();
-            availableDatas.addAll( allDatas );
-        }
     }
     
     private VulkanTransferCommandBuffer createNewCommandBuffer() {

@@ -10,6 +10,7 @@ import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvi
 import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
+import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferData;
 
 import java.util.function.Supplier;
 
@@ -39,6 +40,7 @@ public class VulkanDeviceAllocator {
     private final VulkanReusableObjectsRegistry< VulkanTextureData > textureDatas = new VulkanReusableObjectsRegistry<>( VulkanTextureData::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanFence > fences = new VulkanReusableObjectsRegistry<>( VulkanFence::disposeUnsafe, fence -> {} );
     private final VulkanImmutableObjectsRegistry< VulkanCommandBufferAllocator<?> > commandBufferAllocators = new VulkanImmutableObjectsRegistry<>( VulkanCommandBufferAllocator::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanTransferData > transferDatas = new VulkanReusableObjectsRegistry<>( data -> {}, data -> {} );
     
     
     public VulkanDeviceAllocator(
@@ -69,6 +71,23 @@ public class VulkanDeviceAllocator {
         semaphores.dispose();
         fences.dispose();
         commandBufferAllocators.dispose();
+    }
+    
+    public VulkanTransferData createTransferData(
+        VulkanAddress source,
+        long sourceOffset,
+        VulkanAddress destination,
+        long destinationOffset,
+        long length
+    ) {
+        return transferDatas.register(
+            VulkanTransferData::new,
+            data -> data.set( source, sourceOffset, destination, destinationOffset, length )
+        );
+    }
+    
+    public void deregisterTransferData( VulkanTransferData image ) {
+        transferDatas.deregister( image );
     }
     
     @SuppressWarnings( "unchecked" )
@@ -216,7 +235,6 @@ public class VulkanDeviceAllocator {
     public void deregisterDescriptor( VulkanDescriptor descriptor ) {
         descriptors.deregister( descriptor );
     }
-    
     
     public VulkanBufferProvider createBufferProvider(
         VulkanTransferCommandPool vertexDataTransferCommandPool,

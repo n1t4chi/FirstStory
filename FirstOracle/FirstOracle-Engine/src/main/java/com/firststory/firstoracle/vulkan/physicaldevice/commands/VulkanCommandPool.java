@@ -42,15 +42,9 @@ public abstract class VulkanCommandPool {
         return device;
     }
     
-    protected VulkanQueueFamily getUsedQueueFamily() {
-        return usedQueueFamily;
-    }
-    
     public void dispose() {
         dispose( this.allocator );
     }
-    
-    protected abstract void dispose( VulkanDeviceAllocator allocator );
     
     public void disposeUnsafe() {
         if( address.isNotNull() ){
@@ -58,6 +52,16 @@ public abstract class VulkanCommandPool {
             address.setNull();
         }
     }
+    
+    protected VulkanDeviceAllocator getAllocator() {
+        return allocator;
+    }
+    
+    protected VulkanQueueFamily getUsedQueueFamily() {
+        return usedQueueFamily;
+    }
+    
+    protected abstract void dispose( VulkanDeviceAllocator allocator );
     
     VulkanAddress getAddress() {
         return address;

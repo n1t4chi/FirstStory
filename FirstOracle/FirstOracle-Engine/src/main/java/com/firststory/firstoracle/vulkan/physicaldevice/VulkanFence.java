@@ -59,6 +59,7 @@ public class VulkanFence {
                 future.cancel( true );
             }
         } );
+        futures.clear();
         VK10.vkDestroyFence( device.getLogicalDevice(), address.getValue(), null );
     }
     
