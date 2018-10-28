@@ -11,11 +11,14 @@ import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanQueueFamily;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanSemaphore;
 import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandPool;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.util.List;
 
 /**
  * @author n1t4chi
@@ -65,24 +68,48 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool {
     
     VkSubmitInfo createSubmitInfo(
         VulkanGraphicPrimaryCommandBuffer commandBuffer,
-        VulkanSemaphore waitSemaphore,
+        List< VulkanSemaphore > waitSemaphores,
         VulkanSemaphore signalSemaphore
     ) {
     
-        return VkSubmitInfo.create()
-            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
-            .pCommandBuffers( MemoryUtil.memAllocPointer( 1 )
-                .put( 0, commandBuffer.getAddress().getValue() )
-            )
-            .pWaitDstStageMask( createWaitStageMaskBuffer() )
-            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 )
-                .put( 0, waitSemaphore.getAddress().getValue() )
-            )
-            .pSignalSemaphores( MemoryUtil.memAllocLong( 1 )
-                .put( 0, signalSemaphore.getAddress().getValue() )
-            )
-        ;
+        var semaphoresBuffer = MemoryUtil.memAllocLong( waitSemaphores.size() );
+        for ( var i = 0; i < waitSemaphores.size(); i++ ) {
+            semaphoresBuffer.put( i, waitSemaphores.get( i ).getAddress().getValue() );
+        }
+    
+        return createSubmitInfo(
+            semaphoresBuffer,
+            MemoryUtil.memAllocPointer( 1 ).put( 0, commandBuffer.getAddress().getValue() ),
+            MemoryUtil.memAllocLong( 1 ).put( 0, signalSemaphore.getAddress().getValue() )
+        );
     }
+    
+    VkSubmitInfo createSubmitInfo(
+        VulkanGraphicPrimaryCommandBuffer commandBuffer,
+        VulkanSemaphore waitSemaphore,
+        VulkanSemaphore signalSemaphore
+    ) {
+        return createSubmitInfo(
+            MemoryUtil.memAllocLong( 1 ).put( 0, waitSemaphore.getAddress().getValue() ),
+            MemoryUtil.memAllocPointer( 1 ).put( 0, commandBuffer.getAddress().getValue() ),
+            MemoryUtil.memAllocLong( 1 ).put( 0, signalSemaphore.getAddress().getValue() )
+        );
+    }
+    
+    private VkSubmitInfo createSubmitInfo(
+        LongBuffer semaphoresBuffer,
+        PointerBuffer commandBuffers,
+        LongBuffer signalSemaphores
+    ) {
+        return VkSubmitInfo
+            .create()
+            .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
+            .pCommandBuffers( commandBuffers )
+            .pWaitDstStageMask( createWaitStageMaskBuffer() )
+            .pWaitSemaphores( semaphoresBuffer )
+            .pSignalSemaphores( signalSemaphores );
+    }
+    
     
     private VulkanGraphicSecondaryCommandBuffer createSecondaryCommandBuffer() {
         return new VulkanGraphicSecondaryCommandBuffer(

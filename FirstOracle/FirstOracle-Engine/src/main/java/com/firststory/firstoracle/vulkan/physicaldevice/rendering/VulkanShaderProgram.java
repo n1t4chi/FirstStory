@@ -17,8 +17,6 @@ import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvi
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
-import org.joml.Vector2fc;
-import org.joml.Vector3fc;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
 
@@ -105,36 +103,12 @@ public class VulkanShaderProgram implements ShaderProgram {
         return inBufferData.clone();
     }
     
-    void bindPosition( Vector3fc vector ) {
-        putInputData( OFFSET_POSITION, vector.x(), vector.y(), vector.z() );
-    }
-    
-    void bindPosition( Vector2fc vector ) {
-        putInputData( OFFSET_POSITION, vector.x(), vector.y(), 0 );
-    }
-    
     void bindPosition( Position position ) {
         putInputData( OFFSET_POSITION, position.x(), position.y(), position.z() );
     }
     
-    void bindScale( Vector2fc vector ) {
-        putInputData( OFFSET_SCALE, vector.x(), vector.y(), 0 );
-    }
-    
-    void bindScale( Vector3fc vector ) {
-        putInputData( OFFSET_SCALE, vector.x(), vector.y(), vector.z() );
-    }
-    
     void bindScale( Scale scale ) {
         putInputData( OFFSET_SCALE, scale.x(), scale.y(), scale.z() );
-    }
-    
-    void bindRotation( float rotation ) {
-        putInputData( OFFSET_ROTATION, 0 , 0, rotation );
-    }
-    
-    void bindRotation( Vector3fc vector ) {
-        putInputData( OFFSET_ROTATION, vector.x(), vector.y(), vector.z() );
     }
     
     void bindRotation( Rotation rotation ) {

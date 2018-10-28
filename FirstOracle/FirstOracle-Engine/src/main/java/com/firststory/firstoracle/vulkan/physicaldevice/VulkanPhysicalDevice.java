@@ -322,9 +322,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             uniformDataTransferCommandPool,
             textureTransferCommandPool
         );
-        
-        // todo: fix
-        presentationFamily.waitForQueue();
     }
     
     public void dispose() {

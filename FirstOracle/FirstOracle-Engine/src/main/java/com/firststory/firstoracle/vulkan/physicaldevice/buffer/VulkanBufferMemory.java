@@ -112,7 +112,6 @@ public class VulkanBufferMemory extends VulkanLinearMemory< ByteBuffer > {
         memoryBuffer = new VulkanBuffer( usageFlags, memoryFlags, length() );
         localMemoryCopyBuffer = new VulkanBuffer( COPY_BUFFER_USAGE_FLAGS, COPY_BUFFER_MEMORY_FLAGS, length() );
         mappedLocalMemory = new VulkanAddress();
-        commandPool.registerMemory( this );
     }
     
     @Override
@@ -120,7 +119,7 @@ public class VulkanBufferMemory extends VulkanLinearMemory< ByteBuffer > {
         return byteLength;
     }
     
-    public void resetLocalTransferBuffers() {
+    private void resetLocalTransferBuffers() {
         synchronized ( mappedLocalMemory ) {
             if ( mappedLocalMemory.isNotNull() ) {
                 localMemoryCopyBuffer.unmapMemory();
