@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
+import com.firststory.firstoracle.vulkan.allocators.VulkanCommandBufferAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanFrameBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
@@ -16,17 +17,19 @@ import org.lwjgl.vulkan.VkCommandBufferInheritanceInfo;
 /**
  * @author n1t4chi
  */
-public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer {
+public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer< VulkanGraphicSecondaryCommandBuffer > {
     
     private VkCommandBufferInheritanceInfo inheritanceInfo;
     
     VulkanGraphicSecondaryCommandBuffer(
+        VulkanCommandBufferAllocator< VulkanGraphicSecondaryCommandBuffer > allocator,
         VulkanPhysicalDevice device,
         VulkanGraphicCommandPool commandPool,
         VulkanAddress address,
         int... usedBeginInfoFlags
     ) {
         super(
+            allocator,
             device,
             commandPool,
             address,

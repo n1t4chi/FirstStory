@@ -10,6 +10,8 @@ import com.firststory.firstoracle.controller.CameraController;
 import com.firststory.firstoracle.controller.CameraKeyMap;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Index3D;
+import com.firststory.firstoracle.notyfying.WindowListener;
+import com.firststory.firstoracle.notyfying.WindowSizeEvent;
 import com.firststory.firstoracle.object.DefaultDirectionController;
 import com.firststory.firstoracle.object.LoopedFrameController;
 import com.firststory.firstoracle.object.PlaneUvMap;
@@ -147,7 +149,14 @@ public class TestGlfwApplication {
         window.setScene2DCamera( DEFAULT_SCENE, cameraController.getCamera2D() );
         window.setScene3DCamera( DEFAULT_SCENE, cameraController.getCamera3D() );
     
-        window.registerOverlay( DEFAULT_SCENE, new FpsCounter( window ) );
+        var fpsCounter = new FpsCounter( window );
+        window.addWindowListener( new WindowListener() {
+            @Override
+            public void notify( WindowSizeEvent event ) {
+                fpsCounter.setTextPosition( 0, event.getHeight()/2-7 );
+            }
+        } );
+        window.registerOverlay( DEFAULT_SCENE, fpsCounter );
         
         window.run();
     }

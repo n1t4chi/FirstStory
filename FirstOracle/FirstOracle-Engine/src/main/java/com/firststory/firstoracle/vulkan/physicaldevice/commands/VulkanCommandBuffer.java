@@ -7,6 +7,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice.commands;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.allocators.VulkanCommandBufferAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.VulkanCommandBufferException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import org.lwjgl.vulkan.VK10;
@@ -19,8 +20,9 @@ import java.util.logging.Logger;
 /**
  * @author n1t4chi
  */
-public abstract class VulkanCommandBuffer {
+public abstract class VulkanCommandBuffer< SELF extends VulkanCommandBuffer< ? > > {
     private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandBuffer.class );
+    private final VulkanCommandBufferAllocator< SELF > allocator;
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;
     private final VkCommandBuffer commandBuffer;
@@ -28,11 +30,13 @@ public abstract class VulkanCommandBuffer {
     private final int[] usedBeginInfoFlags;
     
     public VulkanCommandBuffer(
+        VulkanCommandBufferAllocator< SELF > allocator,
         VulkanPhysicalDevice device,
         VulkanCommandPool commandPool,
         VulkanAddress address,
         int... usedBeginInfoFlags
     ) {
+        this.allocator = allocator;
         this.device = device;
         this.address = address;
         this.commandPool = commandPool;
@@ -45,7 +49,6 @@ public abstract class VulkanCommandBuffer {
     }
     
     public void fillQueueSetup() {
-        resetCommandBuffer();
         beginRecordingCommandBuffer();
     }
     
@@ -53,7 +56,16 @@ public abstract class VulkanCommandBuffer {
         endCommandBuffer();
     }
     
-    public void close() {
+    @SuppressWarnings( "unchecked" )
+    public void dispose() {
+        allocator.deregisterBuffer( (SELF) this );
+    }
+    
+    public void update() {
+        resetCommandBuffer();
+    }
+    
+    public void disposeUnsafe() {
         VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress().getValue(), commandBuffer );
     }
     

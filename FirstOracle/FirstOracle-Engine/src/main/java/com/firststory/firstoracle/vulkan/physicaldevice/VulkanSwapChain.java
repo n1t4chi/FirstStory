@@ -92,8 +92,7 @@ public class VulkanSwapChain {
     public void presentQueue( VulkanImageIndex index ) {
         var presentInfo = VkPresentInfoKHR.create()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
-            .pWaitSemaphores( MemoryUtil
-                .memAllocLong( 1 ).put( 0, index.getRenderFinishedSemaphore().getAddress().getValue() ) )
+            .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, index.getRenderFinishedSemaphore().getAddress().getValue() ) )
             .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, address.getValue() ) )
             .swapchainCount( 1 )
             .pImageIndices( MemoryUtil.memAllocInt( 1 ).put( 0, index.getIndex() ) )

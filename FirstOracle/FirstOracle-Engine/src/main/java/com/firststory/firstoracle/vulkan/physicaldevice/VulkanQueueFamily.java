@@ -64,6 +64,20 @@ public class VulkanQueueFamily {
         ;
     }
     
+    public void submit( VulkanFence fence, VkSubmitInfo... submitInfos ) {
+        var buffer = VkSubmitInfo.create( submitInfos.length );
+        for ( var i = 0; i < submitInfos.length; i++ ) {
+            buffer.put( i, submitInfos[ i ] );
+        }
+        VulkanHelper.assertCallOrThrow( () -> VK10.vkQueueSubmit(
+                getQueue(),
+                buffer,
+                fence.getAddress().getValue()
+            ),
+            resultCode -> new CannotSubmitVulkanDrawCommandBufferException( this, resultCode )
+        );
+    }
+    
     public void submit( VkSubmitInfo... submitInfos ) {
         var buffer = VkSubmitInfo.create( submitInfos.length );
         for ( var i = 0; i < submitInfos.length; i++ ) {

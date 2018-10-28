@@ -7,8 +7,11 @@ package com.firststory.firstoracle.vulkan.allocators;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
+import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
+
+import java.util.function.Supplier;
 
 /**
  * @author n1t4chi
@@ -32,9 +35,10 @@ public class VulkanDeviceAllocator {
     private final VulkanImmutableObjectsRegistry< VulkanImageView > imageViews = new VulkanImmutableObjectsRegistry<>( VulkanImageView::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanInMemoryImage > inMemoryImages = new VulkanReusableObjectsRegistry<>( VulkanInMemoryImage::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanSwapChainImage > swapChainImages = new VulkanReusableObjectsRegistry<>( VulkanSwapChainImage::disposeUnsafe );
-//    private final VulkanReusableObjectsRegistry< VulkanSemaphore > semaphores = new VulkanReusableObjectsRegistry<>( VulkanSemaphore::disposeUnsafe, semaphore -> {} );
     private final VulkanImmutableObjectsRegistry< VulkanSemaphore > semaphores = new VulkanImmutableObjectsRegistry<>( VulkanSemaphore::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanTextureData > textureDatas = new VulkanReusableObjectsRegistry<>( VulkanTextureData::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanFence > fences = new VulkanReusableObjectsRegistry<>( VulkanFence::disposeUnsafe, fence -> {} );
+    private final VulkanImmutableObjectsRegistry< VulkanCommandBufferAllocator<?> > commandBufferAllocators = new VulkanImmutableObjectsRegistry<>( VulkanCommandBufferAllocator::disposeUnsafe );
     
     
     public VulkanDeviceAllocator(
@@ -63,6 +67,32 @@ public class VulkanDeviceAllocator {
         shaderPrograms.dispose();
         textureSamplers.dispose();
         semaphores.dispose();
+        fences.dispose();
+        commandBufferAllocators.dispose();
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    public < CommandBuffer extends VulkanCommandBuffer< ? > > VulkanCommandBufferAllocator< CommandBuffer > createBufferAllocator(
+        Supplier< CommandBuffer > supplier
+    ) {
+        return ( VulkanCommandBufferAllocator< CommandBuffer > ) commandBufferAllocators.register(
+            () -> new VulkanCommandBufferAllocator<>( this, supplier )
+        );
+    }
+    
+    void deregisterBufferAllocator( VulkanCommandBufferAllocator< ? > allocator ) {
+        commandBufferAllocators.deregister( allocator );
+    }
+    
+    public VulkanFence createFence() {
+        return fences.register(
+            () -> new VulkanFence( this, device ),
+            VulkanFence::update
+        );
+    }
+    
+    public void deregisterFence( VulkanFence image ) {
+        fences.deregister( image );
     }
     
     public VulkanSwapChainImage createSwapChainImage(
@@ -130,7 +160,6 @@ public class VulkanDeviceAllocator {
     public VulkanSemaphore createSemaphore() {
         return semaphores.register(
             () -> new VulkanSemaphore( this, device )
-//            , semaphore -> {}
         );
     }
     

@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -86,6 +89,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanTextureSampler textureSampler;
     
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
+    private final ExecutorService executorService;
     
     private VulkanImageIndex currentImageIndex;
     
@@ -98,6 +102,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     ) throws CannotCreateVulkanPhysicalDeviceException {
         this.instanceAllocator = instanceAllocator;
         allocator = instanceAllocator.createPhysicalDeviceAllocator( this );
+        executorService = Executors.newCachedThreadPool();
         try {
             windowSurface = surface;
             physicalDevice = new VkPhysicalDevice( deviceAddress, instance );
@@ -209,6 +214,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return allocator;
     }
     
+    public ExecutorService getEventExecutorService() {
+        return executorService;
+    }
+    
     VulkanQueueFamily getGraphicFamily() {
         return graphicFamily;
     }
@@ -299,7 +308,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     public void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
         currentImageIndex = acquireNextImageIndex();
-        var semaphoresToDestroy = renderingContext.tearDownSingleRender(
+        renderingContext.tearDownSingleRender(
             trianglePipelines,
             linePipelines,
             backgroundGraphicCommandPool,
@@ -315,12 +324,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         );
         
         // todo: fix
-//        if ( VulkanFramework.validationLayersAreEnabled() ) {
         presentationFamily.waitForQueue();
-        semaphoresToDestroy.forEach( VulkanSemaphore::dispose );
-        currentImageIndex.getRenderFinishedSemaphore().dispose();
-        currentImageIndex.getImageAvailableSemaphore().dispose();
-//        }
     }
     
     public void dispose() {
@@ -331,8 +335,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         presentationFamily.waitForQueue();
         
         allocator.dispose();
-        
         frameBuffers.clear();
+    
+        try {
+            executorService.awaitTermination( 30, TimeUnit.SECONDS );
+        } catch ( InterruptedException e ) {
+            logger.log( Level.SEVERE, "Interrupted while trying to stop executors.", e );
+        }
         VK10.vkDestroyDevice( logicalDevice, null );
     }
     

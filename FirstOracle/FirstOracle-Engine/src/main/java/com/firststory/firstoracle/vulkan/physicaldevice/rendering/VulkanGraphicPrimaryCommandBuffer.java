@@ -6,6 +6,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
+import com.firststory.firstoracle.vulkan.allocators.VulkanCommandBufferAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanFrameBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanSwapChain;
@@ -18,22 +19,22 @@ import java.util.List;
 /**
  * @author n1t4chi
  */
-public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer {
-    private final VulkanSwapChain swapChain;
+public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< VulkanGraphicPrimaryCommandBuffer > {
     
     VulkanGraphicPrimaryCommandBuffer(
+        VulkanCommandBufferAllocator< VulkanGraphicPrimaryCommandBuffer > allocator,
         VulkanPhysicalDevice device,
         VulkanGraphicCommandPool commandPool,
         VulkanAddress address,
-        VulkanSwapChain swapChain,
         int... usedBeginInfoFlags
     ) {
         super(
+            allocator,
             device,
             commandPool,
             address,
-            usedBeginInfoFlags );
-        this.swapChain = swapChain;
+            usedBeginInfoFlags
+        );
     }
     
     @Override
@@ -61,7 +62,7 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer {
         }
     }
     
-    void beginRenderPass( VulkanRenderPass renderPass, VulkanFrameBuffer frameBuffer, Colour backgroundColour ) {
+    void beginRenderPass( VulkanSwapChain swapChain, VulkanRenderPass renderPass, VulkanFrameBuffer frameBuffer, Colour backgroundColour ) {
         activeRenderPass = true;
         var renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, frameBuffer, backgroundColour );
         VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );

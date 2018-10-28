@@ -171,8 +171,7 @@ public class VulkanGraphicPipelines {
     private VkPipelineShaderStageCreateInfo.Buffer createShaderStageCreateInfoBuffer(
         List<VkPipelineShaderStageCreateInfo> shaderStages
     ) {
-        var shaderStagesBuffer =
-            VkPipelineShaderStageCreateInfo.calloc( shaderStages.size() );
+        var shaderStagesBuffer = VkPipelineShaderStageCreateInfo.calloc( shaderStages.size() );
         shaderStages.forEach( shaderStagesBuffer::put );
         shaderStagesBuffer.flip();
         return shaderStagesBuffer;
@@ -181,13 +180,13 @@ public class VulkanGraphicPipelines {
     private VkPipelineDynamicStateCreateInfo createDynamicStateCreateInfo() {
         var flagsBuffer = MemoryUtil.memAllocInt( DYNAMIC_STATE_FLAGS.length );
         flagsBuffer.put( DYNAMIC_STATE_FLAGS ).flip();
-        return VkPipelineDynamicStateCreateInfo.create()
+        return VkPipelineDynamicStateCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO )
             .pDynamicStates( flagsBuffer);
     }
     
     private VkPipelineColorBlendStateCreateInfo createColourBlendStateCreateInfo() {
-        return VkPipelineColorBlendStateCreateInfo.create()
+        return VkPipelineColorBlendStateCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO )
             .logicOpEnable( false )
             .logicOp( VK10.VK_LOGIC_OP_COPY )
@@ -201,7 +200,7 @@ public class VulkanGraphicPipelines {
     }
     
     private VkPipelineColorBlendAttachmentState createColourBlendAttachmentState() {
-        return VkPipelineColorBlendAttachmentState.create()
+        return VkPipelineColorBlendAttachmentState.calloc()
             .colorWriteMask(
                 VK10.VK_COLOR_COMPONENT_A_BIT | VK10.VK_COLOR_COMPONENT_R_BIT | VK10.VK_COLOR_COMPONENT_G_BIT |
                     VK10.VK_COLOR_COMPONENT_B_BIT )
@@ -215,7 +214,7 @@ public class VulkanGraphicPipelines {
     }
     
     private VkPipelineMultisampleStateCreateInfo createMultisampleStateCreateInfo() {
-        return VkPipelineMultisampleStateCreateInfo.create()
+        return VkPipelineMultisampleStateCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO )
             .sampleShadingEnable( false )
             .rasterizationSamples( VK10.VK_SAMPLE_COUNT_1_BIT )
@@ -226,7 +225,7 @@ public class VulkanGraphicPipelines {
     }
     
     private VkPipelineRasterizationStateCreateInfo createRasterizationStateCreateInfo() {
-        return VkPipelineRasterizationStateCreateInfo.create()
+        return VkPipelineRasterizationStateCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO )
             .depthClampEnable( false )
             .rasterizerDiscardEnable( false )
@@ -241,20 +240,20 @@ public class VulkanGraphicPipelines {
     }
     
     private VkPipelineViewportStateCreateInfo createViewportStateCreateInfo( VulkanSwapChain swapChain ) {
-        return VkPipelineViewportStateCreateInfo.create()
+        return VkPipelineViewportStateCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO )
             .viewportCount( 1 )
-            .pViewports( VkViewport.create( 1 ).put( createViewport( swapChain ) ).flip() )
+            .pViewports( VkViewport.calloc( 1 ).put( createViewport( swapChain ) ).flip() )
             .scissorCount( 1 )
-            .pScissors( VkRect2D.create( 1 ).put( createScissor( swapChain ) ).flip() );
+            .pScissors( VkRect2D.calloc( 1 ).put( createScissor( swapChain ) ).flip() );
     }
     
     private VkRect2D createScissor( VulkanSwapChain swapChain ) {
-        return VkRect2D.create().offset( VkOffset2D.create().set( 0, 0 ) ).extent( swapChain.getExtent() );
+        return VkRect2D.calloc().offset( VkOffset2D.calloc().set( 0, 0 ) ).extent( swapChain.getExtent() );
     }
     
     private VkViewport createViewport( VulkanSwapChain swapChain ) {
-        return VkViewport.create()
+        return VkViewport.calloc()
             .x( 0f )
             .y( 0f )
             .width( swapChain.getWidth() )
@@ -264,7 +263,7 @@ public class VulkanGraphicPipelines {
     }
     
     private VkPipelineInputAssemblyStateCreateInfo createInputAssemblyStateCreateInfo() {
-        return VkPipelineInputAssemblyStateCreateInfo.create()
+        return VkPipelineInputAssemblyStateCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO )
             .topology( topologyType )
             .primitiveRestartEnable( false );
@@ -272,7 +271,7 @@ public class VulkanGraphicPipelines {
     
     private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo() {
         var attributeDescriptions = VkVertexInputAttributeDescription
-            .create( 3 + ATTRIBUTE_UNIFORM_SIZE )
+            .calloc( 3 + ATTRIBUTE_UNIFORM_SIZE )
             .put( 0, createPositionAttributeDescription() )
             .put( 1, createUvMapAttributeDescription() )
             .put( 2, createColourAttributeDescription() )
@@ -285,11 +284,11 @@ public class VulkanGraphicPipelines {
         }
         
         
-        return VkPipelineVertexInputStateCreateInfo.create()
+        return VkPipelineVertexInputStateCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO )
             .pNext( VK10.VK_NULL_HANDLE )
             .pVertexBindingDescriptions(
-                VkVertexInputBindingDescription.create( 4 )
+                VkVertexInputBindingDescription.calloc( 4 )
                     .put( 0, createVertexBindingDescription( 0, VERTEX_POSITION_DATA_SIZE ) )
                     .put( 1, createVertexBindingDescription( 1, VERTEX_UVMAP_DATA_SIZE ) )
                     .put( 2, createVertexBindingDescription( 2, VERTEX_COLOUR_DATA_SIZE ) )
@@ -299,14 +298,14 @@ public class VulkanGraphicPipelines {
     }
     
     private VkVertexInputBindingDescription createInstanceBindingDescription( int binding, int dataSize ) {
-        return VkVertexInputBindingDescription.create()
+        return VkVertexInputBindingDescription.calloc()
             .binding( binding )
             .stride( dataSize ) //todo
             .inputRate( VK10.VK_VERTEX_INPUT_RATE_INSTANCE );
     }
     
     private VkVertexInputBindingDescription createVertexBindingDescription( int binding, int dataSize ) {
-        return VkVertexInputBindingDescription.create()
+        return VkVertexInputBindingDescription.calloc()
             .binding( binding )
             .stride( dataSize ) //todo
             .inputRate( VK10.VK_VERTEX_INPUT_RATE_VERTEX );
@@ -318,7 +317,7 @@ public class VulkanGraphicPipelines {
      * @return colour description
      */
     private VkVertexInputAttributeDescription createPositionAttributeDescription() {
-        return VkVertexInputAttributeDescription.create()
+        return VkVertexInputAttributeDescription.calloc()
             .binding( 0 )
             .location( 0 )
             .format( VK10.VK_FORMAT_R32G32B32_SFLOAT )
@@ -331,7 +330,7 @@ public class VulkanGraphicPipelines {
      * @return position description
      */
     private VkVertexInputAttributeDescription createUvMapAttributeDescription() {
-        return VkVertexInputAttributeDescription.create()
+        return VkVertexInputAttributeDescription.calloc()
             .binding( 1 )
             .location( 1 )
             .format( VK10.VK_FORMAT_R32G32_SFLOAT )
@@ -344,7 +343,7 @@ public class VulkanGraphicPipelines {
      * @return position description
      */
     private VkVertexInputAttributeDescription createColourAttributeDescription() {
-        return VkVertexInputAttributeDescription.create()
+        return VkVertexInputAttributeDescription.calloc()
             .binding( 2 )
             .location( 2 )
             .format( VK10.VK_FORMAT_R32G32B32A32_SFLOAT )
@@ -357,7 +356,7 @@ public class VulkanGraphicPipelines {
      * @return position description
      */
     private VkVertexInputAttributeDescription createVec4UniformDataAttributeDescription( int location ) {
-        return VkVertexInputAttributeDescription.create()
+        return VkVertexInputAttributeDescription.calloc()
             .binding( 3 )
             .location( 4 + location )
             .format( VK10.VK_FORMAT_R32G32B32A32_SFLOAT )
@@ -370,7 +369,7 @@ public class VulkanGraphicPipelines {
      * @return position description
      */
     private VkVertexInputAttributeDescription createIntUniformDataAttributeDescription( int location ) {
-        return VkVertexInputAttributeDescription.create()
+        return VkVertexInputAttributeDescription.calloc()
             .binding( 3 )
             .location( 4 + UNIFORM_COUNT_VEC4 + location )
             .format( VK10.VK_FORMAT_R32_SINT )
@@ -378,7 +377,7 @@ public class VulkanGraphicPipelines {
     }
     
     private void updateVulkanPipelineLayout( VulkanAddress descriptorSet ) {
-        var createInfo = VkPipelineLayoutCreateInfo.create()
+        var createInfo = VkPipelineLayoutCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO )
             .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getValue() ) )
             .pPushConstantRanges( null );
