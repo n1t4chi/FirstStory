@@ -31,14 +31,14 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
     private final Deque< VulkanDataBuffer > availableDataBuffers;
     private final boolean shouldDrawTextures;
     private final boolean shouldDrawBorder;
-    private VulkanPipeline trianglePipeline;
-    private VulkanPipeline linePipeline;
-    private VulkanSwapChain swapChain;
-    private VulkanFrameBuffer frameBuffer;
-    private Colour backgroundColour;
-    private VulkanGraphicPipelines linePipelines;
-    private VulkanGraphicPipelines trianglePipelines;
-    
+    private final VulkanPipeline trianglePipeline;
+    private final VulkanPipeline linePipeline;
+    private final VulkanSwapChain swapChain;
+    private final VulkanFrameBuffer frameBuffer;
+    private final Colour backgroundColour;
+    private final VulkanGraphicPipelines linePipelines;
+    private final VulkanGraphicPipelines trianglePipelines;
+
     VulkanRenderStageWorker(
         VulkanPhysicalDevice device,
         List< VulkanDataBuffer > dataBuffers,
@@ -129,7 +129,9 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
             commandPool,
             primaryBuffer,
             secondaryBuffers,
-            descriptorsPools
+            descriptorsPools,
+            trianglePipeline,
+            linePipeline
         );
     }
     

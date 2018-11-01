@@ -43,6 +43,7 @@ public class VulkanDeviceAllocator {
     private final VulkanReusableObjectsRegistry< VulkanFence > fences = new VulkanReusableObjectsRegistry<>( VulkanFence::disposeUnsafe, fence -> {} );
     private final VulkanImmutableObjectsRegistry< VulkanCommandBufferAllocator<?> > commandBufferAllocators = new VulkanImmutableObjectsRegistry<>( VulkanCommandBufferAllocator::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanTransferData > transferDatas = new VulkanReusableObjectsRegistry<>( data -> {}, data -> {} );
+    private final VulkanImmutableObjectsRegistry< VulkanPipelineAllocator > pipelineAllocators = new VulkanImmutableObjectsRegistry<>( VulkanPipelineAllocator::disposeUnsafe );
     
     
     public VulkanDeviceAllocator(
@@ -73,6 +74,26 @@ public class VulkanDeviceAllocator {
         semaphores.dispose();
         fences.dispose();
         commandBufferAllocators.dispose();
+        pipelineAllocators.dispose();
+    }
+    
+    
+    void deregisterPipelineAllocator( VulkanPipelineAllocator pipelineAllocator ) {
+        pipelineAllocators.deregister( pipelineAllocator );
+    }
+    
+    public VulkanPipelineAllocator createPipelineAllocator(
+        VulkanAddress pipelineLayout,
+        int topologyType,
+        boolean pipelinesFirstUseOnly
+    ) {
+        return pipelineAllocators.register( () -> new VulkanPipelineAllocator(
+            this,
+            device,
+            pipelineLayout,
+            topologyType,
+            pipelinesFirstUseOnly
+        ) );
     }
     
     public VulkanTransferData createTransferData(

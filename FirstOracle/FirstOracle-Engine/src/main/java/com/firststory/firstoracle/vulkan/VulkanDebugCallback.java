@@ -110,7 +110,7 @@ public class VulkanDebugCallback {
         private Level getLoggerLevel( int flags ) {
             var level = Level.FINEST;
             if( ( flags & EXTDebugReport.VK_DEBUG_REPORT_INFORMATION_BIT_EXT ) != 0 ) {
-                level = Level.INFO;
+                level = Level.ALL;
             }
             if( ( flags & EXTDebugReport.VK_DEBUG_REPORT_WARNING_BIT_EXT ) != 0 ) {
                 level = Level.WARNING;

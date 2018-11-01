@@ -18,17 +18,23 @@ class VulkanRenderBatchData {
     private final VulkanGraphicPrimaryCommandBuffer primaryBuffer;
     private final List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers;
     private final ArrayList< VulkanDescriptorPool > descriptorsPools;
+    private final VulkanPipeline trianglePipeline;
+    private final VulkanPipeline linePipeline;
     
     VulkanRenderBatchData(
         VulkanGraphicCommandPool commandPool,
         VulkanGraphicPrimaryCommandBuffer primaryBuffer,
         List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers,
-        ArrayList< VulkanDescriptorPool > descriptorsPools
+        ArrayList< VulkanDescriptorPool > descriptorsPools,
+        VulkanPipeline trianglePipeline,
+        VulkanPipeline linePipeline
     ) {
         this.commandPool = commandPool;
         this.primaryBuffer = primaryBuffer;
         this.secondaryBuffers = secondaryBuffers;
         this.descriptorsPools = descriptorsPools;
+        this.trianglePipeline = trianglePipeline;
+        this.linePipeline = linePipeline;
     }
     
     void dispose() {
@@ -38,7 +44,8 @@ class VulkanRenderBatchData {
         secondaryBuffers.clear();
         descriptorsPools.forEach( VulkanDescriptorPool::dispose );
         descriptorsPools.clear();
-        
+        trianglePipeline.dispose();
+        linePipeline.dispose();
         commandPool.dispose();
     }
     

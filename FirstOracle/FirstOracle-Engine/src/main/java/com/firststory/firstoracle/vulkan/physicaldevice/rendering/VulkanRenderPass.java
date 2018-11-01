@@ -34,10 +34,10 @@ public class VulkanRenderPass {
         return renderPass;
     }
     
-    void updateRenderPass( VulkanSwapChain swapChain, VulkanDepthResources depthResources, boolean isBackground ) {
+    void updateRenderPass( VulkanSwapChain swapChain, VulkanDepthResources depthResources, boolean pipelinesFirstUseOnly ) {
         VulkanHelper.updateAddress( renderPass,
             (address) -> VK10.vkCreateRenderPass(
-                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain, depthResources, isBackground ), null, address ),
+                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain, depthResources, pipelinesFirstUseOnly ), null, address ),
             resultCode -> new CannotCreateVulkanRenderPassException( device, resultCode )
         );
     }
@@ -45,12 +45,12 @@ public class VulkanRenderPass {
     private VkRenderPassCreateInfo createRenderPassCreateInfo(
         VulkanSwapChain swapChain,
         VulkanDepthResources depthResources,
-        boolean isBackground
+        boolean pipelinesFirstUseOnly
     ) {
         return VkRenderPassCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
             .pAttachments( VkAttachmentDescription.calloc( 2 )
-                .put( 0, createColourAttachmentDescription( swapChain, isBackground ) )
+                .put( 0, createColourAttachmentDescription( swapChain, pipelinesFirstUseOnly ) )
                 .put( 1, createDepthAttachmentDescription( depthResources ) )
             )
             .pSubpasses( VkSubpassDescription.calloc( 1 )
@@ -73,13 +73,13 @@ public class VulkanRenderPass {
         );
     }
     
-    private VkAttachmentDescription createColourAttachmentDescription( VulkanSwapChain swapChain, boolean isBackground ) {
+    private VkAttachmentDescription createColourAttachmentDescription( VulkanSwapChain swapChain, boolean pipelinesFirstUseOnly ) {
         return createAttachmentDescription(
             swapChain.getImageFormat(),
-            isBackground ? VK10.VK_ATTACHMENT_LOAD_OP_CLEAR : VK10.VK_ATTACHMENT_LOAD_OP_LOAD,
+            pipelinesFirstUseOnly ? VK10.VK_ATTACHMENT_LOAD_OP_CLEAR : VK10.VK_ATTACHMENT_LOAD_OP_LOAD,
             VK10.VK_ATTACHMENT_STORE_OP_STORE,
-            isBackground ? VK10.VK_ATTACHMENT_LOAD_OP_CLEAR : VK10.VK_ATTACHMENT_LOAD_OP_LOAD,
-            isBackground ? VK10.VK_IMAGE_LAYOUT_UNDEFINED : KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            pipelinesFirstUseOnly ? VK10.VK_ATTACHMENT_LOAD_OP_CLEAR : VK10.VK_ATTACHMENT_LOAD_OP_LOAD,
+            pipelinesFirstUseOnly ? VK10.VK_IMAGE_LAYOUT_UNDEFINED : KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
             KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
         );
     }

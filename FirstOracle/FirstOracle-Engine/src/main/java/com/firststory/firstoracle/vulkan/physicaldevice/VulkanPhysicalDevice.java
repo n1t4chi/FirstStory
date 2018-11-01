@@ -274,7 +274,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
         updatePipeline( trianglePipelines );
         updatePipeline( linePipelines );
-        refreshFrameBuffers( swapChain, this.trianglePipelines.getOverlayPipeline().getRenderPass(), depthResources );
+        refreshFrameBuffers( swapChain, this.trianglePipelines.getRenderPass(), depthResources );
     }
     
     private void updatePipeline( VulkanGraphicPipelines pipeline ) {
@@ -311,15 +311,19 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     public void disposeUnsafe() {
         presentationFamily.waitForQueue();
-        
+    
+        logger.log( Level.FINE, "Disposing " + this + " child objects." );
         allocator.dispose();
         frameBuffers.clear();
     
         try {
+            logger.log( Level.FINE, "Waiting for " + this + " executor service to terminate." );
+            executorService.shutdown();
             executorService.awaitTermination( 30, TimeUnit.SECONDS );
         } catch ( InterruptedException e ) {
-            logger.log( Level.SEVERE, "Interrupted while trying to stop executors.", e );
+            logger.log( Level.FINE, "Interrupted while trying to stop executors.", e );
         }
+        logger.log( Level.SEVERE, "Disposing " + this + " logical device." );
         VK10.vkDestroyDevice( logicalDevice, null );
     }
     

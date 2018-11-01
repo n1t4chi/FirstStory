@@ -85,9 +85,7 @@ public class VulkanRenderingContext implements RenderingContext {
     }
     
     public void setUpSingleRender() {
-        device
-            .getShaderProgram3D()
-            .resetUniformData();
+        device.getShaderProgram3D().resetUniformData();
         background.clear();
         overlay.clear();
         scene2D.clear();
@@ -139,8 +137,8 @@ public class VulkanRenderingContext implements RenderingContext {
             linePipelines,
             swapChain,
             frameBuffer,
-            trianglePipelines.getBackgroundPipeline(),
-            linePipelines.getBackgroundPipeline(),
+            trianglePipelines.getFirstUsePipeline(),
+            linePipelines.getFirstUsePipeline(),
             background
         ) );
         var scene2DFuture = executorService.submit( createWorker(
@@ -148,8 +146,8 @@ public class VulkanRenderingContext implements RenderingContext {
             linePipelines,
             swapChain,
             frameBuffer,
-            trianglePipelines.getScene2DPipeline(),
-            linePipelines.getScene2DPipeline(),
+            trianglePipelines.getLaterUsePipeline(),
+            linePipelines.getLaterUsePipeline(),
             scene2D
         ) );
         var scene3DFuture = executorService.submit( createWorker(
@@ -157,8 +155,8 @@ public class VulkanRenderingContext implements RenderingContext {
             linePipelines,
             swapChain,
             frameBuffer,
-            trianglePipelines.getScene3DPipeline(),
-            linePipelines.getScene3DPipeline(),
+            trianglePipelines.getLaterUsePipeline(),
+            linePipelines.getLaterUsePipeline(),
             scene3D
         ) );
         var overlayFuture = executorService.submit( createWorker(
@@ -166,8 +164,8 @@ public class VulkanRenderingContext implements RenderingContext {
             linePipelines,
             swapChain,
             frameBuffer,
-            trianglePipelines.getOverlayPipeline(),
-            linePipelines.getOverlayPipeline(),
+            trianglePipelines.getLaterUsePipeline(),
+            linePipelines.getLaterUsePipeline(),
             this.overlay
         ) );
         

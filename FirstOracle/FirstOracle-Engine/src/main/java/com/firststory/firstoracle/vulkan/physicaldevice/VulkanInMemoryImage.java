@@ -189,7 +189,8 @@ public class VulkanInMemoryImage extends VulkanImage {
                 srcStageMask,
                 dstStageMask,
                 commandBuffer,
-                createBarrierBuffer( oldLayout,
+                createBarrierBuffer(
+                    oldLayout,
                     newLayout,
                     format,
                     srcAccessMask,

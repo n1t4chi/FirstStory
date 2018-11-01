@@ -6,6 +6,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.allocators.VulkanPipelineAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanGraphicPipelineException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanDepthResources;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
@@ -34,23 +35,26 @@ public class VulkanPipeline {
     private static final int ATTRIBUTE_UNIFORM_SIZE = UNIFORM_COUNT_VEC4 + UNIFORM_COUNT_INT;
     private static final int[] DYNAMIC_STATE_FLAGS = new int[]{ VK10.VK_DYNAMIC_STATE_LINE_WIDTH };
     
+    private final VulkanPipelineAllocator allocator;
     private final VulkanAddress graphicsPipeline = VulkanAddress.createNull();
     private final VulkanRenderPass renderPass;
     private final VulkanPhysicalDevice device;
     private final VulkanAddress pipelineLayout;
     private final int topologyType;
-    private final boolean isBackground;
+    private final boolean pipelinesFirstUseOnly;
     
-    VulkanPipeline(
+    public VulkanPipeline(
+        VulkanPipelineAllocator allocator,
         VulkanPhysicalDevice device,
         VulkanAddress pipelineLayout,
         int topologyType,
-        boolean isBackground
+        boolean pipelinesFirstUseOnly
     ) {
+        this.allocator = allocator;
         this.device = device;
         this.pipelineLayout = pipelineLayout;
         this.topologyType = topologyType;
-        this.isBackground = isBackground;
+        this.pipelinesFirstUseOnly = pipelinesFirstUseOnly;
         this.renderPass = new VulkanRenderPass( device );
     }
     
@@ -59,6 +63,10 @@ public class VulkanPipeline {
     }
     
     public void dispose() {
+        allocator.deregisterPipeline( this );
+    }
+    
+    public void disposeUnsafe() {
         renderPass.dispose();
         if ( graphicsPipeline.isNotNull() ) {
             VK10.vkDestroyPipeline(
@@ -70,7 +78,7 @@ public class VulkanPipeline {
         }
     }
     
-    void update(
+    public void update(
         VulkanSwapChain swapChain,
         List< VkPipelineShaderStageCreateInfo > shaderStages,
         VulkanDepthResources depthResources
@@ -78,7 +86,7 @@ public class VulkanPipeline {
         renderPass.updateRenderPass(
             swapChain,
             depthResources,
-            isBackground
+            pipelinesFirstUseOnly
         );
         createGraphicPipeline(
             graphicsPipeline,
