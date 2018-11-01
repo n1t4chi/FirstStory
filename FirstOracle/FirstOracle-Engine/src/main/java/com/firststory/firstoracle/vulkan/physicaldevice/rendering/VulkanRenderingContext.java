@@ -13,10 +13,7 @@ import com.firststory.firstoracle.rendering.RenderData;
 import com.firststory.firstoracle.rendering.RenderingContext;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanImageIndex;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanSemaphore;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanSwapChain;
+import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
 import org.lwjgl.vulkan.VkSubmitInfo;
@@ -42,6 +39,8 @@ public class VulkanRenderingContext implements RenderingContext {
     
     private final VulkanFrameworkAllocator allocator;
     private final VulkanPhysicalDevice device;
+    private final boolean shouldDrawBorder;
+    private final boolean shouldDrawTextures;
     private final List< VulkanDataBuffer > dataBuffers = new ArrayList<>( 5000 );
     
     private final VulkanStage background = new VulkanStage();
@@ -51,11 +50,6 @@ public class VulkanRenderingContext implements RenderingContext {
     private final ExecutorService executorService;
     
     private final Deque< VulkanDataBuffer > availableDataBuffers = new LinkedList<>();
-    
-    private final VulkanRenderStageWorker backgroundWorker;
-    private final VulkanRenderStageWorker scene2DWorker;
-    private final VulkanRenderStageWorker scene3DWorker;
-    private final VulkanRenderStageWorker overlayWorker;
     
     private Colour backgroundColour;
     
@@ -77,39 +71,9 @@ public class VulkanRenderingContext implements RenderingContext {
     ) {
         this.allocator = allocator;
         this.device = device;
+        this.shouldDrawBorder = shouldDrawBorder;
+        this.shouldDrawTextures = shouldDrawTextures;
         executorService = Executors.newFixedThreadPool( 8 );
-        backgroundWorker = new VulkanRenderStageWorker(
-            device,
-            dataBuffers,
-            availableDataBuffers,
-            shouldDrawTextures,
-            shouldDrawBorder,
-            background
-        );
-        scene2DWorker = new VulkanRenderStageWorker(
-            device,
-            dataBuffers,
-            availableDataBuffers,
-            shouldDrawTextures,
-            shouldDrawBorder,
-            scene2D
-        );
-        scene3DWorker = new VulkanRenderStageWorker(
-            device,
-            dataBuffers,
-            availableDataBuffers,
-            shouldDrawTextures,
-            shouldDrawBorder,
-            scene3D
-        );
-        overlayWorker = new VulkanRenderStageWorker(
-            device,
-            dataBuffers,
-            availableDataBuffers,
-            shouldDrawTextures,
-            shouldDrawBorder,
-            overlay
-        );
     }
     
     public void dispose() {
@@ -169,43 +133,44 @@ public class VulkanRenderingContext implements RenderingContext {
         availableDataBuffers.addAll( dataBuffers );
         
         var frameBuffer = device.getCurrentFrameBuffer();
-        
-        var backgroundFuture = executorService.submit( backgroundWorker.prepare(
+    
+        var backgroundFuture = executorService.submit( createWorker(
+            trianglePipelines,
+            linePipelines,
+            swapChain,
+            frameBuffer,
             trianglePipelines.getBackgroundPipeline(),
             linePipelines.getBackgroundPipeline(),
+            background
+        ) );
+        var scene2DFuture = executorService.submit( createWorker(
+            trianglePipelines,
+            linePipelines,
             swapChain,
             frameBuffer,
-            backgroundColour,
-            linePipelines,
-            trianglePipelines
-        ) );
-        var scene2DFuture = executorService.submit( scene2DWorker.prepare(
             trianglePipelines.getScene2DPipeline(),
             linePipelines.getScene2DPipeline(),
+            scene2D
+        ) );
+        var scene3DFuture = executorService.submit( createWorker(
+            trianglePipelines,
+            linePipelines,
             swapChain,
             frameBuffer,
-            backgroundColour,
-            linePipelines,
-            trianglePipelines
-        ) );
-        var scene3DFuture = executorService.submit( scene3DWorker.prepare(
             trianglePipelines.getScene3DPipeline(),
             linePipelines.getScene3DPipeline(),
+            scene3D
+        ) );
+        var overlayFuture = executorService.submit( createWorker(
+            trianglePipelines,
+            linePipelines,
             swapChain,
             frameBuffer,
-            backgroundColour,
-            linePipelines,
-            trianglePipelines
-        ) );
-        var overlayFuture = executorService.submit( overlayWorker.prepare(
             trianglePipelines.getOverlayPipeline(),
             linePipelines.getOverlayPipeline(),
-            swapChain,
-            frameBuffer,
-            backgroundColour,
-            linePipelines,
-            trianglePipelines
+            this.overlay
         ) );
+        
         var backgroundBatchDatas = waitAndGet( backgroundFuture, BACKGROUND );
         var scene2dBatchDatas = waitAndGet( scene2DFuture, SCENE_2D );
         var scene3dBatchDatas = waitAndGet( scene3DFuture, SCENE_3D );
@@ -239,6 +204,32 @@ public class VulkanRenderingContext implements RenderingContext {
             processedInfo.getSemaphores().forEach( VulkanSemaphore::dispose );
             batchDatas.forEach( VulkanRenderBatchData::dispose );
         } );
+    }
+    
+    public VulkanRenderStageWorker createWorker(
+        VulkanGraphicPipelines trianglePipelines,
+        VulkanGraphicPipelines linePipelines,
+        VulkanSwapChain swapChain,
+        VulkanFrameBuffer frameBuffer,
+        VulkanPipeline trianglePipeline,
+        VulkanPipeline linePipeline,
+        VulkanStage stage
+    ) {
+        return new VulkanRenderStageWorker(
+            device,
+            dataBuffers,
+            availableDataBuffers,
+            shouldDrawTextures,
+            shouldDrawBorder,
+            stage,
+            trianglePipeline,
+            linePipeline,
+            swapChain,
+            frameBuffer,
+            backgroundColour,
+            linePipelines,
+            trianglePipelines
+        );
     }
     
     private VulkanRenderBatchDatasProcessedInfo processBatchDatas(

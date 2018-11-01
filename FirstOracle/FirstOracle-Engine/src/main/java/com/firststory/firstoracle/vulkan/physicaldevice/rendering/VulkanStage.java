@@ -8,10 +8,7 @@ import com.firststory.firstoracle.Camera;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.rendering.RenderData;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -19,6 +16,7 @@ import java.util.Map;
 class VulkanStage {
     
     private final Map< Texture, List< RenderData > > renderDataByTexture = new HashMap<>();
+    private final Set< Texture > textures = new HashSet<>();
     private Camera camera;
     
     void setCamera( Camera camera ) {
@@ -26,16 +24,16 @@ class VulkanStage {
     }
     
     void addRenderData( RenderData data ) {
-        renderDataByTexture
-            .computeIfAbsent(
-                data.getTexture(),
-                texture -> new ArrayList<>()
-            )
-            .add( data );
+        renderDataByTexture.computeIfAbsent( data.getTexture(), texture -> new ArrayList<>() ).add( data );
+        textures.add( data.getTexture() );
     }
     
     Map< Texture, List< RenderData > > getRenderDataByTexture() {
         return renderDataByTexture;
+    }
+    
+    Set< Texture > getTextures() {
+        return textures;
     }
     
     Camera getCamera() {

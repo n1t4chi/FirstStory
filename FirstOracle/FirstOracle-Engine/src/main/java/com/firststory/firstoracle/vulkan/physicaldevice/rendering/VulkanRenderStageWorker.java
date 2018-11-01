@@ -45,28 +45,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         Deque< VulkanDataBuffer > availableDataBuffers,
         boolean shouldDrawTextures,
         boolean shouldDrawBorder,
-        VulkanStage stage
-    ) {
-        this.device = device;
-        this.stage = stage;
-        textureSampler = device.getTextureSampler();
-        this.dataBuffers = dataBuffers;
-        this.availableDataBuffers = availableDataBuffers;
-        this.shouldDrawTextures = shouldDrawTextures;
-        this.shouldDrawBorder = shouldDrawBorder;
-    }
-    
-    @Override
-    public VulkanRenderBatchData call() {
-        return renderStage(
-            stage,
-            trianglePipeline,
-            linePipeline,
-            swapChain
-        );
-    }
-    
-    VulkanRenderStageWorker prepare(
+        VulkanStage stage,
         VulkanPipeline trianglePipeline,
         VulkanPipeline linePipeline,
         VulkanSwapChain swapChain,
@@ -75,6 +54,13 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         VulkanGraphicPipelines linePipelines,
         VulkanGraphicPipelines trianglePipelines
     ) {
+        this.device = device;
+        this.stage = stage;
+        textureSampler = device.getTextureSampler();
+        this.dataBuffers = dataBuffers;
+        this.availableDataBuffers = availableDataBuffers;
+        this.shouldDrawTextures = shouldDrawTextures;
+        this.shouldDrawBorder = shouldDrawBorder;
         this.trianglePipeline = trianglePipeline;
         this.linePipeline = linePipeline;
         this.swapChain = swapChain;
@@ -82,24 +68,20 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         this.backgroundColour = backgroundColour;
         this.linePipelines = linePipelines;
         this.trianglePipelines = trianglePipelines;
-        return this;
     }
     
-    private VulkanRenderBatchData renderStage(
-        VulkanStage stage,
-        VulkanPipeline trianglePipeline,
-        VulkanPipeline linePipeline,
-        VulkanSwapChain swapChain
-    ) {
+    @Override
+    public VulkanRenderBatchData call() {
+        return renderStage();
+    }
+    
+    private VulkanRenderBatchData renderStage() {
         var camera = stage.getCamera();
         var renderDataByTexture = stage.getRenderDataByTexture();
+        var textures = stage.getTextures();
         var renderPass = trianglePipeline.getRenderPass();
         
-        var
-            commandPool =
-            device
-                .getAllocator()
-                .createGraphicCommandPool();
+        var commandPool = device.getAllocator().createGraphicCommandPool();
         var primaryBuffer = commandPool.provideNextPrimaryBuffer();
         primaryBuffer.fillQueueSetup();
         primaryBuffer.beginRenderPass(
@@ -113,11 +95,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         var descriptorsPools = new ArrayList< VulkanDescriptorPool >();
         if ( !renderDataByTexture.isEmpty() ) {
             var shader = device.getShaderProgram3D();
-            var
-                descriptorPool =
-                device
-                    .getDescriptor()
-                    .createDescriptorPool( renderDataByTexture.size() );
+            var descriptorPool = device.getDescriptor().createDescriptorPool( renderDataByTexture.size() );
             descriptorsPools.add( descriptorPool );
     
             shader.bindCamera( camera.getMatrixRepresentation() );
@@ -165,13 +143,10 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         List< RenderData > renderDataList
     ) {
         var holder = new VulkanLastPipelineHolder();
-        var
-            textureBuffer =
-            device
-                .getTextureLoader()
-                .bind( shouldDrawTextures
-                    ? texture
-                    : FirstOracleConstants.EMPTY_TEXTURE );
+        var textureBuffer = device.getTextureLoader().bind( shouldDrawTextures
+            ? texture
+            : FirstOracleConstants.EMPTY_TEXTURE
+        );
         
         var descriptorSet = descriptorPool.getNextDescriptorSet();
         descriptorSet.updateDescriptorSet(
