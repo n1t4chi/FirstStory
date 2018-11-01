@@ -27,7 +27,7 @@ public class VulkanDescriptorSet {
         this.descriptor = descriptor;
         this.descriptorPool = descriptorPool;
     
-        var allocateInfo = VkDescriptorSetAllocateInfo.create()
+        var allocateInfo = VkDescriptorSetAllocateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO )
             .descriptorPool( descriptorPool.getAddress().getValue() )
             .pSetLayouts( MemoryUtil.memAllocLong( 1 ).put( 0, descriptor.getDescriptorSetLayout().getValue() ) );
@@ -43,14 +43,14 @@ public class VulkanDescriptorSet {
     }
     
     void updateDescriptorSet( VulkanTextureSampler sampler, VulkanTextureData textureData, VkDescriptorBufferInfo uniformBufferInfo ) {
-        var imageInfo = VkDescriptorImageInfo.create( 1 )
+        var imageInfo = VkDescriptorImageInfo.calloc( 1 )
             .put( 0, sampler.createImageInfo( textureData ) );
         
         VK10.vkUpdateDescriptorSets( descriptor.getDevice().getLogicalDevice(),
-            VkWriteDescriptorSet.create( 2 )
+            VkWriteDescriptorSet.calloc( 2 )
                 .put( 0, createDescriptorWrite( 0,
                     VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    VkDescriptorBufferInfo.create( 1 ).put( 0, uniformBufferInfo ),
+                    VkDescriptorBufferInfo.calloc( 1 ).put( 0, uniformBufferInfo ),
                     null
                 ) )
                 .put( 1, createDescriptorWrite( 1,
@@ -72,7 +72,7 @@ public class VulkanDescriptorSet {
         VkDescriptorBufferInfo.Buffer bufferInfos,
         VkDescriptorImageInfo.Buffer imageInfos
     ) {
-        return VkWriteDescriptorSet.create()
+        return VkWriteDescriptorSet.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET )
             .dstSet( descriptorSet.getValue() )
             .dstBinding( bindingIndex )

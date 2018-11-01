@@ -55,8 +55,8 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
 
     void createMipMaps() {
-        getDevice().getTextureTransferCommandPool().executeQueueLater( commandBuffer -> {
-            var barrier = createImageMemoryBarrier( VkImageSubresourceRange.create()
+        getDevice().getTextureTransferCommandPool().addTransferCommands( commandBuffer -> {
+            var barrier = createImageMemoryBarrier( VkImageSubresourceRange.calloc()
                 .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
                 .baseArrayLayer( 0 )
                 .layerCount( 1 )
@@ -182,7 +182,7 @@ public class VulkanInMemoryImage extends VulkanImage {
         }
         
         
-        getDevice().getTextureTransferCommandPool().executeQueueLater( commandBuffer ->
+        getDevice().getTextureTransferCommandPool().addTransferCommands( commandBuffer ->
             invokePipelineBarrier(
                 srcStageMask,
                 dstStageMask,
@@ -206,10 +206,10 @@ public class VulkanInMemoryImage extends VulkanImage {
         int tiling,
         int[] usageFlags
     ) {
-        var imageCreateInfo = VkImageCreateInfo.create()
+        var imageCreateInfo = VkImageCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO )
             .imageType( VK10.VK_IMAGE_TYPE_2D )
-            .extent( VkExtent3D.create().set( width, height, 1 ) )
+            .extent( VkExtent3D.calloc().set( width, height, 1 ) )
             .mipLevels( calculateMipLevels( width, height ) )
             .arrayLayers( 1 )
             .format( format )
@@ -245,7 +245,7 @@ public class VulkanInMemoryImage extends VulkanImage {
         VkMemoryRequirements memoryRequirements,
         VulkanMemoryType memoryType
     ) {
-        var allocateInfo = VkMemoryAllocateInfo.create()
+        var allocateInfo = VkMemoryAllocateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO )
             .allocationSize( memoryRequirements.size() )
             .memoryTypeIndex( memoryType.getIndex() );
@@ -272,7 +272,7 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
     
     private VulkanAddress bindImageMemory( VulkanPhysicalDevice device, int[] desiredMemoryFlags, VulkanAddress image ) {
-        var memoryRequirements = VkMemoryRequirements.create();
+        var memoryRequirements = VkMemoryRequirements.calloc();
         VK10.vkGetImageMemoryRequirements( device.getLogicalDevice(), image.getValue(), memoryRequirements );
     
         var memoryType = device.selectMemoryType( memoryRequirements.memoryTypeBits(),
@@ -284,18 +284,18 @@ public class VulkanInMemoryImage extends VulkanImage {
     private void invokeBlitImage( VulkanTransferCommandBuffer commandBuffer, int mipWidth, int mipHeight, int index ) {
         var minw2 = Math.max( 1, mipWidth / 2 );
         var miph2 = Math.max( 1, mipHeight / 2 );
-        var blit = VkImageBlit.create()
-            .srcOffsets( 0, VkOffset3D.create().set( 0,0,0 ) )
-            .srcOffsets( 1, VkOffset3D.create().set( mipWidth, mipHeight, 1 ) )
-            .srcSubresource( VkImageSubresourceLayers.create()
+        var blit = VkImageBlit.calloc()
+            .srcOffsets( 0, VkOffset3D.calloc().set( 0,0,0 ) )
+            .srcOffsets( 1, VkOffset3D.calloc().set( mipWidth, mipHeight, 1 ) )
+            .srcSubresource( VkImageSubresourceLayers.calloc()
                 .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
                 .mipLevel( index - 1 )
                 .baseArrayLayer( 0 )
                 .layerCount( 1 )
             )
-            .dstOffsets( 0,  VkOffset3D.create().set( 0, 0, 0 ) )
-            .dstOffsets( 1, VkOffset3D.create().set( minw2, miph2, 1 ) )
-            .dstSubresource( VkImageSubresourceLayers.create()
+            .dstOffsets( 0,  VkOffset3D.calloc().set( 0, 0, 0 ) )
+            .dstOffsets( 1, VkOffset3D.calloc().set( minw2, miph2, 1 ) )
+            .dstSubresource( VkImageSubresourceLayers.calloc()
                 .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
                 .mipLevel( index )
                 .baseArrayLayer( 0 )
@@ -307,7 +307,7 @@ public class VulkanInMemoryImage extends VulkanImage {
             VK10.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
             getAddress().getValue(),
             VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VkImageBlit.create( 1 ).put( 0, blit ),
+            VkImageBlit.calloc( 1 ).put( 0, blit ),
             VK10.VK_FILTER_LINEAR
         );
     }
@@ -329,7 +329,7 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
     
     private VkImageMemoryBarrier.Buffer createSingleMemoryBarrierBuffer( VkImageMemoryBarrier barrier ) {
-        return VkImageMemoryBarrier.create( 1 ).put( 0, barrier );
+        return VkImageMemoryBarrier.calloc( 1 ).put( 0, barrier );
     }
     
     private int calculateMipLevels() {
@@ -353,7 +353,7 @@ public class VulkanInMemoryImage extends VulkanImage {
         }
     
         return createImageMemoryBarrier(
-                VkImageSubresourceRange.create()
+                VkImageSubresourceRange.calloc()
                     .aspectMask( aspectColorBit )
                     .baseMipLevel( 0 )
                     .levelCount( calculateMipLevels() )
@@ -368,7 +368,7 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
     
     private VkImageMemoryBarrier createImageMemoryBarrier( VkImageSubresourceRange subresourceRange ) {
-        return VkImageMemoryBarrier.create()
+        return VkImageMemoryBarrier.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER )
             .image( getAddress().getValue() )
             .srcQueueFamilyIndex( VK10.VK_QUEUE_FAMILY_IGNORED )

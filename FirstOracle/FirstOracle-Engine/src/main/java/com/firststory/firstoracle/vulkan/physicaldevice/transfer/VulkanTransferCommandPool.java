@@ -37,7 +37,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         bufferAllocator = allocator.createBufferAllocator( this::createNewCommandBuffer );
     }
     
-    public void putDataToTransferForLater(
+    public void addTransferData(
         VulkanAddress source,
         long sourceOffset,
         VulkanAddress destination,
@@ -55,7 +55,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         }
     }
     
-    public void executeQueueLater( VulkanCommand< VulkanTransferCommandBuffer > commands ) {
+    public void addTransferCommands( VulkanCommand< VulkanTransferCommandBuffer > commands ) {
         synchronized ( allCommands ) {
             allCommands.add( commands );
         }
@@ -143,7 +143,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         VulkanTransferCommandBuffer commandBuffer,
         VulkanSemaphore semaphore
     ) {
-        var submitInfo = VkSubmitInfo.create()
+        var submitInfo = VkSubmitInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
             .pCommandBuffers( MemoryUtil.memAllocPointer( 1 )
                 .put( 0, commandBuffer.getAddress().getValue() )

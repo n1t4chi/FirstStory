@@ -20,8 +20,8 @@ public class VulkanTransferData {
     private long destinationOffset;
     private long length;
     private int id;
-    private final VkBufferCopy region = VkBufferCopy.create();
-    private final VkBufferCopy.Buffer regions = VkBufferCopy.create( 1 ).put( 0, region );
+    private final VkBufferCopy region = VkBufferCopy.calloc();
+    private final VkBufferCopy.Buffer regions = VkBufferCopy.calloc( 1 ).put( 0, region );
     
     public VulkanTransferData() {
         id = id_t++;

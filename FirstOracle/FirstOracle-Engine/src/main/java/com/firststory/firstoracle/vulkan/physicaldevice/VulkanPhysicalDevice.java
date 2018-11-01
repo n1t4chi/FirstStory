@@ -398,7 +398,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private Set< VulkanFormatProperty > createFormatProperties( Set< Integer > candidates ) {
         Set< VulkanFormatProperty > properties = new HashSet<>(  );
         for( var format : candidates ) {
-            var property = VkFormatProperties.create();
+            var property = VkFormatProperties.calloc();
             VK10.vkGetPhysicalDeviceFormatProperties( physicalDevice, format, property );
             properties.add( new VulkanFormatProperty( format, property ) );
         }
@@ -425,7 +425,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private VkPhysicalDeviceMemoryProperties createPhysicalDeviceMemoryProperties() {
-        var memoryProperties = VkPhysicalDeviceMemoryProperties.create();
+        var memoryProperties = VkPhysicalDeviceMemoryProperties.calloc();
         VK10.vkGetPhysicalDeviceMemoryProperties( physicalDevice, memoryProperties );
         return memoryProperties;
     }
@@ -514,7 +514,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private List< VkExtensionProperties > createExtensionProperties() {
         var extensionCount = new int[1];
         VK10.vkEnumerateDeviceExtensionProperties( physicalDevice, ( ByteBuffer ) null, extensionCount, null );
-        var extensionPropertiesBuffer = VkExtensionProperties.create( extensionCount[0] );
+        var extensionPropertiesBuffer = VkExtensionProperties.calloc( extensionCount[0] );
         VK10.vkEnumerateDeviceExtensionProperties( physicalDevice,
             ( ByteBuffer ) null,
             extensionCount,
@@ -526,7 +526,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private VkDeviceCreateInfo createDeviceCreateInfo() {
-        return VkDeviceCreateInfo.create()
+        return VkDeviceCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO )
             .pNext( VK10.VK_NULL_HANDLE )
             .pEnabledFeatures( features )
@@ -537,7 +537,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private VkDeviceQueueCreateInfo.Buffer createQueueFamilyBuffer() {
         var buffer = createVkDeviceQueueCreateInfoBuffer( usedQueueFamilies.size() );
         usedQueueFamilies.forEach( family -> {
-            var queueInfo = VkDeviceQueueCreateInfo.create()
+            var queueInfo = VkDeviceQueueCreateInfo.calloc()
                 .sType( VK10.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO )
                 .queueFamilyIndex( family.getIndex() )
                 .pQueuePriorities( MemoryStack.stackFloats( 1.0f ) );
@@ -553,7 +553,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private VkPhysicalDeviceFeatures createDeviceFeatures() {
-        var features = VkPhysicalDeviceFeatures.create()
+        var features = VkPhysicalDeviceFeatures.calloc()
             .samplerAnisotropy( true )
             ;
         VK10.vkGetPhysicalDeviceFeatures( physicalDevice, features );
@@ -561,7 +561,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private VkPhysicalDeviceProperties createDeviceProperties() {
-        var properties = VkPhysicalDeviceProperties.create();
+        var properties = VkPhysicalDeviceProperties.calloc();
         VK10.vkGetPhysicalDeviceProperties( physicalDevice, properties );
         return properties;
     }
@@ -657,7 +657,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private List< VulkanQueueFamily > getAvailableQueueFamilies() {
         var queueFamilyCount = new int[1];
         VK10.vkGetPhysicalDeviceQueueFamilyProperties( physicalDevice, queueFamilyCount, null );
-        var queueFamilyPropertiesBuffer = VkQueueFamilyProperties.create( queueFamilyCount[0] );
+        var queueFamilyPropertiesBuffer = VkQueueFamilyProperties.calloc( queueFamilyCount[0] );
         VK10.vkGetPhysicalDeviceQueueFamilyProperties( physicalDevice, queueFamilyCount, queueFamilyPropertiesBuffer );
         List< VulkanQueueFamily > queueFamilyProperties = new ArrayList<>( queueFamilyCount[0] );
         

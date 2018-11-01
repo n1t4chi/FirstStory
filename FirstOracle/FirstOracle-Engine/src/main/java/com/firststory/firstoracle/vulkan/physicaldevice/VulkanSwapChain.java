@@ -90,7 +90,7 @@ public class VulkanSwapChain {
     }
     
     public void presentQueue( VulkanImageIndex index ) {
-        var presentInfo = VkPresentInfoKHR.create()
+        var presentInfo = VkPresentInfoKHR.calloc()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR )
             .pWaitSemaphores( MemoryUtil.memAllocLong( 1 ).put( 0, index.getRenderFinishedSemaphore().getAddress().getValue() ) )
             .pSwapchains( MemoryUtil.memAllocLong( 1 ).put( 0, address.getValue() ) )
@@ -169,7 +169,7 @@ public class VulkanSwapChain {
     }
     
     private VkSwapchainCreateInfoKHR createSwapChainCreateInfo( VulkanWindowSurface windowSurface ) {
-        var createInfo = VkSwapchainCreateInfoKHR.create()
+        var createInfo = VkSwapchainCreateInfoKHR.calloc()
             .sType( KHRSwapchain.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR )
             .surface( windowSurface.getAddress().getValue() )
             .minImageCount( imageCount )
@@ -287,7 +287,7 @@ public class VulkanSwapChain {
             formatCount,
             null
         );
-        var formatsBuffer = VkSurfaceFormatKHR.create( formatCount[0] );
+        var formatsBuffer = VkSurfaceFormatKHR.calloc( formatCount[0] );
         KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR( physicalDevice,
             windowSurface.getAddress().getValue(),
             formatCount,
@@ -301,7 +301,7 @@ public class VulkanSwapChain {
         VkPhysicalDevice physicalDevice,
         VulkanWindowSurface windowSurface
     ) {
-        var capabilities = VkSurfaceCapabilitiesKHR.create();
+        var capabilities = VkSurfaceCapabilitiesKHR.calloc();
         KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR( physicalDevice,
             windowSurface.getAddress().getValue(),
             capabilities

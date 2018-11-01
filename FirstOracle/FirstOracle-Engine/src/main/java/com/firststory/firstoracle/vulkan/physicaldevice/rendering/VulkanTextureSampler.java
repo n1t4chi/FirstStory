@@ -38,14 +38,14 @@ public class VulkanTextureSampler {
     }
     
     VkDescriptorImageInfo createImageInfo( VulkanTextureData textureData ) {
-        return VkDescriptorImageInfo.create()
+        return VkDescriptorImageInfo.calloc()
             .imageLayout( VK10.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
             .imageView( textureData.getImageView().getAddress().getValue() )
             .sampler( samplerAddress.getValue() );
     }
     
     private VulkanAddress createTextureSampler() {
-        var createInfo = VkSamplerCreateInfo.create()
+        var createInfo = VkSamplerCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO )
             .magFilter( VK10.VK_FILTER_LINEAR )
             .minFilter( VK10.VK_FILTER_LINEAR )

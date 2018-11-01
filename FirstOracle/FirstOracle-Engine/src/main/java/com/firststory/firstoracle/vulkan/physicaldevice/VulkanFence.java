@@ -80,7 +80,7 @@ public class VulkanFence {
     }
     
     private VulkanAddress createFence() {
-        return VulkanHelper.createAddress( () -> VkFenceCreateInfo.create()
+        return VulkanHelper.createAddress( () -> VkFenceCreateInfo.calloc()
                 .sType( VK10.VK_STRUCTURE_TYPE_FENCE_CREATE_INFO )
                 .flags( FirstOracleConstants.NO_FLAGS )
                 .pNext( VK10.VK_NULL_HANDLE )

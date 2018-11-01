@@ -67,12 +67,12 @@ public class VulkanQueueFamily {
     }
     
     public void submit( VulkanFence fence, VkSubmitInfo submitInfo ) {
-        var buffer = VkSubmitInfo.create( 1 ).put( 0, submitInfo );
+        var buffer = VkSubmitInfo.calloc( 1 ).put( 0, submitInfo );
         submit( fence, buffer );
     }
     
     public void submit( VulkanFence fence, List< VkSubmitInfo > submitInfos ) {
-        var buffer = VkSubmitInfo.create( submitInfos.size() );
+        var buffer = VkSubmitInfo.calloc( submitInfos.size() );
         for ( int i = 0, length = submitInfos.size(); i < length; i++ ) {
             buffer.put( i, submitInfos.get( i ) );
         }

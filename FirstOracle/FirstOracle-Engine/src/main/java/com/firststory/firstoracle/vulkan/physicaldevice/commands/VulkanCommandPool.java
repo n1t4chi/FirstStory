@@ -89,7 +89,7 @@ public abstract class VulkanCommandPool {
     }
     
     private VkCommandBufferAllocateInfo createAllocateInfo( int size, int bufferLevel ) {
-        return VkCommandBufferAllocateInfo.create()
+        return VkCommandBufferAllocateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO )
             .commandPool( address.getValue() )
             .level( bufferLevel )
@@ -105,7 +105,7 @@ public abstract class VulkanCommandPool {
     }
     
     private VkCommandPoolCreateInfo createCommandPoolCreateInfo() {
-        return VkCommandPoolCreateInfo.create()
+        return VkCommandPoolCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO )
             .queueFamilyIndex( usedQueueFamily.getIndex() )
             .flags(

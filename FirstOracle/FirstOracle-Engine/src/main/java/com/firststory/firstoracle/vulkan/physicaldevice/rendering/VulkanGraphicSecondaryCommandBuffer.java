@@ -41,7 +41,7 @@ public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer< Vu
         int subpassIndex,
         VulkanFrameBuffer frameBuffer
     ) {
-        inheritanceInfo = VkCommandBufferInheritanceInfo.create()
+        inheritanceInfo = VkCommandBufferInheritanceInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO )
             .renderPass( renderPass.getAddress().getValue() )
             .subpass( subpassIndex )

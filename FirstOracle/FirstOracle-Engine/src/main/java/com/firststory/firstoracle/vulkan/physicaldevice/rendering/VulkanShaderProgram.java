@@ -163,7 +163,7 @@ public class VulkanShaderProgram implements ShaderProgram {
     }
     
     private VkDescriptorBufferInfo createDescriptorBufferInfo( VulkanDataBuffer uniformBuffer ) {
-        return VkDescriptorBufferInfo.create()
+        return VkDescriptorBufferInfo.calloc()
             .buffer( uniformBuffer.getBufferAddress().getValue() )
             .offset( uniformBuffer.getMemoryOffset() )
             .range( UNIFORM_DATA_SIZE );

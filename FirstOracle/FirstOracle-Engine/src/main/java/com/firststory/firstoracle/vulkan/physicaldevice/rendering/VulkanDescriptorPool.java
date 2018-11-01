@@ -51,9 +51,9 @@ public class VulkanDescriptorPool {
     }
     
     private VulkanAddress createDescriptorPool() {
-        var createInfo = VkDescriptorPoolCreateInfo.create()
+        var createInfo = VkDescriptorPoolCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO )
-            .pPoolSizes( VkDescriptorPoolSize.create( 2 )
+            .pPoolSizes( VkDescriptorPoolSize.calloc( 2 )
                 .put( 0, createPoolSize( VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ) )
                 .put( 1, createPoolSize( VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ) ) )
             .maxSets( setCount );
@@ -68,7 +68,7 @@ public class VulkanDescriptorPool {
     }
     
     private VkDescriptorPoolSize createPoolSize( int type ) {
-        return VkDescriptorPoolSize.create().type( type ).descriptorCount( setCount );
+        return VkDescriptorPoolSize.calloc().type( type ).descriptorCount( setCount );
     }
     
     private VulkanDescriptorSet createDescriptorSet() {

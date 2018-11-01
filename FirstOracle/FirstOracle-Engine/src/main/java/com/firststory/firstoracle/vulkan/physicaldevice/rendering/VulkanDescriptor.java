@@ -52,7 +52,7 @@ public class VulkanDescriptor {
     }
     
     private VulkanAddress createDescriptorSetLayout() {
-        var createInfo = VkDescriptorSetLayoutCreateInfo.create()
+        var createInfo = VkDescriptorSetLayoutCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO )
             .pBindings( VkDescriptorSetLayoutBinding.calloc( 2 )
                 .put( 0,
@@ -73,7 +73,7 @@ public class VulkanDescriptor {
     }
     
     private VkDescriptorSetLayoutBinding createLayoutBinding( int index, int count, int type, int stageFlag ) {
-        return VkDescriptorSetLayoutBinding.create()
+        return VkDescriptorSetLayoutBinding.calloc()
             .binding( index )
             .descriptorType( type )
             .descriptorCount( count )

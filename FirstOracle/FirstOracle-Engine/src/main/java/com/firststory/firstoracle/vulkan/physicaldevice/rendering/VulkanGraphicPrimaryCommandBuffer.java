@@ -79,7 +79,7 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
         VulkanFrameBuffer frameBuffer,
         Colour backgroundColour
     ) {
-        return VkRenderPassBeginInfo.create()
+        return VkRenderPassBeginInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO )
             .renderPass( renderPass.getAddress().getValue() )
             .framebuffer( frameBuffer.getAddress().getValue() )
@@ -88,24 +88,24 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
     }
     
     private VkRect2D createRenderArea( VulkanSwapChain swapChain ) {
-        return VkRect2D.create()
-            .offset( VkOffset2D.create().set( 0, 0 ) )
+        return VkRect2D.calloc()
+            .offset( VkOffset2D.calloc().set( 0, 0 ) )
             .extent( swapChain.getExtent() );
     }
     
     private VkClearValue.Buffer createClearValue( Colour colour ) {
-        return VkClearValue.create( 2 )
+        return VkClearValue.calloc( 2 )
             .put( 0, createClearColour( colour ) )
             .put( 1, createDepthStencil() )
         ;
     }
     
     private VkClearValue createDepthStencil() {
-        return VkClearValue.create().depthStencil( VkClearDepthStencilValue.create().depth( 1f ).stencil( 0 ) );
+        return VkClearValue.create().depthStencil( VkClearDepthStencilValue.calloc().depth( 1f ).stencil( 0 ) );
     }
     
     private VkClearValue createClearColour( Colour colour ) {
-        return VkClearValue.create().color( VkClearColorValue.create()
+        return VkClearValue.create().color( VkClearColorValue.calloc()
             .float32( 0, colour.red() )
             .float32( 1, colour.green() )
             .float32( 2, colour.blue() )

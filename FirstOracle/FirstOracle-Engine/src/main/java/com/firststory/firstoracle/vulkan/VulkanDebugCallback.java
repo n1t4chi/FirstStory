@@ -32,7 +32,7 @@ public class VulkanDebugCallback {
         if( PropertiesUtil.isDebugMode() ) {
             var callback = VkDebugReportCallbackEXT.create( new DebugLogger() );
             var createInfo = VkDebugReportCallbackCreateInfoEXT
-                .create()
+                .calloc()
                 .sType( EXTDebugReport.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT )
                 .flags(
                     EXTDebugReport.VK_DEBUG_REPORT_DEBUG_BIT_EXT |

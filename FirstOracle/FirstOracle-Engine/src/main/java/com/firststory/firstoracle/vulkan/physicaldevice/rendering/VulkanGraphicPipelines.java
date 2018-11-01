@@ -134,7 +134,7 @@ public class VulkanGraphicPipelines {
         List< VkPipelineShaderStageCreateInfo > shaderStages,
         VulkanRenderPass renderPass
     ) {
-        return VkGraphicsPipelineCreateInfo.create()
+        return VkGraphicsPipelineCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO )
             .pStages( createShaderStageCreateInfoBuffer( shaderStages ) )
             .pVertexInputState( createVertexInputStateCreateInfo() )
@@ -154,7 +154,7 @@ public class VulkanGraphicPipelines {
     }
     
     private VkPipelineDepthStencilStateCreateInfo createDepthStencilState() {
-        return VkPipelineDepthStencilStateCreateInfo.create()
+        return VkPipelineDepthStencilStateCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO )
             .depthTestEnable( true )
             .depthWriteEnable( true )
@@ -163,8 +163,8 @@ public class VulkanGraphicPipelines {
             .minDepthBounds( -1f )
             .maxDepthBounds( 1f )
             .stencilTestEnable( false )
-            .front( VkStencilOpState.create() )
-            .back( VkStencilOpState.create() )
+            .front( VkStencilOpState.calloc() )
+            .back( VkStencilOpState.calloc() )
         ;
     }
     

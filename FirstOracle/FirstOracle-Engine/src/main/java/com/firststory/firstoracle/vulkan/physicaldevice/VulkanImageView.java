@@ -67,17 +67,17 @@ public class VulkanImageView {
     
     private VulkanAddress createImageView( VulkanImage image, int format, int aspectMask, int mipLevels ) {
         return VulkanHelper.createAddress(
-            () -> VkImageViewCreateInfo.create()
+            () -> VkImageViewCreateInfo.calloc()
                 .sType( VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO )
                 .image( image.getAddress().getValue() )
                 .viewType( VK10.VK_IMAGE_VIEW_TYPE_2D )
                 .format( format )
-                .components( VkComponentMapping.create()
+                .components( VkComponentMapping.calloc()
                     .a( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
                     .r( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
                     .g( VK10.VK_COMPONENT_SWIZZLE_IDENTITY )
                     .b( VK10.VK_COMPONENT_SWIZZLE_IDENTITY ) )
-                .subresourceRange( VkImageSubresourceRange.create()
+                .subresourceRange( VkImageSubresourceRange.calloc()
                     .aspectMask( aspectMask )
                     .baseMipLevel( 0 )
                     .levelCount( mipLevels )

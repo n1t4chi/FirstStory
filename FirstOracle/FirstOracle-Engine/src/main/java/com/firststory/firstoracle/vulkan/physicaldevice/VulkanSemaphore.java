@@ -52,6 +52,6 @@ public class VulkanSemaphore {
     }
     
     private VkSemaphoreCreateInfo createSemaphoreCreateInfo() {
-        return VkSemaphoreCreateInfo.create().sType( VK10.VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO );
+        return VkSemaphoreCreateInfo.calloc().sType( VK10.VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO );
     }
 }

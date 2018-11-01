@@ -131,7 +131,7 @@ class VulkanInstance {
     private Set< VkLayerProperties > getLayerProperties() {
         var layerCount = new int[1];
         VK10.vkEnumerateInstanceLayerProperties( layerCount, null );
-        var layerBuffer = VkLayerProperties.create( layerCount[0] );
+        var layerBuffer = VkLayerProperties.calloc( layerCount[0] );
         VK10.vkEnumerateInstanceLayerProperties( layerCount, layerBuffer );
         Set< VkLayerProperties > set = new HashSet<>( layerCount[0] );
         layerBuffer.iterator().forEachRemaining( set::add );
@@ -141,7 +141,7 @@ class VulkanInstance {
     private Set< VkExtensionProperties > getExtensionProperties() {
         var propertyCount = new int[1];
         VK10.vkEnumerateInstanceExtensionProperties( ( ByteBuffer ) null, propertyCount, null );
-        var extensionsBuffer = VkExtensionProperties.create( propertyCount[0] );
+        var extensionsBuffer = VkExtensionProperties.calloc( propertyCount[0] );
         VK10.vkEnumerateInstanceExtensionProperties( ( ByteBuffer ) null, propertyCount, extensionsBuffer );
         Set< VkExtensionProperties > set = new HashSet<>( propertyCount[0] );
         extensionsBuffer.iterator().forEachRemaining( set::add );
@@ -187,7 +187,7 @@ class VulkanInstance {
     }
     
     private VkInstanceCreateInfo createCreateInfo() {
-        return VkInstanceCreateInfo.create()
+        return VkInstanceCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO )
             .pNext( VK10.VK_NULL_HANDLE )
             .pApplicationInfo( applicationInfo )
@@ -230,7 +230,7 @@ class VulkanInstance {
         String engineName,
         int engineVersion
     ) {
-        var vulkanInfo = VkApplicationInfo.create();
+        var vulkanInfo = VkApplicationInfo.calloc();
         vulkanInfo.set( VK10.VK_STRUCTURE_TYPE_APPLICATION_INFO,
             VK10.VK_NULL_HANDLE,
             MemoryStack.stackUTF8( applicationName ),

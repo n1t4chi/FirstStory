@@ -112,7 +112,7 @@ public abstract class VulkanCommandBuffer< SELF extends VulkanCommandBuffer< ? >
     }
     
     private VkCommandBufferBeginInfo createBeginInfo() {
-        return VkCommandBufferBeginInfo.create()
+        return VkCommandBufferBeginInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO )
             .flags( VulkanHelper.flagsToInt( usedBeginInfoFlags ) )
             .pInheritanceInfo( createInheritanceInfo() );

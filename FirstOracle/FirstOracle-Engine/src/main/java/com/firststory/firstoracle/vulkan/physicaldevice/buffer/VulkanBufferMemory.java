@@ -185,7 +185,7 @@ public class VulkanBufferMemory extends VulkanLinearMemory< ByteBuffer > {
             VulkanTransferCommandPool commandPool,
             VulkanLinearMemoryLocation location
         ) {
-            commandPool.putDataToTransferForLater(
+            commandPool.addTransferData(
                 this.bufferAddress,
                 location.getPosition(),
                 dstBuffer.bufferAddress,
@@ -244,7 +244,7 @@ public class VulkanBufferMemory extends VulkanLinearMemory< ByteBuffer > {
             VkMemoryRequirements memoryRequirements,
             VulkanMemoryType type
         ) {
-            return VkMemoryAllocateInfo.create()
+            return VkMemoryAllocateInfo.calloc()
                 .sType( VK10.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO )
                 .pNext( VK10.VK_NULL_HANDLE )
                 .allocationSize( memoryRequirements.size() )
@@ -256,7 +256,7 @@ public class VulkanBufferMemory extends VulkanLinearMemory< ByteBuffer > {
         }
         
         private VkMemoryRequirements createMemoryRequirements( VulkanAddress bufferAddress ) {
-            var memoryRequirements = VkMemoryRequirements.create();
+            var memoryRequirements = VkMemoryRequirements.calloc();
             VK10.vkGetBufferMemoryRequirements( device.getLogicalDevice(),
                 bufferAddress.getValue(),
                 memoryRequirements
@@ -266,7 +266,7 @@ public class VulkanBufferMemory extends VulkanLinearMemory< ByteBuffer > {
         
         private VulkanAddress createBuffer( int[] usageFlags, long length ) {
             return VulkanHelper.createAddress( () -> {
-                    var createInfo = VkBufferCreateInfo.create()
+                    var createInfo = VkBufferCreateInfo.calloc()
                         .sType( VK10.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO )
                         .pNext( VK10.VK_NULL_HANDLE )
                         .size( length )

@@ -90,23 +90,22 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
         
         initialTransitionImageLayout( textureData, VK10.VK_FORMAT_R8G8B8A8_UNORM );
         copyBufferToImage( textureData );
-//        postCopyTransitionImageLayout( textureData, VK10.VK_FORMAT_R8G8B8A8_UNORM );
         textureData.getImage().createMipMaps();
     }
     
     private void copyBufferToImage( VulkanTextureData textureData ) {
-        device.getTextureTransferCommandPool().executeQueueLater( commandBuffer -> {
-            var region = VkBufferImageCopy.create()
+        device.getTextureTransferCommandPool().addTransferCommands( commandBuffer -> {
+            var region = VkBufferImageCopy.calloc()
                 .bufferOffset( textureData.getBuffer().getMemoryOffset() )
                 .bufferRowLength( 0 )
                 .bufferImageHeight( 0 )
-                .imageSubresource( VkImageSubresourceLayers.create()
+                .imageSubresource( VkImageSubresourceLayers.calloc()
                     .aspectMask( VK10.VK_IMAGE_ASPECT_COLOR_BIT )
                     .mipLevel( 0 )
                     .baseArrayLayer( 0 )
                     .layerCount( 1 ) )
-                .imageOffset( VkOffset3D.create().set( 0, 0, 0 ) )
-                .imageExtent( VkExtent3D.create().set( textureData.getWidth(), textureData.getHeight(), 1 ) );
+                .imageOffset( VkOffset3D.calloc().set( 0, 0, 0 ) )
+                .imageExtent( VkExtent3D.calloc().set( textureData.getWidth(), textureData.getHeight(), 1 ) );
     
             var regionBuffer = VkBufferImageCopy.calloc( 1 ).put( 0, region );
             

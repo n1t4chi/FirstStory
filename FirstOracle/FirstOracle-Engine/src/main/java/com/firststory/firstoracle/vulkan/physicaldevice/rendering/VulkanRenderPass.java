@@ -47,13 +47,13 @@ public class VulkanRenderPass {
         VulkanDepthResources depthResources,
         boolean isBackground
     ) {
-        return VkRenderPassCreateInfo.create()
+        return VkRenderPassCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
             .pAttachments( VkAttachmentDescription.calloc( 2 )
                 .put( 0, createColourAttachmentDescription( swapChain, isBackground ) )
                 .put( 1, createDepthAttachmentDescription( depthResources ) )
             )
-            .pSubpasses( VkSubpassDescription.create( 1 )
+            .pSubpasses( VkSubpassDescription.calloc( 1 )
                 .put( 0, createSubpassDescription() )
             )
             .pDependencies( VkSubpassDependency.calloc( 1 )
@@ -92,7 +92,7 @@ public class VulkanRenderPass {
         int initialLayout,
         int finalLayout
     ) {
-        return VkAttachmentDescription.create()
+        return VkAttachmentDescription.calloc()
             .format( imageFormat )
             .samples( VK10.VK_SAMPLE_COUNT_1_BIT )
             .loadOp( loadOperation )
@@ -104,7 +104,7 @@ public class VulkanRenderPass {
     }
     
     private VkSubpassDependency createSubpassDependency() {
-        return VkSubpassDependency.create()
+        return VkSubpassDependency.calloc()
             .srcSubpass( VK10.VK_SUBPASS_EXTERNAL )
             .dstSubpass( 0 )
             .srcStageMask( VK10.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT )
@@ -114,10 +114,10 @@ public class VulkanRenderPass {
     }
     
     private VkSubpassDescription createSubpassDescription() {
-        return VkSubpassDescription.create()
+        return VkSubpassDescription.calloc()
             .pipelineBindPoint( VK10.VK_PIPELINE_BIND_POINT_GRAPHICS )
             .colorAttachmentCount( 1 )
-            .pColorAttachments( VkAttachmentReference.create( 1 ).put( 0, createColourAttachmentReference() ) )
+            .pColorAttachments( VkAttachmentReference.calloc( 1 ).put( 0, createColourAttachmentReference() ) )
             .pDepthStencilAttachment( createDepthAttachmentReference() )
             ;
     }
@@ -131,6 +131,6 @@ public class VulkanRenderPass {
     }
     
     private VkAttachmentReference createAttachmentReference( int index, int layout ) {
-        return VkAttachmentReference.create().attachment( index ).layout( layout );
+        return VkAttachmentReference.calloc().attachment( index ).layout( layout );
     }
 }

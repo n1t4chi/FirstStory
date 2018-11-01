@@ -68,7 +68,7 @@ class VulkanShader implements ShaderProgram {
     }
     
     private VkPipelineShaderStageCreateInfo createStageCreateInfo() {
-        var stageCreateInfo = VkPipelineShaderStageCreateInfo.create()
+        var stageCreateInfo = VkPipelineShaderStageCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO )
             .module( address.getValue() )
             .pName( MemoryUtil.memUTF8( "main" ) )
@@ -91,7 +91,7 @@ class VulkanShader implements ShaderProgram {
     private VulkanAddress createShader() throws IOException {
         var value = IOUtilities.readBinaryResource( filepath );
         return VulkanHelper.createAddress(
-            () -> VkShaderModuleCreateInfo.create()
+            () -> VkShaderModuleCreateInfo.calloc()
                 .sType( VK10.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO )
                 .pCode( value ),
             ( createInfo, address ) -> VK10.vkCreateShaderModule( physicalDevice.getLogicalDevice(), createInfo, null, address ),
