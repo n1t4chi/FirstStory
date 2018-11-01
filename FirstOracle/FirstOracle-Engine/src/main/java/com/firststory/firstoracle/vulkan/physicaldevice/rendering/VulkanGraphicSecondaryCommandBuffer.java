@@ -97,7 +97,7 @@ public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer< Vu
         );
     }
     
-    void bindPipeline( VulkanGraphicPipelines.Pipeline graphicPipeline ) {
+    void bindPipeline( VulkanPipeline graphicPipeline ) {
         VK10.vkCmdBindPipeline(
             getCommandBuffer(),
             VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
