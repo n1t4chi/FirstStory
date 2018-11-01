@@ -324,7 +324,6 @@ public class VulkanRenderingContext implements RenderingContext {
         }
     
         primaryBuffer.executeSecondaryBuffers( secondaryBuffers );
-        primaryBuffer.endRenderPass();
         primaryBuffer.fillQueueTearDown();
         return new BatchData( commandPool, primaryBuffer, secondaryBuffers, descriptorsPools );
     }

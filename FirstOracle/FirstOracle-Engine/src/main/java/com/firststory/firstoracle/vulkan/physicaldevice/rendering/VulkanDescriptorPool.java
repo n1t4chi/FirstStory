@@ -6,6 +6,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanDescriptorPoolException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import org.lwjgl.vulkan.VK10;
@@ -23,12 +24,19 @@ public class VulkanDescriptorPool {
     private final List< VulkanDescriptorSet > setList;
     private final int setCount;
     private final ListIterator< VulkanDescriptorSet > setsIterator;
+    private final VulkanDeviceAllocator allocator;
     private final VulkanPhysicalDevice device;
     private final VulkanDescriptor descriptor;
     
     private final VulkanAddress descriptorPool;
     
-    VulkanDescriptorPool( VulkanPhysicalDevice device, VulkanDescriptor descriptor, int sets ) {
+    public VulkanDescriptorPool(
+        VulkanDeviceAllocator allocator,
+        VulkanPhysicalDevice device,
+        VulkanDescriptor descriptor,
+        int sets
+    ) {
+        this.allocator = allocator;
         this.device = device;
         this.descriptor = descriptor;
         this.setCount = sets;
@@ -72,10 +80,14 @@ public class VulkanDescriptorPool {
     }
     
     private VulkanDescriptorSet createDescriptorSet() {
-        return new VulkanDescriptorSet( device, descriptor, this );
+        return allocator.createDescriptorSet( descriptor, this );
     }
     
     public void dispose() {
+        allocator.deregisterDescriptorPool( this );
+    }
+    
+    public void disposeUnsafe() {
         VK10.vkDestroyDescriptorPool( device.getLogicalDevice(), descriptorPool.getValue(), null );
     }
 }

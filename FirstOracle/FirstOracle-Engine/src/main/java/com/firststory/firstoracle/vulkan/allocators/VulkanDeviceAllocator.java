@@ -29,6 +29,8 @@ public class VulkanDeviceAllocator {
     private final VulkanImmutableObjectsRegistry< VulkanSwapChain > swapChains = new VulkanImmutableObjectsRegistry<>( VulkanSwapChain::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanBufferProvider > bufferProviders = new VulkanImmutableObjectsRegistry<>( VulkanBufferProvider::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanDescriptor > descriptors = new VulkanImmutableObjectsRegistry<>( VulkanDescriptor::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDescriptorPool > descriptorPools = new VulkanImmutableObjectsRegistry<>( VulkanDescriptorPool::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDescriptorSet > descriptorSets = new VulkanImmutableObjectsRegistry<>( VulkanDescriptorSet::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanTextureLoader > textureLoaders = new VulkanImmutableObjectsRegistry<>( VulkanTextureLoader::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanDepthResources > depthResources = new VulkanImmutableObjectsRegistry<>( VulkanDepthResources::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanShaderProgram > shaderPrograms = new VulkanImmutableObjectsRegistry<>( VulkanShaderProgram::disposeUnsafe );
@@ -224,6 +226,32 @@ public class VulkanDeviceAllocator {
     
     public void deregisterTextureLoader( VulkanTextureLoader textureLoader ) {
         textureLoaders.deregister( textureLoader );
+    }
+    
+    public VulkanDescriptorSet createDescriptorSet(
+        VulkanDescriptor descriptor,
+        VulkanDescriptorPool pool
+    ) {
+        return descriptorSets.register(
+            () -> new VulkanDescriptorSet( this, descriptor, pool )
+        );
+    }
+    
+    public void deregisterDescriptorSet( VulkanDescriptorSet set ) {
+        descriptorSets.deregister( set );
+    }
+    
+    public VulkanDescriptorPool createDescriptorPool(
+        VulkanDescriptor descriptor,
+        int sets
+    ) {
+        return descriptorPools.register(
+            () -> new VulkanDescriptorPool( this, device, descriptor, sets )
+        );
+    }
+    
+    public void deregisterDescriptorPool( VulkanDescriptorPool descriptor ) {
+        descriptorPools.deregister( descriptor );
     }
     
     public VulkanDescriptor createDescriptor() {

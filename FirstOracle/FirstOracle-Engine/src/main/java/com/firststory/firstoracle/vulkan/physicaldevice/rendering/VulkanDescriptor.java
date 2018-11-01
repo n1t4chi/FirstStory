@@ -44,7 +44,7 @@ public class VulkanDescriptor {
     }
     
     public VulkanDescriptorPool createDescriptorPool( int sets ) {
-        return new VulkanDescriptorPool( device, this, sets );
+        return allocator.createDescriptorPool( this, sets );
     }
     
     VulkanPhysicalDevice getDevice() {

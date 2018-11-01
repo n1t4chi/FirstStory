@@ -39,7 +39,7 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
     
     @Override
     public void fillQueueTearDown() {
-        endRenderPassIfActive();
+        endRenderPass();
         super.fillQueueTearDown();
     }
     
@@ -56,19 +56,16 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
     
     private boolean activeRenderPass = false;
     
-    private void endRenderPassIfActive() {
-        if( activeRenderPass ) {
-            endRenderPass();
-        }
-    }
-    
     void beginRenderPass( VulkanSwapChain swapChain, VulkanRenderPass renderPass, VulkanFrameBuffer frameBuffer, Colour backgroundColour ) {
         activeRenderPass = true;
         var renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, frameBuffer, backgroundColour );
         VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
     }
     
-    void endRenderPass() {
+    private void endRenderPass() {
+        if( !activeRenderPass ) {
+            throw new RuntimeException( "cannot end render pass" );
+        }
         activeRenderPass = false;
         VK10.vkCmdEndRenderPass( getCommandBuffer() );
     }

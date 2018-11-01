@@ -24,7 +24,7 @@ public abstract class VulkanImage {
         this.device = device;
     }
     
-    protected void updateAddress( VulkanAddress address ) {
+    void updateAddress( VulkanAddress address ) {
         this.address = address;
     }
     

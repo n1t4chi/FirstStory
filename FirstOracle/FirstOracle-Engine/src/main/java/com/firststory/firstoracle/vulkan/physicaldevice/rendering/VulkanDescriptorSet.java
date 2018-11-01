@@ -6,8 +6,8 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanDescriptorSetException;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanTextureData;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
@@ -17,15 +17,17 @@ import org.lwjgl.vulkan.*;
  */
 public class VulkanDescriptorSet {
     
-    private final VulkanPhysicalDevice device;
+    private final VulkanDeviceAllocator allocator;
     private final VulkanDescriptor descriptor;
-    private final VulkanDescriptorPool descriptorPool;
     private final VulkanAddress descriptorSet;
     
-    VulkanDescriptorSet( VulkanPhysicalDevice device, VulkanDescriptor descriptor, VulkanDescriptorPool descriptorPool ) {
-        this.device = device;
+    public VulkanDescriptorSet(
+        VulkanDeviceAllocator allocator,
+        VulkanDescriptor descriptor,
+        VulkanDescriptorPool descriptorPool
+    ) {
+        this.allocator = allocator;
         this.descriptor = descriptor;
-        this.descriptorPool = descriptorPool;
     
         var allocateInfo = VkDescriptorSetAllocateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO )
@@ -81,5 +83,12 @@ public class VulkanDescriptorSet {
             .pBufferInfo( bufferInfos )
             .pImageInfo( imageInfos )
             .pTexelBufferView( null );
+    }
+    
+    public void dispose() {
+        allocator.deregisterDescriptorSet( this );
+    }
+    
+    public void disposeUnsafe() {
     }
 }

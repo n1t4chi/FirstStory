@@ -467,11 +467,15 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         VulkanDepthResources depthResources
     ) {
         disposeFrameBuffers();
-        for ( var entry : swapChain.getImageViews().entrySet() ) {
-            frameBuffers.put( entry.getKey(),
-                allocator.createFrameBuffer( entry.getValue(), renderPass, swapChain, depthResources )
-            );
-        }
+        swapChain.getImageViews().forEach( ( key, value ) ->
+            frameBuffers.put( key,
+                allocator.createFrameBuffer( value,
+                    renderPass,
+                    swapChain,
+                    depthResources
+                )
+            )
+        );
     }
     
     private void disposeFrameBuffers() {
