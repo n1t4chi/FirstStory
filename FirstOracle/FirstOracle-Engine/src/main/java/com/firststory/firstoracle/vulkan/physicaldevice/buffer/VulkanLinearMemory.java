@@ -21,8 +21,9 @@ public abstract class VulkanLinearMemory< Data > {
     protected abstract int getDataLength( Data data );
     
     private void assertWriteLength( VulkanLinearMemoryLocation location, Data data ) {
-        if ( location.getLength() < getDataLength( data ) ) {
-            throw new WriteMemoryOutOfBoundException( location, getDataLength( data ) );
+        int dataLength = getDataLength( data );
+        if ( location.getLength() < dataLength ) {
+            throw new WriteMemoryOutOfBoundException( location, dataLength );
         }
     }
     

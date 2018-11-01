@@ -25,9 +25,9 @@ public class VulkanSubmitInfo {
         VulkanSemaphore signalSemaphore
     ) {
         return createSubmitInfo(
-            semaphoreListToBuffer( waitSemaphores ),
+            waitSemaphoreListToBuffer( waitSemaphores ),
             commandBufferListToBuffer( commandBuffers ),
-            MemoryUtil.memAllocLong( 1 ).put( 0, signalSemaphore.getAddress().getValue() )
+            signalSemaphoreToBuffer( signalSemaphore )
         );
     }
     
@@ -37,9 +37,9 @@ public class VulkanSubmitInfo {
         VulkanSemaphore signalSemaphore
     ) {
         return createSubmitInfo(
-            semaphoreListToBuffer( waitSemaphores ),
-            MemoryUtil.memAllocPointer( 1 ).put( 0, commandBuffer.getAddress().getValue() ),
-            MemoryUtil.memAllocLong( 1 ).put( 0, signalSemaphore.getAddress().getValue() )
+            waitSemaphoreListToBuffer( waitSemaphores ),
+            commandBufferToBuffer( commandBuffer ),
+            signalSemaphoreToBuffer( signalSemaphore )
         );
     }
     
@@ -48,9 +48,9 @@ public class VulkanSubmitInfo {
         VulkanSemaphore signalSemaphore
     ) {
         return createSubmitInfo(
-            semaphoreListToBuffer( waitSemaphores ),
+            waitSemaphoreListToBuffer( waitSemaphores ),
             null,
-            MemoryUtil.memAllocLong( 1 ).put( 0, signalSemaphore.getAddress().getValue() )
+            signalSemaphoreToBuffer( signalSemaphore )
         );
     }
     
@@ -60,10 +60,15 @@ public class VulkanSubmitInfo {
         VulkanSemaphore signalSemaphore
     ) {
         return createSubmitInfo(
-            MemoryUtil.memAllocLong( 1 ).put( 0, waitSemaphore.getAddress().getValue() ),
+            waitSemaphoreToBuffer( waitSemaphore ),
             commandBufferListToBuffer( commandBuffers ),
-            MemoryUtil.memAllocLong( 1 ).put( 0, signalSemaphore.getAddress().getValue() )
+            signalSemaphoreToBuffer( signalSemaphore )
         );
+    }
+    
+    private static LongBuffer waitSemaphoreToBuffer( VulkanSemaphore waitSemaphore ) {
+        return MemoryUtil
+            .memAllocLong( 1 ).put( 0, waitSemaphore.getAddressForWait().getValue() );
     }
     
     static VkSubmitInfo createSubmitInfo(
@@ -72,14 +77,22 @@ public class VulkanSubmitInfo {
         VulkanSemaphore signalSemaphore
     ) {
         return createSubmitInfo(
-            MemoryUtil.memAllocLong( 1 ).put( 0, waitSemaphore.getAddress().getValue() ),
-            MemoryUtil.memAllocPointer( 1 ).put( 0, commandBuffer.getAddress().getValue() ),
-            MemoryUtil.memAllocLong( 1 ).put( 0, signalSemaphore.getAddress().getValue() )
+            waitSemaphoreToBuffer( waitSemaphore ),
+            commandBufferToBuffer( commandBuffer ),
+            signalSemaphoreToBuffer( signalSemaphore )
         );
     }
     
+    private static PointerBuffer commandBufferToBuffer( VulkanGraphicPrimaryCommandBuffer commandBuffer ) {
+        return MemoryUtil.memAllocPointer( 1 ).put( 0, commandBuffer.getAddress().getValue() );
+    }
+    
+    private static LongBuffer signalSemaphoreToBuffer( VulkanSemaphore signalSemaphore ) {
+        return MemoryUtil.memAllocLong( 1 ).put( 0, signalSemaphore.getAddressForSignal().getValue() );
+    }
+    
     private static VkSubmitInfo createSubmitInfo(
-        LongBuffer semaphoresBuffer,
+        LongBuffer waitSemaphoresBuffer,
         PointerBuffer commandBuffers,
         LongBuffer signalSemaphores
     ) {
@@ -88,7 +101,7 @@ public class VulkanSubmitInfo {
             .sType( VK10.VK_STRUCTURE_TYPE_SUBMIT_INFO )
             .pCommandBuffers( commandBuffers )
             .pWaitDstStageMask( createWaitStageMaskBuffer() )
-            .pWaitSemaphores( semaphoresBuffer )
+            .pWaitSemaphores( waitSemaphoresBuffer )
             .pSignalSemaphores( signalSemaphores );
     }
     
@@ -103,13 +116,13 @@ public class VulkanSubmitInfo {
         return commandBuffersBuffer;
     }
     
-    private static LongBuffer semaphoreListToBuffer( List< VulkanSemaphore > waitSemaphores ) {
+    private static LongBuffer waitSemaphoreListToBuffer( List< VulkanSemaphore > waitSemaphores ) {
         if( waitSemaphores.isEmpty() ) {
             return null;
         }
         var semaphoresBuffer = MemoryUtil.memAllocLong( waitSemaphores.size() );
         for ( var i = 0; i < waitSemaphores.size(); i++ ) {
-            semaphoresBuffer.put( i, waitSemaphores.get( i ).getAddress().getValue() );
+            semaphoresBuffer.put( i, waitSemaphores.get( i ).getAddressForWait().getValue() );
         }
         return semaphoresBuffer;
     }

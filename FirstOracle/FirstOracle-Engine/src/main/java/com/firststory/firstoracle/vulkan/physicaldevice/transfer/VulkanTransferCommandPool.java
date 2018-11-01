@@ -80,20 +80,21 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
     private final Holder< VulkanSemaphore > currentSemaphore = new Holder<>();
     
     public void executeTransfersAndForget() {
-        executeTransfers( true );
+        var semaphore = execute();
+        semaphore.ignoreWait();
     }
     
     public VulkanSemaphore executeTransfers() {
-        return executeTransfers( false );
+        return execute();
     }
     
-    private VulkanSemaphore executeTransfers( boolean disposeSemaphore ) {
+    private VulkanSemaphore execute() {
         synchronized ( currentSemaphore ) {
             var semaphore = currentSemaphore.get();
             if( semaphore == null ) {
                 currentSemaphore.hold( semaphore = getAllocator().createSemaphore() );
                 currentSemaphore.notifyAll();
-                executeTransferUnsafe( semaphore, disposeSemaphore );
+                executeTransferUnsafe( semaphore );
                 currentSemaphore.remove();
             }
             return semaphore;
@@ -111,7 +112,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         allocator.deregisterTransferCommandPool( this );
     }
     
-    private void executeTransferUnsafe( VulkanSemaphore semaphore, boolean disposeSemaphore ) {
+    private void executeTransferUnsafe( VulkanSemaphore semaphore ) {
         ArrayList<VulkanCommand<VulkanTransferCommandBuffer>> allCommandsCopy;
         List<VulkanTransferData> datasToTransferCopy;
         synchronized ( allCommands ) {
@@ -133,9 +134,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         getUsedQueueFamily().submit( fence, createSubmitInfo( buffer, semaphore ) );
         fence.executeWhenFinishedThenDispose( () -> {
             buffer.dispose();
-            if( disposeSemaphore ) {
-                semaphore.dispose();
-            }
+            semaphore.finishedSignal();
         } );
     }
     
@@ -150,7 +149,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
             );
         if( semaphore != null ) {
             submitInfo.pSignalSemaphores( MemoryUtil.memAllocLong( 1 )
-                .put( 0, semaphore.getAddress().getValue() )
+                .put( 0, semaphore.getAddressForSignal().getValue() )
             );
         }
         return submitInfo;

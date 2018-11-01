@@ -19,6 +19,11 @@ public class VulkanSemaphore {
     private final VulkanDeviceAllocator allocator;
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;
+    private boolean usedForSignal = false;
+    private boolean signaled = false;
+    private boolean usedForWait = false;
+    private boolean waited = false;
+    private boolean disposed = false;
     
     
     public VulkanSemaphore( VulkanDeviceAllocator allocator, VulkanPhysicalDevice device ) {
@@ -27,16 +32,84 @@ public class VulkanSemaphore {
         this.address = createSemaphore( device );
     }
     
-    public void dispose() {
-        allocator.deregisterSemaphore( this );
+    public void finishedSignal() {
+        if( disposed ) {
+            throw new RuntimeException( "Semaphore was disposed before" );
+        }
+        if ( !usedForSignal ) {
+            throw new RuntimeException( "Semaphore signaled as finished signaling but not extracted for signal" );
+        }
+        signaled = true;
+        deregister();
+    }
+    
+    public VulkanAddress getAddressForSignal() {
+        if( disposed ) {
+            throw new RuntimeException( "Semaphore was disposed before" );
+        }
+        usedForSignal = true;
+        return address;
+    }
+    
+    public void finishedWait() {
+        if( disposed ) {
+            throw new RuntimeException( "Semaphore was disposed before" );
+        }
+        if( !usedForWait ) {
+            throw new RuntimeException( "Semaphore signaled as finished waiting but not extracted for wait" );
+        }
+        waited = true;
+        deregister();
+    }
+    
+    public VulkanAddress getAddressForWait() {
+        if( disposed ) {
+            throw new RuntimeException( "Semaphore was disposed before" );
+        }
+        usedForWait = true;
+        return address;
+    }
+    
+    void ignoreSignal() {
+        usedForSignal = true;
+        signaled = true;
+        deregister();
+    }
+    
+    public void ignoreWait() {
+        usedForWait = true;
+        waited = true;
+        deregister();
     }
     
     public void disposeUnsafe() {
-        VK10.vkDestroySemaphore( device.getLogicalDevice(), address.getValue(), null );
+        if( !disposed ) {
+            VK10.vkDestroySemaphore( device.getLogicalDevice(), address.getValue(), null );
+            disposed = true;
+        } else{
+            throw new RuntimeException( "disposed semaphore again!" );
+        }
     }
     
-    public VulkanAddress getAddress() {
-        return address;
+    private void deregister() {
+        synchronized ( this ) {
+            if ( notUsed() || finishedUsed() ) {
+                allocator.deregisterSemaphore( this );
+            }
+        }
+    }
+    
+    private boolean finishedUsed() {
+        return usedForSignal && waited && usedForWait && signaled;
+    }
+    
+    private boolean notUsed() {
+        return !usedForSignal && !usedForWait;
+    }
+    
+    @Override
+    public String toString() {
+        return "Semaphore{ " + address + " }";
     }
     
     private VulkanAddress createSemaphore( VulkanPhysicalDevice device ) {

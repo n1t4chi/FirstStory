@@ -86,8 +86,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
     private final ExecutorService executorService;
     
-    private VulkanImageIndex currentImageIndex;
-    
     public VulkanPhysicalDevice(
         VulkanFrameworkAllocator instanceAllocator,
         long deviceAddress,
@@ -186,10 +184,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             allocator.dispose();
             throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
         }
-    }
-    
-    public VulkanFrameBuffer getCurrentFrameBuffer() {
-        return frameBuffers.get( currentImageIndex.getIndex() );
     }
     
     public VulkanQueueFamily getGraphicQueueFamily() {
@@ -297,17 +291,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     public void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
-        currentImageIndex = acquireNextImageIndex();
+        var currentImageIndex = acquireNextImageIndex();
         renderingContext.tearDownSingleRender(
             trianglePipelines,
             linePipelines,
-            getCurrentImageIndex(),
+            currentImageIndex,
             swapChain,
             vertexDataTransferCommandPool,
             quickDataTransferCommandPool,
             uniformDataTransferCommandPool,
             textureTransferCommandPool
         );
+        currentImageIndex.getRenderFinishedSemaphore().ignoreWait();
     }
     
     public void dispose() {
@@ -355,10 +350,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         usedQueueFamilies.forEach( family -> buffer.put( family.getIndex() ) );
         buffer.flip();
         return buffer;
-    }
-    
-    public VulkanImageIndex getCurrentImageIndex() {
-        return currentImageIndex;
     }
     
     private VulkanImageIndex acquireNextImageIndex() {
@@ -437,7 +428,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             logicalDevice,
             swapChain.getAddress().getValue(),
             Long.MAX_VALUE,
-            semaphore.getAddress().getValue(),
+            semaphore.getAddressForSignal().getValue(),
             VK10.VK_NULL_HANDLE,
             imageIndex
         );
@@ -454,11 +445,18 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
                     throw new CannotAcquireNextImageIndexException( this, imageIndex[0], result );
             }
         } catch ( RuntimeException ex ) {
-            semaphore.dispose();
+            semaphore.ignoreWait();
+            semaphore.ignoreSignal();
             throw ex;
         }
     
-        return new VulkanImageIndex( imageIndex[0], semaphore, allocator.createSemaphore() );
+        var index = imageIndex[ 0 ];
+        return new VulkanImageIndex(
+            index,
+            semaphore,
+            allocator.createSemaphore(),
+            frameBuffers.get( index )
+        );
     }
     
     private void refreshFrameBuffers(

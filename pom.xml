@@ -33,13 +33,13 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.0</version>
                     <configuration>
-                        <target>X</target>
-                        <release>X</release>
-                        <compilerArguments>
-                            <!--<compilerArgument>&#45;&#45;enable-preview</compilerArgument>-->
-                            <compilerArgument>-Xlint:all</compilerArgument>
-                            <compilerArgument>-Xdiags:verbose</compilerArgument>
-                        </compilerArguments>
+                        <target>12</target>
+                        <release>12</release>
+                        <compilerArgs>
+                            <arg>--enable-preview</arg>
+                            <arg>-Xlint:all</arg>
+                            <arg>-Xdiags:verbose</arg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
                 <plugin>

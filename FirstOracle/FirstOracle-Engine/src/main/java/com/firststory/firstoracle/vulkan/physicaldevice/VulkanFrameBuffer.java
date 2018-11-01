@@ -64,6 +64,8 @@ public class VulkanFrameBuffer {
         VulkanSwapChain swapChain,
         VulkanDepthResources depthResources
     ) {
+        int width = ( int ) swapChain.getWidth();
+        int height = ( int ) swapChain.getHeight();
         return VkFramebufferCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO )
             .renderPass( renderPass.getAddress().getValue() )
@@ -71,8 +73,8 @@ public class VulkanFrameBuffer {
                 .put( 0, imageView.getAddress().getValue() )
                 .put( 1, depthResources.getDepthImageView().getAddress().getValue() )
             )
-            .width( ( int ) swapChain.getWidth() )
-            .height( ( int ) swapChain.getHeight() )
+            .width( width <= 0 ? 1 : width )
+            .height( height <= 0 ? 1 : height )
             .layers( 1 )
             .flags( 0 )
             .pNext( VK10.VK_NULL_HANDLE )

@@ -42,7 +42,7 @@ public class VulkanAddress {
     
     @Override
     public String toString() {
-        return "Adr=" + value;
+        return "Adr:" + Long.toHexString( value );
     }
     
     public VulkanAddress setNull() {

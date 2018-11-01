@@ -132,7 +132,7 @@ public class VulkanRenderingContext implements RenderingContext {
         
         availableDataBuffers.addAll( dataBuffers );
         
-        var frameBuffer = device.getCurrentFrameBuffer();
+        var frameBuffer = imageIndex.getFrameBuffer();
     
         var backgroundFuture = executorService.submit( createWorker(
             trianglePipelines,
@@ -201,12 +201,17 @@ public class VulkanRenderingContext implements RenderingContext {
         swapChain.presentQueue( imageIndex );
         
         fence.executeWhenFinishedThenDispose( () -> {
-            processedInfo.getSemaphores().forEach( VulkanSemaphore::dispose );
             batchDatas.forEach( VulkanRenderBatchData::dispose );
+            initialWaitSemaphores.forEach( VulkanSemaphore::finishedWait );
+            processedInfo.getSemaphores().forEach( semaphore -> {
+                semaphore.finishedSignal();
+                semaphore.finishedWait();
+            } );
+            renderFinishedSemaphore.finishedSignal();
         } );
     }
     
-    public VulkanRenderStageWorker createWorker(
+    private VulkanRenderStageWorker createWorker(
         VulkanGraphicPipelines trianglePipelines,
         VulkanGraphicPipelines linePipelines,
         VulkanSwapChain swapChain,
@@ -239,8 +244,7 @@ public class VulkanRenderingContext implements RenderingContext {
         VulkanSemaphore renderFinishedSemaphore
     ) {
         List< VkSubmitInfo > submitInfos = new ArrayList<>(  );
-        List< VulkanSemaphore > semaphores = new ArrayList<>( initialWaitSemaphores );
-        semaphores.add( renderFinishedSemaphore );
+        List< VulkanSemaphore > semaphores = new ArrayList<>();
         
         if( batchDatas.isEmpty() ) {
             submitInfos.add( VulkanSubmitInfo.createSubmitInfo(

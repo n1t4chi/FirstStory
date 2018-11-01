@@ -12,15 +12,18 @@ public class VulkanImageIndex {
     private final int index;
     private final VulkanSemaphore imageAvailableSemaphore;
     private final VulkanSemaphore renderFinishedSemaphore;
+    private final VulkanFrameBuffer frameBuffer;
     
     VulkanImageIndex(
         int index,
         VulkanSemaphore imageAvailableSemaphore,
-        VulkanSemaphore renderFinishedSemaphore
+        VulkanSemaphore renderFinishedSemaphore,
+        VulkanFrameBuffer frameBuffer
     ) {
         this.index = index;
         this.imageAvailableSemaphore = imageAvailableSemaphore;
         this.renderFinishedSemaphore = renderFinishedSemaphore;
+        this.frameBuffer = frameBuffer;
     }
     
     public int getIndex() {
@@ -33,5 +36,9 @@ public class VulkanImageIndex {
     
     public VulkanSemaphore getRenderFinishedSemaphore() {
         return renderFinishedSemaphore;
+    }
+    
+    public VulkanFrameBuffer getFrameBuffer() {
+        return frameBuffer;
     }
 }
