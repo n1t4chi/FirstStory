@@ -43,6 +43,8 @@ public class VulkanPipeline {
     private final int topologyType;
     private final boolean pipelinesFirstUseOnly;
     
+    private boolean update = true;
+    
     public VulkanPipeline(
         VulkanPipelineAllocator allocator,
         VulkanPhysicalDevice device,
@@ -58,7 +60,7 @@ public class VulkanPipeline {
         this.renderPass = new VulkanRenderPass( device );
     }
     
-    public VulkanRenderPass getRenderPass() {
+    VulkanRenderPass getRenderPass() {
         return renderPass;
     }
     
@@ -83,6 +85,11 @@ public class VulkanPipeline {
         List< VkPipelineShaderStageCreateInfo > shaderStages,
         VulkanDepthResources depthResources
     ) {
+        if( !update ) {
+            return;
+        }
+        update = false;
+    
         renderPass.updateRenderPass(
             swapChain,
             depthResources,
@@ -94,7 +101,10 @@ public class VulkanPipeline {
             swapChain,
             shaderStages
         );
-        ;
+    }
+    
+    public void forceUpdate() {
+        update = true;
     }
     
     VulkanAddress getGraphicPipeline() {

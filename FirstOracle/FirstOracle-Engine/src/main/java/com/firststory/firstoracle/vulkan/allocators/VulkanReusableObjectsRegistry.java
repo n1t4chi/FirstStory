@@ -19,6 +19,7 @@ class VulkanReusableObjectsRegistry< T > {
     private final Deque< T > freeInstances = new LinkedList<>();
     private final Set< T > usedInstances = new HashSet<>();
     private final Consumer< T > disposeUsedAction;
+    private final Consumer< T > deregisterAction;
     private final Consumer< T > disposeFreeAction;
     
     VulkanReusableObjectsRegistry(
@@ -31,6 +32,15 @@ class VulkanReusableObjectsRegistry< T > {
         Consumer< T > disposeFreeAction,
         Consumer< T > disposeUsedAction
     ) {
+        this( disposeUsedAction, disposeFreeAction, disposeUsedAction );
+    }
+    
+    VulkanReusableObjectsRegistry(
+        Consumer< T > deregisterAction,
+        Consumer< T > disposeFreeAction,
+        Consumer< T > disposeUsedAction
+    ) {
+        this.deregisterAction = deregisterAction;
         this.disposeFreeAction = disposeFreeAction;
         this.disposeUsedAction = disposeUsedAction;
     }
@@ -54,8 +64,17 @@ class VulkanReusableObjectsRegistry< T > {
             usedInstances,
             freeInstances,
             object,
-            disposeUsedAction
+            deregisterAction
         );
+    }
+    
+    void executeOnEach( Consumer< T > action ) {
+        synchronized ( usedInstances ) {
+            usedInstances.forEach( action );
+        }
+        synchronized ( freeInstances ) {
+            freeInstances.forEach( action );
+        }
     }
     
     void dispose() {

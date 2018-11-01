@@ -35,6 +35,7 @@ public class VulkanRenderPass {
     }
     
     void updateRenderPass( VulkanSwapChain swapChain, VulkanDepthResources depthResources, boolean pipelinesFirstUseOnly ) {
+        dispose();
         VulkanHelper.updateAddress( renderPass,
             (address) -> VK10.vkCreateRenderPass(
                 device.getLogicalDevice(), createRenderPassCreateInfo( swapChain, depthResources, pipelinesFirstUseOnly ), null, address ),

@@ -24,7 +24,10 @@ public class VulkanPipelineAllocator {
     private final int topologyType;
     private final boolean pipelinesFirstUseOnly;
     
-    private final VulkanReusableObjectsRegistry< VulkanPipeline > pipelines = new VulkanReusableObjectsRegistry<>( VulkanPipeline::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanPipeline > pipelines = new VulkanReusableObjectsRegistry<>( pipeline -> {}, VulkanPipeline::disposeUnsafe, VulkanPipeline::disposeUnsafe );
+    private VulkanSwapChain swapChain;
+    private List< VkPipelineShaderStageCreateInfo > shaderStages;
+    private VulkanDepthResources depthResources;
     
     VulkanPipelineAllocator(
         VulkanDeviceAllocator allocator,
@@ -40,11 +43,7 @@ public class VulkanPipelineAllocator {
         this.pipelinesFirstUseOnly = pipelinesFirstUseOnly;
     }
     
-    public VulkanPipeline createPipeline(
-        VulkanSwapChain swapChain,
-        List< VkPipelineShaderStageCreateInfo > shaderStages,
-        VulkanDepthResources depthResources
-    ) {
+    public VulkanPipeline createPipeline() {
         return pipelines.register(
             () -> new VulkanPipeline( this, device, pipelineLayout, topologyType, pipelinesFirstUseOnly ),
             pipeline -> pipeline.update( swapChain, shaderStages, depthResources )
@@ -57,6 +56,18 @@ public class VulkanPipelineAllocator {
     
     public void dispose() {
         allocator.deregisterPipelineAllocator( this );
+    }
+    
+    public void update(
+        VulkanSwapChain swapChain,
+        List< VkPipelineShaderStageCreateInfo > shaderStages,
+        VulkanDepthResources depthResources
+    ) {
+    
+        this.swapChain = swapChain;
+        this.shaderStages = shaderStages;
+        this.depthResources = depthResources;
+        pipelines.executeOnEach( VulkanPipeline::forceUpdate );
     }
     
     void disposeUnsafe() {
