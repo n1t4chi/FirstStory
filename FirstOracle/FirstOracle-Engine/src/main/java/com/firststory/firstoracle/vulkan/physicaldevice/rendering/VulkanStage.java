@@ -19,6 +19,10 @@ class VulkanStage {
     private final Set< Texture > textures = new HashSet<>();
     private Camera camera;
     
+    void addRenderDatas( List< RenderData > renderDatas ) {
+        renderDatas.forEach( this::addRenderData );
+    }
+    
     void setCamera( Camera camera ) {
         this.camera = camera;
     }

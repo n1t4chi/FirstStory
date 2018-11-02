@@ -134,7 +134,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             trianglePipelines = allocator.createGraphicPipelines( VK10.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST );
             linePipelines = allocator.createGraphicPipelines( VK10.VK_PRIMITIVE_TOPOLOGY_LINE_LIST );
             
-            vertexDataTransferCommandPool = allocator.createTransferCommandPool(vertexTransferFamily );
+            vertexDataTransferCommandPool = allocator.createTransferCommandPool( vertexTransferFamily );
             uniformDataTransferCommandPool = allocator.createTransferCommandPool( uniformTransferFamily );
             quickDataTransferCommandPool = allocator.createTransferCommandPool( quickTransferFamily );
             textureTransferCommandPool = allocator.createTransferCommandPool( graphicFamily );

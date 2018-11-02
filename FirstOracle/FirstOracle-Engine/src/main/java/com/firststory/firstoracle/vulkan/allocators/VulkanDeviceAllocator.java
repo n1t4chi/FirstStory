@@ -44,6 +44,7 @@ public class VulkanDeviceAllocator {
     private final VulkanImmutableObjectsRegistry< VulkanCommandBufferAllocator<?> > commandBufferAllocators = new VulkanImmutableObjectsRegistry<>( VulkanCommandBufferAllocator::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanTransferData > transferDatas = new VulkanReusableObjectsRegistry<>( data -> {}, data -> {} );
     private final VulkanImmutableObjectsRegistry< VulkanPipelineAllocator > pipelineAllocators = new VulkanImmutableObjectsRegistry<>( VulkanPipelineAllocator::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDataBufferAllocator > dataBufferAllocators = new VulkanImmutableObjectsRegistry<>( VulkanDataBufferAllocator::disposeUnsafe );
     
     
     public VulkanDeviceAllocator(
@@ -75,25 +76,35 @@ public class VulkanDeviceAllocator {
         fences.dispose();
         commandBufferAllocators.dispose();
         pipelineAllocators.dispose();
+        dataBufferAllocators.dispose();
     }
     
+    public VulkanDataBufferAllocator createDataBufferAllocator() {
+        return dataBufferAllocators.register( () -> new VulkanDataBufferAllocator( this ) );
+    }
     
-    void deregisterPipelineAllocator( VulkanPipelineAllocator pipelineAllocator ) {
-        pipelineAllocators.deregister( pipelineAllocator );
+    void deregisterDataBufferAllocator( VulkanDataBufferAllocator dataBufferAllocator ) {
+        dataBufferAllocators.deregister( dataBufferAllocator );
     }
     
     public VulkanPipelineAllocator createPipelineAllocator(
         VulkanAddress pipelineLayout,
         int topologyType,
-        boolean pipelinesFirstUseOnly
+        boolean pipelinesFirstUseOnly,
+        boolean keepInitialDepthAttachment
     ) {
         return pipelineAllocators.register( () -> new VulkanPipelineAllocator(
             this,
             device,
             pipelineLayout,
             topologyType,
-            pipelinesFirstUseOnly
+            pipelinesFirstUseOnly,
+            keepInitialDepthAttachment
         ) );
+    }
+    
+    void deregisterPipelineAllocator( VulkanPipelineAllocator pipelineAllocator ) {
+        pipelineAllocators.deregister( pipelineAllocator );
     }
     
     public VulkanTransferData createTransferData(

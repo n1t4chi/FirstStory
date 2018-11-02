@@ -35,16 +35,16 @@ public class VulkanBufferProvider {
     ) {
         this.allocator = allocator;
         var textureMemory = VulkanBufferMemory.createTextureMemory( device, getSuitableTextureMemoryLength(), textureTransferCommandPool );
-        textureBufferProvider = new VulkanDataBufferProvider( textureMemory, 1 );
+        textureBufferProvider = new VulkanDataBufferProvider( allocator, textureMemory, 1 );
     
         var vertexMemory = VulkanBufferMemory.createVertexMemory( device, getSuitableVertexDataMemoryLength(), vertexDataTransferCommandPool );
-        vertexBufferProvider = new VulkanDataBufferProvider( vertexMemory, 1 );
+        vertexBufferProvider = new VulkanDataBufferProvider( allocator, vertexMemory, 1 );
     
         var vertexQuickMemory = VulkanBufferMemory.createVertexQuickMemory( device, getSuitableQuickDataMemoryLength(), quickDataTransferCommandPool );
-        vertexQuickBufferProvider = new VulkanDataBufferProvider( vertexQuickMemory, 1 );
+        vertexQuickBufferProvider = new VulkanDataBufferProvider( allocator, vertexQuickMemory, 1 );
     
         var uniformMemory = VulkanBufferMemory.createUniformMemory( device, getSuitableUniformMemoryLength(), uniformDataTransferCommandPool );
-        uniformBufferProvider = new VulkanDataBufferProvider( uniformMemory, uniformBufferOffsetAlignment );
+        uniformBufferProvider = new VulkanDataBufferProvider( allocator, uniformMemory, uniformBufferOffsetAlignment );
     
         memories.add( textureMemory );
         memories.add( vertexMemory );
@@ -66,6 +66,10 @@ public class VulkanBufferProvider {
     
     public void dispose() {
         allocator.deregisterBufferProvider( this );
+        textureBufferProvider.dispose();
+        vertexBufferProvider.dispose();
+        vertexQuickBufferProvider.dispose();
+        uniformBufferProvider.dispose();
     }
     
     public void disposeUnsafe() {

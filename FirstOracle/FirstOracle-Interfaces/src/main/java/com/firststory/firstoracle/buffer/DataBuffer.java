@@ -32,8 +32,9 @@ public interface DataBuffer< Data > {
     }
     
     default void delete() throws BufferNotCreatedException {
-        assertCreated();
-        deleteUnsafe();
+        if( isCreated() ) {
+            deleteUnsafe();
+        }
     }
     
     default void close() throws BufferNotCreatedException {

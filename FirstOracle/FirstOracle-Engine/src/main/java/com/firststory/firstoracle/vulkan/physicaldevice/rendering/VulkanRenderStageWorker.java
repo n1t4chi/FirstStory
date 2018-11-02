@@ -93,19 +93,20 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         
         var secondaryBuffers = new ArrayList< VulkanGraphicSecondaryCommandBuffer >();
         var descriptorsPools = new ArrayList< VulkanDescriptorPool >();
+        var uniformBuffers = new ArrayList< VulkanDataBuffer>();
         if ( !renderDataByTexture.isEmpty() ) {
             var shader = device.getShaderProgram3D();
             var descriptorPool = device.getDescriptor().createDescriptorPool( renderDataByTexture.size() );
             descriptorsPools.add( descriptorPool );
     
             shader.bindCamera( camera.getMatrixRepresentation() );
-            var uniformBufferInfo = shader.bindUniformData();
+            var uniformBuffer = shader.bindUniformData();
+            var uniformBufferInfo = shader.createDescriptorBufferInfo( uniformBuffer );
+            uniformBuffers.add( uniformBuffer );
     
             renderDataByTexture.forEach( ( texture, renderDataList ) -> {
                 var secondaryBuffer = commandPool.provideNextSecondaryBuffer();
-                synchronized ( secondaryBuffers ) {
-                    secondaryBuffers.add( secondaryBuffer );
-                }
+                secondaryBuffers.add( secondaryBuffer );
                 secondaryBuffer.update(
                     renderPass,
                     0,
@@ -130,6 +131,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
             primaryBuffer,
             secondaryBuffers,
             descriptorsPools,
+            uniformBuffers,
             trianglePipeline,
             linePipeline
         );

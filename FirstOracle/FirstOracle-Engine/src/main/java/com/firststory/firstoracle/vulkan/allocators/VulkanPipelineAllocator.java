@@ -23,6 +23,7 @@ public class VulkanPipelineAllocator {
     private final VulkanAddress pipelineLayout;
     private final int topologyType;
     private final boolean pipelinesFirstUseOnly;
+    private final boolean keepInitialDepthAttachment;
     
     private final VulkanReusableObjectsRegistry< VulkanPipeline > pipelines = new VulkanReusableObjectsRegistry<>( pipeline -> {}, VulkanPipeline::disposeUnsafe, VulkanPipeline::disposeUnsafe );
     private VulkanSwapChain swapChain;
@@ -34,28 +35,33 @@ public class VulkanPipelineAllocator {
         VulkanPhysicalDevice device,
         VulkanAddress pipelineLayout,
         int topologyType,
-        boolean pipelinesFirstUseOnly
+        boolean pipelinesFirstUseOnly,
+        boolean keepInitialDepthAttachment
     ) {
         this.allocator = allocator;
         this.device = device;
         this.pipelineLayout = pipelineLayout;
         this.topologyType = topologyType;
         this.pipelinesFirstUseOnly = pipelinesFirstUseOnly;
+        this.keepInitialDepthAttachment = keepInitialDepthAttachment;
     }
     
     public VulkanPipeline createPipeline() {
         return pipelines.register(
-            () -> new VulkanPipeline( this, device, pipelineLayout, topologyType, pipelinesFirstUseOnly ),
+            () -> new VulkanPipeline(
+                this,
+                device,
+                pipelineLayout,
+                topologyType,
+                pipelinesFirstUseOnly,
+                keepInitialDepthAttachment
+            ),
             pipeline -> pipeline.update( swapChain, shaderStages, depthResources )
         );
     }
     
     public void deregisterPipeline( VulkanPipeline pipeline ) {
         pipelines.deregister( pipeline );
-    }
-    
-    public void dispose() {
-        allocator.deregisterPipelineAllocator( this );
     }
     
     public void update(
@@ -68,6 +74,10 @@ public class VulkanPipelineAllocator {
         this.shaderStages = shaderStages;
         this.depthResources = depthResources;
         pipelines.executeOnEach( VulkanPipeline::forceUpdate );
+    }
+    
+    public void dispose() {
+        allocator.deregisterPipelineAllocator( this );
     }
     
     void disposeUnsafe() {

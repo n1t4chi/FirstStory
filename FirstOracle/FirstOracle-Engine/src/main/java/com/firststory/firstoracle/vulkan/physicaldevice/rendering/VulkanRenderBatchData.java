@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
+import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ class VulkanRenderBatchData {
     private final VulkanGraphicPrimaryCommandBuffer primaryBuffer;
     private final List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers;
     private final ArrayList< VulkanDescriptorPool > descriptorsPools;
+    private final ArrayList< VulkanDataBuffer > uniformBuffers;
     private final VulkanPipeline trianglePipeline;
     private final VulkanPipeline linePipeline;
     
@@ -26,6 +28,7 @@ class VulkanRenderBatchData {
         VulkanGraphicPrimaryCommandBuffer primaryBuffer,
         List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers,
         ArrayList< VulkanDescriptorPool > descriptorsPools,
+        ArrayList< VulkanDataBuffer> uniformBuffers,
         VulkanPipeline trianglePipeline,
         VulkanPipeline linePipeline
     ) {
@@ -33,6 +36,7 @@ class VulkanRenderBatchData {
         this.primaryBuffer = primaryBuffer;
         this.secondaryBuffers = secondaryBuffers;
         this.descriptorsPools = descriptorsPools;
+        this.uniformBuffers = uniformBuffers;
         this.trianglePipeline = trianglePipeline;
         this.linePipeline = linePipeline;
     }
@@ -44,6 +48,8 @@ class VulkanRenderBatchData {
         secondaryBuffers.clear();
         descriptorsPools.forEach( VulkanDescriptorPool::dispose );
         descriptorsPools.clear();
+        uniformBuffers.forEach( VulkanDataBuffer::dispose );
+        uniformBuffers.clear();
         trianglePipeline.dispose();
         linePipeline.dispose();
         commandPool.dispose();

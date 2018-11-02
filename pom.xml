@@ -36,7 +36,7 @@
                         <target>12</target>
                         <release>12</release>
                         <compilerArgs>
-                            <arg>--enable-preview</arg>
+                            <!--<arg>&#45;&#45;enable-preview</arg>-->
                             <arg>-Xlint:all</arg>
                             <arg>-Xdiags:verbose</arg>
                         </compilerArgs>

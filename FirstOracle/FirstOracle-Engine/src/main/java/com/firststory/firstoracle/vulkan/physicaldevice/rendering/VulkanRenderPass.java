@@ -34,11 +34,20 @@ public class VulkanRenderPass {
         return renderPass;
     }
     
-    void updateRenderPass( VulkanSwapChain swapChain, VulkanDepthResources depthResources, boolean pipelinesFirstUseOnly ) {
+    void updateRenderPass(
+        VulkanSwapChain swapChain,
+        VulkanDepthResources depthResources,
+        boolean pipelinesFirstUseOnly,
+        boolean keepInitialDepthAttachment
+    ) {
         dispose();
         VulkanHelper.updateAddress( renderPass,
-            (address) -> VK10.vkCreateRenderPass(
-                device.getLogicalDevice(), createRenderPassCreateInfo( swapChain, depthResources, pipelinesFirstUseOnly ), null, address ),
+            (address) -> VK10.vkCreateRenderPass( 
+                device.getLogicalDevice(), 
+                createRenderPassCreateInfo( swapChain, depthResources, pipelinesFirstUseOnly, keepInitialDepthAttachment ), 
+                null,
+                address
+            ),
             resultCode -> new CannotCreateVulkanRenderPassException( device, resultCode )
         );
     }
@@ -46,13 +55,14 @@ public class VulkanRenderPass {
     private VkRenderPassCreateInfo createRenderPassCreateInfo(
         VulkanSwapChain swapChain,
         VulkanDepthResources depthResources,
-        boolean pipelinesFirstUseOnly
+        boolean pipelinesFirstUseOnly,
+        boolean keepInitialDepthAttachment
     ) {
         return VkRenderPassCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO )
             .pAttachments( VkAttachmentDescription.calloc( 2 )
                 .put( 0, createColourAttachmentDescription( swapChain, pipelinesFirstUseOnly ) )
-                .put( 1, createDepthAttachmentDescription( depthResources ) )
+                .put( 1, createDepthAttachmentDescription( depthResources, keepInitialDepthAttachment ) )
             )
             .pSubpasses( VkSubpassDescription.calloc( 1 )
                 .put( 0, createSubpassDescription() )
@@ -63,13 +73,16 @@ public class VulkanRenderPass {
         ;
     }
     
-    private VkAttachmentDescription createDepthAttachmentDescription( VulkanDepthResources depthResources ) {
+    private VkAttachmentDescription createDepthAttachmentDescription(
+        VulkanDepthResources depthResources,
+        boolean keepInitialDepthAttachment
+    ) {
         return createAttachmentDescription(
             depthResources.getDepthFormat().getFormat(),
-            VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
-            VK10.VK_ATTACHMENT_STORE_OP_DONT_CARE,
-            VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
-            VK10.VK_IMAGE_LAYOUT_UNDEFINED,
+            keepInitialDepthAttachment ? VK10.VK_ATTACHMENT_LOAD_OP_LOAD : VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
+            VK10.VK_ATTACHMENT_STORE_OP_STORE,
+            keepInitialDepthAttachment ? VK10.VK_ATTACHMENT_LOAD_OP_LOAD : VK10.VK_ATTACHMENT_LOAD_OP_CLEAR,
+            keepInitialDepthAttachment ? VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK10.VK_IMAGE_LAYOUT_UNDEFINED,
             VK10.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
         );
     }

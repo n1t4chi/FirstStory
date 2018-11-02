@@ -6,6 +6,8 @@ package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 
 import com.firststory.firstoracle.buffer.BufferProvider;
 import com.firststory.firstoracle.buffer.CannotCreateBufferException;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDataBufferAllocator;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -19,21 +21,27 @@ public class VulkanDataBufferProvider
     extends VulkanLinearMemoryController< VulkanBufferMemory, ByteBuffer >
     implements BufferProvider< VulkanDataBuffer, ByteBuffer >
 {
+    private final VulkanDataBufferAllocator allocator;
     
-    public VulkanDataBufferProvider( VulkanBufferMemory memory, long memoryOffsetAlignment ){
+    VulkanDataBufferProvider(
+        VulkanDeviceAllocator allocator,
+        VulkanBufferMemory memory,
+        long memoryOffsetAlignment
+    ) {
         super( memory, memoryOffsetAlignment );
+        this.allocator = allocator.createDataBufferAllocator();
     }
     
     @Override
     public VulkanDataBuffer create( ByteBuffer data ) throws CannotCreateBufferException {
-        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.remaining() ) );
+        var buffer = allocator.createBuffer( this, getMemory(), allocate( data.remaining() ) );
         buffer.create();
         buffer.load( data );
         return buffer;
     }
     
     public VulkanDataBuffer create( float[] data ) throws CannotCreateBufferException {
-        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
+        var buffer = allocator.createBuffer( this, getMemory(), allocate( data.length*4 ) );
         buffer.create();
         buffer.load( data );
         return buffer;
@@ -48,16 +56,20 @@ public class VulkanDataBufferProvider
     }
     
     public VulkanDataBuffer create( byte[] data ) throws CannotCreateBufferException {
-        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length ) );
+        var buffer = allocator.createBuffer( this, getMemory(), allocate( data.length ) );
         buffer.create();
         buffer.load( data );
         return buffer;
     }
     
     public VulkanDataBuffer create( int[] data ) throws CannotCreateBufferException {
-        var buffer = new VulkanDataBuffer( this, getMemory(), allocate( data.length*4 ) );
+        var buffer = allocator.createBuffer( this, getMemory(), allocate( data.length*4 ) );
         buffer.create();
         buffer.load( data );
         return buffer;
+    }
+    
+    void dispose() {
+        allocator.dispose();
     }
 }

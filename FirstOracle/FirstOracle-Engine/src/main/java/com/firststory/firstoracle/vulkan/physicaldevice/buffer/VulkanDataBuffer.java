@@ -7,6 +7,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 import com.firststory.firstoracle.buffer.BufferNotCreatedException;
 import com.firststory.firstoracle.buffer.CannotCreateBufferException;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
+import com.firststory.firstoracle.vulkan.allocators.VulkanDataBufferAllocator;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -18,15 +19,18 @@ import java.nio.IntBuffer;
  */
 public class VulkanDataBuffer extends VulkanDataBufferInLinearMemory< ByteBuffer > {
     
+    private final VulkanDataBufferAllocator allocator;
     private final VulkanBufferMemory deviceMemory;
     private ByteBuffer byteBuffer = MemoryUtil.memAlloc( 1024 * 4 );
     
-    VulkanDataBuffer(
+    public VulkanDataBuffer(
+        VulkanDataBufferAllocator allocator,
         VulkanDataBufferProvider controller,
         VulkanBufferMemory deviceMemory,
         VulkanLinearMemoryLocation deviceMemoryLocation
     ) {
         super( controller, deviceMemoryLocation );
+        this.allocator = allocator;
         this.deviceMemory = deviceMemory;
     }
     
@@ -68,5 +72,9 @@ public class VulkanDataBuffer extends VulkanDataBufferInLinearMemory< ByteBuffer
     @Override
     public String toString() {
         return "Buffer@" + hashCode() + "{ buf: " + getBufferAddress().getValue() + ", of: " + getMemoryOffset() +" }";
+    }
+    
+    public void dispose() {
+        allocator.deregisterBuffer( this );
     }
 }

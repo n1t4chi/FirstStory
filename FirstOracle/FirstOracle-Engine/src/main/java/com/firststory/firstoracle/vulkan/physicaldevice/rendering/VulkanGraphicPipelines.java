@@ -29,15 +29,32 @@ public class VulkanGraphicPipelines {
     
     private final VulkanAddress pipelineLayout = VulkanAddress.createNull();
     
-    private final VulkanPipelineAllocator firstUsePipelineAllocator;
-    private final VulkanPipelineAllocator laterUsePipelineAllocator;
+    private final VulkanPipelineAllocator firstRenderPipelineAllocator;
+    private final VulkanPipelineAllocator firstStageRenderPipelineAllocator;
+    private final VulkanPipelineAllocator continuingRenderPipelineAllocator;
     private final VulkanRenderPass exampleRenderPass;
     
     public VulkanGraphicPipelines( VulkanDeviceAllocator allocator, VulkanPhysicalDevice device, int topologyType ) {
         this.allocator = allocator;
         this.device = device;
-        firstUsePipelineAllocator = allocator.createPipelineAllocator( pipelineLayout, topologyType, true );
-        laterUsePipelineAllocator = allocator.createPipelineAllocator( pipelineLayout, topologyType, false );
+        firstRenderPipelineAllocator = allocator.createPipelineAllocator(
+            pipelineLayout,
+            topologyType,
+            true,
+            false
+        );
+        firstStageRenderPipelineAllocator = allocator.createPipelineAllocator(
+            pipelineLayout,
+            topologyType,
+            false,
+            false
+        );
+        continuingRenderPipelineAllocator = allocator.createPipelineAllocator(
+            pipelineLayout,
+            topologyType,
+            false,
+            true
+        );
         exampleRenderPass = new VulkanRenderPass( device );
     }
     
@@ -46,8 +63,8 @@ public class VulkanGraphicPipelines {
     }
     
     public void disposeUnsafe() {
-        firstUsePipelineAllocator.dispose();
-        laterUsePipelineAllocator.dispose();
+        firstRenderPipelineAllocator.dispose();
+        firstStageRenderPipelineAllocator.dispose();
         exampleRenderPass.dispose();
         clearLayout();
     }
@@ -61,17 +78,22 @@ public class VulkanGraphicPipelines {
         clearLayout();
         updateVulkanPipelineLayout( descriptorSet );
         
-        laterUsePipelineAllocator.update( swapChain, shaderStages, depthResources );
-        firstUsePipelineAllocator.update( swapChain, shaderStages, depthResources );
-        exampleRenderPass.updateRenderPass( swapChain, depthResources, false );
+        firstStageRenderPipelineAllocator.update( swapChain, shaderStages, depthResources );
+        firstRenderPipelineAllocator.update( swapChain, shaderStages, depthResources );
+        continuingRenderPipelineAllocator.update( swapChain, shaderStages, depthResources );
+        exampleRenderPass.updateRenderPass( swapChain, depthResources, false, false );
     }
     
-    VulkanPipeline getLaterUsePipeline() {
-        return laterUsePipelineAllocator.createPipeline();
+    VulkanPipeline getFirstRenderPipeline() {
+        return firstRenderPipelineAllocator.createPipeline();
     }
     
-    VulkanPipeline getFirstUsePipeline() {
-        return firstUsePipelineAllocator.createPipeline();
+    VulkanPipeline getFirstStageRenderPipeline() {
+        return firstStageRenderPipelineAllocator.createPipeline();
+    }
+    
+    VulkanPipeline getContinuingRenderPipeline() {
+        return continuingRenderPipelineAllocator.createPipeline();
     }
     
     public VulkanRenderPass getRenderPass() {
