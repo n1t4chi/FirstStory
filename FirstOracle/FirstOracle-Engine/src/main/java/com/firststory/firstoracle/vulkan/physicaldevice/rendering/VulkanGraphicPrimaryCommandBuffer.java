@@ -51,7 +51,9 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
         for ( var i = 0; i < secondaryBuffers.size(); i++ ) {
             buffers.put( i, secondaryBuffers.get( i ).getCommandBuffer().address() );
         }
-        VK10.vkCmdExecuteCommands( getCommandBuffer(), buffers );
+        synchronized ( Object.class ) {
+            VK10.vkCmdExecuteCommands( getCommandBuffer(), buffers );
+        }
     }
     
     private boolean activeRenderPass = false;
@@ -59,7 +61,9 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
     void beginRenderPass( VulkanSwapChain swapChain, VulkanRenderPass renderPass, VulkanFrameBuffer frameBuffer, Colour backgroundColour ) {
         activeRenderPass = true;
         var renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, frameBuffer, backgroundColour );
-        VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
+        synchronized ( Object.class ) {
+            VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
+        }
     }
     
     private void endRenderPass() {
@@ -67,7 +71,9 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
             throw new RuntimeException( "cannot end render pass" );
         }
         activeRenderPass = false;
-        VK10.vkCmdEndRenderPass( getCommandBuffer() );
+        synchronized ( Object.class ) {
+            VK10.vkCmdEndRenderPass( getCommandBuffer() );
+        }
     }
     
     private VkRenderPassBeginInfo createRenderPassBeginInfo(

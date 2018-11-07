@@ -57,16 +57,20 @@ public class VulkanTransferData {
         if ( source.isNull() || destination.isNull() ) {
             return;
         }
-        
-        VK10.vkCmdCopyBuffer(
-            commandBuffer.getCommandBuffer(),
-            source.getValue(),
-            destination.getValue(),
-            regions.put( 0, region
-                .srcOffset( sourceOffset )
-                .dstOffset( destinationOffset )
-                .size( length )
-            )
-        );
+    
+        synchronized ( Object.class ) {
+            VK10.vkCmdCopyBuffer(
+                commandBuffer.getCommandBuffer(),
+                source.getValue(),
+                destination.getValue(),
+                regions.put(
+                    0,
+                    region
+                        .srcOffset( sourceOffset )
+                        .dstOffset( destinationOffset )
+                        .size( length )
+                )
+            );
+        }
     }
 }

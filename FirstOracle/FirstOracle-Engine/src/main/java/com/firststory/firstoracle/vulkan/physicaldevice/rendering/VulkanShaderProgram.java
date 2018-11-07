@@ -15,7 +15,6 @@ import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanShaderType;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
-import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
@@ -49,8 +48,6 @@ public class VulkanShaderProgram implements ShaderProgram {
     private final VulkanShader vertexShader;
     private final List< VkPipelineShaderStageCreateInfo > shaderStages = new ArrayList<>();
     private final float[] uniformBufferData = new float[ UNIFORM_SIZE ];
-    private Matrix4fc camera = null;
-    private boolean cameraChanged = true;
     
     public VulkanShaderProgram(
         VulkanDeviceAllocator allocator,
@@ -58,11 +55,10 @@ public class VulkanShaderProgram implements ShaderProgram {
         VulkanBufferProvider bufferLoader
     ) {
         this.allocator = allocator;
-        VulkanPhysicalDevice device1 = device;
         this.vertexShader = new VulkanShader( device, SHADER_FILE_PATH_VERTEX_3D, VulkanShaderType.VERTEX );
         this.fragmentShader = new VulkanShader( device, SHADER_FILE_PATH_FRAGMENT, VulkanShaderType.FRAGMENT );
         this.bufferLoader = bufferLoader;
-        clearValues();
+        Arrays.fill( uniformBufferData, 1 );
     }
     
     @Override
@@ -91,8 +87,11 @@ public class VulkanShaderProgram implements ShaderProgram {
         return shaderStages;
     }
     
-    void bindCamera( Matrix4fc camera ) {
-        putUniformData( camera );
+    VulkanDataBuffer bindUniformData( Matrix4fc camera ) {
+        synchronized ( uniformBufferData ) {
+            camera.get( uniformBufferData );
+            return bufferLoader.createUniformBuffer( uniformBufferData );
+        }
     }
     
     float[] getInputData() {
@@ -119,34 +118,11 @@ public class VulkanShaderProgram implements ShaderProgram {
         putInputData( OFFSET_ALPHA_CHANNEL, value );
     }
     
-    VulkanDataBuffer bindUniformData() {
-        return bufferLoader.createUniformBuffer( uniformBufferData );
-    }
-    
     VkDescriptorBufferInfo createDescriptorBufferInfo( VulkanDataBuffer uniformBuffer ) {
         return VkDescriptorBufferInfo.calloc()
             .buffer( uniformBuffer.getBufferAddress().getValue() )
             .offset( uniformBuffer.getMemoryOffset() )
             .range( UNIFORM_DATA_SIZE );
-    }
-    
-    Matrix4fc getCamera() {
-        cameraChanged = false;
-        return camera;
-    }
-    
-    boolean didCameraChange() {
-        return cameraChanged;
-    }
-    
-    void putUniformData( Matrix4fc camera ) {
-        this.camera = new Matrix4f( camera );
-        cameraChanged = true;
-        camera.get( uniformBufferData );
-    }
-    
-    void clearValues() {
-        Arrays.fill( uniformBufferData, 1 );
     }
     
     private void putInputData( int offset, float... data ) {

@@ -54,7 +54,9 @@ public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer< Vu
     }
     
     void setLineWidth( Float lineWidth ) {
-        VK10.vkCmdSetLineWidth( getCommandBuffer(), lineWidth );
+        synchronized ( Object.class ) {
+            VK10.vkCmdSetLineWidth( getCommandBuffer(), lineWidth );
+        }
     }
     
     void draw(
@@ -64,44 +66,51 @@ public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer< Vu
         VulkanDataBuffer dataBuffer,
         int bufferSize
     ) {
-        VK10.vkCmdBindVertexBuffers( getCommandBuffer(), 0,
-            new long[]{
-                vertexBuffer.getBufferAddress().getValue(),
-                uvBuffer.getBufferAddress().getValue(),
-                colourBuffer.getBufferAddress().getValue(),
-                dataBuffer.getBufferAddress().getValue()
-            },
-            new long[]{
-                vertexBuffer.getMemoryOffset(),
-                uvBuffer.getMemoryOffset(),
-                colourBuffer.getMemoryOffset(),
-                dataBuffer.getMemoryOffset(),
-            }
-        );
-        VK10.vkCmdDraw(
-            getCommandBuffer(),
-            bufferSize,
-            1,
-            0,
-            0
-        );
+        synchronized ( Object.class ) {
+            VK10.vkCmdBindVertexBuffers( getCommandBuffer(),
+                0,
+                new long[]{
+                    vertexBuffer.getBufferAddress().getValue(),
+                    uvBuffer.getBufferAddress().getValue(),
+                    colourBuffer.getBufferAddress().getValue(),
+                    dataBuffer.getBufferAddress().getValue()
+                },
+                new long[]{
+                    vertexBuffer.getMemoryOffset(),
+                    uvBuffer.getMemoryOffset(),
+                    colourBuffer.getMemoryOffset(),
+                    dataBuffer.getMemoryOffset(),
+                }
+            );
+            VK10.vkCmdDraw(
+                getCommandBuffer(),
+                bufferSize,
+                1,
+                0,
+                0
+            );
+        }
     }
     
     void bindDescriptorSets( VulkanGraphicPipelines graphicPipelines, VulkanDescriptorSet descriptorSet ) {
-        VK10.vkCmdBindDescriptorSets( getCommandBuffer(),
-            VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphicPipelines.getPipelineLayout().getValue(),
-            0,
-            MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getAddress().getValue() ),
-            null
-        );
+        synchronized ( Object.class ) {
+            VK10.vkCmdBindDescriptorSets( getCommandBuffer(),
+                VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
+                graphicPipelines.getPipelineLayout().getValue(),
+                0,
+                MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getAddress().getValue() ),
+                null
+            );
+        }
     }
     
     void bindPipeline( VulkanPipeline graphicPipeline ) {
-        VK10.vkCmdBindPipeline(
-            getCommandBuffer(),
-            VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphicPipeline.getGraphicPipeline().getValue()
-        );
+        synchronized ( Object.class ) {
+            VK10.vkCmdBindPipeline(
+                getCommandBuffer(),
+                VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
+                graphicPipeline.getGraphicPipeline().getValue()
+            );
+        }
     }
 }

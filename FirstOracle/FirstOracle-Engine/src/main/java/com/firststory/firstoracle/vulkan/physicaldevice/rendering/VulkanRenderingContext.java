@@ -45,6 +45,7 @@ public class VulkanRenderingContext implements RenderingContext {
     
     private VulkanStages stages;
     private final ExecutorService executorService;
+    private final ExecutorService executorService2;
     
     private final Deque< VulkanDataBuffer > availableDataBuffers = new LinkedList<>();
     
@@ -70,7 +71,8 @@ public class VulkanRenderingContext implements RenderingContext {
         this.device = device;
         this.shouldDrawBorder = shouldDrawBorder;
         this.shouldDrawTextures = shouldDrawTextures;
-        executorService = Executors.newFixedThreadPool( 1 );
+        executorService = Executors.newFixedThreadPool( 2 );
+        executorService2 = Executors.newFixedThreadPool( 4 );
     }
     
     public void dispose() {
@@ -79,6 +81,7 @@ public class VulkanRenderingContext implements RenderingContext {
     
     public void disposeUnsafe() {
         executorService.shutdownNow();
+        executorService2.shutdownNow();
     }
     
     public void setUpSingleRender() {
@@ -137,28 +140,32 @@ public class VulkanRenderingContext implements RenderingContext {
             linePipelines,
             swapChain,
             frameBuffer,
-            background
+            background,
+            executorService2
         ) );
         var scene2DFuture = executorService.submit( createWorker(
             trianglePipelines,
             linePipelines,
             swapChain,
             frameBuffer,
-            scene2D
+            scene2D,
+            executorService2
         ) );
         var scene3DFuture = executorService.submit( createWorker(
             trianglePipelines,
             linePipelines,
             swapChain,
             frameBuffer,
-            scene3D
+            scene3D,
+            executorService2
         ) );
         var overlayFuture = executorService.submit( createWorker(
             trianglePipelines,
             linePipelines,
             swapChain,
             frameBuffer,
-            overlay
+            overlay,
+            executorService2
         ) );
         
         var backgroundBatchDatas = waitAndGet( backgroundFuture, BACKGROUND );
@@ -206,7 +213,8 @@ public class VulkanRenderingContext implements RenderingContext {
         VulkanGraphicPipelines linePipelines,
         VulkanSwapChain swapChain,
         VulkanFrameBuffer frameBuffer,
-        VulkanStage stage
+        VulkanStage stage,
+        ExecutorService executorService
     ) {
         return new VulkanRenderStageWorker(
             device,
@@ -214,6 +222,7 @@ public class VulkanRenderingContext implements RenderingContext {
             availableDataBuffers,
             shouldDrawTextures,
             shouldDrawBorder,
+            executorService,
             stage,
             swapChain,
             frameBuffer,
@@ -251,13 +260,13 @@ public class VulkanRenderingContext implements RenderingContext {
                 VkSubmitInfo submitInfo;
                 if ( i == 0 ) {
                     submitInfo = VulkanSubmitInfo.createSubmitInfo(
-                        batchData.getPrimaryBuffer(),
+                        batchData.getPrimaryBuffers(),
                         initialWaitSemaphores,
                         signalSemaphore
                     );
                 } else {
                     submitInfo = VulkanSubmitInfo.createSubmitInfo(
-                        batchData.getPrimaryBuffer(),
+                        batchData.getPrimaryBuffers(),
                         waitSemapore,
                         signalSemaphore
                     );

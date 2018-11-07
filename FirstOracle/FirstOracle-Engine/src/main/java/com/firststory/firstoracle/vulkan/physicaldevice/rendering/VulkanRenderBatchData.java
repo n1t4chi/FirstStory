@@ -5,55 +5,39 @@
 package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
-import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author n1t4chi
  */
 class VulkanRenderBatchData {
     
-    private final VulkanGraphicCommandPool commandPool;
-    private final VulkanGraphicPrimaryCommandBuffer primaryBuffer;
-    private final List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers;
     private final VulkanDescriptorPool descriptorPool;
     private final List< VulkanDataBuffer > uniformBuffers;
-    private final VulkanPipeline trianglePipeline;
-    private final VulkanPipeline linePipeline;
+    private final List< VulkanRenderBatchPartialData > partialDatas;
     
     VulkanRenderBatchData(
-        VulkanGraphicCommandPool commandPool,
-        VulkanGraphicPrimaryCommandBuffer primaryBuffer,
-        List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers,
         VulkanDescriptorPool descriptorPool,
-        List< VulkanDataBuffer> uniformBuffers,
-        VulkanPipeline trianglePipeline,
-        VulkanPipeline linePipeline
+        List< VulkanDataBuffer > uniformBuffers,
+        List< VulkanRenderBatchPartialData > partialDatas
     ) {
-        this.commandPool = commandPool;
-        this.primaryBuffer = primaryBuffer;
-        this.secondaryBuffers = secondaryBuffers;
         this.descriptorPool = descriptorPool;
         this.uniformBuffers = uniformBuffers;
-        this.trianglePipeline = trianglePipeline;
-        this.linePipeline = linePipeline;
+        this.partialDatas = partialDatas;
     }
     
     void dispose() {
-        primaryBuffer.dispose();
-        
-        secondaryBuffers.forEach( VulkanCommandBuffer::dispose );
-        secondaryBuffers.clear();
         descriptorPool.dispose();
         uniformBuffers.forEach( VulkanDataBuffer::dispose );
-        uniformBuffers.clear();
-        trianglePipeline.dispose();
-        linePipeline.dispose();
-        commandPool.dispose();
+        partialDatas.forEach( VulkanRenderBatchPartialData::dispose );
     }
     
-    VulkanGraphicPrimaryCommandBuffer getPrimaryBuffer() {
-        return primaryBuffer;
+    List< VulkanGraphicPrimaryCommandBuffer > getPrimaryBuffers() {
+        return partialDatas.stream()
+            .map( VulkanRenderBatchPartialData::getPrimaryBuffer )
+            .collect( Collectors.toList())
+        ;
     }
 }

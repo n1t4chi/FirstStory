@@ -109,14 +109,16 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
                 .imageExtent( VkExtent3D.calloc().set( textureData.getWidth(), textureData.getHeight(), 1 ) );
     
             var regionBuffer = VkBufferImageCopy.calloc( 1 ).put( 0, region );
-            
-            VK10.vkCmdCopyBufferToImage(
-                commandBuffer.getCommandBuffer(),
-                textureData.getBuffer().getBufferAddress().getValue(),
-                textureData.getImage().getAddress().getValue(),
-                VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                regionBuffer
-            );
+    
+            synchronized ( Object.class ) {
+                VK10.vkCmdCopyBufferToImage(
+                    commandBuffer.getCommandBuffer(),
+                    textureData.getBuffer().getBufferAddress().getValue(),
+                    textureData.getImage().getAddress().getValue(),
+                    VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    regionBuffer
+                );
+            }
             regionBuffer.free();
         } );
     }

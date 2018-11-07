@@ -305,14 +305,16 @@ public class VulkanInMemoryImage extends VulkanImage {
                 .layerCount( 1 )
             )
         ;
-        VK10.vkCmdBlitImage( commandBuffer.getCommandBuffer(),
-            getAddress().getValue(),
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            getAddress().getValue(),
-            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VkImageBlit.calloc( 1 ).put( 0, blit ),
-            VK10.VK_FILTER_LINEAR
-        );
+        synchronized ( Object.class ) {
+            VK10.vkCmdBlitImage( commandBuffer.getCommandBuffer(),
+                getAddress().getValue(),
+                VK10.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                getAddress().getValue(),
+                VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                VkImageBlit.calloc( 1 ).put( 0, blit ),
+                VK10.VK_FILTER_LINEAR
+            );
+        }
     }
     
     private void invokePipelineBarrier(
@@ -321,14 +323,17 @@ public class VulkanInMemoryImage extends VulkanImage {
         VulkanTransferCommandBuffer commandBuffer,
         VkImageMemoryBarrier barrierBuffer
     ) {
-        VK10.vkCmdPipelineBarrier( commandBuffer.getCommandBuffer(),
-            srcStageMask,
-            dstStageMask,
-            0,
-            null,
-            null,
-            createSingleMemoryBarrierBuffer( barrierBuffer )
-        );
+        synchronized ( Object.class ) {
+            VK10.vkCmdPipelineBarrier(
+                commandBuffer.getCommandBuffer(),
+                srcStageMask,
+                dstStageMask,
+                0,
+                null,
+                null,
+                createSingleMemoryBarrierBuffer( barrierBuffer )
+            );
+        }
     }
     
     private VkImageMemoryBarrier.Buffer createSingleMemoryBarrierBuffer( VkImageMemoryBarrier barrier ) {

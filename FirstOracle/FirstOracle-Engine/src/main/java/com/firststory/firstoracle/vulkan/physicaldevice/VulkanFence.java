@@ -18,11 +18,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author n1t4chi
  */
 public class VulkanFence {
+    private static final Logger logger = FirstOracleConstants.getLogger( VulkanFence.class );
+    
     private static final long NANOS_IN_MICRO = 1000;
     private static final long MICROS_IN_MILI = 1000;
     private static final long MILIS_IN_SECOND = 1000;
@@ -65,16 +69,20 @@ public class VulkanFence {
     
     public void executeWhenFinishedThenDispose( Runnable runnable ) {
         futures.add( executorService.submit( () -> {
-            var result = VK10.vkWaitForFences( device.getLogicalDevice(), address.getValue(), true, MINUTE_IN_NANO_SECONDS );
-            switch ( result ) {
-                case VK10.VK_SUCCESS:
-                    runnable.run();
-                    dispose();
-                    break;
-                case VK10.VK_TIMEOUT:
-                    throw new VulkanFenceExecutionTimeoutException( device, this );
-                default:
-                    throw new VulkanFenceExecutionException( device, this, result );
+            try {
+                var result = VK10.vkWaitForFences( device.getLogicalDevice(), address.getValue(), true, MINUTE_IN_NANO_SECONDS );
+                switch ( result ) {
+                    case VK10.VK_SUCCESS:
+                        runnable.run();
+                        dispose();
+                        break;
+                    case VK10.VK_TIMEOUT:
+                        throw new VulkanFenceExecutionTimeoutException( device, this );
+                    default:
+                        throw new VulkanFenceExecutionException( device, this, result );
+                }
+            } catch ( Exception ex ) {
+                logger.log( Level.WARNING, "Exception during executing commands after fence." ,ex );
             }
         } ) );
     }
