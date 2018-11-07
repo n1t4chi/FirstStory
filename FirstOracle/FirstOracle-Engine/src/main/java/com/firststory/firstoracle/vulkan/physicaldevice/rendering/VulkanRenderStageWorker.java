@@ -16,6 +16,7 @@ import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -31,14 +32,13 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
     private final Deque< VulkanDataBuffer > availableDataBuffers;
     private final boolean shouldDrawTextures;
     private final boolean shouldDrawBorder;
-    private final VulkanPipeline trianglePipeline;
-    private final VulkanPipeline linePipeline;
     private final VulkanSwapChain swapChain;
     private final VulkanFrameBuffer frameBuffer;
     private final Colour backgroundColour;
     private final VulkanGraphicPipelines linePipelines;
     private final VulkanGraphicPipelines trianglePipelines;
-
+    public static final int CHUNK_SIZE = 1000;
+    
     VulkanRenderStageWorker(
         VulkanPhysicalDevice device,
         List< VulkanDataBuffer > dataBuffers,
@@ -46,8 +46,6 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         boolean shouldDrawTextures,
         boolean shouldDrawBorder,
         VulkanStage stage,
-        VulkanPipeline trianglePipeline,
-        VulkanPipeline linePipeline,
         VulkanSwapChain swapChain,
         VulkanFrameBuffer frameBuffer,
         Colour backgroundColour,
@@ -61,8 +59,6 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         this.availableDataBuffers = availableDataBuffers;
         this.shouldDrawTextures = shouldDrawTextures;
         this.shouldDrawBorder = shouldDrawBorder;
-        this.trianglePipeline = trianglePipeline;
-        this.linePipeline = linePipeline;
         this.swapChain = swapChain;
         this.frameBuffer = frameBuffer;
         this.backgroundColour = backgroundColour;
@@ -76,9 +72,12 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
     }
     
     private VulkanRenderBatchData renderStage() {
+        var trianglePipeline = stage.isInitialStage() ? trianglePipelines.getFirstRenderPipeline() : trianglePipelines.getFirstStageRenderPipeline();
+        var linePipeline = stage.isInitialStage() ? linePipelines.getFirstRenderPipeline() : linePipelines.getFirstStageRenderPipeline();
+        
         var camera = stage.getCamera();
-        var renderDataByTexture = stage.getRenderDataByTexture();
-        var textures = stage.getTextures();
+        var renderDatas = stage.getRenderDatas();
+        
         var renderPass = trianglePipeline.getRenderPass();
         
         var commandPool = device.getAllocator().createGraphicCommandPool();
@@ -91,37 +90,35 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
             backgroundColour
         );
         
+        var textures = stage.getTextures();
+        var descriptorPool = device.getDescriptor().createDescriptorPool( textures.size() );
+        var setsByTexture = new HashMap< Texture, VulkanDescriptorSet >();
+        
         var secondaryBuffers = new ArrayList< VulkanGraphicSecondaryCommandBuffer >();
-        var descriptorsPools = new ArrayList< VulkanDescriptorPool >();
         var uniformBuffers = new ArrayList< VulkanDataBuffer>();
-        if ( !renderDataByTexture.isEmpty() ) {
-            var shader = device.getShaderProgram3D();
-            var descriptorPool = device.getDescriptor().createDescriptorPool( renderDataByTexture.size() );
-            descriptorsPools.add( descriptorPool );
+        if ( !renderDatas.isEmpty() ) {
     
+            var shader = device.getShaderProgram3D();
             shader.bindCamera( camera.getMatrixRepresentation() );
             var uniformBuffer = shader.bindUniformData();
             var uniformBufferInfo = shader.createDescriptorBufferInfo( uniformBuffer );
             uniformBuffers.add( uniformBuffer );
-    
-            renderDataByTexture.forEach( ( texture, renderDataList ) -> {
-                var secondaryBuffer = commandPool.provideNextSecondaryBuffer();
-                secondaryBuffers.add( secondaryBuffer );
-                secondaryBuffer.update(
-                    renderPass,
-                    0,
-                    frameBuffer
-                );
-                renderData(
-                    trianglePipeline,
-                    linePipeline,
-                    secondaryBuffer,
-                    descriptorPool,
-                    uniformBufferInfo,
-                    texture,
-                    renderDataList
-                );
-            } );
+            
+            List< List< RenderData > > batches = new ArrayList<>(  );
+            for( var i=0; i < renderDatas.size() ; i += CHUNK_SIZE )
+            {
+                batches.add( renderDatas.subList( i, Math.min( i + CHUNK_SIZE, renderDatas.size() ) ) );
+            }
+            batches.forEach( renderDataList -> secondaryBuffers.add( renderBatch(
+                trianglePipeline,
+                linePipeline,
+                renderPass,
+                commandPool,
+                descriptorPool,
+                setsByTexture,
+                uniformBufferInfo,
+                renderDataList
+            ) ) );
         }
         
         primaryBuffer.executeSecondaryBuffers( secondaryBuffers );
@@ -130,11 +127,43 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
             commandPool,
             primaryBuffer,
             secondaryBuffers,
-            descriptorsPools,
+            descriptorPool,
             uniformBuffers,
             trianglePipeline,
             linePipeline
         );
+    }
+    
+    private VulkanGraphicSecondaryCommandBuffer renderBatch(
+        VulkanPipeline trianglePipeline,
+        VulkanPipeline linePipeline,
+        VulkanRenderPass renderPass,
+        VulkanGraphicCommandPool commandPool,
+        VulkanDescriptorPool descriptorPool,
+        HashMap< Texture, VulkanDescriptorSet > setsByTexture,
+        VkDescriptorBufferInfo uniformBufferInfo,
+        List< RenderData > renderDataList
+    ) {
+        var secondaryBuffer = commandPool.provideNextSecondaryBuffer();
+        secondaryBuffer.update(
+            renderPass,
+            0,
+            frameBuffer
+        );
+        secondaryBuffer.fillQueueSetup();
+    
+        renderDataList.forEach( renderData -> renderData(
+            trianglePipeline,
+            linePipeline,
+            secondaryBuffer,
+            descriptorPool,
+            setsByTexture,
+            uniformBufferInfo,
+            renderData
+        ) );
+        
+        secondaryBuffer.fillQueueTearDown();
+        return secondaryBuffer;
     }
     
     private void renderData(
@@ -142,23 +171,60 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         VulkanPipeline linePipeline,
         VulkanGraphicSecondaryCommandBuffer buffer,
         VulkanDescriptorPool descriptorPool,
+        HashMap< Texture, VulkanDescriptorSet > setsByTexture,
         VkDescriptorBufferInfo uniformBufferInfo,
-        Texture texture,
-        List< RenderData > renderDataList
+        RenderData renderData
     ) {
-        var holder = new VulkanLastPipelineHolder();
-        var textureBuffer = device.getTextureLoader().bind( shouldDrawTextures
-            ? texture
-            : FirstOracleConstants.EMPTY_TEXTURE
+        VulkanPipeline pipeline;
+        switch ( renderData.getType() ) {
+            case BORDER:
+                if ( !shouldDrawBorder ) {
+                    return;
+                }
+            case LINES:
+            case LINE_LOOP:
+                pipeline = linePipeline;
+                break;
+            case TRIANGLES:
+            default:
+                pipeline = trianglePipeline;
+                break;
+        }
+        buffer.bindPipeline( pipeline );
+        buffer.setLineWidth( renderData.getLineWidth() );
+        
+        var dataBuffer = loadObjectData(
+            availableDataBuffers,
+            renderData
         );
         
-        var descriptorSet = descriptorPool.getNextDescriptorSet();
-        descriptorSet.updateDescriptorSet(
-            textureSampler,
-            textureBuffer.getContext(),
-            uniformBufferInfo
+        var loader = device.getVertexAttributeLoader();
+        
+        var uvBuffer = loader.extractUvMapBuffer( renderData.getUvMap(),
+            renderData.getUvDirection(),
+            renderData.getUvFrame()
         );
-        buffer.fillQueueSetup();
+        var vertexBuffer = loader.extractVerticesBuffer(
+            renderData.getVertices(),
+            renderData.getVertexFrame()
+        );
+        var colouringBuffer = loader.extractColouringBuffer( renderData.getColouring() );
+        
+        var bufferSize = renderData.getVertices().getVertexLength( renderData.getVertexFrame() );
+        VulkanDescriptorSet descriptorSet;
+        synchronized ( setsByTexture ) {
+            descriptorSet = setsByTexture.computeIfAbsent( getUsedTexture( renderData.getTexture() ), usedTexture -> {
+                var set = descriptorPool.getNextDescriptorSet();
+                var textureBuffer = device.getTextureLoader().bind( usedTexture );
+                set.updateDescriptorSet(
+                    textureSampler,
+                    textureBuffer.getContext(),
+                    uniformBufferInfo
+                );
+                return set;
+            } );
+        }
+        
         buffer.bindDescriptorSets(
             linePipelines,
             descriptorSet
@@ -168,61 +234,17 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
             descriptorSet
         );
         
-        renderDataList.forEach( renderData -> {
-            VulkanPipeline pipeline;
-            switch ( renderData.getType() ) {
-                case BORDER:
-                    if ( !shouldDrawBorder ) {
-                        return;
-                    }
-                case LINES:
-                case LINE_LOOP:
-                    buffer.setLineWidth( renderData.getLineWidth() );
-                    pipeline = linePipeline;
-                    break;
-                case TRIANGLES:
-                default:
-                    pipeline = trianglePipeline;
-                    break;
-            }
-            if ( holder.getLastPipeline() != pipeline ) {
-                buffer.bindPipeline( pipeline );
-                holder.setLastPipeline( pipeline );
-            }
-            
-            var dataBuffer = loadObjectData(
-                availableDataBuffers,
-                renderData
-            );
-            
-            var loader = device.getVertexAttributeLoader();
-            
-            var
-                uvBuffer =
-                loader.extractUvMapBuffer( renderData.getUvMap(),
-                    renderData.getUvDirection(),
-                    renderData.getUvFrame()
-                );
-            var vertexBuffer = loader.extractVerticesBuffer(
-                renderData.getVertices(),
-                renderData.getVertexFrame()
-            );
-            var colouringBuffer = loader.extractColouringBuffer( renderData.getColouring() );
-            
-            var
-                bufferSize =
-                renderData
-                    .getVertices()
-                    .getVertexLength( renderData.getVertexFrame() );
-            buffer.draw(
-                vertexBuffer,
-                uvBuffer,
-                colouringBuffer,
-                dataBuffer,
-                bufferSize
-            );
-        } );
-        buffer.fillQueueTearDown();
+        buffer.draw(
+            vertexBuffer,
+            uvBuffer,
+            colouringBuffer,
+            dataBuffer,
+            bufferSize
+        );
+    }
+    
+    private Texture getUsedTexture( Texture texture ) {
+        return shouldDrawTextures ? texture : FirstOracleConstants.EMPTY_TEXTURE;
     }
     
     private VulkanDataBuffer loadObjectData(

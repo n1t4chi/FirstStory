@@ -91,6 +91,7 @@ public class VulkanPipeline {
         if( !update ) {
             return;
         }
+        disposeUnsafe();
         update = false;
     
         renderPass.updateRenderPass(

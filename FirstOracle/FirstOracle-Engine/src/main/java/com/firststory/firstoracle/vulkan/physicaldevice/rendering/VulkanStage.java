@@ -5,48 +5,55 @@
 package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.Camera;
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.rendering.RenderData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author n1t4chi
  */
 class VulkanStage {
     
-    private final Map< Texture, List< RenderData > > renderDataByTexture = new HashMap<>();
+    private List< RenderData > renderDatas;
     private final Set< Texture > textures = new HashSet<>();
     private Camera camera;
+    private final boolean initialStage;
+    
+    VulkanStage( boolean initialStage ) {
+        this.initialStage = initialStage;
+    }
+    
+    boolean isInitialStage() {
+        return initialStage;
+    }
     
     void addRenderDatas( List< RenderData > renderDatas ) {
-        renderDatas.forEach( this::addRenderData );
+        synchronized ( renderDatas )
+        {
+            this.renderDatas = new ArrayList<>( renderDatas );
+        }
     }
     
     void setCamera( Camera camera ) {
         this.camera = camera;
     }
     
-    void addRenderData( RenderData data ) {
-        renderDataByTexture.computeIfAbsent( data.getTexture(), texture -> new ArrayList<>() ).add( data );
-        textures.add( data.getTexture() );
-    }
-    
-    Map< Texture, List< RenderData > > getRenderDataByTexture() {
-        return renderDataByTexture;
+    List< RenderData > getRenderDatas() {
+        return renderDatas;
     }
     
     Set< Texture > getTextures() {
+        textures.add( FirstOracleConstants.EMPTY_TEXTURE );
+        renderDatas.forEach( renderData -> textures.add( renderData.getTexture() ) );
         return textures;
     }
     
     Camera getCamera() {
         return camera;
     }
-    
-    void clear() {
-        renderDataByTexture.forEach( ( key, value ) -> value.clear() );
-        renderDataByTexture.clear();
-    }
-    
 }

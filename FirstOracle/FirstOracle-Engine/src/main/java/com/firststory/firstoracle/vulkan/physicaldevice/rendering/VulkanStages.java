@@ -15,10 +15,10 @@ class VulkanStages {
     private final VulkanStage scene3D;
     
     VulkanStages() {
-        this.background = new VulkanStage();
-        this.overlay = new VulkanStage();
-        this.scene2D = new VulkanStage();
-        this.scene3D = new VulkanStage();
+        this.background = new VulkanStage( true );
+        this.scene2D = new VulkanStage( false );
+        this.scene3D = new VulkanStage( false );
+        this.overlay = new VulkanStage( false );
     }
     
     VulkanStage getBackground() {

@@ -68,8 +68,9 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     }
     
     private void createTextureImageView( VulkanTextureData textureData ) {
-        textureData.setImageView(
-            textureData.getImage().createImageView( VK10.VK_FORMAT_R8G8B8A8_UNORM, VK10.VK_IMAGE_ASPECT_COLOR_BIT ) );
+        textureData.setImageView( textureData.getImage()
+            .createImageView( VK10.VK_FORMAT_R8G8B8A8_UNORM, VK10.VK_IMAGE_ASPECT_COLOR_BIT )
+        );
     }
     
     private void createTextureImage( VulkanTextureData textureData, ByteBuffer imageBuffer, String name ) {

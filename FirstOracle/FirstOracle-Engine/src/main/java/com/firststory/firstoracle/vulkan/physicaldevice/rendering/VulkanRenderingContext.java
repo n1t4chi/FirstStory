@@ -70,7 +70,7 @@ public class VulkanRenderingContext implements RenderingContext {
         this.device = device;
         this.shouldDrawBorder = shouldDrawBorder;
         this.shouldDrawTextures = shouldDrawTextures;
-        executorService = Executors.newFixedThreadPool( 8 );
+        executorService = Executors.newFixedThreadPool( 1 );
     }
     
     public void dispose() {
@@ -119,7 +119,7 @@ public class VulkanRenderingContext implements RenderingContext {
         VulkanGraphicPipelines linePipelines,
         VulkanImageIndex imageIndex,
         VulkanSwapChain swapChain,
-        VulkanTransferCommandPool... transferCommandPools
+        List< VulkanTransferCommandPool > transferCommandPools
     ) {
         var stages = this.stages;
         var scene3D = stages.getScene3D();
@@ -137,8 +137,6 @@ public class VulkanRenderingContext implements RenderingContext {
             linePipelines,
             swapChain,
             frameBuffer,
-            trianglePipelines.getFirstRenderPipeline(),
-            linePipelines.getFirstRenderPipeline(),
             background
         ) );
         var scene2DFuture = executorService.submit( createWorker(
@@ -146,8 +144,6 @@ public class VulkanRenderingContext implements RenderingContext {
             linePipelines,
             swapChain,
             frameBuffer,
-            trianglePipelines.getFirstStageRenderPipeline(),
-            linePipelines.getFirstStageRenderPipeline(),
             scene2D
         ) );
         var scene3DFuture = executorService.submit( createWorker(
@@ -155,8 +151,6 @@ public class VulkanRenderingContext implements RenderingContext {
             linePipelines,
             swapChain,
             frameBuffer,
-            trianglePipelines.getFirstStageRenderPipeline(),
-            linePipelines.getFirstStageRenderPipeline(),
             scene3D
         ) );
         var overlayFuture = executorService.submit( createWorker(
@@ -164,8 +158,6 @@ public class VulkanRenderingContext implements RenderingContext {
             linePipelines,
             swapChain,
             frameBuffer,
-            trianglePipelines.getFirstStageRenderPipeline(),
-            linePipelines.getFirstStageRenderPipeline(),
             overlay
         ) );
         
@@ -179,7 +171,7 @@ public class VulkanRenderingContext implements RenderingContext {
         
         List< VulkanSemaphore > initialWaitSemaphores = new ArrayList<>(  );
         for ( var transferCommandPool : transferCommandPools ) {
-            initialWaitSemaphores.add( transferCommandPool.executeTransfers() );
+            initialWaitSemaphores.addAll( transferCommandPool.executeTransfers() );
         }
         initialWaitSemaphores.add( imageAvailableSemaphore );
         
@@ -214,8 +206,6 @@ public class VulkanRenderingContext implements RenderingContext {
         VulkanGraphicPipelines linePipelines,
         VulkanSwapChain swapChain,
         VulkanFrameBuffer frameBuffer,
-        VulkanPipeline trianglePipeline,
-        VulkanPipeline linePipeline,
         VulkanStage stage
     ) {
         return new VulkanRenderStageWorker(
@@ -225,8 +215,6 @@ public class VulkanRenderingContext implements RenderingContext {
             shouldDrawTextures,
             shouldDrawBorder,
             stage,
-            trianglePipeline,
-            linePipeline,
             swapChain,
             frameBuffer,
             backgroundColour,

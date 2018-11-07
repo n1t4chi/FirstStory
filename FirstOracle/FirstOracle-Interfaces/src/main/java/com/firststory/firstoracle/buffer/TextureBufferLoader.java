@@ -33,7 +33,6 @@ public interface TextureBufferLoader< Context > {
      * @return new Texture buffer
      */
     default TextureBuffer< Context > bind( Texture texture ) {
-    
         var textureBuffer = texture.extractBuffer( this );
         if( textureBuffer == null ){
             textureBuffer = loadNewBuffer( texture );

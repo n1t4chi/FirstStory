@@ -78,14 +78,32 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
     }
     
     private final Holder< VulkanSemaphore > currentSemaphore = new Holder<>();
+    private final Holder< List< VulkanSemaphore > > currentSemaphores = new Holder<>();
     
     public void executeTransfersAndForget() {
         var semaphore = execute();
-        semaphore.ignoreWait();
+        synchronized ( currentSemaphores ) {
+            getSemaphores().add( semaphore );
+        }
     }
     
-    public VulkanSemaphore executeTransfers() {
-        return execute();
+    public List< VulkanSemaphore > executeTransfers() {
+        var semaphore = execute();
+        synchronized ( currentSemaphores ) {
+            var semaphores = getSemaphores();
+            semaphores.add( semaphore );
+            currentSemaphores.remove();
+            return semaphores;
+        }
+    }
+    
+    private List< VulkanSemaphore > getSemaphores() {
+        var semaphores = currentSemaphores.get();
+        if( semaphores == null ) {
+            semaphores = new ArrayList<>();
+            currentSemaphores.hold( semaphores );
+        }
+        return semaphores;
     }
     
     private VulkanSemaphore execute() {

@@ -71,6 +71,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanTransferCommandPool uniformDataTransferCommandPool ;
     private final VulkanTransferCommandPool quickDataTransferCommandPool;
     private final VulkanTransferCommandPool textureTransferCommandPool;
+    private final List< VulkanTransferCommandPool > transferCommandPools;
+    
     private final VkPhysicalDeviceMemoryProperties memoryProperties;
     private final Map< Integer, VulkanMemoryType > memoryTypes = new HashMap<>();
     private final Map< Integer, VulkanMemoryHeap > memoryHeaps = new HashMap<>();
@@ -138,7 +140,13 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             uniformDataTransferCommandPool = allocator.createTransferCommandPool( uniformTransferFamily );
             quickDataTransferCommandPool = allocator.createTransferCommandPool( quickTransferFamily );
             textureTransferCommandPool = allocator.createTransferCommandPool( graphicFamily );
-        
+            transferCommandPools = Arrays.asList(
+                vertexDataTransferCommandPool,
+                quickDataTransferCommandPool,
+                uniformDataTransferCommandPool,
+                textureTransferCommandPool
+            );
+            
             bufferProvider = allocator.createBufferProvider(
                 vertexDataTransferCommandPool,
                 quickDataTransferCommandPool,
@@ -297,10 +305,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             linePipelines,
             currentImageIndex,
             swapChain,
-            vertexDataTransferCommandPool,
-            quickDataTransferCommandPool,
-            uniformDataTransferCommandPool,
-            textureTransferCommandPool
+            transferCommandPools
         );
         currentImageIndex.getRenderFinishedSemaphore().ignoreWait();
     }

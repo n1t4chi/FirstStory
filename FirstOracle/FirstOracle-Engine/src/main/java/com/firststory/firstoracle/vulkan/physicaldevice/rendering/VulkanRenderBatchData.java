@@ -7,7 +7,6 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,8 +17,8 @@ class VulkanRenderBatchData {
     private final VulkanGraphicCommandPool commandPool;
     private final VulkanGraphicPrimaryCommandBuffer primaryBuffer;
     private final List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers;
-    private final ArrayList< VulkanDescriptorPool > descriptorsPools;
-    private final ArrayList< VulkanDataBuffer > uniformBuffers;
+    private final VulkanDescriptorPool descriptorPool;
+    private final List< VulkanDataBuffer > uniformBuffers;
     private final VulkanPipeline trianglePipeline;
     private final VulkanPipeline linePipeline;
     
@@ -27,15 +26,15 @@ class VulkanRenderBatchData {
         VulkanGraphicCommandPool commandPool,
         VulkanGraphicPrimaryCommandBuffer primaryBuffer,
         List< VulkanGraphicSecondaryCommandBuffer > secondaryBuffers,
-        ArrayList< VulkanDescriptorPool > descriptorsPools,
-        ArrayList< VulkanDataBuffer> uniformBuffers,
+        VulkanDescriptorPool descriptorPool,
+        List< VulkanDataBuffer> uniformBuffers,
         VulkanPipeline trianglePipeline,
         VulkanPipeline linePipeline
     ) {
         this.commandPool = commandPool;
         this.primaryBuffer = primaryBuffer;
         this.secondaryBuffers = secondaryBuffers;
-        this.descriptorsPools = descriptorsPools;
+        this.descriptorPool = descriptorPool;
         this.uniformBuffers = uniformBuffers;
         this.trianglePipeline = trianglePipeline;
         this.linePipeline = linePipeline;
@@ -46,8 +45,7 @@ class VulkanRenderBatchData {
         
         secondaryBuffers.forEach( VulkanCommandBuffer::dispose );
         secondaryBuffers.clear();
-        descriptorsPools.forEach( VulkanDescriptorPool::dispose );
-        descriptorsPools.clear();
+        descriptorPool.dispose();
         uniformBuffers.forEach( VulkanDataBuffer::dispose );
         uniformBuffers.clear();
         trianglePipeline.dispose();
