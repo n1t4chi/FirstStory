@@ -16,32 +16,32 @@ class PlaneTest {
     
     @Test
     void returnsValidMinMaxValues() {
-        var plane = new Plane(
+        var plane = Plane.planeXY(
             vec3( -3f, 2.5f, 0 ),
             vec3( 3.5f, 1.5f, 0 ),
             vec3( 1.5f, -5f, 0 ),
             vec3( -4.5f, -2.5f, 0 )
         );
-        Assertions.assertEquals( 4, plane.maxX_Ceil(), MID_DELTA );
-        Assertions.assertEquals( -5, plane.minX_Floor(), MID_DELTA );
-        Assertions.assertEquals( 3, plane.maxY_Ceil(), MID_DELTA );
-        Assertions.assertEquals( -5, plane.minY_Floor(), MID_DELTA );
+        Assertions.assertEquals( 4, plane.maxDim1_Ceil(), MID_DELTA );
+        Assertions.assertEquals( -5, plane.minDim1_Floor(), MID_DELTA );
+        Assertions.assertEquals( 3, plane.maxDim2_Ceil(), MID_DELTA );
+        Assertions.assertEquals( -5, plane.minDim2_Floor(), MID_DELTA );
     }
     
     @Test
     void returnsEmptyBoundariesIfOutside() {
-        var plane = new Plane(
+        var plane = Plane.planeXY(
             vec3( -1, 1, 0 ),
             vec3( 1, 1, 0 ),
             vec3( 1, -1, 0 ),
             vec3( -1, -1, 0 )
         );
     
-        var out1 = plane.getBoundsAtX( -2 );
+        var out1 = plane.getBoundsAtDim1( -2 );
         Assertions.assertEquals( 0, out1.getMin(), MID_DELTA );
         Assertions.assertEquals( 0, out1.getMax(), MID_DELTA );
     
-        var out2 = plane.getBoundsAtX( 2 );
+        var out2 = plane.getBoundsAtDim1( 2 );
         Assertions.assertEquals( 0, out2.getMin(), MID_DELTA );
         Assertions.assertEquals( 0, out2.getMax(), MID_DELTA );
         
@@ -57,13 +57,13 @@ class PlaneTest {
         "0.25, -5, 2",
     } )
     void returnsValidBoundariesOnXs1( float x, int expectedMin, int expectedMax ) {
-        var plane = new Plane(
+        var plane = Plane.planeXY(
             vec3( -3f, 2.5f, 0 ),
             vec3( 3.5f, 1.5f, 0 ),
             vec3( 1.5f, -5f, 0 ),
             vec3( -4.5f, -2.5f, 0 )
         );
-        Assertions.assertEquals( new Bounds( expectedMin, expectedMax ) , plane.getBoundsAtX( x ) );
+        Assertions.assertEquals( new Bounds( expectedMin, expectedMax ) , plane.getBoundsAtDim1( x ) );
     }
     
     @ParameterizedTest(name = "bounds @x=\"{0}\" should be ( {1}, {2} )")
@@ -75,12 +75,12 @@ class PlaneTest {
         "0.5, -1, 1",
     } )
     void returnsValidBoundariesOnXs2( float x, int expectedMin, int expectedMax ) {
-        var plane = new Plane(
+        var plane = Plane.planeXY(
             vec3( -1, 1, 0 ),
             vec3( 1, 1, 0 ),
             vec3( 1, -1, 0 ),
             vec3( -1, -1, 0 )
         );
-        Assertions.assertEquals( new Bounds( expectedMin, expectedMax ) , plane.getBoundsAtX( x ) );
+        Assertions.assertEquals( new Bounds( expectedMin, expectedMax ) , plane.getBoundsAtDim1( x ) );
     }
 }

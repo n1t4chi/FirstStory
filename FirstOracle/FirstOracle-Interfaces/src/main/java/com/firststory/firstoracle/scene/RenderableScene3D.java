@@ -38,7 +38,13 @@ public interface RenderableScene3D {
                 var terrainsZ = terrainsYZ[ y ];
                 for ( int z = 0, zLength = terrainsZ.length; z < zLength; z++ ) {
                     var terrain = terrainsZ[ z ];
-                    list.addAll( terrain.getRenderData( terrain.computePosition( x, y, z, terrainShift ), currentRenderTime, cameraRotation ) );
+                    if( terrain != null ) {
+                        list.addAll( terrain.getRenderData(
+                            terrain.computePosition( x, y, z, terrainShift ),
+                            currentRenderTime,
+                            cameraRotation )
+                        );
+                    }
                 }
             }
         }

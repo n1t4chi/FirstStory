@@ -36,21 +36,27 @@ public class OptimisedRegistrableScene2DImpl extends RegistrableScene2DImpl {
         var objects2D = getObjects2D();
         
         var view = new CameraView( getScene2DCamera() );
-        
         var plane = view.getPlaneForZ( 0 );
         
-        var minX = Math.max( 0, plane.minX_Floor() - terrainShift.x() );
-        var maxX = Math.min( terrains.length, plane.maxX_Ceil() - terrainShift.x() );
+        var minX = boundValue( plane.minDim1_Floor(), terrains, terrainShift.x() );
+        var maxX = boundValue( plane.maxDim1_Ceil(), terrains, terrainShift.x() );
+        
         for ( var x = minX; x < maxX; x++ ) {
             var terrainsY = terrains[ x ];
-            var bounds = plane.getBoundsAtX( x + terrainShift.x() );
-            var minY = boundValue( terrainsY, bounds.getMin(), terrainShift.y() );
-            var maxY = boundValue( terrainsY, bounds.getMax(), terrainShift.y() );
+            var bounds = plane.getBoundsAtDim1( x + terrainShift.x() );
+            var minY = boundValue( bounds.getMin(), terrainsY, terrainShift.y() );
+            var maxY = boundValue( bounds.getMax(), terrainsY, terrainShift.y() );
 //            System.err.println( x + terrainShift.x() + " @ -> " + bounds );
 //            System.err.println( x + " @ -> ( " + minY + ",  " + maxY + " )" );
             for ( var y = minY; y < maxY; y++ ) {
                 var terrain = terrainsY[ y ];
-                list.addAll( terrain.getRenderData( terrain.computePosition( x, y, terrainShift ), currentRenderTime, cameraRotation ) );
+                if( terrain != null ) {
+                    list.addAll( terrain.getRenderData(
+                        terrain.computePosition( x, y, terrainShift ),
+                        currentRenderTime,
+                        cameraRotation )
+                    );
+                }
             }
         }
     
@@ -62,7 +68,7 @@ public class OptimisedRegistrableScene2DImpl extends RegistrableScene2DImpl {
         return list;
     }
     
-    private int boundValue( Terrain2D< ? >[] array, int value, int shift ) {
+    private int boundValue( int value, Object[] array, int shift ) {
         var ret = value - shift;
         if( ret < 0 ) {
             return 0;

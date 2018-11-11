@@ -52,11 +52,20 @@ class CameraView {
     }
     
     public Plane getPlaneForZ( int z ) {
-        return new Plane(
+        return Plane.planeXY(
             highLeft.getPointAtZ( z ),
             right.getPointAtZ( z ),
             lowRight.getPointAtZ( z ),
             left.getPointAtZ( z )
+        );
+    }
+    
+    public Plane getPlaneForY( int y ) {
+        return Plane.planeXZ(
+            highLeft.getPointAtY( y ),
+            right.getPointAtY( y ),
+            lowRight.getPointAtY( y ),
+            left.getPointAtY( y )
         );
     }
     

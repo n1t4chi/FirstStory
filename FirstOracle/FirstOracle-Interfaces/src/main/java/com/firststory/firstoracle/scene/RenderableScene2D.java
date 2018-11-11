@@ -36,7 +36,13 @@ public interface RenderableScene2D {
             var terrainsY = terrains[ x ];
             for ( int y = 0, yLength = terrainsY.length; y < yLength; y++ ) {
                 var terrain = terrainsY[ y ];
-                list.addAll( terrain.getRenderData( terrain.computePosition( x, y, terrainShift ), currentRenderTime, cameraRotation ) );
+                if( terrain != null ) {
+                    list.addAll(
+                        terrain.getRenderData( terrain.computePosition( x, y, terrainShift ),
+                        currentRenderTime,
+                        cameraRotation )
+                    );
+                }
             }
         }
     
