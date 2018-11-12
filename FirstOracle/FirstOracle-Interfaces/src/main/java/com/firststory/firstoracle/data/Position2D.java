@@ -12,6 +12,10 @@ import org.joml.Vector2fc;
  */
 public class Position2D extends Position {
     
+    public static Position2D pos2( Vector2fc vec ) {
+        return pos2( vec.x(), vec.y() );
+    }
+    
     public static Position2D pos2( float x, float y ) {
         return new Position2D( x, y );
     }

@@ -20,6 +20,8 @@ public interface PositionableObject<
 > extends
     GraphicObject< TransformationsType, BoundingBoxType, VerticesType >
 {
+    void setTransformations( TransformationsType transformations );
+    
     /**
      * Store render data list for later use via {@link #getStoredRenderDataList()}
      * @param renderDatas list of render data of this object

@@ -12,6 +12,10 @@ import org.joml.Vector3fc;
  */
 public class Scale3D extends Scale {
     
+    public static Scale3D scale3( Vector3fc vec ) {
+        return scale3( vec.x(), vec.y(), vec.z() );
+    }
+    
     public static Scale3D scale3( float x, float y, float z ) {
         return new Scale3D( x, y, z );
     }

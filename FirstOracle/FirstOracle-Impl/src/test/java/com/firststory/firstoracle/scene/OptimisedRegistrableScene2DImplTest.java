@@ -36,8 +36,7 @@ class OptimisedRegistrableScene2DImplTest {
     private static final int MID_OBJ_XY = ( MIN_OBJ_XY + MAX_OBJ_XY ) / 2;
     
     private final OptimisedRegistrableScene2DImpl instance = new OptimisedRegistrableScene2DImpl(
-        SIZE_TER_XY,
-        SIZE_TER_XY,
+        Index2D.id2( SIZE_TER_XY, SIZE_TER_XY ),
         TERRAIN_SHIFT
     );
     

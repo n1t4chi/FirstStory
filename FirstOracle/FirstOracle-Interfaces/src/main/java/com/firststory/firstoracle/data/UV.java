@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle.data;
 
+import org.joml.Vector2fc;
+
 import java.util.Arrays;
 
 /**
@@ -12,6 +14,10 @@ import java.util.Arrays;
 public class UV implements FloatData {
     
     public static final int U = 0, V = 1;
+    
+    public static UV uv( Vector2fc vec ) {
+        return uv( vec.x(), vec.y() );
+    }
     
     public static UV uv( float u, float v ) {
         return new UV( u, v );

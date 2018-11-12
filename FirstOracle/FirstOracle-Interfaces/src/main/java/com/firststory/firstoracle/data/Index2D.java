@@ -12,6 +12,10 @@ import org.joml.Vector2ic;
  */
 public class Index2D extends Index {
     
+    public static Index2D id2( Vector2ic vec ) {
+        return id2( vec.x(), vec.y() );
+    }
+    
     public static Index2D id2( int x, int y ) {
         return new Index2D( x, y );
     }

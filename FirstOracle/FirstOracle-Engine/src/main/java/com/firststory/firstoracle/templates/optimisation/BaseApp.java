@@ -24,6 +24,8 @@ import com.firststory.firstoracle.window.WindowBuilder;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
+
 /**
  * @author n1t4chi
  */
@@ -105,20 +107,12 @@ public class BaseApp {
         this.terrain3dShift = terrain3dShift;
         this.renderables3D = renderables3D;
         this.renderables2D = renderables2D;
-        terrain2dSize = Index2D.id2(
-            terrains2D.length,
-            terrains2D.length == 0 ? 0 : terrains2D[0].length
-        );
-        terrain3dSize = Index3D.id3(
-            terrains3D.length,
-            terrains3D.length == 0 ? 0 : terrains3D[0].length,
-            terrains3D.length == 0 || terrains3D[0].length == 0 ? 0 : terrains3D[0][0].length
-        );
+        terrain2dSize = arraySize( terrains2D );
+        terrain3dSize = arraySize( terrains3D );
         this.createScene = createScene;
     }
     
     public void run() {
-        
         var width = 300;
         var height = 300;
         var settings = WindowSettings

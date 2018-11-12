@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
+
 /**
  * @author n1t4chi
  */
@@ -22,56 +24,37 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
     
     private final Set< PositionableObject3D< ?, ? > > objects = new HashSet<>();
     private final Terrain3D< ? >[][][] terrainsXYZ;
-    private final int terrainXSize;
-    private final int terrainYSize;
-    private final int terrainZSize;
+    private final Index3D terrainSize;
     private final Index3D terrainShift;
     private Camera3D camera = IdentityCamera3D.getCamera();
     
-    public RegistrableScene3DImpl( int terrainXSize, int terrainYSize, int terrainZSize, Index3D terrainShift ) {
+    public RegistrableScene3DImpl( Index3D terrainSize, Index3D terrainShift ) {
         this(
-            terrainXSize,
-            terrainYSize,
-            terrainZSize,
-            new Terrain3D[ terrainXSize ][ terrainYSize ][ terrainZSize ],
+            terrainSize,
+            new Terrain3D[ terrainSize.x() ][ terrainSize.y() ][ terrainSize.z() ],
             terrainShift
         );
     }
     
-    public RegistrableScene3DImpl( Terrain3D< ? >[][][] terrain, Index3D terrainShift ) {
+    public RegistrableScene3DImpl( Terrain3D< ? >[][][] terrains, Index3D terrainShift ) {
         this(
-            terrain.length,
-            terrain.length == 0 ? 0 : terrain[0].length,
-            terrain.length == 0 || terrain[0].length == 0 ? 0 : terrain[0][0].length,
-            terrain,
+            arraySize( terrains ),
+            terrains,
             terrainShift
         );
     }
     
     private RegistrableScene3DImpl(
-        int terrainXSize,
-        int terrainYSize,
-        int terrainZSize,
+        Index3D terrainSize,
         Terrain3D< ? >[][][] terrain,
         Index3D terrainShift
     ) {
-        this.terrainXSize = terrainXSize;
-        this.terrainYSize = terrainYSize;
-        this.terrainZSize = terrainZSize;
+        this.terrainSize = terrainSize;
         this.terrainShift = terrainShift;
         terrainsXYZ = terrain;
     }
-    
-    public int getTerrainXSize() {
-        return terrainXSize;
-    }
-    
-    public int getTerrainYSize() {
-        return terrainYSize;
-    }
-    
-    public int getTerrainZSize() {
-        return terrainZSize;
+    public Index3D getTerrainSize() {
+        return terrainSize;
     }
     
     @Override

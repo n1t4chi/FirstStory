@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle.data;
 
+import org.joml.Vector4fc;
+
 import java.util.Arrays;
 
 /**
@@ -12,6 +14,10 @@ import java.util.Arrays;
 public class Colour implements FloatData {
     
     public static final int R = 0, G = 1, B = 2, A = 3;
+    
+    public static Colour col( Vector4fc vec ) {
+        return col( vec.x(), vec.y(), vec.z(), vec.w() );
+    }
     
     public static Colour col( float r, float g, float b, float a ) {
         return new Colour( r, g, b, a );

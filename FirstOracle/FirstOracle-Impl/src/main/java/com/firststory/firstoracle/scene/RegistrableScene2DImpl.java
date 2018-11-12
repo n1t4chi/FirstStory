@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.scene;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera2D.IdentityCamera2D;
 import com.firststory.firstoracle.data.Index2D;
@@ -22,14 +23,24 @@ public class RegistrableScene2DImpl implements RegistrableScene2D {
     
     private final Set< PositionableObject2D< ?, ? > > objects = new HashSet<>();
     private final Terrain2D< ? >[][] terrainsXY;
+    private final Index2D terrainSize;
     private final Index2D terrainShift;
     private Camera2D camera = IdentityCamera2D.getCamera();
     
-    public RegistrableScene2DImpl( int terrainXSize, int terrainYSize, Index2D terrainShift ) {
-        this( new Terrain2D[ terrainXSize ][ terrainYSize ], terrainShift );
+    public RegistrableScene2DImpl( Index2D terrainSize, Index2D terrainShift ) {
+        this( terrainSize, new Terrain2D[ terrainSize.x() ][ terrainSize.y() ], terrainShift );
     }
     
     public RegistrableScene2DImpl( Terrain2D< ? >[][] terrains, Index2D terrainShift ) {
+        this(
+            FirstOracleConstants.arraySize( terrains ),
+            terrains,
+            terrainShift
+        );
+    }
+    
+    private RegistrableScene2DImpl( Index2D terrainSize, Terrain2D< ? >[][] terrains, Index2D terrainShift ) {
+        this.terrainSize = terrainSize;
         this.terrainShift = terrainShift;
         terrainsXY = terrains;
     }

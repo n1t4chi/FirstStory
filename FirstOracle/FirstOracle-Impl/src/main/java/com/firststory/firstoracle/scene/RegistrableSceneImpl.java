@@ -31,8 +31,8 @@ public class RegistrableSceneImpl implements RegistrableScene {
         Index3D terrain3DShift
     ) {
         return new RegistrableSceneImpl(
-            new RegistrableScene2DImpl( terrain2DSize.x(), terrain2DSize.y(), terrain2DShift ),
-            new RegistrableScene3DImpl( terrain3DSize.x(), terrain3DSize.y(), terrain3DSize.z(), terrain3DShift ),
+            new RegistrableScene2DImpl( terrain2DSize, terrain2DShift ),
+            new RegistrableScene3DImpl( terrain3DSize, terrain3DShift ),
             new RegistrableBackgroundImpl(),
             new RegistrableOverlayImpl()
         );
@@ -45,8 +45,8 @@ public class RegistrableSceneImpl implements RegistrableScene {
         Index3D terrain3DShift
     ) {
         return new RegistrableSceneImpl(
-            new OptimisedRegistrableScene2DImpl( terrain2DSize.x(), terrain2DSize.y(), terrain2DShift ),
-            new OptimisedRegistrableScene3DImpl( terrain3DSize.x(), terrain3DSize.y(), terrain3DSize.z(), terrain3DShift ),
+            new OptimisedRegistrableScene2DImpl( terrain2DSize, terrain2DShift ),
+            new OptimisedRegistrableScene3DImpl( terrain3DSize, terrain3DShift ),
             new RegistrableBackgroundImpl(),
             new RegistrableOverlayImpl()
         );

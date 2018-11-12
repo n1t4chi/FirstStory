@@ -12,6 +12,10 @@ import org.joml.Vector3fc;
  */
 public class Position3D extends Position {
     
+    public static Position3D pos3( Vector3fc vec ) {
+        return pos3( vec.x(), vec.y(), vec.z() );
+    }
+    
     public static Position3D pos3( float x, float y, float z ) {
         return new Position3D( x, y, z );
     }

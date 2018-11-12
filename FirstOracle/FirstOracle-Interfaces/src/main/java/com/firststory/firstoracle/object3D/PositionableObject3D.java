@@ -18,8 +18,6 @@ public interface PositionableObject3D<
     PositionableObject< Transformations, BoundingBox3D, Vertices >
 {
     
-    void setTransformations( Transformations transformations );
-    
     @Override
     default BoundingBox3D getBBO() {
         return getVertices()

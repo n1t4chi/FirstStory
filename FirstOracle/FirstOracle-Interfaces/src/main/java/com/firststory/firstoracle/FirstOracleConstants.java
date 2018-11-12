@@ -7,6 +7,8 @@ import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object2D.PositionableObject2D;
+import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.text.TextData;
 import com.firststory.firstoracle.text.TextImageFactory;
 import org.joml.*;
@@ -110,6 +112,8 @@ public interface FirstOracleConstants {
     float[] EMPTY_FLOAT_ARRAY = new float[ 0 ];
     
     TextData EMPTY_TEXT = TextImageFactory.provide().createText3D( "" );
+    String OBJECT_2D_PACKAGE_NAME = PositionableObject2D.class.getPackageName();
+    String OBJECT_3D_PACKAGE_NAME = PositionableObject3D.class.getPackageName();
     
     static <T> List<T>[][][] singletonArray3D( List<T> value ){
         List< T >[][][] array = array( 1, 1, 1 );
@@ -297,5 +301,21 @@ public interface FirstOracleConstants {
             ", " + FORMATTER.format( vec.y() ) +
             ", " + FORMATTER.format( vec.z() ) +
         " ) ";
+    }
+    
+    static Index2D arraySize( Object[][] array ) {
+        return id2(
+            array.length,
+            array.length == 0 ? 0 : array[0].length
+        );
+    }
+    
+    static Index3D arraySize( Object[][][] array ) {
+        int yLength;
+        return id3(
+            array.length,
+            yLength = ( array.length == 0 ? 0 : array[0].length ),
+            yLength == 0 ? 0 : array[0][0].length
+        );
     }
 }

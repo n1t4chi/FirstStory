@@ -12,6 +12,10 @@ import org.joml.Vector2fc;
  */
 public class Scale2D extends Scale {
     
+    public static Scale2D scale2( Vector2fc vec ) {
+        return scale2( vec.x(), vec.y() );
+    }
+    
     public static Scale2D scale2( float x, float y ) {
         return new Scale2D( x, y );
     }

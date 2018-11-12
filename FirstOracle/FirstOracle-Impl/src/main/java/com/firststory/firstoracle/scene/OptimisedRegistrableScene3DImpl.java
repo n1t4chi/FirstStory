@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
 
-    public OptimisedRegistrableScene3DImpl( int terrainXSize, int terrainYSize, int terrainZSize, Index3D terrainShift ) {
-        super( terrainXSize, terrainYSize, terrainZSize, terrainShift );
+    public OptimisedRegistrableScene3DImpl( Index3D terrainSize, Index3D terrainShift ) {
+        super( terrainSize, terrainShift );
     }
     
     public OptimisedRegistrableScene3DImpl( Terrain3D< ? >[][][] terrain, Index3D terrainShift ) {
@@ -33,7 +33,7 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
     
         var view = new CameraView( getScene3DCamera() );
     
-        var yLength = getTerrainYSize();
+        var yLength = getTerrainSize().y();
         
         for( var y = 0; y < yLength ; y++ ) {
             var plane = view.getPlaneForY( y );

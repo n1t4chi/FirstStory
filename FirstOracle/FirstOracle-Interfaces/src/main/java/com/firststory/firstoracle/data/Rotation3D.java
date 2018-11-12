@@ -12,6 +12,10 @@ import org.joml.Vector3fc;
  */
 public class Rotation3D extends Rotation {
     
+    public static Rotation3D rot3( Vector3fc vec ) {
+        return rot3( vec.x(), vec.y(), vec.z() );
+    }
+    
     public static Rotation3D rot3( float x, float y, float z ) {
         return new Rotation3D( x, y, z );
     }

@@ -12,6 +12,10 @@ import org.joml.Vector3ic;
  */
 public class Index3D extends Index {
     
+    public static Index3D id3( Vector3ic vec ) {
+        return id3( vec.x(), vec.y(), vec.z() );
+    }
+    
     public static Index3D id3( int x, int y, int z ) {
         return new Index3D( x, y, z );
     }

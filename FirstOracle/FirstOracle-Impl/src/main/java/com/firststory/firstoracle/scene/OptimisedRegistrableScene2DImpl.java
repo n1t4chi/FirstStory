@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class OptimisedRegistrableScene2DImpl extends RegistrableScene2DImpl {
     
-    public OptimisedRegistrableScene2DImpl( int terrainXSize, int terrainYSize, Index2D terrainShift ) {
-        super( terrainXSize, terrainYSize, terrainShift );
+    public OptimisedRegistrableScene2DImpl( Index2D terrainSize, Index2D terrainShift ) {
+        super( terrainSize, terrainShift );
     }
     
     public OptimisedRegistrableScene2DImpl( Terrain2D< ? >[][] terrains, Index2D terrainShift ) {

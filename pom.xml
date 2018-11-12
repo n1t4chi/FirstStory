@@ -19,8 +19,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>X</maven.compiler.source>
-        <maven.compiler.target>X</maven.compiler.target>
+        <maven.compiler.source>12</maven.compiler.source>
+        <maven.compiler.target>12</maven.compiler.target>
         <first.oracle.version>0.5-SNAPSHOT</first.oracle.version>
         <lwjgl.version>3.1.6</lwjgl.version>
         <joml.version>1.9.11</joml.version>
@@ -36,7 +36,7 @@
                         <target>12</target>
                         <release>12</release>
                         <compilerArgs>
-                            <!--<arg>&#45;&#45;enable-preview</arg>-->
+                            <arg>--enable-preview</arg>
                             <arg>-Xlint:all</arg>
                             <arg>-Xdiags:verbose</arg>
                         </compilerArgs>
@@ -233,6 +233,11 @@
                 <groupId>org.joml</groupId>
                 <artifactId>joml</artifactId>
                 <version>${joml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.9.7</version>
             </dependency>
 
             <dependency>
