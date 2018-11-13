@@ -9,6 +9,7 @@ import com.firststory.firstoracle.files.Exceptions.NoEntryFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.firststory.firstoracle.files.ParseUtils.indent;
 
@@ -22,6 +23,22 @@ public abstract class Composite extends Node {
     }
     
     public abstract List< Node > getContent();
+    
+    public List< Composite > getComposites() {
+        return getContent().stream()
+            .filter( Node::isComposite )
+            .map( Composite.class::cast )
+            .collect( Collectors.toList())
+        ;
+    }
+    
+    public List< Leaf > getLeafs() {
+        return getContent().stream()
+            .filter( Node::isLeaf )
+            .map( Leaf.class::cast )
+            .collect( Collectors.toList())
+        ;
+    }
     
     @Override
     public boolean isComposite() {

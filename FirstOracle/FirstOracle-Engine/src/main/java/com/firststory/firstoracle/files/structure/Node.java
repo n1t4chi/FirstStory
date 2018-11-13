@@ -21,6 +21,10 @@ public abstract class Node {
     
     public abstract boolean isComposite();
     
+    boolean isLeaf() {
+        return !isComposite();
+    }
+    
     String removeWhitespaces( String string ) {
         return string.replaceAll( "\\s+", " " ).strip();
     }

@@ -4,8 +4,8 @@
 
 package com.firststory.firstoracle.files;
 
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Index3D;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.object.PositionableObject;
 import com.firststory.firstoracle.object2D.PositionableObject2DImpl;
 import com.firststory.firstoracle.object3D.PositionableObject3DImpl;
 import com.firststory.firstoracle.rendering.RenderType;
@@ -39,62 +39,52 @@ class SceneParserTest {
     @Test
     void parseOneObject2d() {
         var scenePair = SceneParser.parseToNonOptimised( `{
-            "objects2d": {
-                "object1": {
-                    "class": "PositionableObject2DImpl",
-                    "position": "4, 3",
-                    "rotation": "45",
-                    "scale": "2, 6",
-                    "texture": "resources/First Oracle/textures/grass.png",
-                    "uv": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
-                    "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
-                    "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+            "scene2D": {
+                "objects": {
+                    "object1": {
+                        "class": "PositionableObject2DImpl",
+                        "position": "4, 3",
+                        "rotation": "45",
+                        "scale": "2, 6",
+                        "texture": "resources/First Oracle/textures/grass.png",
+                        "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                        "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
+                        "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                    }
                 }
             }
         }` );
         var scene2D = scenePair.getScene2D();
         var scene3D = scenePair.getScene3D();
         assertSizes( scene2D, scene3D, 1, INDEX_ZERO_2I, 0, INDEX_ZERO_3I );
-    
-        var object2D = scene2D.getObjects2D().iterator().next();
-        
-        var data = object2D.getRenderData( 0, 0 ).stream()
-            .filter( renderData -> renderData.getType() == RenderType.TRIANGLES )
-            .findFirst()
-            .orElse( null );
-        Assertions.assertNotNull( data );
-        Assertions.assertEquals( PositionableObject2DImpl.class ,object2D.getClass() );
-        Assertions.assertEquals( pos2( 4, 3 ) ,data.getPosition() );
-        Assertions.assertEquals( rot2( 45 ) ,data.getRotation() );
-        Assertions.assertEquals( scale2( 2, 6 ) ,data.getScale() );
-        Assertions.assertEquals( "resources/First Oracle/textures/grass.png" ,data.getTexture().getData().getName() );
-        Assertions.assertArrayEquals(
-            new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 },
-            data.getColouring().getBuffer( mockLoader ).getBufferData()
-        );
-        Assertions.assertArrayEquals(
+        assertObject(
+            scene2D.getObjects2D().iterator().next(),
+            pos2( 4, 3 ),
+            rot2( 45 ),
+            scale2( 2, 6 ),
+            PositionableObject2DImpl.class,
+            "resources/First Oracle/textures/grass.png",
             new float[]{ 1,1,0, 2,2,0, 3,3,0 },
-            data.getVertices().getBuffer( mockLoader, 0 ).getBufferData()
-        );
-        Assertions.assertArrayEquals(
             new float[]{ 1,1, 2,2, 3,3 },
-            data.getUvMap().getBuffer( mockLoader, 0, 0 ).getBufferData()
+            new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 }
         );
     }
     
     @Test
     void parseOneObject3d() {
         var scenePair = SceneParser.parseToNonOptimised( `{
-            "objects3d": {
-                "object1": {
-                    "class": "PositionableObject3DImpl",
-                    "position": "4, 3, 2",
-                    "rotation": "10, 20, 30",
-                    "scale": "2, 6, 12",
-                    "texture": "resources/First Oracle/textures/grass.png",
-                    "uv": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
-                    "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
-                    "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+            "scene3D": {
+                "objects": {
+                    "object1": {
+                        "class": "PositionableObject3DImpl",
+                        "position": "4, 3, 2",
+                        "rotation": "10, 20, 30",
+                        "scale": "2, 6, 12",
+                        "texture": "resources/First Oracle/textures/grass.png",
+                        "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                        "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
+                        "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                    }
                 }
             }
         }` );
@@ -102,28 +92,176 @@ class SceneParserTest {
         var scene3D = scenePair.getScene3D();
         assertSizes( scene2D, scene3D, 0, INDEX_ZERO_2I, 1, INDEX_ZERO_3I );
         
-        var object3D = scene3D.getObjects3D().iterator().next();
+        assertObject(
+            scene3D.getObjects3D().iterator().next(),
+            pos3( 4, 3, 2 ),
+            rot3( 10, 20, 30 ),
+            scale3( 2, 6, 12 ),
+            PositionableObject3DImpl.class,
+            "resources/First Oracle/textures/grass.png",
+            new float[]{ 1,1,1, 2,2,2, 3,3,3 },
+            new float[]{ 1,1, 2,2, 3,3 },
+            new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 }
+        );
+    }
+    
+    @Test
+    void sharedObjectData() {
+        var scenePair = SceneParser.parseToNonOptimised( `{
+            "sharedData": {
+                "classes2D": {
+                    "impl2d": "PositionableObject2DImpl"
+                },
+                "positions2D": {
+                    "pos2d": "4, 3"
+                },
+                "rotations2D": {
+                    "rot2d": "45"
+                },
+                "scales2D": {
+                    "scl2d": "2, 6"
+                },
+                "vertices2D": {
+                    "vert2d": "[ [ {1,1}, {2,2}, {3,3} ] ]"
+                },
+                "classes3D": {
+                    "impl3d": "PositionableObject3DImpl"
+                },
+                "positions3D": {
+                    "pos3d": "4, 3, 2"
+                },
+                "rotations3D": {
+                    "rot3d": "10, 20, 30"
+                },
+                "scales3D": {
+                    "scl3d": "2, 6, 12"
+                },
+                "vertices3D": {
+                    "vert3d": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]"
+                },
+                "textures": {
+                    "tex": "resources/First Oracle/textures/grass.png"
+                },
+                "uvMaps": {
+                    "uv": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]"
+                },
+                "colourings": {
+                    "col": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                }
+            },
+            "scene2D": {
+                "objects": {
+                    "object1": {
+                        "class": "$impl2d",
+                        "position": "$pos2d",
+                        "rotation": "$rot2d",
+                        "scale": "$scl2d",
+                        "texture": "$tex",
+                        "uvMap": "$uv",
+                        "vertices": "$vert2d",
+                        "colouring": "$col"
+                    },
+                    "object2": {
+                        "class": "$impl2d",
+                        "position": "$pos2d",
+                        "rotation": "$rot2d",
+                        "scale": "$scl2d",
+                        "texture": "$tex",
+                        "uvMap": "$uv",
+                        "vertices": "$vert2d",
+                        "colouring": "$col"
+                    }
+                }
+            },
+            "scene3D": {
+                "objects": {
+                    "object3": {
+                        "class": "$impl3d",
+                        "position": "$pos3d",
+                        "rotation": "$rot3d",
+                        "scale": "$scl3d",
+                        "texture": "$tex",
+                        "uvMap": "$uv",
+                        "vertices": "$vert3d",
+                        "colouring": "$col"
+                    },
+                    "object4": {
+                        "class": "$impl3d",
+                        "position": "$pos3d",
+                        "rotation": "$rot3d",
+                        "scale": "$scl3d",
+                        "texture": "$tex",
+                        "uvMap": "$uv",
+                        "vertices": "$vert3d",
+                        "colouring": "$col"
+                    }
+                }
+            }
+        }` );
+        var scene2D = scenePair.getScene2D();
+        var scene3D = scenePair.getScene3D();
+        assertSizes( scene2D, scene3D, 2, INDEX_ZERO_2I, 2, INDEX_ZERO_3I );
         
-        var data = object3D.getRenderData( 0, 0 ).stream()
+        scene2D.getObjects2D().forEach( object ->
+            assertObject(
+                object,
+                pos2( 4, 3 ),
+                rot2( 45 ),
+                scale2( 2, 6 ),
+                PositionableObject2DImpl.class,
+                "resources/First Oracle/textures/grass.png",
+                new float[]{ 1,1,0, 2,2,0, 3,3,0 },
+                new float[]{ 1,1, 2,2, 3,3 },
+                new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 }
+            )
+        );
+        
+        scene3D.getObjects3D().forEach( object ->
+            assertObject(
+                object,
+                pos3( 4, 3, 2 ),
+                rot3( 10, 20, 30 ),
+                scale3( 2, 6, 12 ),
+                PositionableObject3DImpl.class,
+                "resources/First Oracle/textures/grass.png",
+                new float[]{ 1,1,1, 2,2,2, 3,3,3 },
+                new float[]{ 1,1, 2,2, 3,3 },
+                new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 }
+            )
+        );
+    }
+    
+    private void assertObject(
+        PositionableObject< ?, ?, ? > object2D,
+        Position expectedPosition,
+        Rotation expectedRotation,
+        Scale expectedScale,
+        Class< ? extends PositionableObject< ?, ?, ? > > expectedClass,
+        String expectedTexturePath,
+        float[] expectedVertices,
+        float[] expectedUvMap,
+        float[] expectedColouring
+        ) {
+        var data = object2D.getRenderData( 0, 0 ).stream()
             .filter( renderData -> renderData.getType() == RenderType.TRIANGLES )
             .findFirst()
             .orElse( null );
         Assertions.assertNotNull( data );
-        Assertions.assertEquals( PositionableObject3DImpl.class ,object3D.getClass() );
-        Assertions.assertEquals( pos3( 4, 3, 2 ) ,data.getPosition() );
-        Assertions.assertEquals( rot3( 10, 20, 30 ) ,data.getRotation() );
-        Assertions.assertEquals( scale3( 2, 6, 12 ) ,data.getScale() );
-        Assertions.assertEquals( "resources/First Oracle/textures/grass.png" ,data.getTexture().getData().getName() );
+        Assertions.assertEquals( expectedClass,object2D.getClass() );
+        Assertions.assertEquals( expectedPosition,data.getPosition() );
+        Assertions.assertEquals( expectedRotation,data.getRotation() );
+        Assertions.assertEquals( expectedScale,data.getScale() );
+        Assertions.assertEquals( expectedTexturePath,data.getTexture().getData().getName() );
         Assertions.assertArrayEquals(
-            new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 },
+            expectedColouring,
             data.getColouring().getBuffer( mockLoader ).getBufferData()
         );
         Assertions.assertArrayEquals(
-            new float[]{ 1,1,1, 2,2,2, 3,3,3 },
+            expectedVertices,
             data.getVertices().getBuffer( mockLoader, 0 ).getBufferData()
         );
         Assertions.assertArrayEquals(
-            new float[]{ 1,1, 2,2, 3,3 },
+            expectedUvMap,
             data.getUvMap().getBuffer( mockLoader, 0, 0 ).getBufferData()
         );
     }
