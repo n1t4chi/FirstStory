@@ -8,7 +8,7 @@ import com.firststory.firstoracle.data.UV;
 import com.firststory.firstoracle.files.Exceptions.ParseFailedException;
 import com.firststory.firstoracle.files.ParseUtils;
 import com.firststory.firstoracle.files.SharedData;
-import com.firststory.firstoracle.object.PositionableObject;
+import com.firststory.firstoracle.object.GraphicObject;
 import com.firststory.firstoracle.object.UvMap;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import static com.firststory.firstoracle.files.ParseUtils.toList;
 public interface UvMapParser {
     
     static void setUvMap(
-        PositionableObject< ?, ?, ? > object,
+        GraphicObject< ?, ?, ? > object,
         SharedData sharedData,
         String uvText
     ) {

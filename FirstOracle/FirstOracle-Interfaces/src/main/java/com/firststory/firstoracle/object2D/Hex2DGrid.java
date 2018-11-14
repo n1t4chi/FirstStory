@@ -3,7 +3,6 @@
  */
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Position2D;
 
@@ -16,9 +15,6 @@ public interface Hex2DGrid
     
     @Override
     default Position2D computePosition( int x, int y, Index2D arrayShift ) {
-        return Position2D.pos2(
-            FirstOracleConstants.transHexXDiscreteToSpace( x, arrayShift.x() ),
-            FirstOracleConstants.transHexYDiscreteToSpace( x, y, arrayShift.x(), arrayShift.y() )
-        );
+        return HexPositionCalculator.computeHexPosition( x, y, arrayShift );
     }
 }

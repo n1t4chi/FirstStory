@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.data.Index;
 import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.rendering.RenderData;
 
@@ -17,7 +18,9 @@ import java.util.List;
 public interface Terrain<
     TransformationsType extends ObjectTransformations< ?, ? >,
     BoundingBoxType extends BoundingBox< ?, ?, ? >,
-    VerticesType extends Vertices< ?, ? >
+    VerticesType extends Vertices< ?, ? >,
+    IndexType extends Index,
+    PositionType extends Position
 > extends
     GraphicObject< TransformationsType, BoundingBoxType, VerticesType >
 {
@@ -47,6 +50,11 @@ public interface Terrain<
      * @return stored render data list or null if none was stored
      */
     List< RenderData.RenderDataBuilder > getStoredRenderDataBuilderList( Position position );
+    
+    PositionType computePosition(
+        IndexType position,
+        IndexType arrayShift
+    );
     
     /**
      * Returns Render Data for this terrain for given position.
@@ -87,4 +95,6 @@ public interface Terrain<
             RenderData.borderRenderDataForTerrain( this, position )
         );
     }
+    
+    
 }

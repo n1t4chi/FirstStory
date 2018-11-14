@@ -13,7 +13,7 @@ import com.firststory.firstoracle.object.Terrain;
  */
 public interface Terrain3D< Vertices extends Vertices3D > extends
     Object3D< Identity3DTransformations, Vertices >,
-    Terrain< Identity3DTransformations, BoundingBox3D, Vertices >
+    Terrain< Identity3DTransformations, BoundingBox3D, Vertices, Index3D, Position3D >
 {
     
     @Override
@@ -31,4 +31,9 @@ public interface Terrain3D< Vertices extends Vertices3D > extends
      * @return position in space
      */
     Position3D computePosition( int x, int y, int z, Index3D arrayShift );
+    
+    @Override
+    default Position3D computePosition( Index3D position, Index3D arrayShift ) {
+        return computePosition( position.x(), position.y(), position.z(), arrayShift );
+    }
 }

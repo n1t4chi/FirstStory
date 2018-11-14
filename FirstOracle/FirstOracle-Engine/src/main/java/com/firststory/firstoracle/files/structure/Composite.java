@@ -54,6 +54,10 @@ public abstract class Composite extends Node {
         return findLeaf( name, defaultValue).getValue();
     }
     
+    public String findValueOrThrow( String name ) {
+        return findLeafOrThrow( name ).getValue();
+    }
+    
     public Leaf findLeaf( String name, String defaultValue ) {
         var node = find( name, () -> new Leaf( name, defaultValue ) );
         return node.isComposite() ? null : (Leaf)node;

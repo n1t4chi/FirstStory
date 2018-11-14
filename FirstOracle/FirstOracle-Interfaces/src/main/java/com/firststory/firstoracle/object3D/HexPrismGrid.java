@@ -3,7 +3,6 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.data.Position3D;
 
@@ -25,10 +24,6 @@ public interface HexPrismGrid
      */
     @Override
     default Position3D computePosition( int x, int y, int z, Index3D arrayShift ) {
-        return Position3D.pos3(
-            FirstOracleConstants.transHexPrismXDiscreteToSpace( x, arrayShift.x() ),
-            FirstOracleConstants.transHexPrismYDiscreteToSpace( y, arrayShift.y() ),
-            FirstOracleConstants.transHexPrismZDiscreteToSpace( x, z, arrayShift.x(), arrayShift.z() )
-        );
+        return HexGridPositionCalculator.computeHexPosition( x, y, z, arrayShift );
     }
 }

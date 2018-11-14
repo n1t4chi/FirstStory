@@ -26,6 +26,6 @@ public abstract class Node {
     }
     
     String removeWhitespaces( String string ) {
-        return string.replaceAll( "\\s+", " " ).strip();
+        return string == null ? null : string.replaceAll( "\\s+", " " ).strip();
     }
 }

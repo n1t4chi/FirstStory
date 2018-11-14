@@ -7,7 +7,7 @@ package com.firststory.firstoracle.files.dataParsers;
 import com.firststory.firstoracle.files.Exceptions.ParseFailedException;
 import com.firststory.firstoracle.files.ParseUtils;
 import com.firststory.firstoracle.files.SharedData;
-import com.firststory.firstoracle.object.PositionableObject;
+import com.firststory.firstoracle.object.GraphicObject;
 import com.firststory.firstoracle.object.Texture;
 
 import static com.firststory.firstoracle.files.ParseUtils.METHOD_SET_TEXTURE;
@@ -18,7 +18,7 @@ import static com.firststory.firstoracle.files.ParseUtils.METHOD_SET_TEXTURE;
 public interface TextureParser {
     
     static void setTexture(
-        PositionableObject< ?, ?, ? > object,
+        GraphicObject< ?, ?, ? > object,
         SharedData sharedData,
         String textureName
     ) {

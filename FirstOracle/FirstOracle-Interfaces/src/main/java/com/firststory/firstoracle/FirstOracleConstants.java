@@ -7,7 +7,9 @@ import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object2D.Position2DCalculator;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
+import com.firststory.firstoracle.object3D.Position3DCalculator;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.text.TextData;
 import com.firststory.firstoracle.text.TextImageFactory;
@@ -114,6 +116,8 @@ public interface FirstOracleConstants {
     TextData EMPTY_TEXT = TextImageFactory.provide().createText3D( "" );
     String OBJECT_2D_PACKAGE_NAME = PositionableObject2D.class.getPackageName();
     String OBJECT_3D_PACKAGE_NAME = PositionableObject3D.class.getPackageName();
+    String POSITION_CALCULATOR_2D_PACKAGE_NAME = Position2DCalculator.class.getPackageName();
+    String POSITION_CALCULATOR_3D_PACKAGE_NAME = Position3DCalculator.class.getPackageName();
     
     static <T> List<T>[][][] singletonArray3D( List<T> value ){
         List< T >[][][] array = array( 1, 1, 1 );

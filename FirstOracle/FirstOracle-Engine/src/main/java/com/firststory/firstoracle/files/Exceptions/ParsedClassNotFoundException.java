@@ -7,9 +7,9 @@ package com.firststory.firstoracle.files.Exceptions;
 /**
  * @author n1t4chi
  */
-public class GraphicObjectClassNotFoundException extends RuntimeException {
+public class ParsedClassNotFoundException extends RuntimeException {
     
-    public GraphicObjectClassNotFoundException(
+    public ParsedClassNotFoundException(
         String className,
         Class< ? > superClass,
         Exception ex

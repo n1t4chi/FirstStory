@@ -9,7 +9,7 @@ import com.firststory.firstoracle.files.Exceptions.ParseFailedException;
 import com.firststory.firstoracle.files.ParseUtils;
 import com.firststory.firstoracle.files.SharedData;
 import com.firststory.firstoracle.object.Colouring;
-import com.firststory.firstoracle.object.PositionableObject;
+import com.firststory.firstoracle.object.GraphicObject;
 
 import java.util.stream.Collectors;
 
@@ -22,7 +22,7 @@ import static com.firststory.firstoracle.files.ParseUtils.toList;
 public interface ColouringParser {
     
     static void setColouring(
-        PositionableObject< ?, ?, ? > object,
+        GraphicObject< ?, ?, ? > object,
         SharedData sharedData,
         String colouringText
     ) {

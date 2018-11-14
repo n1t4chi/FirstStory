@@ -31,7 +31,7 @@ public class RenderData {
      * @param position terrain position
      */
     public static RenderDataBuilder borderRenderDataForTerrain(
-        Terrain< ?, ?, ? > terrain,
+        Terrain< ?, ?, ?, ?, ? > terrain,
         Position position
     ) {
         return borderRenderData( terrain, position );
@@ -57,7 +57,7 @@ public class RenderData {
      * @param position terrain position
      */
     public static RenderDataBuilder baseRenderDataForTerrain(
-        Terrain< ?, ?, ? > terrain,
+        Terrain< ?, ?, ?, ?, ? > terrain,
         Position position
     ) {
         return baseRenderData( terrain, position );

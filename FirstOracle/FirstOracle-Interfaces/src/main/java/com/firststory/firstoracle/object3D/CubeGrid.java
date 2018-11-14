@@ -3,7 +3,6 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.data.Position3D;
 
@@ -23,10 +22,6 @@ public interface CubeGrid extends Terrain3D< CubeVertices >, Cube< Identity3DTra
      */
     @Override
     default Position3D computePosition( int x, int y, int z, Index3D arrayShift ) {
-        return Position3D.pos3(
-            FirstOracleConstants.transCubeDiscreteToSpace( x, arrayShift.x() ),
-            FirstOracleConstants.transCubeDiscreteToSpace( y, arrayShift.y() ),
-            FirstOracleConstants.transCubeDiscreteToSpace( z, arrayShift.z() )
-        );
+        return CubePositionCalculator.computeCubePosition( x, y, z, arrayShift );
     }
 }

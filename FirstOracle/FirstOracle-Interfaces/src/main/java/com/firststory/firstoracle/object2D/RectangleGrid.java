@@ -3,7 +3,6 @@
  */
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Position2D;
 
@@ -16,9 +15,6 @@ public interface RectangleGrid
     
     @Override
     default Position2D computePosition( int x, int y, Index2D arrayShift ) {
-        return Position2D.pos2(
-            FirstOracleConstants.transPlaneDiscreteToSpace( x, arrayShift.x() ),
-            FirstOracleConstants.transPlaneDiscreteToSpace( y, arrayShift.y() )
-        );
+        return PlanePositionCalculator.computePlanePosition( x, y, arrayShift );
     }
 }

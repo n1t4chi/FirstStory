@@ -13,7 +13,7 @@ import com.firststory.firstoracle.object.Terrain;
  */
 public interface Terrain2D< Vertices extends Vertices2D >
     extends Object2D< Identity2DTransformations, Vertices >,
-    Terrain< Identity2DTransformations, BoundingBox2D, Vertices >
+    Terrain< Identity2DTransformations, BoundingBox2D, Vertices, Index2D, Position2D >
 {
     
     @Override
@@ -30,4 +30,12 @@ public interface Terrain2D< Vertices extends Vertices2D >
      * @return position in space
      */
     Position2D computePosition( int x, int y, Index2D arrayShift );
+    
+    @Override
+    default Position2D computePosition(
+        Index2D position,
+        Index2D arrayShift
+    ) {
+        return computePosition( position.x(), position.y(), arrayShift );
+    }
 }

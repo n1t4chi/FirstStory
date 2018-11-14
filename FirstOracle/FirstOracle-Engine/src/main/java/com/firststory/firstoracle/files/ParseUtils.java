@@ -22,58 +22,75 @@ import java.util.regex.Pattern;
  */
 public interface ParseUtils {
     
-    String NAME_SCENE_2D = "scene2D";
-    String NAME_SCENE_3D = "scene3D";
-    String NAME_OBJECTS = "objects";
-    String NAME_TERRAINS = "terrains";
+    String SCENE_2D = "scene2D";
+    String SCENE_3D = "scene3D";
+    String SCENE_OBJECTS = "objects";
+    String SCENE_TERRAINS = "terrains";
     
-    String PARAM_OBJECT_CLASS = "class";
-    String PARAM_OBJECT_POSITION = "position";
-    String PARAM_OBJECT_ROTATION = "rotation";
-    String PARAM_OBJECT_SCALE = "scale";
-    String PARAM_OBJECT_TEXTURE = "texture";
-    String PARAM_OBJECT_UV_MAP = "uvMap";
-    String PARAM_OBJECT_VERTICES = "vertices";
-    String PARAM_OBJECT_COLOURING = "colouring";
-    
-    String PARAM_SHARED_DATA = "sharedData";
-    
-    String PARAM_SHARED_CLASSES_2D = "classes2D";
-    String PARAM_SHARED_POSITIONS_2D = "positions2D";
-    String PARAM_SHARED_ROTATIONS_2D = "rotations2D";
-    String PARAM_SHARED_SCALES_2D = "scales2D";
-    String PARAM_SHARED_VERTICES_2D = "vertices2D";
-    
-    String PARAM_SHARED_CLASSES_3D = "classes3D";
-    String PARAM_SHARED_POSITIONS_3D = "positions3D";
-    String PARAM_SHARED_ROTATIONS_3D = "rotations3D";
-    String PARAM_SHARED_SCALES_3D = "scales3D";
-    String PARAM_SHARED_VERTICES_3D = "vertices3D";
-    
-    String PARAM_SHARED_TEXTURES = "textures";
-    String PARAM_SHARED_UV_MAPS = "uvMaps";
-    String PARAM_SHARED_COLOURINGS = "colourings";
-    
-    String SHARED_NAME_PREFIX = "$";
-    
-    String PARAM_SHARED_OBJECTS = "sharedObjects";
-    String PARAM_SHARED_TERRAINS_3D = "Objects3D";
-    String PARAM_SHARED_TERRAINS_2D = "Objects2D";
-    String PARAM_SHARED_OBJECTS_3D = "Terrains3D";
-    String PARAM_SHARED_OBJECTS_2D = "Terrains2D";
+    String SCENE_PARAM_CLASS = "class";
+    String SCENE_PARAM_POSITION = "position";
+    String SCENE_PARAM_ROTATION = "rotation";
+    String SCENE_PARAM_SCALE = "scale";
+    String SCENE_PARAM_TEXTURE = "texture";
+    String SCENE_PARAM_UV_MAP = "uvMap";
+    String SCENE_PARAM_VERTICES = "vertices";
+    String SCENE_PARAM_COLOURING = "colouring";
+    String SCENE_PARAM_INDICES = "indices";
+    String SCENE_PARAM_POSITION_CALC = "positionCalculator";
     
     String METHOD_SET_TEXTURE = "setTexture";
     String METHOD_SET_COLOURING = "setColouring";
     String METHOD_SET_UV_MAP = "setUvMap";
     String METHOD_SET_VERTICES = "setVertices";
+    String METHOD_SET_POSITION_CALCULATOR = "setPositionCalculator";
     
     
+    String SHARED_NAME_PREFIX = "$";
+    String SHARED_OBJECTS = "sharedObjects";
+    String SHARED_OBJECTS_TERRAINS_3D = "objects3D";
+    String SHARED_OBJECTS_TERRAINS_2D = "objects2D";
+    String SHARED_OBJECTS_OBJECTS_3D = "terrains3D";
+    String SHARED_OBJECTS_OBJECTS_2D = "terrains2D";
+    
+    String SHARED_PARAM = "sharedData";
+    
+    String SHARED_PARAM_OBJECT_CLASSES_2D = "objectClasses2D";
+    String SHARED_PARAM_TERRAIN_CLASSES_2D = "terrainClasses2D";
+    String SHARED_PARAM_POSITIONS_2D = "positions2D";
+    String SHARED_PARAM_ROTATIONS_2D = "rotations2D";
+    String SHARED_PARAM_SCALES_2D = "scales2D";
+    String SHARED_PARAM_VERTICES_2D = "vertices2D";
+    String SHARED_PARAM_POSITION_CALCULATORS_2D = "positionCalculators2D";
+    
+    String SHARED_PARAM_OBJECT_CLASSES_3D = "objectClasses3D";
+    String SHARED_PARAM_TERRAIN_CLASSES_3D = "terrainClasses3D";
+    String SHARED_PARAM_POSITIONS_3D = "positions3D";
+    String SHARED_PARAM_ROTATIONS_3D = "rotations3D";
+    String SHARED_PARAM_SCALES_3D = "scales3D";
+    String SHARED_PARAM_VERTICES_3D = "vertices3D";
+    String SHARED_PARAM_POSITION_CALCULATORS_3D = "positionCalculators3D";
+    
+    String SHARED_PARAM_TEXTURES = "textures";
+    String SHARED_PARAM_UV_MAPS = "uvMaps";
+    String SHARED_PARAM_COLOURINGS = "colourings";
+    
+    
+    String CONFIGURATION = "configuration";
+    String CONFIGURATION_TERRAIN_SHIFT_2D = "terrain2DShift";
+    String CONFIGURATION_TERRAIN_SHIFT_3D = "terrain3DShift";
+    String CONFIGURATION_TERRAIN_SIZE_2D = "terrain2DSize";
+    String CONFIGURATION_TERRAIN_SIZE_3D = "terrain3DSize";
+    
+    String INT = "(\\d+)";
     String FLOAT = "(\\d+(\\.\\d+)?)";
     String DIV = ",";
     Pattern PatternVec4 = Pattern.compile( FLOAT + DIV + FLOAT + DIV + FLOAT + DIV + FLOAT );
     Pattern PatternVec3 = Pattern.compile( FLOAT + DIV + FLOAT + DIV + FLOAT );
     Pattern PatternVec2 = Pattern.compile( FLOAT + DIV + FLOAT );
     Pattern PatternVec1 = Pattern.compile( FLOAT );
+    
+    Pattern PatternVeci2 = Pattern.compile( INT + DIV + INT );
+    Pattern PatternVeci3 = Pattern.compile( INT + DIV + INT + DIV + INT );
     
     static boolean isShared( String name ) {
         return name.startsWith( SHARED_NAME_PREFIX );
@@ -110,6 +127,14 @@ public interface ParseUtils {
         return node.replaceAll( "\n", "\n\t" );
     }
     
+    static Index2D toIndex2D( String text ) {
+        return Index2D.id2( toVec2i( text ) );
+    }
+    
+    static Index3D toIndex3D( String text ) {
+        return Index3D.id3( toVec3i( text ) );
+    }
+    
     static Position2D toPosition2D( String text ) {
         return Position2D.pos2( toVec2( text ) );
     }
@@ -132,6 +157,33 @@ public interface ParseUtils {
     
     static Rotation3D toRotation3D( String text ) {
         return Rotation3D.rot3( toVec3( text ) );
+    }
+    
+    
+    
+    static Vector2ic toVec2i( String text ) {
+        return toVec(
+            text,
+            PatternVeci2,
+            matcher -> new Vector2i(
+                Integer.parseInt( matcher.group( 1 ) ),
+                Integer.parseInt( matcher.group( 2 ) )
+            ),
+            "Index 2D"
+        );
+    }
+    
+    static Vector3ic toVec3i( String text ) {
+        return toVec(
+            text,
+            PatternVeci3,
+            matcher -> new Vector3i(
+                Integer.parseInt( matcher.group( 1 ) ),
+                Integer.parseInt( matcher.group( 2 ) ),
+                Integer.parseInt( matcher.group( 3 ) )
+            ),
+            "Index 2D"
+        );
     }
     
     static float toVec1( String text ) {

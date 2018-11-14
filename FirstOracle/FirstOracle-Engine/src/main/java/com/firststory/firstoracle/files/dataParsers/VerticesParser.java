@@ -10,11 +10,11 @@ import com.firststory.firstoracle.data.Position3D;
 import com.firststory.firstoracle.files.Exceptions.ParseFailedException;
 import com.firststory.firstoracle.files.ParseUtils;
 import com.firststory.firstoracle.files.SharedData;
-import com.firststory.firstoracle.object.PositionableObject;
+import com.firststory.firstoracle.object.GraphicObject;
 import com.firststory.firstoracle.object.Vertices;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
+import com.firststory.firstoracle.object2D.Object2D;
 import com.firststory.firstoracle.object2D.Vertices2D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
+import com.firststory.firstoracle.object3D.Object3D;
 import com.firststory.firstoracle.object3D.Vertices3D;
 
 import java.util.List;
@@ -31,7 +31,7 @@ import static com.firststory.firstoracle.files.ParseUtils.toList;
 public interface VerticesParser {
     
     static void setVertices2D(
-        PositionableObject2D< ?, ? > object,
+        Object2D< ?, ? > object,
         SharedData sharedData,
         String verticesText
     ) {
@@ -48,7 +48,7 @@ public interface VerticesParser {
     }
     
     static void setVertices3D(
-        PositionableObject3D< ?, ? > object,
+        Object3D< ?, ? > object,
         SharedData sharedData,
         String verticesText
     ) {
@@ -83,7 +83,7 @@ public interface VerticesParser {
     }
     
     static < Vector, Posistion extends Position, VerticesT extends Vertices<?,?> > void setVertices(
-        PositionableObject< ?, ?, ? extends VerticesT > object,
+        GraphicObject< ?, ?, ? extends VerticesT > object,
         SharedData sharedData,
         BiFunction< SharedData, String, VerticesT > sharedDataExtractor,
         Class< VerticesT > verticesClass,
