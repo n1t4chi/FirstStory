@@ -16,6 +16,8 @@ import java.util.ArrayList;
 public class App2D {
     
     public static void main( String[] args ) {
+        
+        
         var terrains2D = new Terrain2D[300][300];
         var terrain2dShift = Index2D.id2( 0, 0 );
         var renderables2D = new ArrayList< PositionableObject2D< ?, ? > >( 1000 );
