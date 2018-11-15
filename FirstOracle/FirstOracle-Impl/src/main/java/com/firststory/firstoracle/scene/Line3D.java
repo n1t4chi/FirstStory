@@ -90,7 +90,11 @@ class Line3D {
     
     private Vector3fc getPointAt( float dim, float point0Dim, float directionDim ) {
         if( FirstOracleConstants.isReallyClose( directionDim, 0 ) ) {
-            return FirstOracleConstants.isClose( point0Dim, dim ) ? point0 : null;
+            if( FirstOracleConstants.isClose( point0Dim, dim ) ) {
+                return point0;
+            }
+            System.err.println( " Returning " );
+            return point0;
         }
         var t = ( dim - point0Dim ) / directionDim;
         return new Vector3f( this.direction ).mul( t ).add( point0 );

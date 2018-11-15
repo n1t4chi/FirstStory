@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.input.dataParsers;
+package com.firststory.firstoracle.input.parameters;
 
 import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.data.Position2D;

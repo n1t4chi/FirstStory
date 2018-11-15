@@ -386,6 +386,14 @@ public interface ParseUtils {
         return list;
     }
     
+    interface TriFunction< A, B, C, R > {
+        R apply( A a, B b, C c );
+    }
+    
+    interface QuadFunction< A, B, C, D, R > {
+        R apply( A a, B b, C c, D d );
+    }
+    
     interface TriConsumer< A, B, C > {
         void accept( A a, B b, C c );
     }

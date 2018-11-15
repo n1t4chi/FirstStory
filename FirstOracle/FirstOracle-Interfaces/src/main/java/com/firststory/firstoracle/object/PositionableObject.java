@@ -81,6 +81,7 @@ public interface PositionableObject<
             .setVertexFrame( vertexFrame )
             .setUvDirection( uvMapDirection )
             .setUvFrame( uvMapFrame )
+            .setRotation( getTransformations().getRotation() )
         );
     }
     

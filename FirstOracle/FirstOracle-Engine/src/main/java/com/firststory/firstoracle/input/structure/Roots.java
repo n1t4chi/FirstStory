@@ -35,7 +35,9 @@ public class Roots {
     
     private Roots( String text ) {
         try {
-            var parser = new JsonFactory().createParser( text );
+            var factory = new JsonFactory();
+            factory.enable(JsonParser.Feature.ALLOW_COMMENTS);
+            var parser = factory.createParser( text );
             Deque< MutableComposite > prevComposites = new ArrayDeque<>();
             MutableComposite currentComposite = null;
             JsonToken token;

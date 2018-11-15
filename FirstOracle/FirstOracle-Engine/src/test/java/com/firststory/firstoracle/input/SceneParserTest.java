@@ -52,7 +52,7 @@ class SceneParserTest {
                         "position": "4, 3",
                         "rotation": "45",
                         "scale": "2, 6",
-                        "texture": "resources/First Oracle/textures/grass.png",
+                        "texture": "resources/First Oracle/textures/grass2D.png",
                         "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
                         "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
                         "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
@@ -69,7 +69,7 @@ class SceneParserTest {
             rot2( 45 ),
             scale2( 2, 6 ),
             PositionableObject2DImpl.class,
-            "resources/First Oracle/textures/grass.png",
+            "resources/First Oracle/textures/grass2D.png",
             new float[]{ 1,1,0, 2,2,0, 3,3,0 },
             new float[]{ 1,1, 2,2, 3,3 },
             new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 }
@@ -86,7 +86,7 @@ class SceneParserTest {
                         "position": "4, 3, 2",
                         "rotation": "10, 20, 30",
                         "scale": "2, 6, 12",
-                        "texture": "resources/First Oracle/textures/grass.png",
+                        "texture": "resources/First Oracle/textures/grass2D.png",
                         "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
                         "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
                         "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
@@ -104,7 +104,7 @@ class SceneParserTest {
             rot3( 10, 20, 30 ),
             scale3( 2, 6, 12 ),
             PositionableObject3DImpl.class,
-            "resources/First Oracle/textures/grass.png",
+            "resources/First Oracle/textures/grass2D.png",
             new float[]{ 1,1,1, 2,2,2, 3,3,3 },
             new float[]{ 1,1, 2,2, 3,3 },
             new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 }
@@ -122,7 +122,7 @@ class SceneParserTest {
                 "terrains": {
                     "object1": {
                         "class": "Terrain2DImpl",
-                        "texture": "resources/First Oracle/textures/grass.png",
+                        "texture": "resources/First Oracle/textures/grass2D.png",
                         "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
                         "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
                         "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
@@ -144,7 +144,7 @@ class SceneParserTest {
             scene2D.getTerrain2DShift(),
             PlanePositionCalculator.computePlanePosition( 3, 5, FirstOracleConstants.INDEX_ZERO_2I ),
             Terrain2DImpl.class,
-            "resources/First Oracle/textures/grass.png",
+            "resources/First Oracle/textures/grass2D.png",
             new float[]{ 1,1,0, 2,2,0, 3,3,0 },
             new float[]{ 1,1, 2,2, 3,3 },
             new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 }
@@ -162,7 +162,7 @@ class SceneParserTest {
                 "terrains": {
                     "object1": {
                         "class": "Terrain3DImpl",
-                        "texture": "resources/First Oracle/textures/grass.png",
+                        "texture": "resources/First Oracle/textures/grass2D.png",
                         "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
                         "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
                         "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
@@ -184,7 +184,7 @@ class SceneParserTest {
             scene3D.getTerrain3DShift(),
             CubePositionCalculator.computeCubePosition( 3, 3, 5, FirstOracleConstants.INDEX_ZERO_3I ),
             Terrain3DImpl.class,
-            "resources/First Oracle/textures/grass.png",
+            "resources/First Oracle/textures/grass2D.png",
             new float[]{ 1,1,1, 2,2,2, 3,3,3 },
             new float[]{ 1,1, 2,2, 3,3 },
             new float[]{ 1,1,1,1, 2,2,2,2, 3,3,3,3 }
@@ -232,7 +232,7 @@ class SceneParserTest {
                     "vert3d": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]"
                 },
                 "textures": {
-                    "tex": "resources/First Oracle/textures/grass.png"
+                    "tex": "resources/First Oracle/textures/grass2D.png"
                 },
                 "uvMaps": {
                     "uv": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]"
@@ -322,7 +322,7 @@ class SceneParserTest {
         float[] expectedVertices2D = { 1, 1, 0, 2, 2, 0, 3, 3, 0 };
         float[] expectedVertices3D = { 1, 1, 1, 2, 2, 2, 3, 3, 3 };
         float[] expectedColouring = { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
-        var expectedTexturePath = "resources/First Oracle/textures/grass.png";
+        var expectedTexturePath = "resources/First Oracle/textures/grass2D.png";
         
         
         scene2D.getObjects2D().forEach( object -> {

@@ -6,7 +6,7 @@ package com.firststory.firstoracle.input;
 
 import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.input.Exceptions.SharedDataKeyNotFoundException;
-import com.firststory.firstoracle.input.dataParsers.*;
+import com.firststory.firstoracle.input.parameters.*;
 import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;

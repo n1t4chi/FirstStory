@@ -25,10 +25,7 @@ public class OptimisedRegistrableScene2DImpl extends RegistrableScene2DImpl {
     }
     
     @Override
-    public List< RenderData > getObjects2DRenderData(
-        double currentRenderTime,
-        double cameraRotation
-    ) {
+    public List< RenderData > getObjects2DRenderData( double currentRenderTime, double cameraRotation ) {
         List< RenderData > list = new ArrayList<>(  );
         
         var terrainShift = getTerrain2DShift();

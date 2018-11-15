@@ -20,6 +20,21 @@ import java.util.List;
 public interface Utils {
     String USE_OPTIMISED_PROPERTY = "optimised";
     
+    static BaseApp getApp2D( String text ) {
+        if( isOptimised() ) {
+            return new Optimised2D( text );
+        } else {
+            return new NonOptimised2D( text );
+        }
+    }
+    static BaseApp getApp3D( String text ) {
+        if( isOptimised() ) {
+            return new Optimised3D( text );
+        } else {
+            return new NonOptimised3D( text );
+        }
+    }
+    
     static BaseApp getApp2D(
         Terrain2D< ? >[][] terrains2D,
         Index2D terrain2dShift,
@@ -30,8 +45,8 @@ public interface Utils {
         } else {
             return new NonOptimised2D( terrains2D, terrain2dShift, renderables2D );
         }
-        
     }
+    
     static BaseApp getApp3D(
         Terrain3D< ? >[][][] terrains3D,
         Index3D terrain3dShift,

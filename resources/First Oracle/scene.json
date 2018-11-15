@@ -1,0 +1,107 @@
+{
+  "sharedData": {
+    "objectClasses2D": {
+      "obj2d": "NonAnimatedRectangle"
+    },
+    "terrainClasses2D": {
+      "terr2d": "NonAnimatedRectangleGrid"
+    },
+    "positions2D": {
+      "pos2d": "1, 1"
+    },
+    "rotations2D": {
+      "rot2d": "0"
+    },
+    "scales2D": {
+      "scl2d": "1, 1"
+    },
+    "objectClasses3D": {
+      "obj3d": "StillDirectionalNonAnimatedPlane3D"
+    },
+    "terrainClasses3D": {
+      "terr3d": "NonAnimatedCubeGrid"
+    },
+    "rotations3D": {
+      "rot3d": "0, 0, 0"
+    },
+    "scales3D": {
+      "scaleObj3d": "1, 2, 1"
+    },
+    "textures": {
+      "grass2d": "resources/First Oracle/textures/grass2D.png",
+
+      "grass3d": "resources/First Oracle/textures/grass3D.png",
+      "water3d": "resources/First Oracle/textures/water3D.png",
+      "sand3d": "resources/First Oracle/textures/sand3D.png",
+      "tree3d": "resources/First Oracle/textures/tree3D.png",
+      "hero3d": "resources/First Oracle/textures/hero3D.png"
+    }
+  },
+  "sharedObjects": {
+    "tree": {
+      "base": "tree",
+      "class": "$obj3d",
+      "rotation": "$rot3d",
+      "scale": "$scaleObj3d",
+      "texture": "$tree3d"
+    }
+
+  },
+  "scene2D": {
+    "objects": {
+      "object1": {
+        "class": "$obj2d",
+        "position": "$pos2d",
+        "rotation": "$rot2d",
+        "scale": "$scl2d",
+        "texture": "$grass2d"
+      },
+      "object2": {
+        "class": "$obj2d",
+        "position": "$pos2d",
+        "rotation": "$rot2d",
+        "scale": "$scl2d",
+        "texture": "$grass2d"
+      }
+    },
+    "terrains": {
+      "terrain1": {
+        "class": "$terr2d",
+        "texture": "$grass2d",
+        "indices": "[ {0,0}x{1,2} ]"
+      }
+    }
+  },
+  "scene3D": {
+    "objects": {
+      "hero": {
+        "class": "$obj3d",
+        "position": "18,13,50",
+        "rotation": "$rot3d",
+        "scale": "$scaleObj3d",
+        "texture": "$hero3d"
+      },
+      "tree0": {
+        "base": "tree",
+        "position": "82,13,0"
+      }
+    },
+    "terrains": {
+      "grass": {
+        "class": "$terr3d",
+        "texture": "$grass3d",
+        "indices": "[ {0,0,0}x{50,0,50},{6,1,0}x{50,1,50},{7,2,0}x{50,2,50},{8,3,0}x{50,3,50},{10,4,0}x{50,4,50},{13,5,0}x{50,5,50} ]"
+      },
+      "sand": {
+        "class": "$terr3d",
+        "texture": "$sand3d",
+        "indices": "[ {0,1,0}x{5,1,50},{1,2,0}x{6,2,50},{3,3,0}x{7,3,50},{6,4,0}x{9,4,50},{8,5,0}x{12,5,50} ]"
+      },
+      "water": {
+        "class": "$terr3d",
+        "texture": "$water3d",
+        "indices": "[ {0,2,0}x{0,2,50},{0,3,0}x{2,3,50},{0,4,0}x{5,4,50},{0,5,0}x{7,5,50} ]"
+      }
+    }
+  }
+}
