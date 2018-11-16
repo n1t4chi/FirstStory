@@ -5,8 +5,8 @@
 package com.firststory.firstoracle.input;
 
 import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.input.Exceptions.InvalidValueException;
-import com.firststory.firstoracle.input.Exceptions.ParseFailedException;
+import com.firststory.firstoracle.input.exceptions.InvalidValueException;
+import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 

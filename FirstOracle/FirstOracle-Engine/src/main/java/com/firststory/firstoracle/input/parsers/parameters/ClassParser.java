@@ -2,13 +2,13 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.input.parameters;
+package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.input.Exceptions.ParsedClassNotFoundException;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SceneParser;
 import com.firststory.firstoracle.input.SharedData;
+import com.firststory.firstoracle.input.exceptions.ParsedClassNotFoundException;
 import com.firststory.firstoracle.object2D.Position2DCalculator;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.object2D.Terrain2D;

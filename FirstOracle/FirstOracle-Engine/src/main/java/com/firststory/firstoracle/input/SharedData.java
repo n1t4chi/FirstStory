@@ -5,8 +5,8 @@
 package com.firststory.firstoracle.input;
 
 import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.input.Exceptions.SharedDataKeyNotFoundException;
-import com.firststory.firstoracle.input.parameters.*;
+import com.firststory.firstoracle.input.exceptions.SharedDataKeyNotFoundException;
+import com.firststory.firstoracle.input.parsers.parameters.*;
 import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.Texture;
@@ -14,11 +14,9 @@ import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object2D.Position2DCalculator;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object2D.Vertices2D;
 import com.firststory.firstoracle.object3D.Position3DCalculator;
 import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.object3D.Terrain3D;
-import com.firststory.firstoracle.object3D.Vertices3D;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +35,6 @@ public class SharedData {
     private final Map< String, Position2D > positions2D = new HashMap<>();
     private final Map< String, Rotation2D > rotations2D = new HashMap<>();
     private final Map< String, Scale2D > scales2D = new HashMap<>();
-    private final Map< String, Vertices2D > vertices2D = new HashMap<>();
     private final Map< String, Position2DCalculator > position2DCalculators = new HashMap<>();
     
     private final Map< String, Class< ? extends PositionableObject3D< ?, ? > > > objectClasses3D = new HashMap<>();
@@ -45,12 +42,15 @@ public class SharedData {
     private final Map< String, Position3D > positions3D = new HashMap<>();
     private final Map< String, Rotation3D > rotations3D = new HashMap<>();
     private final Map< String, Scale3D > scales3D = new HashMap<>();
-    private final Map< String, Vertices3D > vertices3D = new HashMap<>();
     private final Map< String, Position3DCalculator > position3DCalculators = new HashMap<>();
     
     private final Map< String, Texture > textures = new HashMap<>();
     private final Map< String, UvMap > uvMaps = new HashMap<>();
     private final Map< String, Colouring > colourings = new HashMap<>();
+    
+    private final Vertices2DParser vertices2DParser = new Vertices2DParser();
+    private final Vertices3DParser vertices3DParser = new Vertices3DParser();
+    
     public SharedData( Composite sharedDataNode ) {
         parseClasses( sharedDataNode );
         parsePositions( sharedDataNode );
@@ -61,6 +61,14 @@ public class SharedData {
         parseUvMaps( sharedDataNode );
         parseColourings( sharedDataNode );
         parsePositionCalculators( sharedDataNode );
+    }
+    
+    public Vertices2DParser getVertices2DParser() {
+        return vertices2DParser;
+    }
+    
+    public Vertices3DParser getVertices3DParser() {
+        return vertices3DParser;
     }
     
     private void parsePositionCalculators( Composite sharedDataNode ) {
@@ -85,16 +93,8 @@ public class SharedData {
     }
     
     private void parseVertices( Composite sharedDataNode ) {
-        parse( sharedDataNode,
-            SHARED_PARAM_VERTICES_2D,
-            this::addVertices2D,
-            VerticesParser::newVertices2D
-        );
-        parse( sharedDataNode,
-            SHARED_PARAM_VERTICES_3D,
-            this::addVertices3D,
-            VerticesParser::newVertices3D
-        );
+        vertices2DParser.parseShared( sharedDataNode );
+        vertices3DParser.parseShared( sharedDataNode );
     }
     
     private void parseUvMaps( Composite sharedDataNode ) {
@@ -214,10 +214,6 @@ public class SharedData {
         return get( scales2D, key, SHARED_PARAM_SCALES_2D );
     }
     
-    public Vertices2D getVertices2D( String key ) {
-        return get( vertices2D, key, SHARED_PARAM_VERTICES_2D );
-    }
-    
     public Class< ? extends PositionableObject3D< ?, ? > > getObjectClass3D( String key ) {
         return get( objectClasses3D, key,
             SHARED_PARAM_OBJECT_CLASSES_3D
@@ -240,10 +236,6 @@ public class SharedData {
     
     public Scale3D getScale3D( String key ) {
         return get( scales3D, key, SHARED_PARAM_SCALES_3D );
-    }
-    
-    public Vertices3D getVertices3D( String key ) {
-        return get( vertices3D, key, SHARED_PARAM_VERTICES_3D );
     }
     
     public Texture getTexture( String key ) {
@@ -286,10 +278,6 @@ public class SharedData {
         scales2D.put( key, value );
     }
     
-    public void addVertices2D( String key, Vertices2D value ) {
-        vertices2D.put( key, value );
-    }
-    
     public void addObjectClass3D( String key, Class< ? extends PositionableObject3D< ?, ? > > value ) {
         objectClasses3D.put( key, value );
     }
@@ -310,10 +298,6 @@ public class SharedData {
         scales3D.put( key, value );
     }
     
-    public void addVertices3D( String key, Vertices3D value ) {
-        vertices3D.put( key, value );
-    }
-    
     public void addTexture( String key, Texture value ) {
         textures.put( key, value );
     }
@@ -329,6 +313,7 @@ public class SharedData {
     public void addPosition2DCalculator( String key, Position2DCalculator value ) {
         position2DCalculators.put( key, value );
     }
+    
     public void addPosition3DCalculator( String key, Position3DCalculator value ) {
         position3DCalculators.put( key, value );
     }

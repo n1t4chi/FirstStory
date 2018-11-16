@@ -4,8 +4,8 @@
 
 package com.firststory.firstoracle.input;
 
-import com.firststory.firstoracle.input.Exceptions.OrphanedEntryNodeException;
-import com.firststory.firstoracle.input.Exceptions.ParseFailedException;
+import com.firststory.firstoracle.input.exceptions.OrphanedEntryNodeException;
+import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.input.structure.Leaf;
 import com.firststory.firstoracle.input.structure.Node;

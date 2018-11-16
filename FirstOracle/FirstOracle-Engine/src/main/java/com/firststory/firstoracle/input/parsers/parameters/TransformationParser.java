@@ -2,13 +2,13 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.input.parameters;
+package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.input.Exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.ParseUtils.TriConsumer;
 import com.firststory.firstoracle.input.SharedData;
+import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.object.PositionableObject;
 import com.firststory.firstoracle.object.PositionableObjectTransformations;
 import com.firststory.firstoracle.object2D.Mutable2DTransformations;

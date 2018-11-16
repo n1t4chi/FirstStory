@@ -2,15 +2,16 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.input.objectParsers;
+package com.firststory.firstoracle.input.parsers.object;
 
 import com.firststory.firstoracle.data.Index3D;
+import com.firststory.firstoracle.data.Position3D;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.parameters.ClassParser;
-import com.firststory.firstoracle.input.parameters.PositionCalculatorParser;
-import com.firststory.firstoracle.input.parameters.TransformationParser;
-import com.firststory.firstoracle.input.parameters.VerticesParser;
+import com.firststory.firstoracle.input.parsers.parameters.ClassParser;
+import com.firststory.firstoracle.input.parsers.parameters.PositionCalculatorParser;
+import com.firststory.firstoracle.input.parsers.parameters.TransformationParser;
+import com.firststory.firstoracle.input.parsers.parameters.VerticesParser;
 import com.firststory.firstoracle.object3D.*;
 
 import java.util.List;
@@ -20,22 +21,12 @@ import java.util.function.BiFunction;
  * @author n1t4chi
  */
 public class ObjectParser3D extends ObjectParser<
-    Object3D< ?, ? >,
     PositionableObject3D< ?, ? >,
     Terrain3D< ? >,
+    Vertices3D,
+    Position3D,
     Index3D
 > {
-    @Override
-    void setVertices(
-        Object3D< ?, ? > object,
-        SharedData sharedData1,
-        String verticesText
-    ) {
-        VerticesParser.setVertices3D( object,
-            sharedData1,
-            verticesText
-        );
-    }
     
     @Override
     void setTransformation(
@@ -51,6 +42,11 @@ public class ObjectParser3D extends ObjectParser<
             rotation,
             scale
         );
+    }
+    
+    @Override
+    VerticesParser< Vertices3D, Position3D > getVerticesParser( SharedData sharedData ) {
+        return sharedData.getVertices3DParser();
     }
     
     @Override

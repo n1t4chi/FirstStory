@@ -7,15 +7,17 @@ package com.firststory.firstoracle.input;
 import com.firststory.firstoracle.data.Index;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.input.Exceptions.ParseFailedException;
-import com.firststory.firstoracle.input.objectParsers.ObjectParser;
-import com.firststory.firstoracle.input.objectParsers.ObjectParser2D;
-import com.firststory.firstoracle.input.objectParsers.ObjectParser3D;
-import com.firststory.firstoracle.input.objectParsers.TerrainPair;
+import com.firststory.firstoracle.data.Position;
+import com.firststory.firstoracle.input.exceptions.ParseFailedException;
+import com.firststory.firstoracle.input.parsers.object.ObjectParser;
+import com.firststory.firstoracle.input.parsers.object.ObjectParser2D;
+import com.firststory.firstoracle.input.parsers.object.ObjectParser3D;
+import com.firststory.firstoracle.input.parsers.object.TerrainPair;
 import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.input.structure.Roots;
 import com.firststory.firstoracle.object.PositionableObject;
 import com.firststory.firstoracle.object.Terrain;
+import com.firststory.firstoracle.object.Vertices;
 import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.scene.*;
@@ -114,14 +116,16 @@ public class SceneParser {
         Scene,
         IndexType extends Index,
         PositionableObjectType extends PositionableObject< ?, ?, ? >,
-        TerrainType extends Terrain< ?, ?, ?, IndexType, ? >
+        TerrainType extends Terrain< ?, ?, ?, IndexType, ? >,
+        VerticesType extends Vertices< PositionType, ? >,
+        PositionType extends Position
     > Scene parseScene(
         Composite sceneNode,
         SharedData sharedData,
         @Nullable IndexType size,
         IndexType shift,
         SceneSupplier< IndexType, Scene > sceneSupplier,
-        ObjectParser< ?, PositionableObjectType, TerrainType, IndexType > parser,
+        ObjectParser< PositionableObjectType, TerrainType, VerticesType, PositionType, IndexType > parser,
         BiConsumer< Scene, Collection< PositionableObjectType > > registerObject,
         TriConsumer< Scene, TerrainType, Collection< IndexType >  > registerTerrain,
         BiFunction< IndexType, Collection< TerrainPair< TerrainType, IndexType > >, IndexType > determineFinalSize

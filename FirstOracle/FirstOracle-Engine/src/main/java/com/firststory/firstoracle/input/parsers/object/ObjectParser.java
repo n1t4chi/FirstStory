@@ -2,19 +2,22 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.input.objectParsers;
+package com.firststory.firstoracle.input.parsers.object;
 
 import com.firststory.firstoracle.data.Index;
-import com.firststory.firstoracle.input.Exceptions.ParseFailedException;
+import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.parameters.ColouringParser;
-import com.firststory.firstoracle.input.parameters.TextureParser;
-import com.firststory.firstoracle.input.parameters.UvMapParser;
+import com.firststory.firstoracle.input.exceptions.ParseFailedException;
+import com.firststory.firstoracle.input.parsers.parameters.ColouringParser;
+import com.firststory.firstoracle.input.parsers.parameters.TextureParser;
+import com.firststory.firstoracle.input.parsers.parameters.UvMapParser;
+import com.firststory.firstoracle.input.parsers.parameters.VerticesParser;
 import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.object.GraphicObject;
 import com.firststory.firstoracle.object.PositionableObject;
 import com.firststory.firstoracle.object.Terrain;
+import com.firststory.firstoracle.object.Vertices;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,11 +33,13 @@ import static com.firststory.firstoracle.input.ParseUtils.*;
  * @author n1t4chi
  */
 public abstract class ObjectParser<
-    ObjectSuperType extends GraphicObject< ?, ?, ? >,
     PositionableObjectType extends PositionableObject< ?, ?, ? >,
     TerrainType extends Terrain< ?, ?, ?, IndexType, ? >,
+    VerticesType extends Vertices< PositionType, ? >,
+    PositionType extends Position,
     IndexType extends Index
 > {
+    
     
     abstract List< IndexType > parseIndex( String text );
     
@@ -78,25 +83,6 @@ public abstract class ObjectParser<
         String scale
     );
     
-    abstract void setVertices(
-        ObjectSuperType object,
-        SharedData sharedData1,
-        String verticesText
-    );
-    
-    @SuppressWarnings( "unchecked" )
-    private void setVerticesAfterCast(
-        Object object,
-        SharedData sharedData1,
-        String verticesText
-    ) {
-        setVertices(
-            ( ObjectSuperType ) object,
-            sharedData1,
-            verticesText
-        );
-    }
-    
     
     public Map< String, TerrainPair< TerrainType, IndexType > > getTerrains(
         Composite sceneNode,
@@ -122,23 +108,25 @@ public abstract class ObjectParser<
     }
     
     private PositionableObjectType toObject( SharedData sharedData, Composite node ) {
-        var object1 = toGraphicObject(
+        var object = toGraphicObject(
             sharedData,
             node,
             this::createObjectInstance,
             getDefaultObjectClass(),
-            this::setVerticesAfterCast
+            getVerticesParser( sharedData )
         );
     
         setTransformation(
-            object1,
+            object,
             sharedData,
             node.findValue( SCENE_PARAM_POSITION, null ),
             node.findValue( SCENE_PARAM_ROTATION, null ),
             node.findValue( SCENE_PARAM_SCALE, null )
         );
-        return object1;
+        return object;
     }
+    
+    abstract VerticesParser< VerticesType, PositionType > getVerticesParser( SharedData sharedData );
     
     private TerrainType toTerrain( SharedData sharedData, Composite node ) {
         var terrain = toGraphicObject(
@@ -146,15 +134,13 @@ public abstract class ObjectParser<
             node,
             this::createTerrainInstance,
             getDefaultTerrainClass(),
-            this::setVerticesAfterCast
+            getVerticesParser( sharedData )
         );
-    
         setPositionCalculator(
             terrain,
             sharedData,
             node.findValue( SCENE_PARAM_POSITION_CALC, null )
         );
-    
         return terrain;
     }
     
@@ -215,12 +201,12 @@ public abstract class ObjectParser<
         ) );
     }
     
-    private < ObjectType extends GraphicObject< ?, ?, ? > > ObjectType toGraphicObject(
+    private <ObjectType extends GraphicObject< ?, ?, ?> > ObjectType toGraphicObject(
         SharedData sharedData,
         Composite node,
         BiFunction< SharedData, String, ObjectType > objectCreator,
         Class< ? extends ObjectType > defaultClass,
-        TriConsumer< ObjectType, SharedData, String > verticesApplier
+        VerticesParser< VerticesType, PositionType > verticesParser
     ) {
         var object = objectCreator.apply(
             sharedData,
@@ -238,9 +224,9 @@ public abstract class ObjectParser<
             sharedData,
             node.findValue( SCENE_PARAM_UV_MAP, null )
         );
-        verticesApplier.accept( object,
-            sharedData,
-            node.findValue( SCENE_PARAM_VERTICES, null )
+        verticesParser.apply(
+            object,
+            node.findLeaf( SCENE_PARAM_VERTICES, null )
         );
         return object;
     }

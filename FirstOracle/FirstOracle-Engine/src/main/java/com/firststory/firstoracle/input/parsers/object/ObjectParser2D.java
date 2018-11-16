@@ -2,15 +2,16 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.input.objectParsers;
+package com.firststory.firstoracle.input.parsers.object;
 
 import com.firststory.firstoracle.data.Index2D;
+import com.firststory.firstoracle.data.Position2D;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.parameters.ClassParser;
-import com.firststory.firstoracle.input.parameters.PositionCalculatorParser;
-import com.firststory.firstoracle.input.parameters.TransformationParser;
-import com.firststory.firstoracle.input.parameters.VerticesParser;
+import com.firststory.firstoracle.input.parsers.parameters.ClassParser;
+import com.firststory.firstoracle.input.parsers.parameters.PositionCalculatorParser;
+import com.firststory.firstoracle.input.parsers.parameters.TransformationParser;
+import com.firststory.firstoracle.input.parsers.parameters.VerticesParser;
 import com.firststory.firstoracle.object2D.*;
 
 import java.util.List;
@@ -20,11 +21,13 @@ import java.util.function.BiFunction;
  * @author n1t4chi
  */
 public class ObjectParser2D extends ObjectParser<
-    Object2D< ?, ? >,
     PositionableObject2D< ?, ? >,
     Terrain2D< ? >,
+    Vertices2D,
+    Position2D,
     Index2D
 > {
+    
     @Override
     void setPositionCalculator(
         Terrain2D< ? > terrain,
@@ -54,16 +57,8 @@ public class ObjectParser2D extends ObjectParser<
     }
     
     @Override
-    void setVertices(
-        Object2D< ?, ? > object,
-        SharedData sharedData1,
-        String verticesText
-    ) {
-        VerticesParser.setVertices2D(
-            object,
-            sharedData1,
-            verticesText
-        );
+    VerticesParser< Vertices2D, Position2D > getVerticesParser( SharedData sharedData ) {
+        return sharedData.getVertices2DParser();
     }
     
     public Class< ? extends Terrain2D< ? > > getTerrainClass(

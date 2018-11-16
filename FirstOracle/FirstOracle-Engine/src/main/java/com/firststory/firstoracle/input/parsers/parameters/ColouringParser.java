@@ -2,12 +2,12 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.input.parameters;
+package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.input.Exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
+import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.object.Colouring;
 import com.firststory.firstoracle.object.GraphicObject;
 

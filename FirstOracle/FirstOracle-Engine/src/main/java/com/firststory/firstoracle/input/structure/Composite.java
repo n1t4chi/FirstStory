@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.input.structure;
 
-import com.firststory.firstoracle.input.Exceptions.NoEntryFoundException;
+import com.firststory.firstoracle.input.exceptions.NoEntryFoundException;
 
 import java.util.List;
 import java.util.Optional;

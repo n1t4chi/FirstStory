@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.input.objectParsers;
+package com.firststory.firstoracle.input.parsers.object;
 
 import com.firststory.firstoracle.data.Index;
 import com.firststory.firstoracle.object.Terrain;

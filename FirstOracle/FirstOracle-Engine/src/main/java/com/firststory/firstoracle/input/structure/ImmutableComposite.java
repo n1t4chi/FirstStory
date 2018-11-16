@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ImmutableComposite extends Composite {
     
-    public ImmutableComposite( String name ) {
+    ImmutableComposite( String name ) {
         super( name );
     }
     
