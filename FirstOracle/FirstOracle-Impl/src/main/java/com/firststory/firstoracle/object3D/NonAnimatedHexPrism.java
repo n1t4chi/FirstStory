@@ -12,17 +12,20 @@ import com.firststory.firstoracle.object.UvMap;
  * @author n1t4chi
  */
 public class NonAnimatedHexPrism
-    extends AbstractPositionableObject3D< Mutable3DTransformations, HexPrismVertices >
-    implements HexPrism< Mutable3DTransformations >,
-    NonAnimatedObject3D< Mutable3DTransformations, HexPrismVertices >,
-    MutableTextureObject3D< Mutable3DTransformations, HexPrismVertices >,
-    PositionableObject3D< Mutable3DTransformations, HexPrismVertices >
+    extends
+        AbstractPositionableObject3D< MutablePositionable3DTransformations, HexPrismVertices >
+    implements
+        HexPrism< MutablePositionable3DTransformations >,
+        NonAnimatedObject3D< MutablePositionable3DTransformations, HexPrismVertices >,
+        MutableTextureObject3D< MutablePositionable3DTransformations, HexPrismVertices >,
+        PositionableObject3D< MutablePositionable3DTransformations, HexPrismVertices >,
+        MutableTransformationsObject3D< HexPrismVertices >
 {
     {
-        setTransformations( new Mutable3DTransformations() );
+        setTransformations( new MutablePositionable3DTransformations() );
     }
     Texture texture;
-    Mutable3DTransformations transformations;
+    MutablePositionable3DTransformations transformations;
     
     @Override
     public Texture getTexture() {
@@ -40,12 +43,12 @@ public class NonAnimatedHexPrism
     }
     
     @Override
-    public Mutable3DTransformations getTransformations() {
+    public MutablePositionable3DTransformations getTransformations() {
         return transformations;
     }
     
     @Override
-    public void setTransformations( Mutable3DTransformations transformations ) {
+    public void setTransformations( MutablePositionable3DTransformations transformations ) {
         this.transformations = transformations;
     }
 }

@@ -44,6 +44,9 @@ public interface ParseUtils {
     String SCENE_PARAM_INDICES = "indices";
     String SCENE_PARAM_POSITION_CALC = "positionCalculator";
     
+    String METHOD_SET_POSITION = "setPosition";
+    String METHOD_SET_SCALE = "setScale";
+    String METHOD_SET_ROTATION = "setRotation";
     String METHOD_SET_TEXTURE = "setTexture";
     String METHOD_SET_COLOURING = "setColouring";
     String METHOD_SET_UV_MAP = "setUvMap";

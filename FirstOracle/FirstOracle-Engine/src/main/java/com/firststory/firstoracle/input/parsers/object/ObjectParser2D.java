@@ -8,14 +8,14 @@ import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Position2D;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.parsers.parameters.ClassParser;
-import com.firststory.firstoracle.input.parsers.parameters.PositionCalculatorParser;
+import com.firststory.firstoracle.input.parsers.classes.Object2DClassParser;
+import com.firststory.firstoracle.input.parsers.classes.Terrain2DClassParser;
 import com.firststory.firstoracle.input.parsers.parameters.TransformationParser;
 import com.firststory.firstoracle.input.parsers.parameters.VerticesParser;
+import com.firststory.firstoracle.input.structure.Leaf;
 import com.firststory.firstoracle.object2D.*;
 
 import java.util.List;
-import java.util.function.BiFunction;
 
 /**
  * @author n1t4chi
@@ -25,31 +25,34 @@ public class ObjectParser2D extends ObjectParser<
     Terrain2D< ? >,
     Vertices2D,
     Position2D,
-    Index2D
+    Index2D,
+    Object2DClassParser,
+    Terrain2DClassParser
 > {
     
     @Override
     void setPositionCalculator(
         Terrain2D< ? > terrain,
-        SharedData sharedData2,
-        String calculatorName
+        SharedData sharedData,
+        Leaf leaf
     ) {
-        PositionCalculatorParser.setCalculator2D( terrain,
-            sharedData2,
-            calculatorName
+        sharedData.getPosition2DCalculatorParser().apply(
+            terrain,
+            leaf
         );
     }
     
     @Override
     void setTransformation(
-        PositionableObject2D< ?, ? > object1,
-        SharedData sharedData2,
-        String position,
-        String rotation,
-        String scale
+        PositionableObject2D< ?, ? > object,
+        SharedData sharedData,
+        Leaf position,
+        Leaf rotation,
+        Leaf scale
     ) {
-        TransformationParser.setTransformations2D( object1,
-            sharedData2,
+        TransformationParser.setTransformations2D(
+            object,
+            sharedData,
             position,
             rotation,
             scale
@@ -61,40 +64,16 @@ public class ObjectParser2D extends ObjectParser<
         return sharedData.getVertices2DParser();
     }
     
-    public Class< ? extends Terrain2D< ? > > getTerrainClass(
-        SharedData sharedData,
-        BiFunction< SharedData, String, Class< ? extends Terrain2D< ? > > > sharedDataExtractor,
-        String className
+    public Terrain2DClassParser getTerrainClassParser(
+        SharedData sharedData
     ) {
-        return ClassParser.getTerrainClass2D( sharedData, sharedDataExtractor, className );
+        return sharedData.getTerrain2DClassParser();
     }
     
-    public Class< ? extends Terrain2D< ? > > extractTerrainClass(
-        SharedData sharedData2,
-        String key
+    public Object2DClassParser getObjectClassParser(
+        SharedData sharedData
     ) {
-        return sharedData2.getTerrainClass2D( key );
-    }
-    
-    @Override
-    Class< ? extends PositionableObject2D< ?, ? > > extractObjectClass(
-        SharedData sharedData,
-        String className
-    ) {
-        return sharedData.getObjectClass2D( className );
-    }
-    
-    @Override
-    Class< ? extends PositionableObject2D< ?, ? > > getObjectClass(
-        SharedData sharedData,
-        BiFunction< SharedData, String, Class< ? extends PositionableObject2D< ?, ? > > > sharedDataExtractor,
-        String className
-    ) {
-        return ClassParser
-            .getObjectClass2D( sharedData,
-                sharedDataExtractor,
-                className
-            );
+        return sharedData.getObject2DClassParser();
     }
     
     @Override

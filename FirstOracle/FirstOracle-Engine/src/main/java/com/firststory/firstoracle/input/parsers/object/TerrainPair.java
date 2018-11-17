@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author n1t4chi
  */
-public class TerrainPair< TerrainType extends Terrain< ?,?,?,IndexType,? >, IndexType extends Index > {
+public class TerrainPair< TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType >, IndexType extends Index > {
     private final TerrainType terrain;
     private final List< IndexType > indices;
     

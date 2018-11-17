@@ -7,46 +7,32 @@ package com.firststory.firstoracle.input.parsers;
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.exceptions.SharedDataKeyNotFoundException;
 import com.firststory.firstoracle.input.structure.Leaf;
-import com.firststory.firstoracle.input.structure.Node;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.firststory.firstoracle.input.ParseUtils.SHARED_NAME_PREFIX;
 
 /**
  * @author n1t4chi
  */
-public abstract class ParameterParser< Type > implements NodeParser< Type, Leaf  > {
+public abstract class ParameterParser< Type > implements ShareableParser< Type > {
     
     private final Map< String, Type > sharedInstances = new HashMap<>();
     
-    public abstract Class< Type > getTypeClass();
-    
-    public abstract String getSetterName();
-    
-    public abstract Type newInstance( String text );
+    public abstract Class< Type > getSetterParameterClass();
     
     public abstract String getParameterName();
     
+    public abstract String getSetterName();
+    
     @Override
     public Type getSharedInstance( String name ) {
-        return sharedInstances.get( name );
+        return sharedInstances.get( normalizeSharedKey( name ) );
     }
     
     @Override
-    public Type newInstance( Leaf node ) {
-        return newInstance( node.getValue() );
-    }
-    
-    public void newSharedInstance( Node node ) {
-        if( !node.isComposite() ) {
-            var leaf = ( Leaf ) node;
-            sharedInstances.put(
-                leaf.getName(),
-                newInstance( leaf.getValue() )
-            );
-        }
+    public void addSharedInstance( String name, Type instance ) {
+        sharedInstances.put( name, instance );
     }
     
     public void apply(
@@ -65,33 +51,50 @@ public abstract class ParameterParser< Type > implements NodeParser< Type, Leaf 
     
     @Override
     public Type parse( Leaf node ) {
-        if( isShared( node ) ) {
-            var key = normalizeSharedKey( node.getValue() );
-            var instance = getSharedInstance( key );
+        if( isShared( node.getValue() ) ) {
+            var instance = getSharedInstance( node.getValue() );
             if( instance == null ) {
-                throw new SharedDataKeyNotFoundException( key, getSharedName() );
+                throw new SharedDataKeyNotFoundException( node.getValue(), getSharedName() );
             }
             return instance;
         }
-        return newInstance( node );
-    }
-    
-    private boolean isShared( Leaf node ) {
-        return node.getValue().startsWith( SHARED_NAME_PREFIX );
-    }
-    
-    private String normalizeSharedKey( String key ) {
-        return key.substring( 1 );
+        return newInstance( node.getValue() );
     }
     
     private void applyUnsafe(
         Object object,
         Leaf leaf
     ) throws Exception {
-        object.getClass()
-            .getMethod( getSetterName(), getTypeClass() )
-            .invoke( object, parse( leaf ) )
-        ;
+        var aClass = object.getClass();
+        var setterName = getSetterName();
+        var parameterClass = getSetterParameterClass();
+        var parse = parse( leaf );
+        var method = getMethod( aClass, setterName, parameterClass );
+        method.invoke( object, parse );
+    }
+    
+    private Method getMethod(
+        Class< ? > aClass,
+        String setterName,
+        Class< Type > parameterClass
+    ) throws NoSuchMethodException {
+        var methods = aClass.getMethods();
+        for ( var method : methods ) {
+            if( setterName.equals( method.getName() ) ) {
+                try {
+                    var parameters = method.getParameters();
+                    if ( parameters.length == 1 ) {
+                        var parameter = parameters[ 0 ];
+                        parameterClass.asSubclass( parameter.getType() );
+                        return method;
+                    }
+                } catch ( ClassCastException ignored ) {}
+            }
+        }
+        throw new NoSuchMethodException(
+            "No method " + setterName +
+            " with related parameter class " + parameterClass +
+            " was found for class " + aClass  );
     }
     
 }

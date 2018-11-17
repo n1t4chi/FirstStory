@@ -4,16 +4,17 @@
 package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.Position2D;
 import com.firststory.firstoracle.data.Rotation2D;
 import com.firststory.firstoracle.data.Scale2D;
+import com.firststory.firstoracle.object.MutableObjectTransformations;
 
 /**
  * @author n1t4chi
  */
-public class Mutable2DTransformations implements PositionableObject2DTransformations {
-    
-    private Position2D position = FirstOracleConstants.POSITION_ZERO_2F;
+public class Mutable2DTransformations implements
+    Object2DTransformations,
+    MutableObjectTransformations< Scale2D, Rotation2D >
+{
     private Scale2D scale = FirstOracleConstants.SCALE_ONE_2F;
     private Rotation2D rotation = FirstOracleConstants.ROTATION_ZERO_2F;
     
@@ -37,27 +38,6 @@ public class Mutable2DTransformations implements PositionableObject2DTransformat
     
     public void setRotation( Float angle ) {
         setRotation( Rotation2D.rot2( angle ) );
-    }
-    
-    @Override
-    public Position2D getPosition() {
-        return position;
-    }
-    
-    public void setPosition( Position2D position ) {
-        this.position = position;
-    }
-    
-    public void setPosition( float x, float y ) {
-        setPosition( Position2D.pos2( x, y ) );
-    }
-    
-    public void setPositionX( float x ) {
-        setPosition( x, position.y() );
-    }
-    
-    public void setPositionY( float y ) {
-        setPosition( position.x(), y );
     }
     
     public void setScale( float x, float y ) {

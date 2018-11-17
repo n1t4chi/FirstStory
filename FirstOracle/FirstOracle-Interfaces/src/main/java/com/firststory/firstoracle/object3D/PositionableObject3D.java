@@ -3,6 +3,9 @@
  */
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.data.Position3D;
+import com.firststory.firstoracle.data.Rotation3D;
+import com.firststory.firstoracle.data.Scale3D;
 import com.firststory.firstoracle.object.PositionableObject;
 
 /**
@@ -15,7 +18,7 @@ public interface PositionableObject3D<
     Vertices extends Vertices3D
 > extends
     Object3D< Transformations, Vertices >,
-    PositionableObject< Transformations, BoundingBox3D, Vertices >
+    PositionableObject< Position3D, Scale3D, Rotation3D, Transformations, BoundingBox3D, Vertices >
 {
     
     @Override

@@ -4,6 +4,9 @@
 
 package com.firststory.firstoracle.object;
 
+import com.firststory.firstoracle.data.Position;
+import com.firststory.firstoracle.data.Rotation;
+import com.firststory.firstoracle.data.Scale;
 import com.firststory.firstoracle.rendering.RenderData;
 
 import java.util.ArrayList;
@@ -14,11 +17,14 @@ import java.util.List;
  * @author n1t4chi
  */
 public interface PositionableObject<
-    TransformationsType extends PositionableObjectTransformations< ?, ?, ? >,
-    BoundingBoxType extends BoundingBox< ?, ?, ? >,
-    VerticesType extends Vertices< ?, ? >
+    PositionType extends Position,
+    ScaleType extends Scale,
+    RotationType extends Rotation,
+    TransformationsType extends PositionableObjectTransformations< PositionType, ScaleType, RotationType >,
+    BoundingBoxType extends BoundingBox< BoundingBoxType, ?, PositionType >,
+    VerticesType extends Vertices< PositionType, BoundingBoxType >
 > extends
-    GraphicObject< TransformationsType, BoundingBoxType, VerticesType >
+    GraphicObject< PositionType, ScaleType, RotationType, TransformationsType, BoundingBoxType, VerticesType >
 {
     void setTransformations( TransformationsType transformations );
     
@@ -71,6 +77,10 @@ public interface PositionableObject<
         List< RenderData > renderDatas = new ArrayList<>( renderDataBuilders.size() );
         renderDataBuilders.forEach( renderDataBuilder -> renderDatas.add( renderDataBuilder.build() ) );
         storeRenderDataList( renderDatas );
+    }
+    
+    default PositionType getPosition() {
+        return getTransformations().getPosition();
     }
     
     private void updateRenderDataBuilders( List< RenderData.RenderDataBuilder > renderDataBuilders, double timeSnapshot, double cameraRotation ) {

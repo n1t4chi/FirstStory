@@ -4,7 +4,6 @@
 
 package com.firststory.firstoracle.input.parsers;
 
-import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.input.structure.Node;
 
 /**
@@ -12,20 +11,5 @@ import com.firststory.firstoracle.input.structure.Node;
  */
 public interface NodeParser< Type, NodeType extends Node > {
     
-    Type getSharedInstance( String key );
-    
-    Type newInstance( NodeType node );
-    
-    void newSharedInstance( Node childNode );
-    
-    String getSharedName();
-    
     Type parse( NodeType node );
-    
-    default void parseShared( Composite sharedNode ) {
-        sharedNode.findComposite( getSharedName() )
-            .getContent()
-            .forEach( this::newSharedInstance )
-        ;
-    }
 }

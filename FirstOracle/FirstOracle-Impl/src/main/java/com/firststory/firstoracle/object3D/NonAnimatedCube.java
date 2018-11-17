@@ -12,17 +12,15 @@ import com.firststory.firstoracle.object.UvMap;
  * @author n1t4chi
  */
 public class NonAnimatedCube
-    extends AbstractPositionableObject3D< Mutable3DTransformations, CubeVertices >
-    implements Cube< Mutable3DTransformations >,
-    NonAnimatedObject3D< Mutable3DTransformations, CubeVertices >,
-    MutableTextureObject3D< Mutable3DTransformations, CubeVertices >,
-    PositionableObject3D< Mutable3DTransformations, CubeVertices >
+    extends
+        AbstractPositionableObject3D< MutablePositionable3DTransformations, CubeVertices >
+    implements Cube< MutablePositionable3DTransformations >,
+        NonAnimatedObject3D< MutablePositionable3DTransformations, CubeVertices >,
+        MutableTextureObject3D< MutablePositionable3DTransformations, CubeVertices >,
+        PositionableObject3D< MutablePositionable3DTransformations, CubeVertices >,
+        MutableTransformationsObject3D< CubeVertices >
 {
-    {
-        setTransformations( new Mutable3DTransformations() );
-    }
     Texture texture;
-    Mutable3DTransformations transformations;
     
     @Override
     public Texture getTexture() {
@@ -40,12 +38,12 @@ public class NonAnimatedCube
     }
     
     @Override
-    public Mutable3DTransformations getTransformations() {
+    public MutablePositionable3DTransformations getTransformations() {
         return transformations;
     }
     
     @Override
-    public void setTransformations( Mutable3DTransformations transformations ) {
+    public void setTransformations( MutablePositionable3DTransformations transformations ) {
         this.transformations = transformations;
     }
 }

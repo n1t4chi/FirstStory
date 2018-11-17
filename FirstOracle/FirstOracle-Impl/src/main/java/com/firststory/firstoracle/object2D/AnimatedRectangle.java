@@ -13,21 +13,20 @@ import com.firststory.firstoracle.object.UvMap;
  * @author n1t4chi
  */
 public class AnimatedRectangle
-    extends AbstractPositionableObject2D< Mutable2DTransformations, Plane2DVertices >
-    implements Rectangle< Mutable2DTransformations >,
-    AnimatedObject2D< Mutable2DTransformations, Plane2DVertices >,
-    MutableTextureObject2D< Mutable2DTransformations, Plane2DVertices >,
-    PositionableObject2D< Mutable2DTransformations, Plane2DVertices >
+    extends
+        AbstractPositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >
+    implements Rectangle< MutablePositionable2DTransformations >,
+        AnimatedObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        MutableTransformationsObject2D< Plane2DVertices >
 {
     
-    DirectionController directionController;
-    FrameController frameController;
-    Texture texture;
-    Mutable2DTransformations transformations;
-    UvMap uvMap;
-    {
-        setTransformations( new Mutable2DTransformations() );
-    }
+    private DirectionController directionController;
+    private FrameController frameController;
+    private Texture texture;
+    private UvMap uvMap;
+    
     @Override
     public DirectionController getDirectionController() {
         return directionController;
@@ -66,15 +65,5 @@ public class AnimatedRectangle
     @Override
     public void setTexture( Texture texture ) {
         this.texture = texture;
-    }
-    
-    @Override
-    public Mutable2DTransformations getTransformations() {
-        return transformations;
-    }
-    
-    @Override
-    public void setTransformations( Mutable2DTransformations transformations ) {
-        this.transformations = transformations;
     }
 }

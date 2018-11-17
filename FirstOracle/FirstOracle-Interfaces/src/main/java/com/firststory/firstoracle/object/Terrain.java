@@ -6,6 +6,8 @@ package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.data.Index;
 import com.firststory.firstoracle.data.Position;
+import com.firststory.firstoracle.data.Rotation;
+import com.firststory.firstoracle.data.Scale;
 import com.firststory.firstoracle.rendering.RenderData;
 
 import java.util.ArrayList;
@@ -16,17 +18,16 @@ import java.util.List;
  * @author n1t4chi
  */
 public interface Terrain<
-    TransformationsType extends ObjectTransformations< ?, ? >,
-    BoundingBoxType extends BoundingBox< ?, ?, ? >,
-    VerticesType extends Vertices< ?, ? >,
-    IndexType extends Index,
-    PositionType extends Position
+    PositionType extends Position,
+    ScaleType extends Scale,
+    RotationType extends Rotation,
+    TransformationsType extends ObjectTransformations< ScaleType, RotationType >,
+    BoundingBoxType extends BoundingBox< BoundingBoxType, ?, PositionType >,
+    VerticesType extends Vertices< PositionType, BoundingBoxType >,
+    IndexType extends Index
 > extends
-    GraphicObject< TransformationsType, BoundingBoxType, VerticesType >
+    GraphicObject< PositionType, ScaleType, RotationType, TransformationsType, BoundingBoxType, VerticesType >
 {
-    
-    
-    
     /**
      * Store render data list for later use via {@link #getStoredRenderDataList(Position)}
      * @param renderDatas list of render data of this object

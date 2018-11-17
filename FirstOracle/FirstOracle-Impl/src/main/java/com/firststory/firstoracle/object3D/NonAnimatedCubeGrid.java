@@ -12,10 +12,12 @@ import com.firststory.firstoracle.object.UvMap;
  * @author n1t4chi
  */
 public class NonAnimatedCubeGrid
-    extends AbstractTerrain3D< CubeVertices >
-    implements CubeGrid,
-    NonAnimatedObject3D< Identity3DTransformations, CubeVertices >,
-    MutableTextureObject3D< Identity3DTransformations, CubeVertices >
+    extends
+        AbstractTerrain3D< CubeVertices >
+    implements
+        CubeGrid,
+        NonAnimatedObject3D< Identity3DTransformations, CubeVertices >,
+        MutableTextureObject3D< Identity3DTransformations, CubeVertices >
 {
     
     Texture texture;

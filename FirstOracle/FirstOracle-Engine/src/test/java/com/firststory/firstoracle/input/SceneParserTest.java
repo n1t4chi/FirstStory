@@ -325,20 +325,17 @@ class SceneParserTest {
         var expectedTexturePath = "resources/First Oracle/textures/grass2D.png";
         
         
-        scene2D.getObjects2D().forEach( object -> {
-                assertObject(
-                    object,
-                    pos2( 4, 3 ),
-                    rot2( 45 ),
-                    scale2( 2, 6 ),
-                    PositionableObject2DImpl.class,
-                    expectedTexturePath,
-                    expectedVertices2D,
-                    expectedUvMap,
-                    expectedColouring
-                );
-            }
-        );
+        scene2D.getObjects2D().forEach( object -> assertObject(
+            object,
+            pos2( 4, 3 ),
+            rot2( 45 ),
+            scale2( 2, 6 ),
+            PositionableObject2DImpl.class,
+            expectedTexturePath,
+            expectedVertices2D,
+            expectedUvMap,
+            expectedColouring
+        ) );
         
         scene3D.getObjects3D().forEach( object ->
             assertObject(
@@ -394,12 +391,12 @@ class SceneParserTest {
         }
     }
     
-    private < IndexT extends Index, PositionT extends Position > void assertTerrain(
-        Terrain< ?, ?, ?, IndexT, PositionT > terrain,
-        IndexT index,
-        IndexT shift,
-        PositionT expectedCalculatedPosition,
-        Class< ? extends Terrain< ?, ?, ?, ?, ? > > expectedClass,
+    private < IndexType extends Index, PositionType extends Position > void assertTerrain(
+        Terrain< PositionType, ?, ?, ?, ?, ?, IndexType > terrain,
+        IndexType index,
+        IndexType shift,
+        PositionType expectedCalculatedPosition,
+        Class< ? extends Terrain< ?, ?, ?, ?, ?, ?, ? > > expectedClass,
         String expectedTexturePath,
         float[] expectedVertices,
         float[] expectedUvMap,
@@ -429,11 +426,11 @@ class SceneParserTest {
     }
     
     private void assertObject(
-        PositionableObject< ?, ?, ? > object,
+        PositionableObject< ?, ?, ?, ?, ?, ? > object,
         Position expectedPosition,
         Rotation expectedRotation,
         Scale expectedScale,
-        Class< ? extends PositionableObject< ?, ?, ? > > expectedClass,
+        Class< ? extends PositionableObject< ?, ?, ?, ?, ?, ? > > expectedClass,
         String expectedTexturePath,
         float[] expectedVertices,
         float[] expectedUvMap,

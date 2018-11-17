@@ -18,7 +18,7 @@ public class RenderData {
      * @param object object
      */
     public static RenderDataBuilder borderRenderDataForObject(
-        PositionableObject< ?, ?, ? > object
+        PositionableObject< ?, ?, ?, ?, ?, ? > object
     ) {
         return borderRenderData( object, object.getTransformations().getPosition() );
     }
@@ -31,7 +31,7 @@ public class RenderData {
      * @param position terrain position
      */
     public static RenderDataBuilder borderRenderDataForTerrain(
-        Terrain< ?, ?, ?, ?, ? > terrain,
+        Terrain< ?, ?, ?, ?, ?, ?, ? > terrain,
         Position position
     ) {
         return borderRenderData( terrain, position );
@@ -44,7 +44,7 @@ public class RenderData {
      * @param object object
      */
     public static RenderDataBuilder baseRenderDataForObject(
-        PositionableObject< ?, ?, ? > object
+        PositionableObject< ?, ?, ?, ?, ?, ? > object
     ) {
         return baseRenderData( object, object.getTransformations().getPosition() );
     }
@@ -57,7 +57,7 @@ public class RenderData {
      * @param position terrain position
      */
     public static RenderDataBuilder baseRenderDataForTerrain(
-        Terrain< ?, ?, ?, ?, ? > terrain,
+        Terrain< ?, ?, ?, ?, ?, ?, ? > terrain,
         Position position
     ) {
         return baseRenderData( terrain, position );
@@ -71,7 +71,7 @@ public class RenderData {
      * @param position object position
      */
     public static RenderDataBuilder baseRenderData(
-        GraphicObject< ?, ?, ? > object,
+        GraphicObject< ?, ?, ?, ?, ?, ? > object,
         Position position
     ) {
         return renderData( RenderType.TRIANGLES )
@@ -95,7 +95,7 @@ public class RenderData {
      * @param position object position
      */
     public static RenderDataBuilder borderRenderData(
-        GraphicObject< ?, ?, ? > object,
+        GraphicObject< ?, ?, ?, ?, ?, ? > object,
         Position position
     ) {
         return renderData( RenderType.BORDER )

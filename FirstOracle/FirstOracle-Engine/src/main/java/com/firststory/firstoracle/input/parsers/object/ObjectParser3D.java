@@ -8,14 +8,14 @@ import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.data.Position3D;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.parsers.parameters.ClassParser;
-import com.firststory.firstoracle.input.parsers.parameters.PositionCalculatorParser;
+import com.firststory.firstoracle.input.parsers.classes.Object3DClassParser;
+import com.firststory.firstoracle.input.parsers.classes.Terrain3DClassParser;
 import com.firststory.firstoracle.input.parsers.parameters.TransformationParser;
 import com.firststory.firstoracle.input.parsers.parameters.VerticesParser;
+import com.firststory.firstoracle.input.structure.Leaf;
 import com.firststory.firstoracle.object3D.*;
 
 import java.util.List;
-import java.util.function.BiFunction;
 
 /**
  * @author n1t4chi
@@ -25,19 +25,22 @@ public class ObjectParser3D extends ObjectParser<
     Terrain3D< ? >,
     Vertices3D,
     Position3D,
-    Index3D
+    Index3D,
+    Object3DClassParser,
+    Terrain3DClassParser
 > {
     
     @Override
     void setTransformation(
-        PositionableObject3D< ?, ? > object1,
-        SharedData sharedData2,
-        String position,
-        String rotation,
-        String scale
+        PositionableObject3D< ?, ? > object,
+        SharedData sharedData,
+        Leaf position,
+        Leaf rotation,
+        Leaf scale
     ) {
-        TransformationParser.setTransformations3D( object1,
-            sharedData2,
+        TransformationParser.setTransformations3D(
+            object,
+            sharedData,
             position,
             rotation,
             scale
@@ -52,51 +55,25 @@ public class ObjectParser3D extends ObjectParser<
     @Override
     void setPositionCalculator(
         Terrain3D< ? > terrain,
-        SharedData sharedData1,
-        String calculatorName
+        SharedData sharedData,
+        Leaf leaf
     ) {
-        PositionCalculatorParser.setCalculator3D( terrain,
-            sharedData1,
-            calculatorName
+        sharedData.getPosition3DCalculatorParser().apply(
+            terrain,
+            leaf
         );
     }
     
-    public Class< ? extends Terrain3D< ? > > getTerrainClass(
-        SharedData sharedData,
-        BiFunction< SharedData, String, Class< ? extends Terrain3D< ? > > > sharedDataExtractor,
-        String className
+    public Terrain3DClassParser getTerrainClassParser(
+        SharedData sharedData
     ) {
-        return ClassParser.getTerrainClass3D( sharedData,
-                sharedDataExtractor,
-                className
-            );
+        return sharedData.getTerrain3DClassParser();
     }
     
-    public Class< ? extends Terrain3D< ? > > extractTerrainClass(
-        SharedData sharedData,
-        String key
+    public Object3DClassParser getObjectClassParser(
+        SharedData sharedData
     ) {
-        return sharedData.getTerrainClass3D( key );
-    }
-    
-    public Class< ? extends PositionableObject3D< ?, ? > > extractObjectClass(
-        SharedData sharedData,
-        String key
-    ) {
-        return sharedData.getObjectClass3D( key );
-    }
-    
-    public Class< ? extends PositionableObject3D< ?, ? > > getObjectClass(
-        SharedData sharedData,
-        BiFunction< SharedData, String, Class< ? extends PositionableObject3D< ?, ? > > > sharedDataExtractor,
-        String className
-    ) {
-        return ClassParser
-            .getObjectClass3D(
-                sharedData,
-                sharedDataExtractor,
-                className
-            );
+        return sharedData.getObject3DClassParser();
     }
     
     @Override

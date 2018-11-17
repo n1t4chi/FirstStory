@@ -62,7 +62,7 @@ public class GlfwApplication2D {
         terrain.setTexture( texture1 );
     
         var object = new NonAnimatedRectangle();
-        object.setTransformations( new Mutable2DTransformations() );
+        object.setTransformations( new MutablePositionable2DTransformations() );
         object.setTexture( texture2 );
         
         var directionController = new DefaultDirectionController( compoundTexture.getDirections() );
@@ -74,7 +74,7 @@ public class GlfwApplication2D {
         compound.setFrameController( frameController );
         compound.setUvMap( new PlaneUvMap( compoundTexture ) );
         compound.setTexture( compoundTexture );
-        compound.setTransformations( new Mutable2DTransformations() );
+        compound.setTransformations( new MutablePositionable2DTransformations() );
         compound.getTransformations().setPosition( -4, -4 );
         compound.getTransformations().setScale( 4, 4 );
     

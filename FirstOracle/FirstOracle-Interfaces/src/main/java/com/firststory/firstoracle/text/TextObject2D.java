@@ -20,13 +20,12 @@ import com.firststory.firstoracle.window.Window;
  */
 public class TextObject2D
     extends
-        AbstractPositionableObject2D< PositionableObject2DTransformations, AbsolutePlane2DVertices >
+        AbstractPositionableObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >
     implements
-        NonAnimatedObject2D< PositionableObject2DTransformations, AbsolutePlane2DVertices >,
-        PositionableObject2D< PositionableObject2DTransformations, AbsolutePlane2DVertices >,
+        NonAnimatedObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >,
+        PositionableObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >,
         WindowListener
 {
-    private final Mutable2DTransformations transformations = new Mutable2DTransformations();
     private final WindowSettings settings;
     private final TextImageFactory factory;
     private TextData textData;
@@ -66,11 +65,6 @@ public class TextObject2D
     @Override
     public UvMap getUvMap() {
         return PlaneUvMap.getPlaneUvMap();
-    }
-    
-    @Override
-    public PositionableObject2DTransformations getTransformations() {
-        return transformations;
     }
     
     @Override
@@ -117,8 +111,8 @@ public class TextObject2D
     
     @Override
     public void update() {
-        transformations.setScale( textData.computeScale2D( settings.getWidth(), settings.getHeight() ) );
-        transformations.setPosition( textData.computePosition2D( posX, posY, settings.getWidth(), settings.getHeight() ) );
+        getTransformations().setScale( textData.computeScale2D( settings.getWidth(), settings.getHeight() ) );
+        getTransformations().setPosition( textData.computePosition2D( posX, posY, settings.getWidth(), settings.getHeight() ) );
         super.update();
     }
 }

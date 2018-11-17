@@ -12,17 +12,20 @@ import com.firststory.firstoracle.object.UvMap;
  * @author n1t4chi
  */
 public class NonAnimatedPlane3D
-    extends AbstractPositionableObject3D< Mutable3DTransformations, Plane3DVertices >
-    implements Plane3D< Mutable3DTransformations >,
-    NonAnimatedObject3D< Mutable3DTransformations, Plane3DVertices >,
-    MutableTextureObject3D< Mutable3DTransformations, Plane3DVertices >,
-    PositionableObject3D< Mutable3DTransformations, Plane3DVertices >
+    extends
+        AbstractPositionableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
+    implements
+        Plane3D< MutablePositionable3DTransformations >,
+        NonAnimatedObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
+        MutableTextureObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
+        PositionableObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
+        MutableTransformationsObject3D< Plane3DVertices >
 {
     {
-        setTransformations( new Mutable3DTransformations() );
+        setTransformations( new MutablePositionable3DTransformations() );
     }
     Texture texture;
-    Mutable3DTransformations transformations;
+    MutablePositionable3DTransformations transformations;
     
     @Override
     public Texture getTexture() {
@@ -40,12 +43,12 @@ public class NonAnimatedPlane3D
     }
     
     @Override
-    public Mutable3DTransformations getTransformations() {
+    public MutablePositionable3DTransformations getTransformations() {
         return transformations;
     }
     
     @Override
-    public void setTransformations( Mutable3DTransformations transformations ) {
+    public void setTransformations( MutablePositionable3DTransformations transformations ) {
         this.transformations = transformations;
     }
 }

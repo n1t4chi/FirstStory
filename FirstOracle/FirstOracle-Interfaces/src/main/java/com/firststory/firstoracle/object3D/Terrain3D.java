@@ -5,6 +5,8 @@ package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.data.Position3D;
+import com.firststory.firstoracle.data.Rotation3D;
+import com.firststory.firstoracle.data.Scale3D;
 import com.firststory.firstoracle.object.Terrain;
 
 /**
@@ -13,7 +15,7 @@ import com.firststory.firstoracle.object.Terrain;
  */
 public interface Terrain3D< Vertices extends Vertices3D > extends
     Object3D< Identity3DTransformations, Vertices >,
-    Terrain< Identity3DTransformations, BoundingBox3D, Vertices, Index3D, Position3D >
+    Terrain<Position3D, Scale3D, Rotation3D,  Identity3DTransformations, BoundingBox3D, Vertices, Index3D >
 {
     
     @Override

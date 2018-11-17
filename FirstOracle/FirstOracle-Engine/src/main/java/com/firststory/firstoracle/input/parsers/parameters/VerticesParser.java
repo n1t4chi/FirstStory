@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.input.parsers.parameters;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.parsers.ParameterParser;
@@ -11,8 +12,6 @@ import com.firststory.firstoracle.object.Vertices;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.firststory.firstoracle.input.ParseUtils.*;
 
 /**
  * @author n1t4chi
@@ -23,29 +22,28 @@ public abstract class VerticesParser<
 > {
     
     @Override
-    public String getSetterName() {
-        return METHOD_SET_VERTICES;
-    }
-    
-    @Override
-    public String getParameterName() {
-        return SCENE_PARAM_VERTICES;
-    }
-    
-    @Override
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public VerticesType newInstance( String text ) {
-        return ( VerticesType ) newInstance( toList( text ).stream()
+        return newInstance( ParseUtils.toList( text ).stream()
             .map( ParseUtils::toList )
             .map( verticesText -> verticesText.stream()
                 .map( this::toPosition )
                 .collect( Collectors.toList() )
             )
-            .toArray( List[]::new )
+            .toArray( FirstOracleConstants::array )
         );
     }
     
-    abstract PositionType toPosition( String text );
+    @Override
+    public String getSetterName() {
+        return ParseUtils.METHOD_SET_VERTICES;
+    }
     
-    abstract VerticesType newInstance( List< PositionType >[] positions );
+    @Override
+    public String getParameterName() {
+        return ParseUtils.SCENE_PARAM_VERTICES;
+    }
+    
+    protected abstract PositionType toPosition( String text );
+    
+    protected abstract VerticesType newInstance( List< PositionType >[] positions );
 }

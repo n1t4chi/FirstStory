@@ -6,54 +6,42 @@ package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.exceptions.ParseFailedException;
+import com.firststory.firstoracle.input.parsers.ParameterParser;
 import com.firststory.firstoracle.object.Colouring;
-import com.firststory.firstoracle.object.GraphicObject;
 
 import java.util.stream.Collectors;
-
-import static com.firststory.firstoracle.input.ParseUtils.METHOD_SET_COLOURING;
-import static com.firststory.firstoracle.input.ParseUtils.toList;
 
 /**
  * @author n1t4chi
  */
-public interface ColouringParser {
+public class ColouringParser extends ParameterParser< Colouring > {
     
-    static void setColouring(
-        GraphicObject< ?, ?, ? > object,
-        SharedData sharedData,
-        String colouringText
-    ) {
-        if( colouringText == null ) {
-            return;
-        }
-        try {
-            object.getClass()
-                .getMethod( METHOD_SET_COLOURING, Colouring.class )
-                .invoke( object, newColouring( sharedData, colouringText )
-                )
-            ;
-        } catch ( Exception ex ) {
-            throw new ParseFailedException( "Exception while setting up object texture", ex );
-        }
-    }
-    
-    static Colouring newColouring( SharedData sharedData, String colouringText ) {
-        return ParseUtils.getNewOrShared(
-            colouringText,
-            sharedData,
-            SharedData::getColouring,
-            ColouringParser::newColouring
-        );
-    }
-    
-    static Colouring newColouring( String colouringText ) {
-        return new Colouring( toList( colouringText ).stream()
+    @Override
+    public Colouring newInstance( String text ) {
+        return new Colouring( ParseUtils.toList( text ).stream()
             .map( ParseUtils::toVec4 )
             .map( Colour::col )
             .collect( Collectors.toList() )
         );
+    }
+    
+    @Override
+    public Class< Colouring > getSetterParameterClass() {
+        return Colouring.class;
+    }
+    
+    @Override
+    public String getSetterName() {
+        return ParseUtils.METHOD_SET_COLOURING;
+    }
+    
+    @Override
+    public String getParameterName() {
+        return ParseUtils.SCENE_PARAM_COLOURING;
+    }
+    
+    @Override
+    public String getSharedName() {
+        return ParseUtils.SHARED_PARAM_COLOURINGS;
     }
 }

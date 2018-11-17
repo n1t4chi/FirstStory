@@ -4,13 +4,16 @@
 package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.data.Position2D;
+import com.firststory.firstoracle.data.Rotation2D;
+import com.firststory.firstoracle.data.Scale2D;
 import com.firststory.firstoracle.object.GraphicObject;
 
 /**
  * @author n1t4chi
  */
 public interface Object2D< Transformations extends Object2DTransformations, Vertices extends Vertices2D >
-    extends GraphicObject< Transformations, BoundingBox2D, Vertices >
+    extends GraphicObject< Position2D, Scale2D, Rotation2D, Transformations, BoundingBox2D, Vertices >
 {
     
     @Override

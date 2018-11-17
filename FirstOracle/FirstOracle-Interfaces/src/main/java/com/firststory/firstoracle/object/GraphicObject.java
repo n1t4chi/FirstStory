@@ -4,16 +4,18 @@
 package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.data.LineData;
+import com.firststory.firstoracle.data.*;
 
 /**
  * @author n1t4chi
  */
 public interface GraphicObject<
-        TransformationsType extends ObjectTransformations< ?, ? >,
-        BoundingBoxType extends BoundingBox< ?, ?, ? >,
-        VerticesType extends Vertices< ?, ? >
+    PositionType extends Position,
+    ScaleType extends Scale,
+    RotationType extends Rotation,
+    TransformationsType extends ObjectTransformations< ScaleType, RotationType >,
+    BoundingBoxType extends BoundingBox< BoundingBoxType, ?, PositionType >,
+    VerticesType extends Vertices< PositionType, BoundingBoxType >
 > {
     
     Texture getTexture();
@@ -46,5 +48,13 @@ public interface GraphicObject<
     
     default float getMaxAlphaChannel() {
         return 1f;
+    }
+    
+    default RotationType getRotation() {
+        return getTransformations().getRotation();
+    }
+    
+    default ScaleType getScale() {
+        return getTransformations().getScale();
     }
 }

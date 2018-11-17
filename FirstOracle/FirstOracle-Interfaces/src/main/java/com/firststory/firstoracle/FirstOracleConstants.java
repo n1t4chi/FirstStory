@@ -140,6 +140,9 @@ public interface FirstOracleConstants {
         return new java.util.List[x][y][z];
     }
     
+    static <T> List<T>[][] array2D( int x ){
+        return array( x, 0 );
+    }
     @SuppressWarnings( "unchecked" )
     static <T> List<T>[][] array( int x,int y ){
         return new java.util.List[x][y];

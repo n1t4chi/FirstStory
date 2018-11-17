@@ -12,7 +12,10 @@ import com.firststory.firstoracle.object.UvMap;
  * @author n1t4chi
  */
 public class PositionableObject2DImpl
-    extends AbstractPositionableObject2D< PositionableObject2DTransformations, Vertices2D >
+    extends
+        AbstractPositionableObject2D< MutablePositionable2DTransformations, Vertices2D >
+    implements
+        MutableTransformationsObject2D< Vertices2D >
 {
     
     private UvMap uvMap;

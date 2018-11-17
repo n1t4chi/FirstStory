@@ -13,18 +13,15 @@ import com.firststory.firstoracle.object.UvMap;
  */
 public class NonAnimatedRectangle
     extends
-        AbstractPositionableObject2D< Mutable2DTransformations, Plane2DVertices >
+        AbstractPositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >
     implements
-        Rectangle< Mutable2DTransformations >,
-        NonAnimatedObject2D< Mutable2DTransformations, Plane2DVertices >,
-        MutableTextureObject2D< Mutable2DTransformations, Plane2DVertices >,
-        PositionableObject2D< Mutable2DTransformations, Plane2DVertices >
+        Rectangle< MutablePositionable2DTransformations >,
+        NonAnimatedObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        MutableTransformationsObject2D< Plane2DVertices >
 {
-    {
-        setTransformations( new Mutable2DTransformations() );
-    }
     Texture texture;
-    Mutable2DTransformations transformations;
     
     @Override
     public Texture getTexture() {
@@ -39,15 +36,5 @@ public class NonAnimatedRectangle
     @Override
     public UvMap getUvMap() {
         return PlaneUvMap.getPlaneUvMap();
-    }
-    
-    @Override
-    public Mutable2DTransformations getTransformations() {
-        return transformations;
-    }
-    
-    @Override
-    public void setTransformations( Mutable2DTransformations transformations ) {
-        this.transformations = transformations;
     }
 }

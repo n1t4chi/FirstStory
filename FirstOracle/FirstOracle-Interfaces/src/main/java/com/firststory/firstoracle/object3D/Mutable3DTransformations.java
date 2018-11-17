@@ -4,16 +4,17 @@
 package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.Position3D;
 import com.firststory.firstoracle.data.Rotation3D;
 import com.firststory.firstoracle.data.Scale3D;
+import com.firststory.firstoracle.object.MutableObjectTransformations;
 
 /**
  * @author n1t4chi
  */
-public class Mutable3DTransformations implements PositionableObject3DTransformations {
-    
-    private Position3D position = FirstOracleConstants.POSITION_ZERO_3F;
+public class Mutable3DTransformations implements
+    Object3DTransformations,
+    MutableObjectTransformations< Scale3D, Rotation3D >
+{
     private Scale3D scale = FirstOracleConstants.SCALE_ONE_3F;
     private Rotation3D rotation = FirstOracleConstants.ROTATION_ZERO_3F;
     
@@ -22,6 +23,7 @@ public class Mutable3DTransformations implements PositionableObject3DTransformat
         return scale;
     }
     
+    @Override
     public void setScale( Scale3D scale ) {
         this.scale = scale;
     }
@@ -31,33 +33,9 @@ public class Mutable3DTransformations implements PositionableObject3DTransformat
         return rotation;
     }
     
+    @Override
     public void setRotation( Rotation3D rotation ) {
         this.rotation = rotation;
-    }
-    
-    @Override
-    public Position3D getPosition() {
-        return position;
-    }
-    
-    public void setPosition( Position3D position ) {
-        this.position = position;
-    }
-    
-    public void setPosition( float x, float y, float z ) {
-        setPosition( Position3D.pos3( x, y, z ) );
-    }
-    
-    public void setPositionX( float x ) {
-        setPosition( x, position.y(), position.z() );
-    }
-    
-    public void setPositionY( float y ) {
-        setPosition( position.x(), y, position.z() );
-    }
-    
-    public void setPositionZ( float z ) {
-        setPosition( position.x(), position.y(), z );
     }
     
     public void setScale( float x, float y, float z ) {

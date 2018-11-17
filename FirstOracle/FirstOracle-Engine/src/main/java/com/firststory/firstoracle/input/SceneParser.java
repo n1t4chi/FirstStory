@@ -9,6 +9,8 @@ import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
+import com.firststory.firstoracle.input.parsers.classes.ObjectClassParser;
+import com.firststory.firstoracle.input.parsers.classes.TerrainClassParser;
 import com.firststory.firstoracle.input.parsers.object.ObjectParser;
 import com.firststory.firstoracle.input.parsers.object.ObjectParser2D;
 import com.firststory.firstoracle.input.parsers.object.ObjectParser3D;
@@ -115,17 +117,27 @@ public class SceneParser {
     private <
         Scene,
         IndexType extends Index,
-        PositionableObjectType extends PositionableObject< ?, ?, ? >,
-        TerrainType extends Terrain< ?, ?, ?, IndexType, ? >,
+        PositionableObjectType extends PositionableObject< ?, ?, ?, ?, ?, ? >,
+        TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType >,
         VerticesType extends Vertices< PositionType, ? >,
-        PositionType extends Position
+        PositionType extends Position,
+        ObjectClassParserType extends ObjectClassParser< PositionableObjectType >,
+        TerrainClassParserType extends TerrainClassParser< TerrainType >
     > Scene parseScene(
         Composite sceneNode,
         SharedData sharedData,
         @Nullable IndexType size,
         IndexType shift,
         SceneSupplier< IndexType, Scene > sceneSupplier,
-        ObjectParser< PositionableObjectType, TerrainType, VerticesType, PositionType, IndexType > parser,
+        ObjectParser<
+            PositionableObjectType,
+            TerrainType,
+            VerticesType,
+            PositionType,
+            IndexType,
+            ObjectClassParserType,
+            TerrainClassParserType
+        > parser,
         BiConsumer< Scene, Collection< PositionableObjectType > > registerObject,
         TriConsumer< Scene, TerrainType, Collection< IndexType >  > registerTerrain,
         BiFunction< IndexType, Collection< TerrainPair< TerrainType, IndexType > >, IndexType > determineFinalSize
@@ -170,7 +182,7 @@ public class SceneParser {
         );
     }
     
-    private < IndexType extends Index, TerrainType extends Terrain< ?, ?, ?, IndexType, ? > > IndexType getTerrainSize(
+    private < IndexType extends Index, TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType > > IndexType getTerrainSize(
         @Nullable IndexType size,
         Collection< TerrainPair< TerrainType, IndexType > > terrains,
         IndexType negativeOneSize,

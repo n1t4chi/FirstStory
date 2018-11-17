@@ -3,6 +3,9 @@
  */
 package com.firststory.firstoracle.object2D;
 
+import com.firststory.firstoracle.data.Position2D;
+import com.firststory.firstoracle.data.Rotation2D;
+import com.firststory.firstoracle.data.Scale2D;
 import com.firststory.firstoracle.object.PositionableObject;
 
 /**
@@ -15,7 +18,7 @@ public interface PositionableObject2D<
     Vertices extends Vertices2D
 > extends
     Object2D< Transformations, Vertices >,
-    PositionableObject< Transformations, BoundingBox2D, Vertices >
+    PositionableObject< Position2D, Scale2D, Rotation2D, Transformations, BoundingBox2D, Vertices >
 {
     
     @Override

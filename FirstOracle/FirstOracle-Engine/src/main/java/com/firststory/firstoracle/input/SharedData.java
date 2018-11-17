@@ -4,52 +4,43 @@
 
 package com.firststory.firstoracle.input;
 
-import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.input.exceptions.SharedDataKeyNotFoundException;
-import com.firststory.firstoracle.input.parsers.parameters.*;
+import com.firststory.firstoracle.input.parsers.classes.Object2DClassParser;
+import com.firststory.firstoracle.input.parsers.classes.Object3DClassParser;
+import com.firststory.firstoracle.input.parsers.classes.Terrain2DClassParser;
+import com.firststory.firstoracle.input.parsers.classes.Terrain3DClassParser;
+import com.firststory.firstoracle.input.parsers.parameters.ColouringParser;
+import com.firststory.firstoracle.input.parsers.parameters.TextureParser;
+import com.firststory.firstoracle.input.parsers.parameters.UvMapParser;
+import com.firststory.firstoracle.input.parsers.parameters.params2D.*;
+import com.firststory.firstoracle.input.parsers.parameters.params3D.*;
 import com.firststory.firstoracle.input.structure.Composite;
-import com.firststory.firstoracle.object.Colouring;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.object2D.Position2DCalculator;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object3D.Position3DCalculator;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
-import static com.firststory.firstoracle.input.ParseUtils.*;
 
 /**
  * @author n1t4chi
  */
 public class SharedData {
     
-    private final Map< String, Class< ? extends PositionableObject2D< ?, ? > > > objectClasses2D = new HashMap<>();
-    private final Map< String, Class< ? extends Terrain2D< ? > > > terrainClasses2D = new HashMap<>();
-    private final Map< String, Position2D > positions2D = new HashMap<>();
-    private final Map< String, Rotation2D > rotations2D = new HashMap<>();
-    private final Map< String, Scale2D > scales2D = new HashMap<>();
-    private final Map< String, Position2DCalculator > position2DCalculators = new HashMap<>();
-    
-    private final Map< String, Class< ? extends PositionableObject3D< ?, ? > > > objectClasses3D = new HashMap<>();
-    private final Map< String, Class< ? extends Terrain3D< ? > > > terrainClasses3D = new HashMap<>();
-    private final Map< String, Position3D > positions3D = new HashMap<>();
-    private final Map< String, Rotation3D > rotations3D = new HashMap<>();
-    private final Map< String, Scale3D > scales3D = new HashMap<>();
-    private final Map< String, Position3DCalculator > position3DCalculators = new HashMap<>();
-    
-    private final Map< String, Texture > textures = new HashMap<>();
-    private final Map< String, UvMap > uvMaps = new HashMap<>();
-    private final Map< String, Colouring > colourings = new HashMap<>();
-    
+    private final Object2DClassParser object2DClassParser = new Object2DClassParser();
+    private final Terrain2DClassParser terrain2DClassParser = new Terrain2DClassParser();
+    private final Position2DCalculatorParser position2DCalculatorParser = new Position2DCalculatorParser();
     private final Vertices2DParser vertices2DParser = new Vertices2DParser();
+    
+    private final Position2DParser position2DParser = new Position2DParser();
+    private final Scale2DParser scale2DParser = new Scale2DParser();
+    private final Rotation2DParser rotation2DParser = new Rotation2DParser();
+    
+    private final Object3DClassParser object3DClassParser = new Object3DClassParser();
+    private final Terrain3DClassParser terrain3DClassParser = new Terrain3DClassParser();
+    private final Position3DCalculatorParser position3DCalculatorParser = new Position3DCalculatorParser();
     private final Vertices3DParser vertices3DParser = new Vertices3DParser();
+    
+    private final Position3DParser position3DParser = new Position3DParser();
+    private final Scale3DParser scale3DParser = new Scale3DParser();
+    private final Rotation3DParser rotation3DParser = new Rotation3DParser();
+    
+    private final UvMapParser uvMapParser = new UvMapParser();
+    private final ColouringParser colouringParser = new ColouringParser();
+    private final TextureParser textureParser = new TextureParser();
     
     public SharedData( Composite sharedDataNode ) {
         parseClasses( sharedDataNode );
@@ -71,25 +62,73 @@ public class SharedData {
         return vertices3DParser;
     }
     
+    public UvMapParser getUvMapParser() {
+        return uvMapParser;
+    }
+    
+    public ColouringParser getColouringParser() {
+        return colouringParser;
+    }
+    
+    public TextureParser getTextureParser() {
+        return textureParser;
+    }
+    
+    public Position2DCalculatorParser getPosition2DCalculatorParser() {
+        return position2DCalculatorParser;
+    }
+    
+    public Position3DCalculatorParser getPosition3DCalculatorParser() {
+        return position3DCalculatorParser;
+    }
+    
+    public Object2DClassParser getObject2DClassParser() {
+        return object2DClassParser;
+    }
+    
+    public Terrain2DClassParser getTerrain2DClassParser() {
+        return terrain2DClassParser;
+    }
+    
+    public Object3DClassParser getObject3DClassParser() {
+        return object3DClassParser;
+    }
+    
+    public Terrain3DClassParser getTerrain3DClassParser() {
+        return terrain3DClassParser;
+    }
+    
+    public Position2DParser getPosition2DParser() {
+        return position2DParser;
+    }
+    
+    public Scale2DParser getScale2DParser() {
+        return scale2DParser;
+    }
+    
+    public Rotation2DParser getRotation2DParser() {
+        return rotation2DParser;
+    }
+    
+    public Position3DParser getPosition3DParser() {
+        return position3DParser;
+    }
+    
+    public Scale3DParser getScale3DParser() {
+        return scale3DParser;
+    }
+    
+    public Rotation3DParser getRotation3DParser() {
+        return rotation3DParser;
+    }
+    
     private void parsePositionCalculators( Composite sharedDataNode ) {
-        parse( sharedDataNode,
-            SHARED_PARAM_POSITION_CALCULATORS_2D,
-            this::addPosition2DCalculator,
-            PositionCalculatorParser::newCalculator2D
-        );
-        parse( sharedDataNode,
-            SHARED_PARAM_POSITION_CALCULATORS_3D,
-            this::addPosition3DCalculator,
-            PositionCalculatorParser::newCalculator3D
-        );
+        position2DCalculatorParser.parseShared( sharedDataNode );
+        position3DCalculatorParser.parseShared( sharedDataNode );
     }
     
     private void parseTextures( Composite sharedDataNode ) {
-        parse( sharedDataNode,
-            SHARED_PARAM_TEXTURES,
-            this::addTexture,
-            TextureParser::newTexture
-        );
+        textureParser.parseShared( sharedDataNode );
     }
     
     private void parseVertices( Composite sharedDataNode ) {
@@ -98,231 +137,32 @@ public class SharedData {
     }
     
     private void parseUvMaps( Composite sharedDataNode ) {
-        parse( sharedDataNode,
-            SHARED_PARAM_UV_MAPS,
-            this::addUvMap,
-            UvMapParser::newUvMap
-        );
+        uvMapParser.parseShared( sharedDataNode );
     }
     
     private void parseColourings( Composite sharedDataNode ) {
-        parse( sharedDataNode,
-            SHARED_PARAM_COLOURINGS,
-            this::addColouring,
-            ColouringParser::newColouring
-        );
+        colouringParser.parseShared( sharedDataNode );
     }
     
     private void parseScales( Composite sharedDataNode ) {
-        parse( sharedDataNode,
-            SHARED_PARAM_SCALES_2D,
-            this::addScale2D,
-            ParseUtils::toScale2D
-        );
-        parse( sharedDataNode,
-            SHARED_PARAM_SCALES_3D,
-            this::addScale3D,
-            ParseUtils::toScale3D
-        );
+        scale2DParser.parseShared( sharedDataNode );
+        scale3DParser.parseShared( sharedDataNode );
     }
     
     private void parseRotations( Composite sharedDataNode ) {
-        parse( sharedDataNode,
-            SHARED_PARAM_ROTATIONS_2D,
-            this::addRotation2D,
-            ParseUtils::toRotation2D
-        );
-        parse( sharedDataNode,
-            SHARED_PARAM_ROTATIONS_3D,
-            this::addRotation3D,
-            ParseUtils::toRotation3D
-        );
+        rotation2DParser.parseShared( sharedDataNode );
+        rotation3DParser.parseShared( sharedDataNode );
     }
     
     private void parsePositions( Composite sharedDataNode ) {
-        parse( sharedDataNode,
-            SHARED_PARAM_POSITIONS_2D,
-            this::addPosition2D,
-            ParseUtils::toPosition2D
-        );
-        parse( sharedDataNode,
-            SHARED_PARAM_POSITIONS_3D,
-            this::addPosition3D,
-            ParseUtils::toPosition3D
-        );
+        position2DParser.parseShared( sharedDataNode );
+        position3DParser.parseShared( sharedDataNode );
     }
     
     private void parseClasses( Composite sharedDataNode ) {
-        parse( sharedDataNode,
-            SHARED_PARAM_OBJECT_CLASSES_2D,
-            this::addObjectClass2D,
-            ClassParser::getNewObjectClass2D
-        );
-        parse( sharedDataNode,
-            SHARED_PARAM_OBJECT_CLASSES_3D,
-            this::addObjectClass3D,
-            ClassParser::getNewObjectClass3D
-        );
-        parse( sharedDataNode,
-            SHARED_PARAM_TERRAIN_CLASSES_2D,
-            this::addTerrainClass2D,
-            ClassParser::getNewTerrainClass2D
-        );
-        parse( sharedDataNode,
-            SHARED_PARAM_TERRAIN_CLASSES_3D,
-            this::addTerrainClass3D,
-            ClassParser::getNewTerrainClass3D
-        );
-    }
-    
-    private <T> void parse(
-        Composite sharedDataNode,
-        String sharedName,
-        BiConsumer< String, T > adder,
-        Function< String, T > parser
-    ) {
-        var values = sharedDataNode.findComposite( sharedName );
-        values.getLeafs().forEach( leaf -> adder.accept(
-            leaf.getName(),
-            parser.apply( leaf.getValue() )
-        ) );
-    }
-    
-    public Class< ? extends PositionableObject2D< ?, ? > > getObjectClass2D( String key ) {
-        return get( objectClasses2D, key,
-            SHARED_PARAM_OBJECT_CLASSES_2D
-        );
-    }
-    
-    public Class< ? extends Terrain2D< ? > > getTerrainClass2D( String key ) {
-        return get( terrainClasses2D, key,
-            SHARED_PARAM_TERRAIN_CLASSES_2D
-        );
-    }
-    
-    public Position2D getPosition2D( String key ) {
-        return get( positions2D, key,
-            SHARED_PARAM_POSITIONS_2D
-        );
-    }
-    
-    public Rotation2D getRotation2D( String key ) {
-        return get( rotations2D, key, SHARED_PARAM_ROTATIONS_2D );
-    }
-    
-    public Scale2D getScale2D( String key ) {
-        return get( scales2D, key, SHARED_PARAM_SCALES_2D );
-    }
-    
-    public Class< ? extends PositionableObject3D< ?, ? > > getObjectClass3D( String key ) {
-        return get( objectClasses3D, key,
-            SHARED_PARAM_OBJECT_CLASSES_3D
-        );
-    }
-    
-    public Class< ? extends Terrain3D< ? > > getTerrainClass3D( String key ) {
-        return get( terrainClasses3D, key,
-            SHARED_PARAM_TERRAIN_CLASSES_3D
-        );
-    }
-    
-    public Position3D getPosition3D( String key ) {
-        return get( positions3D, key, SHARED_PARAM_POSITIONS_3D );
-    }
-    
-    public Rotation3D getRotation3D( String key ) {
-        return get( rotations3D, key, SHARED_PARAM_ROTATIONS_3D );
-    }
-    
-    public Scale3D getScale3D( String key ) {
-        return get( scales3D, key, SHARED_PARAM_SCALES_3D );
-    }
-    
-    public Texture getTexture( String key ) {
-        return get( textures, key, SHARED_PARAM_TEXTURES );
-    }
-    
-    public UvMap getUvMap( String key ) {
-        return get( uvMaps, key, SHARED_PARAM_UV_MAPS );
-    }
-    
-    public Colouring getColouring( String key ) {
-        return get( colourings, key, SHARED_PARAM_COLOURINGS );
-    }
-    
-    public Position2DCalculator getPosition2DCalculator( String key ) {
-        return get( position2DCalculators, key, SHARED_PARAM_POSITION_CALCULATORS_2D );
-    }
-    
-    public Position3DCalculator getPosition3DCalculator( String key ) {
-        return get( position3DCalculators, key, SHARED_PARAM_POSITION_CALCULATORS_3D );
-    }
-    
-    public void addObjectClass2D( String key, Class< ? extends PositionableObject2D< ?, ? > > value ) {
-        objectClasses2D.put( key, value );
-    }
-    
-    public void addTerrainClass2D( String key, Class< ? extends Terrain2D< ? > > value ) {
-        terrainClasses2D.put( key, value );
-    }
-    
-    public void addPosition2D( String key, Position2D value ) {
-        positions2D.put( key, value );
-    }
-    
-    public void addRotation2D( String key, Rotation2D value ) {
-        rotations2D.put( key, value );
-    }
-    
-    public void addScale2D( String key, Scale2D value ) {
-        scales2D.put( key, value );
-    }
-    
-    public void addObjectClass3D( String key, Class< ? extends PositionableObject3D< ?, ? > > value ) {
-        objectClasses3D.put( key, value );
-    }
-    
-    public void addTerrainClass3D( String key, Class< ? extends Terrain3D< ? > > value ) {
-        terrainClasses3D.put( key, value );
-    }
-    
-    public void addPosition3D( String key, Position3D value ) {
-        positions3D.put( key, value );
-    }
-    
-    public void addRotation3D( String key, Rotation3D value ) {
-        rotations3D.put( key, value );
-    }
-    
-    public void addScale3D( String key, Scale3D value ) {
-        scales3D.put( key, value );
-    }
-    
-    public void addTexture( String key, Texture value ) {
-        textures.put( key, value );
-    }
-    
-    public void addUvMap( String key, UvMap value ) {
-        uvMaps.put( key, value );
-    }
-    
-    public void addColouring( String key, Colouring value ) {
-        colourings.put( key, value );
-    }
-    
-    public void addPosition2DCalculator( String key, Position2DCalculator value ) {
-        position2DCalculators.put( key, value );
-    }
-    
-    public void addPosition3DCalculator( String key, Position3DCalculator value ) {
-        position3DCalculators.put( key, value );
-    }
-    
-    private <T> T get( Map<String, T> map, String key, String typeName ){
-        var value = map.get( key );
-        if( value == null ) {
-            throw new SharedDataKeyNotFoundException( key, typeName );
-        }
-        return value;
+        terrain2DClassParser.parseShared( sharedDataNode );
+        terrain3DClassParser.parseShared( sharedDataNode );
+        object2DClassParser.parseShared( sharedDataNode );
+        object3DClassParser.parseShared( sharedDataNode );
     }
 }

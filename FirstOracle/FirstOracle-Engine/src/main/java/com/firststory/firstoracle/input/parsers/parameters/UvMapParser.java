@@ -4,69 +4,53 @@
 
 package com.firststory.firstoracle.input.parsers.parameters;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.UV;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.exceptions.ParseFailedException;
-import com.firststory.firstoracle.object.GraphicObject;
+import com.firststory.firstoracle.input.parsers.ParameterParser;
 import com.firststory.firstoracle.object.UvMap;
 
-import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.firststory.firstoracle.input.ParseUtils.METHOD_SET_UV_MAP;
-import static com.firststory.firstoracle.input.ParseUtils.toList;
 
 /**
  * @author n1t4chi
  */
-public interface UvMapParser {
+public class UvMapParser extends ParameterParser< UvMap > {
     
-    static void setUvMap(
-        GraphicObject< ?, ?, ? > object,
-        SharedData sharedData,
-        String uvText
-    ) {
-        if( uvText == null ) {
-            return;
-        }
-        try {
-            object.getClass()
-                .getMethod( METHOD_SET_UV_MAP, UvMap.class )
-                .invoke( object, newUvMap( sharedData, uvText ) )
-            ;
-        } catch ( Exception ex ) {
-            throw new ParseFailedException( "Exception while setting up object texture", ex );
-        }
-    }
-    
-    static UvMap newUvMap( SharedData sharedData, String uvText ) {
-        return ParseUtils.getNewOrShared(
-            uvText,
-            sharedData,
-            SharedData::getUvMap,
-            UvMapParser::newUvMap
+    @Override
+    public UvMap newInstance( String text ) {
+        return new UvMap( ParseUtils.toList( text ).stream()
+            .map( ParseUtils::toList )
+            .map( uvText1 -> uvText1.stream()
+                .map( ParseUtils::toList )
+                .map( uvTetxt2 -> uvTetxt2.stream()
+                    .map( ParseUtils::toVec2 )
+                    .map( UV::uv )
+                    .collect( Collectors.toList() )
+                )
+                .toArray( FirstOracleConstants::array )
+            )
+            .toArray( FirstOracleConstants::array2D )
         );
     }
     
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    static UvMap newUvMap( String uvText ) {
-        try {
-            return new UvMap( toList( uvText ).stream()
-                .map( ParseUtils::toList )
-                .map( uvText1 -> ( List< UV >[]) uvText1.stream()
-                    .map( ParseUtils::toList )
-                    .map( uvTetxt2 -> uvTetxt2.stream()
-                        .map( ParseUtils::toVec2 )
-                        .map( UV::uv )
-                        .collect( Collectors.toList() )
-                    )
-                    .toArray( List[]::new )
-                )
-                .toArray( List[][]::new )
-            );
-        } catch ( Exception ex ) {
-            throw new ParseFailedException( "Exception while setting up object texture", ex );
-        }
+    @Override
+    public Class< UvMap > getSetterParameterClass() {
+        return UvMap.class;
+    }
+    
+    @Override
+    public String getSetterName() {
+        return ParseUtils.METHOD_SET_UV_MAP;
+    }
+    
+    @Override
+    public String getParameterName() {
+        return ParseUtils.SCENE_PARAM_UV_MAP;
+    }
+    
+    @Override
+    public String getSharedName() {
+        return ParseUtils.SHARED_PARAM_UV_MAPS;
     }
 }

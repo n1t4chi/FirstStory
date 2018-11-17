@@ -18,7 +18,7 @@ public abstract class AbstractPositionableObject2D<
 > implements
     PositionableObject2D< Transformations, Vertices >
 {
-    Transformations transformations;
+    private Transformations transformations;
     private List< RenderData.RenderDataBuilder > renderDataBuilders;
     private List< RenderData > renderDatas;
     

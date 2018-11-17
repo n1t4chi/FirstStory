@@ -5,6 +5,8 @@ package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Position2D;
+import com.firststory.firstoracle.data.Rotation2D;
+import com.firststory.firstoracle.data.Scale2D;
 import com.firststory.firstoracle.object.Terrain;
 
 /**
@@ -13,7 +15,7 @@ import com.firststory.firstoracle.object.Terrain;
  */
 public interface Terrain2D< Vertices extends Vertices2D >
     extends Object2D< Identity2DTransformations, Vertices >,
-    Terrain< Identity2DTransformations, BoundingBox2D, Vertices, Index2D, Position2D >
+    Terrain< Position2D, Scale2D, Rotation2D, Identity2DTransformations, BoundingBox2D, Vertices, Index2D >
 {
     
     @Override
