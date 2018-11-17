@@ -43,6 +43,7 @@ public interface ParseUtils {
     String SCENE_PARAM_COLOURING = "colouring";
     String SCENE_PARAM_INDICES = "indices";
     String SCENE_PARAM_POSITION_CALC = "positionCalculator";
+    String SCENE_PARAM_TRANSFORMATIONS = "transformations";
     
     String METHOD_SET_POSITION = "setPosition";
     String METHOD_SET_SCALE = "setScale";
@@ -52,6 +53,7 @@ public interface ParseUtils {
     String METHOD_SET_UV_MAP = "setUvMap";
     String METHOD_SET_VERTICES = "setVertices";
     String METHOD_SET_POSITION_CALCULATOR = "setPositionCalculator";
+    String METHOD_SET_TRANSFORMATIONS = "setTransformations";
     
     
     String SHARED_NAME_PREFIX = "$";
@@ -70,6 +72,10 @@ public interface ParseUtils {
     String SHARED_PARAM_SCALES_2D = "scales2D";
     String SHARED_PARAM_VERTICES_2D = "vertices2D";
     String SHARED_PARAM_POSITION_CALCULATORS_2D = "positionCalculators2D";
+    String SHARED_PARAM_POSITIONABLE_TRANSFORMATIONS_2D = "positionableTransformations2D";
+    String SHARED_PARAM_POSITIONABLE_TRANSFORMATIONS_3D = "positionableTransformations3D";
+    String SHARED_PARAM_TRANSFORMATIONS_2D = "transformations2D";
+    String SHARED_PARAM_TRANSFORMATIONS_3D = "transformations3D";
     
     String SHARED_PARAM_OBJECT_CLASSES_3D = "objectClasses3D";
     String SHARED_PARAM_TERRAIN_CLASSES_3D = "terrainClasses3D";
@@ -89,6 +95,9 @@ public interface ParseUtils {
     String CONFIGURATION_TERRAIN_SHIFT_3D = "terrain3DShift";
     String CONFIGURATION_TERRAIN_SIZE_2D = "terrain2DSize";
     String CONFIGURATION_TERRAIN_SIZE_3D = "terrain3DSize";
+    
+    int PRIORITY_FUNDAMENTAL = -1337;
+    int PRIORITY_COMMON = 666;
     
     String INT = "(\\d+)";
     String FLOAT = "(\\d+(\\.\\d+)?)";

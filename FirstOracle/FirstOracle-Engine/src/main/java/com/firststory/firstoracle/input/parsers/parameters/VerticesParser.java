@@ -34,6 +34,11 @@ public abstract class VerticesParser<
     }
     
     @Override
+    public int getPriority() {
+        return ParseUtils.PRIORITY_FUNDAMENTAL;
+    }
+    
+    @Override
     public String getSetterName() {
         return ParseUtils.METHOD_SET_VERTICES;
     }

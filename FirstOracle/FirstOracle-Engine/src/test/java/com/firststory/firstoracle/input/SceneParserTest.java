@@ -49,6 +49,7 @@ class SceneParserTest {
                 "objects": {
                     "object1": {
                         "class": "PositionableObject2DImpl",
+                        "transformations": "MutablePositionable2DTransformations",
                         "position": "4, 3",
                         "rotation": "45",
                         "scale": "2, 6",
@@ -83,6 +84,7 @@ class SceneParserTest {
                 "objects": {
                     "object1": {
                         "class": "PositionableObject3DImpl",
+                        "transformations": "MutablePositionable3DTransformations",
                         "position": "4, 3, 2",
                         "rotation": "10, 20, 30",
                         "scale": "2, 6, 12",
@@ -198,6 +200,12 @@ class SceneParserTest {
                 "objectClasses2D": {
                     "obj2d": "PositionableObject2DImpl"
                 },
+                "positionableTransformations2D": {
+                    "trans2d": "MutablePositionable2DTransformations"
+                },
+                "positionableTransformations3D": {
+                    "trans3d": "MutablePositionable3DTransformations"
+                },
                 "terrainClasses2D": {
                     "terr2d": "Terrain2DImpl"
                 },
@@ -245,6 +253,7 @@ class SceneParserTest {
                 "objects": {
                     "object1": {
                         "class": "$obj2d",
+                        "transformations": "$trans2d",
                         "position": "$pos2d",
                         "rotation": "$rot2d",
                         "scale": "$scl2d",
@@ -255,6 +264,7 @@ class SceneParserTest {
                     },
                     "object2": {
                         "class": "$obj2d",
+                        "transformations": "$trans2d",
                         "position": "$pos2d",
                         "rotation": "$rot2d",
                         "scale": "$scl2d",
@@ -280,6 +290,7 @@ class SceneParserTest {
                 "objects": {
                     "object3": {
                         "class": "$obj3d",
+                        "transformations": "$trans3d",
                         "position": "$pos3d",
                         "rotation": "$rot3d",
                         "scale": "$scl3d",
@@ -290,6 +301,7 @@ class SceneParserTest {
                     },
                     "object4": {
                         "class": "$obj3d",
+                        "transformations": "$trans3d",
                         "position": "$pos3d",
                         "rotation": "$rot3d",
                         "scale": "$scl3d",

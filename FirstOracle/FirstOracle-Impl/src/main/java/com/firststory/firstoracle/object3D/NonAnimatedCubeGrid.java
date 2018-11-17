@@ -19,8 +19,7 @@ public class NonAnimatedCubeGrid
         NonAnimatedObject3D< Identity3DTransformations, CubeVertices >,
         MutableTextureObject3D< Identity3DTransformations, CubeVertices >
 {
-    
-    Texture texture;
+    private Texture texture;
     
     @Override
     public Texture getTexture() {

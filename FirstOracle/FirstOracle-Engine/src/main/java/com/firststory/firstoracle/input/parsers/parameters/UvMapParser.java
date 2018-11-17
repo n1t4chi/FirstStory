@@ -35,6 +35,11 @@ public class UvMapParser extends ParameterParser< UvMap > {
     }
     
     @Override
+    public int getPriority() {
+        return ParseUtils.PRIORITY_FUNDAMENTAL;
+    }
+    
+    @Override
     public Class< UvMap > getSetterParameterClass() {
         return UvMap.class;
     }

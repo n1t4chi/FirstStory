@@ -6,7 +6,9 @@ package com.firststory.firstoracle.input.parsers;
 
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.exceptions.SharedDataKeyNotFoundException;
+import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.input.structure.Leaf;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -15,15 +17,22 @@ import java.util.Map;
 /**
  * @author n1t4chi
  */
-public abstract class ParameterParser< Type > implements ShareableParser< Type > {
+public abstract class ParameterParser< Type > implements ShareableParser< Type >, Comparable< ParameterParser<?> > {
     
     private final Map< String, Type > sharedInstances = new HashMap<>();
+    
+    public abstract int getPriority();
     
     public abstract Class< Type > getSetterParameterClass();
     
     public abstract String getParameterName();
     
     public abstract String getSetterName();
+    
+    @Override
+    public int compareTo( @NotNull ParameterParser< ? > o ) {
+        return Integer.compare( getPriority(), o.getPriority() );
+    }
     
     @Override
     public Type getSharedInstance( String name ) {
@@ -33,6 +42,10 @@ public abstract class ParameterParser< Type > implements ShareableParser< Type >
     @Override
     public void addSharedInstance( String name, Type instance ) {
         sharedInstances.put( name, instance );
+    }
+    
+    public void tryToApply( Object object, Composite objectComposite ) {
+        apply( object, objectComposite.findLeaf( getParameterName(), null ) );
     }
     
     public void apply(

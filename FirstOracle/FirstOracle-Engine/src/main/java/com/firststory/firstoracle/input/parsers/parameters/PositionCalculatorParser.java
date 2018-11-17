@@ -5,27 +5,14 @@
 package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.exceptions.ParsedClassNotFoundException;
-import com.firststory.firstoracle.input.parsers.ParameterParser;
+import com.firststory.firstoracle.input.parsers.ClassBasedParameterParser;
 
 /**
  * @author n1t4chi
  */
-public abstract class PositionCalculatorParser< PositionCalculator > extends ParameterParser< PositionCalculator > {
+public abstract class PositionCalculatorParser< PositionCalculator > extends ClassBasedParameterParser< PositionCalculator > {
     
     protected abstract Class< ? extends PositionCalculator > getClassForName( String name );
-    
-    @Override
-    public PositionCalculator newInstance( String text ) {
-        try {
-            return getClassForName( text )
-                .getDeclaredConstructor()
-                .newInstance()
-            ;
-        } catch ( Exception ex ) {
-            throw new ParsedClassNotFoundException( text, getSetterParameterClass(), ex );
-        }
-    }
     
     @Override
     public String getSetterName() {
@@ -35,5 +22,10 @@ public abstract class PositionCalculatorParser< PositionCalculator > extends Par
     @Override
     public String getParameterName() {
         return ParseUtils.SCENE_PARAM_POSITION_CALC;
+    }
+    
+    @Override
+    public int getPriority() {
+        return ParseUtils.PRIORITY_COMMON;
     }
 }

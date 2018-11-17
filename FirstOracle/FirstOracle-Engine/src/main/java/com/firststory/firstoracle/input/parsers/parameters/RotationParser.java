@@ -22,4 +22,9 @@ public abstract class RotationParser< RotationType extends Rotation > extends Pa
     public String getSetterName() {
         return ParseUtils.METHOD_SET_ROTATION;
     }
+    
+    @Override
+    public int getPriority() {
+        return ParseUtils.PRIORITY_COMMON;
+    }
 }

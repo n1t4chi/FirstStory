@@ -22,4 +22,9 @@ public abstract class ScaleParser< ScaleType extends Scale > extends ParameterPa
     public String getSetterName() {
         return ParseUtils.METHOD_SET_SCALE;
     }
+    
+    @Override
+    public int getPriority() {
+        return ParseUtils.PRIORITY_COMMON;
+    }
 }

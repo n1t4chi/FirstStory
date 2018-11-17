@@ -19,7 +19,6 @@ import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.input.structure.Roots;
 import com.firststory.firstoracle.object.PositionableObject;
 import com.firststory.firstoracle.object.Terrain;
-import com.firststory.firstoracle.object.Vertices;
 import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.scene.*;
@@ -119,7 +118,6 @@ public class SceneParser {
         IndexType extends Index,
         PositionableObjectType extends PositionableObject< ?, ?, ?, ?, ?, ? >,
         TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType >,
-        VerticesType extends Vertices< PositionType, ? >,
         PositionType extends Position,
         ObjectClassParserType extends ObjectClassParser< PositionableObjectType >,
         TerrainClassParserType extends TerrainClassParser< TerrainType >
@@ -132,8 +130,6 @@ public class SceneParser {
         ObjectParser<
             PositionableObjectType,
             TerrainType,
-            VerticesType,
-            PositionType,
             IndexType,
             ObjectClassParserType,
             TerrainClassParserType

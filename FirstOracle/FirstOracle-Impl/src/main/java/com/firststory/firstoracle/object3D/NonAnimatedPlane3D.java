@@ -21,11 +21,7 @@ public class NonAnimatedPlane3D
         PositionableObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
         MutableTransformationsObject3D< Plane3DVertices >
 {
-    {
-        setTransformations( new MutablePositionable3DTransformations() );
-    }
-    Texture texture;
-    MutablePositionable3DTransformations transformations;
+    private Texture texture;
     
     @Override
     public Texture getTexture() {
@@ -40,15 +36,5 @@ public class NonAnimatedPlane3D
     @Override
     public UvMap getUvMap() {
         return PlaneUvMap.getPlaneUvMap();
-    }
-    
-    @Override
-    public MutablePositionable3DTransformations getTransformations() {
-        return transformations;
-    }
-    
-    @Override
-    public void setTransformations( MutablePositionable3DTransformations transformations ) {
-        this.transformations = transformations;
     }
 }

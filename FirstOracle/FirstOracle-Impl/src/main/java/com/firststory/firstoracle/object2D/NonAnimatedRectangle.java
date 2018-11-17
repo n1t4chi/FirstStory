@@ -21,7 +21,7 @@ public class NonAnimatedRectangle
         PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTransformationsObject2D< Plane2DVertices >
 {
-    Texture texture;
+    private Texture texture;
     
     @Override
     public Texture getTexture() {

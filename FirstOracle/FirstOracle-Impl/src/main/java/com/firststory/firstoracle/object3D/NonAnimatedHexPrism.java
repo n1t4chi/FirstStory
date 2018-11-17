@@ -21,11 +21,7 @@ public class NonAnimatedHexPrism
         PositionableObject3D< MutablePositionable3DTransformations, HexPrismVertices >,
         MutableTransformationsObject3D< HexPrismVertices >
 {
-    {
-        setTransformations( new MutablePositionable3DTransformations() );
-    }
-    Texture texture;
-    MutablePositionable3DTransformations transformations;
+    private Texture texture;
     
     @Override
     public Texture getTexture() {
@@ -40,15 +36,5 @@ public class NonAnimatedHexPrism
     @Override
     public UvMap getUvMap() {
         return HexPrismUvMap.getHexPrismUvMap();
-    }
-    
-    @Override
-    public MutablePositionable3DTransformations getTransformations() {
-        return transformations;
-    }
-    
-    @Override
-    public void setTransformations( MutablePositionable3DTransformations transformations ) {
-        this.transformations = transformations;
     }
 }

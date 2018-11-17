@@ -26,6 +26,11 @@ public class ColouringParser extends ParameterParser< Colouring > {
     }
     
     @Override
+    public int getPriority() {
+        return ParseUtils.PRIORITY_FUNDAMENTAL;
+    }
+    
+    @Override
     public Class< Colouring > getSetterParameterClass() {
         return Colouring.class;
     }

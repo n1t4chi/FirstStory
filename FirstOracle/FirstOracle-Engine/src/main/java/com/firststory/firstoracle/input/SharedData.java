@@ -24,7 +24,8 @@ public class SharedData {
     private final Terrain2DClassParser terrain2DClassParser = new Terrain2DClassParser();
     private final Position2DCalculatorParser position2DCalculatorParser = new Position2DCalculatorParser();
     private final Vertices2DParser vertices2DParser = new Vertices2DParser();
-    
+    private final PositionableTransformations2DParser positionableTransformations2DParser = new PositionableTransformations2DParser();
+    private final Transformations2DParser transformations2DParser = new Transformations2DParser();
     private final Position2DParser position2DParser = new Position2DParser();
     private final Scale2DParser scale2DParser = new Scale2DParser();
     private final Rotation2DParser rotation2DParser = new Rotation2DParser();
@@ -33,7 +34,8 @@ public class SharedData {
     private final Terrain3DClassParser terrain3DClassParser = new Terrain3DClassParser();
     private final Position3DCalculatorParser position3DCalculatorParser = new Position3DCalculatorParser();
     private final Vertices3DParser vertices3DParser = new Vertices3DParser();
-    
+    private final PositionableTransformations3DParser positionableTransformations3DParser = new PositionableTransformations3DParser();
+    private final Transformations3DParser transformations3DParser = new Transformations3DParser();
     private final Position3DParser position3DParser = new Position3DParser();
     private final Scale3DParser scale3DParser = new Scale3DParser();
     private final Rotation3DParser rotation3DParser = new Rotation3DParser();
@@ -44,6 +46,7 @@ public class SharedData {
     
     public SharedData( Composite sharedDataNode ) {
         parseClasses( sharedDataNode );
+        parseTransformations( sharedDataNode );
         parsePositions( sharedDataNode );
         parseRotations( sharedDataNode );
         parseScales( sharedDataNode );
@@ -120,6 +123,29 @@ public class SharedData {
     
     public Rotation3DParser getRotation3DParser() {
         return rotation3DParser;
+    }
+    
+    public PositionableTransformations2DParser getPositionableTransformations2DParser() {
+        return positionableTransformations2DParser;
+    }
+    
+    public Transformations2DParser getTransformations2DParser() {
+        return transformations2DParser;
+    }
+    
+    public PositionableTransformations3DParser getPositionableTransformations3DParser() {
+        return positionableTransformations3DParser;
+    }
+    
+    public Transformations3DParser getTransformations3DParser() {
+        return transformations3DParser;
+    }
+    
+    private void parseTransformations( Composite sharedDataNode ) {
+        positionableTransformations2DParser.parseShared( sharedDataNode );
+        transformations2DParser.parseShared( sharedDataNode );
+        positionableTransformations3DParser.parseShared( sharedDataNode );
+        transformations3DParser.parseShared( sharedDataNode );
     }
     
     private void parsePositionCalculators( Composite sharedDataNode ) {

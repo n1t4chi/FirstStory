@@ -22,4 +22,9 @@ public abstract class PositionParser< PositionType extends Position > extends Pa
     public String getSetterName() {
         return ParseUtils.METHOD_SET_POSITION;
     }
+    
+    @Override
+    public int getPriority() {
+        return ParseUtils.PRIORITY_COMMON;
+    }
 }

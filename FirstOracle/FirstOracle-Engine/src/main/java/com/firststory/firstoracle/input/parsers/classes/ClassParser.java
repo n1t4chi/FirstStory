@@ -42,7 +42,7 @@ public abstract class ClassParser< Type > implements NodeParser< Class< ? extend
             return SceneParser.class.getClassLoader()
                 .loadClass( className )
                 .asSubclass( getBaseClass() )
-                ;
+            ;
         } catch ( Exception e1 ) {
             logger.log( Level.WARNING, "Exception while extracting object class " + className, e1 );
             try {

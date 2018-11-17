@@ -20,10 +20,4 @@ public interface Object2D< Transformations extends Object2DTransformations, Vert
     default BoundingBox2D getBBO() {
         return getVertices().getBoundingBox().getTransformedBoundingBox( getTransformations(), FirstOracleConstants.POSITION_ZERO_2F );
     }
-    
-    @Override
-    Transformations getTransformations();
-    
-    @Override
-    Vertices getVertices();
 }

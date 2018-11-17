@@ -5,15 +5,15 @@
 package com.firststory.firstoracle.input.parsers.object;
 
 import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.data.Position3D;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
+import com.firststory.firstoracle.input.parsers.ParameterParser;
 import com.firststory.firstoracle.input.parsers.classes.Object3DClassParser;
 import com.firststory.firstoracle.input.parsers.classes.Terrain3DClassParser;
-import com.firststory.firstoracle.input.parsers.parameters.TransformationParser;
-import com.firststory.firstoracle.input.parsers.parameters.VerticesParser;
-import com.firststory.firstoracle.input.structure.Leaf;
-import com.firststory.firstoracle.object3D.*;
+import com.firststory.firstoracle.object3D.PositionableObject3D;
+import com.firststory.firstoracle.object3D.PositionableObject3DImpl;
+import com.firststory.firstoracle.object3D.Terrain3D;
+import com.firststory.firstoracle.object3D.Terrain3DImpl;
 
 import java.util.List;
 
@@ -23,46 +23,10 @@ import java.util.List;
 public class ObjectParser3D extends ObjectParser<
     PositionableObject3D< ?, ? >,
     Terrain3D< ? >,
-    Vertices3D,
-    Position3D,
     Index3D,
     Object3DClassParser,
     Terrain3DClassParser
 > {
-    
-    @Override
-    void setTransformation(
-        PositionableObject3D< ?, ? > object,
-        SharedData sharedData,
-        Leaf position,
-        Leaf rotation,
-        Leaf scale
-    ) {
-        TransformationParser.setTransformations3D(
-            object,
-            sharedData,
-            position,
-            rotation,
-            scale
-        );
-    }
-    
-    @Override
-    VerticesParser< Vertices3D, Position3D > getVerticesParser( SharedData sharedData ) {
-        return sharedData.getVertices3DParser();
-    }
-    
-    @Override
-    void setPositionCalculator(
-        Terrain3D< ? > terrain,
-        SharedData sharedData,
-        Leaf leaf
-    ) {
-        sharedData.getPosition3DCalculatorParser().apply(
-            terrain,
-            leaf
-        );
-    }
     
     public Terrain3DClassParser getTerrainClassParser(
         SharedData sharedData
@@ -89,5 +53,30 @@ public class ObjectParser3D extends ObjectParser<
     @Override
     Class< Terrain3DImpl > getDefaultTerrainClass() {
         return Terrain3DImpl.class;
+    }
+    
+    @Override
+    List< ParameterParser< ? > > getSpecificObjectParsers( SharedData sharedData ) {
+        return List.of(
+            sharedData.getPosition3DParser(),
+            sharedData.getPositionableTransformations3DParser()
+        );
+    }
+    
+    @Override
+    List< ParameterParser< ? > > getSpecificTerrainParsers( SharedData sharedData ) {
+        return List.of(
+            sharedData.getPosition3DCalculatorParser(),
+            sharedData.getTransformations3DParser()
+        );
+    }
+    
+    @Override
+    List< ParameterParser< ? > > getSpecificCommonParsers( SharedData sharedData ) {
+        return List.of(
+            sharedData.getVertices3DParser(),
+            sharedData.getRotation3DParser(),
+            sharedData.getScale3DParser()
+        );
     }
 }

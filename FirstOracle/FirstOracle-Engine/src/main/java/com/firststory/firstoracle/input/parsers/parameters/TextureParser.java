@@ -24,6 +24,11 @@ public class TextureParser extends ParameterParser< Texture > {
     }
     
     @Override
+    public int getPriority() {
+        return ParseUtils.PRIORITY_FUNDAMENTAL;
+    }
+    
+    @Override
     public Class< Texture > getSetterParameterClass() {
         return Texture.class;
     }

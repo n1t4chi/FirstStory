@@ -20,7 +20,7 @@ public class NonAnimatedCube
         PositionableObject3D< MutablePositionable3DTransformations, CubeVertices >,
         MutableTransformationsObject3D< CubeVertices >
 {
-    Texture texture;
+    private Texture texture;
     
     @Override
     public Texture getTexture() {
@@ -35,15 +35,5 @@ public class NonAnimatedCube
     @Override
     public UvMap getUvMap() {
         return CubeUvMap.getCubeUvMap();
-    }
-    
-    @Override
-    public MutablePositionable3DTransformations getTransformations() {
-        return transformations;
-    }
-    
-    @Override
-    public void setTransformations( MutablePositionable3DTransformations transformations ) {
-        this.transformations = transformations;
     }
 }

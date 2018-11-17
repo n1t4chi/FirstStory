@@ -19,8 +19,7 @@ public class NonAnimatedRectangleGrid
         NonAnimatedObject2D< Identity2DTransformations, Plane2DVertices >,
         MutableTextureObject2D< Identity2DTransformations, Plane2DVertices >
 {
-    
-    Texture texture;
+    private Texture texture;
     
     @Override
     public Texture getTexture() {
