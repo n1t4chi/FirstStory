@@ -196,9 +196,13 @@ class VulkanInstance {
     }
     
     private PointerBuffer createValidationLayerNamesBuffer() {
-        var validationLayerNamesBuffer = MemoryUtil.memAllocPointer( validationLayerNames.size() );
-        validationLayerNames.stream().map( MemoryUtil::memUTF8 ).forEach( validationLayerNamesBuffer::put );
-        return validationLayerNamesBuffer.flip();
+        if( PropertiesUtil.isPropertyTrue( "VulkanValidationLayersEnabled" ) ) {
+            var validationLayerNamesBuffer = MemoryUtil.memAllocPointer( validationLayerNames.size() );
+            validationLayerNames.stream().map( MemoryUtil::memUTF8 ).forEach( validationLayerNamesBuffer::put );
+            return validationLayerNamesBuffer.flip();
+        } else {
+            return null;
+        }
     }
     
     private PointerBuffer createEnabledExtensionsBuffer() {

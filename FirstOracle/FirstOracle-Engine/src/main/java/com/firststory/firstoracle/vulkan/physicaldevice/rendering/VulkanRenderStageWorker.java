@@ -309,10 +309,9 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
                 dataBuffer = availableBuffers.poll();
                 dataBuffer.load( data );
             } else {
-                dataBuffer =
-                    device
-                        .getBufferProvider()
-                        .createQuickVertexBuffer( data );
+                dataBuffer = device
+                    .getBufferProvider()
+                    .createQuickVertexBuffer( data );
                 synchronized ( dataBuffers ) {
                     dataBuffers.add( dataBuffer );
                 }

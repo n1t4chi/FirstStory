@@ -308,6 +308,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             transferCommandPools
         );
         currentImageIndex.getRenderFinishedSemaphore().ignoreWait();
+        presentationFamily.waitForQueue();
     }
     
     public void dispose() {

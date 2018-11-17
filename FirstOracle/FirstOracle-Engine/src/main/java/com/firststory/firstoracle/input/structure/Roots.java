@@ -151,15 +151,24 @@ public class Roots {
                 case VALUE_TRUE:
                     System.err.println( "Non String token: " +token+ " -> " + parser.getText() );
                 case VALUE_STRING:
-                    text.append( parser.getText() ).append( "," );
+                    var currentText = String.valueOf( parser.getText() );
+                    text.append( currentText );
+                    if( !currentText.endsWith( "," ) ) {
+                        text.append( "," );
+                    }
                     break;
                 default:
                     throw new ParseFailedException( "unsupported node found: " + token );
             }
         }
+        var value = text.append( "]" ).toString();
+        if( value.endsWith( ",]" ) ) {
+            value = value.substring( 0, value.length()-2 ) + "]";
+        }
+        
         currentComposite.addContent( new Leaf(
             name,
-            text.append( "]" ).toString()
+            value
         ) );
     }
     

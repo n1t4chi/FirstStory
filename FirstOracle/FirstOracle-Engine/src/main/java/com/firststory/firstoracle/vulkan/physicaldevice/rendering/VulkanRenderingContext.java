@@ -71,8 +71,8 @@ public class VulkanRenderingContext implements RenderingContext {
         this.device = device;
         this.shouldDrawBorder = shouldDrawBorder;
         this.shouldDrawTextures = shouldDrawTextures;
-        executorService = Executors.newFixedThreadPool( 2 );
-        executorService2 = Executors.newFixedThreadPool( 4 );
+        executorService = Executors.newFixedThreadPool( 4 );
+        executorService2 = Executors.newFixedThreadPool( 8 );
     }
     
     public void dispose() {
@@ -248,31 +248,36 @@ public class VulkanRenderingContext implements RenderingContext {
             ) );
         } else {
             VulkanSemaphore waitSemapore = null;
+            var firstSubmit = true;
             for ( int i = 0, batchDatasSize = batchDatas.size(); i < batchDatasSize; i++ ) {
                 var batchData = batchDatas.get( i );
-                VulkanSemaphore signalSemaphore;
-                if( i == batchDatasSize - 1 ) {
-                    signalSemaphore = renderFinishedSemaphore;
-                } else {
-                    signalSemaphore = deviceAllocator.createSemaphore();
-                    semaphores.add( signalSemaphore );
-                }
                 VkSubmitInfo submitInfo;
-                if ( i == 0 ) {
-                    submitInfo = VulkanSubmitInfo.createSubmitInfo(
-                        batchData.getPrimaryBuffers(),
-                        initialWaitSemaphores,
-                        signalSemaphore
-                    );
-                } else {
-                    submitInfo = VulkanSubmitInfo.createSubmitInfo(
-                        batchData.getPrimaryBuffers(),
-                        waitSemapore,
-                        signalSemaphore
-                    );
+                var primaryBuffers = batchData.getPrimaryBuffers();
+                for( int j = 0, primaryBuffersSize = primaryBuffers.size(); j< primaryBuffersSize; j++ ) {
+                    VulkanSemaphore signalSemaphore;
+                    if( i == batchDatasSize - 1 && j == primaryBuffersSize - 1 ) {
+                        signalSemaphore = renderFinishedSemaphore;
+                    } else {
+                        signalSemaphore = deviceAllocator.createSemaphore();
+                        semaphores.add( signalSemaphore );
+                    }
+                    if ( firstSubmit ) {
+                        submitInfo = VulkanSubmitInfo.createSubmitInfo(
+                            batchData.getPrimaryBuffers(),
+                            initialWaitSemaphores,
+                            signalSemaphore
+                        );
+                        firstSubmit = false;
+                    } else {
+                        submitInfo = VulkanSubmitInfo.createSubmitInfo(
+                            batchData.getPrimaryBuffers(),
+                            waitSemapore,
+                            signalSemaphore
+                        );
+                    }
+                    waitSemapore = signalSemaphore;
+                    submitInfos.add( submitInfo );
                 }
-                waitSemapore = signalSemaphore;
-                submitInfos.add( submitInfo );
             }
         }
         return new VulkanRenderBatchDatasProcessedInfo( submitInfos, semaphores );
