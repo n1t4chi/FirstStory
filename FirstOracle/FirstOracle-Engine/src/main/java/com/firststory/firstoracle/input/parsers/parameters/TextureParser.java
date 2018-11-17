@@ -9,6 +9,7 @@ import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.parsers.InstanceBasedParameterParser;
 import com.firststory.firstoracle.object.Texture;
 
+import java.util.List;
 /**
  * @author n1t4chi
  */
@@ -17,10 +18,37 @@ public class TextureParser extends InstanceBasedParameterParser< Texture > {
     @Override
     public Texture newInstance( String text ) {
         try {
-            return Texture.create( text );
+            var strings = ParseUtils.toList( text );
+            if( strings.size() == 1 ) {
+                return Texture.create( strings.get( 0 ) );
+            } else if( strings.size() == 3) {
+                return Texture.createCompound(
+                    strings.get( 0 ),
+                    toInt( strings, 1 ),
+                    toInt( strings, 2 )
+                );
+            } else if( strings.size() == 5) {
+                return Texture.create(
+                    strings.get( 0 ),
+                    toInt( strings, 1 ),
+                    toInt( strings, 2 ),
+                    toInt( strings, 3 ),
+                    toInt( strings, 4 )
+                );
+            }
         } catch ( Exception ex ) {
             throw new ParseFailedException( "Exception while setting up object texture", ex );
         }
+        throw new ParseFailedException( "Cannot parse " + text + " to texture. " +
+            "Acceptable Formats:\n" +
+            "\t[texturePath]\n" +
+            "\t[texturePath, directions, frames, columns, rows]\n" +
+            "\t[compundTexturePathMask, directions, frames]\n"
+        );
+    }
+    
+    public int toInt( List< String > strings, int i ) {
+        return Integer.parseInt( strings.get( i ) );
     }
     
     @Override

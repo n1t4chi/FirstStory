@@ -39,7 +39,7 @@
       "water3d": "resources/First Oracle/textures/water3D.png",
       "sand3d": "resources/First Oracle/textures/sand3D.png",
       "tree3d": "resources/First Oracle/textures/tree3D.png",
-      "hero3d": "resources/First Oracle/textures/hero3D.png"
+      "hero3d": "[resources/First Oracle/textures/hero3D.png, 4, 1, 4, 1]"
     }
   },
   "sharedObjects": {

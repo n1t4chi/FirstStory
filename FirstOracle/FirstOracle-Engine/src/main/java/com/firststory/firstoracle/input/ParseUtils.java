@@ -383,10 +383,10 @@ public interface ParseUtils {
         if( arrayText.isEmpty() ) {
             return List.of();
         }
-        if( !( arrayText.startsWith( "[" ) && arrayText.endsWith( "]" ) ) ) {
-            throw new ParseFailedException( arrayText + " does not match [ a, b, c,... ] format" );
+        if( ( arrayText.startsWith( "[" ) && arrayText.endsWith( "]" ) ) ) {
+            arrayText = arrayText.substring( 1, arrayText.length()-1 ).strip();
         }
-        arrayText = arrayText.substring( 1, arrayText.length()-1 ).strip();
+        
         if( arrayText.isEmpty() ) {
             return List.of();
         }
@@ -405,7 +405,7 @@ public interface ParseUtils {
                 openedBracket--;
             } else if( openedBracket == 0 && c == ',' ) {
                 if( startIndex != index ) {
-                    list.add( arrayText.substring( startIndex, index ) );
+                    list.add( arrayText.substring( startIndex, index ).strip() );
                 }
                 startIndex = index + 1;
             }

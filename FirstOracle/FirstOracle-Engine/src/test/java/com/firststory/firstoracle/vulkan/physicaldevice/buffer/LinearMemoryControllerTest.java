@@ -86,7 +86,9 @@ public class LinearMemoryControllerTest {
         Assertions.assertArrayEquals( data2, buffer2.readBuffer() );
         
         buffer2.delete();
-        assertException( BufferNotCreatedException.class, buffer2::delete );
+//        implementations should allow deletion of already deleted buffer by not doing anything
+        buffer2.delete();
+//        assertException( BufferNotCreatedException.class, buffer2::delete );
     
         var buffer3 = controller.createBuffer( length );
         buffer3.load( data3 );

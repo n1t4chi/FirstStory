@@ -332,7 +332,8 @@ public interface FirstOracleConstants {
         Object executingObject,
         Predicate< Field > isCorrectField,
         Class< Type > fieldSuperclass,
-        Consumer< Type > execute
+        Consumer< Type > execute,
+        boolean shouldThrowException
     ) {
         var fields = executingObject.getClass().getDeclaredFields();
         for ( var field : fields ) {
@@ -343,7 +344,10 @@ public interface FirstOracleConstants {
                     execute.accept( obj );
                 }
             } catch ( Exception ex ) {
-                logger.log( Level.WARNING, "Exception while trying to execute parseShared method", ex );
+                logger.log( Level.WARNING, "Exception while trying to execute method on fields", ex );
+                if( shouldThrowException ) {
+                    throw new RuntimeException( "Exception while trying to execute method on fields", ex );
+                }
             }
         }
     }

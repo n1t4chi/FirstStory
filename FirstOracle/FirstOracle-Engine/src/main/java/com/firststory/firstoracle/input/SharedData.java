@@ -51,7 +51,8 @@ public class SharedData {
             this,
             field -> field.getName().endsWith( "Parser" ),
             ShareableParser.class,
-            obj -> obj.parseShared( sharedDataNode )
+            obj -> obj.parseShared( sharedDataNode ),
+            true
         );
     }
     

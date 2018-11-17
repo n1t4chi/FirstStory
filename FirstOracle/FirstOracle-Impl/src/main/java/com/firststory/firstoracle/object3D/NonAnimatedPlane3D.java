@@ -24,6 +24,7 @@ public class NonAnimatedPlane3D
 {
     private Texture texture;
     private DirectionController directionController = direction -> 0;
+    private UvMap uvMap;
     
     public NonAnimatedPlane3D() {
         setTransformations( new MutablePositionable3DTransformations() );
@@ -47,10 +48,16 @@ public class NonAnimatedPlane3D
     @Override
     public void setTexture( Texture texture ) {
         this.texture = texture;
+        this.uvMap = PlaneUvMap.getPlaneUvMap(
+            texture.getDirections(),
+            texture.getFrames(),
+            texture.getColumns(),
+            texture.getRows()
+        );
     }
     
     @Override
     public UvMap getUvMap() {
-        return PlaneUvMap.getPlaneUvMap();
+        return uvMap;
     }
 }
