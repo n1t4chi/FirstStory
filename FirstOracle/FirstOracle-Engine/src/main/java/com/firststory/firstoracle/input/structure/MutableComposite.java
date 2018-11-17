@@ -10,20 +10,23 @@ import java.util.List;
 /**
  * @author n1t4chi
  */
-class MutableComposite extends Composite {
+public class MutableComposite extends Composite {
     
     private final List< Node > content = new ArrayList<>();
     
-    MutableComposite( String name ) {
+    public MutableComposite( String name ) {
         super( name );
     }
     
     @Override
+    /**
+     * Returns mutable content list
+     */
     public List< Node > getContent() {
         return content;
     }
     
-    void addContent( Node content ) {
+    public void addContent( Node content ) {
         this.content.add( content );
     }
 }

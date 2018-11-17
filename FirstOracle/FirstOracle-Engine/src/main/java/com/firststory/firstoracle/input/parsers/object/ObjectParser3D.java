@@ -7,6 +7,7 @@ package com.firststory.firstoracle.input.parsers.object;
 import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
+import com.firststory.firstoracle.input.SharedObjects;
 import com.firststory.firstoracle.input.parsers.ParameterParser;
 import com.firststory.firstoracle.input.parsers.classes.Object3DClassParser;
 import com.firststory.firstoracle.input.parsers.classes.Terrain3DClassParser;
@@ -78,5 +79,15 @@ public class ObjectParser3D extends ObjectParser<
             sharedData.getRotation3DParser(),
             sharedData.getScale3DParser()
         );
+    }
+    
+    @Override
+    SharedObjectsParser getSharedTerrainsParser( SharedObjects sharedObjects ) {
+        return sharedObjects.getSharedTerrains3DParser();
+    }
+    
+    @Override
+    SharedObjectsParser getSharedObjectsParser( SharedObjects sharedObjects ) {
+        return sharedObjects.getSharedObjects3DParser();
     }
 }

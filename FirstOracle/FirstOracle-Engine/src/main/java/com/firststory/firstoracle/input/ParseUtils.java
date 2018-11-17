@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -57,14 +56,15 @@ public interface ParseUtils {
     
     
     String SHARED_NAME_PREFIX = "$";
+    
     String SHARED_OBJECTS = "sharedObjects";
-    String SHARED_OBJECTS_TERRAINS_3D = "objects3D";
-    String SHARED_OBJECTS_TERRAINS_2D = "objects2D";
-    String SHARED_OBJECTS_OBJECTS_3D = "terrains3D";
-    String SHARED_OBJECTS_OBJECTS_2D = "terrains2D";
+    String SHARED_OBJECTS_PARAMETER = "base";
+    String SHARED_OBJECTS_TERRAINS_2D = "terrains2D";
+    String SHARED_OBJECTS_TERRAINS_3D = "terrains3D";
+    String SHARED_OBJECTS_OBJECTS_2D = "objects2D";
+    String SHARED_OBJECTS_OBJECTS_3D = "objects3D";
     
     String SHARED_PARAM = "sharedData";
-    
     String SHARED_PARAM_OBJECT_CLASSES_2D = "objectClasses2D";
     String SHARED_PARAM_TERRAIN_CLASSES_2D = "terrainClasses2D";
     String SHARED_PARAM_POSITIONS_2D = "positions2D";
@@ -116,34 +116,11 @@ public interface ParseUtils {
     Pattern PatternRangeVeci3 = Pattern.compile( PATTERN_3I + RANGE_COUPLER + PATTERN_3I );
     
     static boolean isShared( String name ) {
-        return name.startsWith( SHARED_NAME_PREFIX );
+        return name != null && name.startsWith( SHARED_NAME_PREFIX );
     }
     
-    static < T > T getNewOrShared(
-        String name,
-        SharedData sharedData,
-        BiFunction< SharedData, String, T > sharedDataExtractor,
-        Function< String, T > normalSupplier
-    ) {
-        return getNewOrShared(
-            name,
-            sharedData,
-            sharedDataExtractor,
-            () -> normalSupplier.apply( name )
-        );
-    }
-    
-    static < T > T getNewOrShared(
-        String name,
-        SharedData sharedData,
-        BiFunction< SharedData, String, T > sharedDataExtractor,
-        Supplier< T > normalSupplier
-    ) {
-        if( isShared( name ) ) {
-            return sharedDataExtractor.apply( sharedData, name.substring( 1 ) );
-        } else {
-            return normalSupplier.get();
-        }
+    static String normalizeSharedKey( String key ) {
+        return isShared( key ) ? key.substring( 1 ) : key;
     }
     
     static String indent( String node ) {

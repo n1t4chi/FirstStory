@@ -7,7 +7,6 @@ package com.firststory.firstoracle.input;
 import com.firststory.firstoracle.data.Index;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.parsers.classes.ObjectClassParser;
 import com.firststory.firstoracle.input.parsers.classes.TerrainClassParser;
@@ -66,24 +65,27 @@ public class SceneParser {
     ) {
         var roots = Roots.parse( text );
     
-        var sharedData = new SharedData( roots.find( SHARED_PARAM ) );
         var configuration = new SceneConfiguration( roots.find( CONFIGURATION ) );
+        var sharedData = new SharedData( roots.find( SHARED_PARAM ) );
+        var sharedObjects = new SharedObjects( roots.find( SHARED_OBJECTS ) );
         
         return new ScenePair<>(
-            parseScene2D( roots, sharedData, configuration, scene2dSupplier ),
-            parseScene3D( roots, sharedData, configuration, scene3dSupplier )
+            parseScene2D( roots, configuration, sharedData, sharedObjects, scene2dSupplier ),
+            parseScene3D( roots, configuration, sharedData, sharedObjects, scene3dSupplier )
         );
     }
     
     private < S2D extends RegistrableScene2D > S2D parseScene2D(
         Roots roots,
-        SharedData sharedData,
         SceneConfiguration configuration,
+        SharedData sharedData,
+        SharedObjects sharedObjects,
         SceneSupplier< Index2D, S2D > scene2dSupplier
     ) {
         return parseScene(
             roots.find( SCENE_2D ),
             sharedData,
+            sharedObjects,
             configuration.getTerrainSize2D(),
             configuration.getTerrainShift2D(),
             scene2dSupplier,
@@ -96,13 +98,15 @@ public class SceneParser {
     
     private < S3D extends RegistrableScene3D > S3D parseScene3D(
         Roots roots,
-        SharedData sharedData,
         SceneConfiguration configuration,
+        SharedData sharedData,
+        SharedObjects sharedObjects,
         SceneSupplier< Index3D, S3D > scene3dSupplier
     ) {
         return parseScene(
             roots.find( SCENE_3D ),
             sharedData,
+            sharedObjects,
             configuration.getTerrainSize3D(),
             configuration.getTerrainShift3D(),
             scene3dSupplier,
@@ -118,12 +122,12 @@ public class SceneParser {
         IndexType extends Index,
         PositionableObjectType extends PositionableObject< ?, ?, ?, ?, ?, ? >,
         TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType >,
-        PositionType extends Position,
         ObjectClassParserType extends ObjectClassParser< PositionableObjectType >,
         TerrainClassParserType extends TerrainClassParser< TerrainType >
     > Scene parseScene(
         Composite sceneNode,
         SharedData sharedData,
+        SharedObjects sharedObjects,
         @Nullable IndexType size,
         IndexType shift,
         SceneSupplier< IndexType, Scene > sceneSupplier,
@@ -138,8 +142,8 @@ public class SceneParser {
         TriConsumer< Scene, TerrainType, Collection< IndexType >  > registerTerrain,
         BiFunction< IndexType, Collection< TerrainPair< TerrainType, IndexType > >, IndexType > determineFinalSize
     ) {
-        var objects = parser.getObjects( sceneNode, sharedData );
-        var terrains = parser.getTerrains( sceneNode, sharedData );
+        var objects = parser.getObjects( sharedData, sharedObjects, sceneNode );
+        var terrains = parser.getTerrains( sharedData, sharedObjects, sceneNode );
         var terrainSize = determineFinalSize.apply( size, terrains.values() );
     
         var scene = sceneSupplier.create( terrainSize, shift );

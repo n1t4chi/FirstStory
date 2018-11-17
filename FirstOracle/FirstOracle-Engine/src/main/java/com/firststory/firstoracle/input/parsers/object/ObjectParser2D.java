@@ -7,6 +7,7 @@ package com.firststory.firstoracle.input.parsers.object;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
+import com.firststory.firstoracle.input.SharedObjects;
 import com.firststory.firstoracle.input.parsers.ParameterParser;
 import com.firststory.firstoracle.input.parsers.classes.Object2DClassParser;
 import com.firststory.firstoracle.input.parsers.classes.Terrain2DClassParser;
@@ -74,5 +75,15 @@ public class ObjectParser2D extends ObjectParser<
             sharedData.getRotation2DParser(),
             sharedData.getScale2DParser()
         );
+    }
+    
+    @Override
+    SharedObjectsParser getSharedTerrainsParser( SharedObjects sharedObjects ) {
+        return sharedObjects.getSharedTerrains2DParser();
+    }
+    
+    @Override
+    SharedObjectsParser getSharedObjectsParser( SharedObjects sharedObjects ) {
+        return sharedObjects.getSharedObjects2DParser();
     }
 }

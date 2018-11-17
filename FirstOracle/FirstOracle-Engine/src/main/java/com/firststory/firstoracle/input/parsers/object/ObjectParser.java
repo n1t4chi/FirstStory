@@ -7,6 +7,7 @@ package com.firststory.firstoracle.input.parsers.object;
 import com.firststory.firstoracle.data.Index;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
+import com.firststory.firstoracle.input.SharedObjects;
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.parsers.ParameterParser;
 import com.firststory.firstoracle.input.parsers.classes.ObjectClassParser;
@@ -51,32 +52,41 @@ public abstract class ObjectParser<
     
     abstract List< ParameterParser< ? > > getSpecificCommonParsers( SharedData sharedData );
     
+    abstract SharedObjectsParser getSharedTerrainsParser( SharedObjects sharedObjects );
+    
+    abstract SharedObjectsParser getSharedObjectsParser( SharedObjects sharedObjects );
+    
     public Map< String, TerrainPair< TerrainType, IndexType > > getTerrains(
-        Composite sceneNode,
-        SharedData sharedData
+        SharedData sharedData,
+        SharedObjects sharedObjects,
+        Composite sceneNode
     ) {
         return getTerrains(
-            sceneNode,
             sharedData,
+            sharedObjects,
+            sceneNode,
             this::toTerrain,
             this::toIndices
         );
     }
     
     public Map< String, PositionableObjectType > getObjects(
-        Composite sceneNode,
-        SharedData sharedData
-    ) {
+        SharedData sharedData,
+        SharedObjects sharedObjects,
+        Composite sceneNode
+        ) {
         return getObjects(
-            sceneNode,
             sharedData,
+            sharedObjects,
+            sceneNode,
             this::toObject
         );
     }
     
-    private PositionableObjectType toObject( SharedData sharedData, Composite node ) {
+    private PositionableObjectType toObject( SharedData sharedData, SharedObjects sharedObjects, Composite node ) {
         return toGraphicObject(
             sharedData,
+            getSharedObjectsParser( sharedObjects ),
             node,
             this::createObjectInstance,
             getDefaultObjectClass(),
@@ -119,9 +129,10 @@ public abstract class ObjectParser<
         return getTerrainClassParser( sharedData ).parse( className );
     }
     
-    private TerrainType toTerrain( SharedData sharedData, Composite node ) {
+    private TerrainType toTerrain( SharedData sharedData, SharedObjects sharedObjects, Composite node ) {
         return toGraphicObject(
             sharedData,
+            getSharedTerrainsParser( sharedObjects ),
             node,
             this::createTerrainInstance,
             getDefaultTerrainClass(),
@@ -151,15 +162,16 @@ public abstract class ObjectParser<
     }
     
     private Map< String, TerrainPair< TerrainType, IndexType > > getTerrains(
-        Composite sceneNode,
         SharedData sharedData,
-        BiFunction< SharedData, Composite, TerrainType > toTerrain,
+        SharedObjects sharedObjects,
+        Composite sceneNode,
+        TriFunction< SharedData, SharedObjects, Composite, TerrainType > toTerrain,
         Function< String, List< IndexType > > toIndices
     ) {
         return sceneNode.findComposite( SCENE_TERRAINS ).getComposites().stream().map( terrain -> Map.entry(
             terrain.getName(),
             new TerrainPair<>(
-                toTerrain.apply( sharedData, terrain ),
+                toTerrain.apply( sharedData, sharedObjects, terrain ),
                 toIndices.apply( terrain.findValueOrThrow( SCENE_PARAM_INDICES ) )
             )
         ) ).collect( Collectors.toMap(
@@ -169,15 +181,17 @@ public abstract class ObjectParser<
     }
     
     private Map< String, PositionableObjectType > getObjects(
-        Composite sceneNode,
         SharedData sharedData,
-        BiFunction< SharedData, Composite, PositionableObjectType > toObject
+        SharedObjects sharedObjects,
+        Composite sceneNode,
+        TriFunction< SharedData, SharedObjects, Composite, PositionableObjectType > toObject
     ) {
         return sceneNode.findComposite( SCENE_OBJECTS ).getComposites().stream().map( composite -> Map.entry(
             composite.getName(),
             toObject.apply(
                 sharedData,
-               composite
+                sharedObjects,
+                composite
             )
         ) ).collect( Collectors.toMap(
             Map.Entry::getKey,
@@ -187,19 +201,21 @@ public abstract class ObjectParser<
     
     private <ObjectType extends GraphicObject< ?, ?, ?, ?, ?, ?> > ObjectType toGraphicObject(
         SharedData sharedData,
+        SharedObjectsParser sharedObjectsParser,
         Composite node,
         BiFunction< SharedData, String, ObjectType > objectCreator,
         Class< ? extends ObjectType > defaultClass,
         PriorityQueue< ParameterParser< ? > > parsers
     ) {
+        var parsedNode = sharedObjectsParser.parseNode( node );
         var object = objectCreator.apply(
             sharedData,
-            node.findValue( SCENE_PARAM_CLASS, defaultClass.getName() )
+            parsedNode.findValue( SCENE_PARAM_CLASS, defaultClass.getName() )
         );
         
         ParameterParser< ? > parser;
         while( ( parser = parsers.poll() ) != null ) {
-            parser.tryToApply( object, node );
+            parser.tryToApply( object, parsedNode );
         }
         return object;
     }

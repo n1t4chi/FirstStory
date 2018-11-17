@@ -4,11 +4,10 @@
 
 package com.firststory.firstoracle.input.parsers;
 
+import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.input.structure.Leaf;
 import com.firststory.firstoracle.input.structure.Node;
-
-import static com.firststory.firstoracle.input.ParseUtils.SHARED_NAME_PREFIX;
 
 /**
  * @author n1t4chi
@@ -44,10 +43,10 @@ public interface ShareableParser< Type > extends NodeParser< Type, Leaf > {
     }
     
     default boolean isShared( String text ) {
-        return text != null && text.startsWith( SHARED_NAME_PREFIX );
+        return ParseUtils.isShared( text );
     }
     
     default String normalizeSharedKey( String key ) {
-        return key.substring( 1 );
+        return ParseUtils.normalizeSharedKey( key );
     }
 }

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.firststory.firstoracle.FirstOracleConstants.*;
 import static com.firststory.firstoracle.data.Position2D.pos2;
@@ -400,6 +401,178 @@ class SceneParserTest {
                 expectedUvMap,
                 expectedColouring
             );
+        }
+    }
+    
+    
+    
+    
+    @Test
+    void parseSharedObjects() {
+        var scenePair = SceneParser.parseToNonOptimised( `{
+            "sharedObjects": {
+                "objects2D": {
+                    "baseObj2d": {
+                        "class": "PositionableObject2DImpl",
+                        "transformations": "MutablePositionable2DTransformations",
+                        "rotation": "45",
+                        "scale": "2, 6",
+                        "texture": "resources/First Oracle/textures/grass2D.png",
+                        "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                        "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
+                        "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                    }
+                },
+                "terrains2D": {
+                    "baseTer2d": {
+                        "class": "Terrain2DImpl",
+                        "texture": "resources/First Oracle/textures/grass2D.png",
+                        "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                        "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
+                        "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
+                        "positionCalculator": "PlanePositionCalculator"
+                    }
+                },
+                "objects3D": {
+                    "baseObj3d": {
+                        "class": "PositionableObject3DImpl",
+                        "transformations": "MutablePositionable3DTransformations",
+                        "rotation": "10, 20, 30",
+                        "scale": "2, 6, 12",
+                        "texture": "resources/First Oracle/textures/grass2D.png",
+                        "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                        "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
+                        "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                    }
+                },
+                "terrains3D": {
+                    "baseTer3d": {
+                        "class": "Terrain3DImpl",
+                        "texture": "resources/First Oracle/textures/grass2D.png",
+                        "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                        "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
+                        "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
+                        "positionCalculator": "CubePositionCalculator"
+                    }
+                }
+            },
+            "scene2D": {
+                "objects": {
+                    "object1": {
+                        "base": "$baseObj2d",
+                        "position": "1, 1"
+                    },
+                    "object2": {
+                        "base": "$baseObj2d",
+                        "position": "2, 2"
+                    }
+                },
+                "terrains": {
+                    "terrain1": {
+                        "base": "$baseTer2d",
+                        "indices": "[ {0,0}x{2,2} ]"
+                    }
+                }
+            },
+            "scene3D": {
+                "objects": {
+                    "object3": {
+                        "base": "$baseObj3d",
+                        "position": "1, 1, 1"
+                    },
+                    "object4": {
+                        "base": "$baseObj3d",
+                        "position": "2, 2, 2"
+                    }
+                },
+                "terrains": {
+                    "terrain2": {
+                        "base": "$baseTer3d",
+                        "indices": "[ {0,0,0}x{2,2,2} ]"
+                    }
+                }
+            }
+        }` );
+        var scene2D = scenePair.getScene2D();
+        var scene3D = scenePair.getScene3D();
+        Assertions.assertEquals( Index2D.id2( 0, 0 ), scene2D.getTerrain2DShift() );
+        Assertions.assertEquals( Index3D.id3( 0, 0, 0 ), scene3D.getTerrain3DShift() );
+        assertSizes( scene2D, scene3D, 2, Index2D.id2( 3,3 ), 2, Index3D.id3( 3,3,3 ) );
+        
+        float[] expectedUvMap = { 1, 1, 2, 2, 3, 3 };
+        float[] expectedVertices2D = { 1, 1, 0, 2, 2, 0, 3, 3, 0 };
+        float[] expectedVertices3D = { 1, 1, 1, 2, 2, 2, 3, 3, 3 };
+        float[] expectedColouring = { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+        var expectedTexturePath = "resources/First Oracle/textures/grass2D.png";
+        var i = 1;
+        var sortedObjects2d = scene2D.getObjects2D().stream()
+            .sorted( ( o1, o2 ) -> Float.compare( o1.getPosition().x(), o2.getPosition().x() ) )
+            .collect( Collectors.toList() )
+        ;
+        for ( var positionableObject2D : sortedObjects2d ) {
+            assertObject(
+                positionableObject2D,
+                pos2( i, i ),
+                rot2( 45 ),
+                scale2( 2, 6 ),
+                PositionableObject2DImpl.class,
+                expectedTexturePath,
+                expectedVertices2D,
+                expectedUvMap,
+                expectedColouring
+            );
+            i++;
+        }
+        i = 1;
+        var sortedObjects3d = scene3D.getObjects3D().stream()
+            .sorted( ( o1, o2 ) -> Float.compare( o1.getPosition().x(), o2.getPosition().x() ) )
+            .collect( Collectors.toList() )
+            ;
+        for ( var object : sortedObjects3d ) {
+            assertObject(
+                object,
+                pos3( i, i, i ),
+                rot3( 10, 20, 30 ),
+                scale3( 2, 6, 12 ),
+                PositionableObject3DImpl.class,
+                expectedTexturePath,
+                expectedVertices3D,
+                expectedUvMap,
+                expectedColouring
+            );
+            i++;
+        }
+        for( var x=0; x< 2; x++ ) {
+            for ( var y = 0; y < 2; y++ ) {
+                assertTerrain(
+                    scene2D.getTerrains2D()[x][y],
+                    Index2D.id2( x,y ),
+                    scene2D.getTerrain2DShift(),
+                    PlanePositionCalculator.computePlanePosition( x, y, FirstOracleConstants.INDEX_ZERO_2I ),
+                    Terrain2DImpl.class,
+                    expectedTexturePath,
+                    expectedVertices2D,
+                    expectedUvMap,
+                    expectedColouring
+                );
+            }
+        }
+        for( var x=0; x< 2; x++ ) {
+            for ( var y = 0; y < 2; y++ ) {
+                for ( var z = 0; z < 2; z++ ) {
+                    assertTerrain(
+                        scene3D.getTerrains3D()[x][y][z],
+                        Index3D.id3( x, y, z ),
+                        scene3D.getTerrain3DShift(),
+                        CubePositionCalculator.computeCubePosition( x, y, z, FirstOracleConstants.INDEX_ZERO_3I ),
+                        Terrain3DImpl.class,
+                        expectedTexturePath,
+                        expectedVertices3D,
+                        expectedUvMap,
+                        expectedColouring
+                    );
+                }
+            }
         }
     }
     
