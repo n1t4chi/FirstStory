@@ -27,6 +27,10 @@ public class AnimatedRectangle
     private Texture texture;
     private UvMap uvMap;
     
+    public AnimatedRectangle() {
+        setTransformations( new MutablePositionable2DTransformations() );
+    }
+    
     @Override
     public DirectionController getDirectionController() {
         return directionController;

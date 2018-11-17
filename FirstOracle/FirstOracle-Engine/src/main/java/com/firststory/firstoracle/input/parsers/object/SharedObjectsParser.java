@@ -8,7 +8,6 @@ import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.exceptions.SharedObjectKeyNotFoundException;
 import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.input.structure.MutableComposite;
-import com.firststory.firstoracle.input.structure.Node;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,16 +35,12 @@ public abstract class SharedObjectsParser {
         if( baseNode == null ) {
             throw new SharedObjectKeyNotFoundException( base, getSharedName() );
         }
-        
-        var newComposite = new MutableComposite( composite.getName() );
-        var newMutableContent = newComposite.getContent();
-        HashMap< String, Node > nodes = new HashMap<>();
-        
-        baseNode.getContent().forEach( node -> nodes.put( node.getName(), node ) );
-        composite.getContent().forEach( node -> nodes.put( node.getName(), node ) );
-        newMutableContent.addAll( nodes.values() );
-        
-        return newComposite;
+    
+        return new MutableComposite(
+            composite.getName(),
+            baseNode.getContent(),
+            composite.getContent()
+        );
     }
     
     private void parseSharedNode( Composite sharedObjectsNode ) {

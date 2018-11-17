@@ -4,29 +4,40 @@
 
 package com.firststory.firstoracle.input.structure;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author n1t4chi
  */
 public class MutableComposite extends Composite {
     
-    private final List< Node > content = new ArrayList<>();
+    private final Map< String, Node > content = new LinkedHashMap<>();
     
     public MutableComposite( String name ) {
         super( name );
     }
     
-    @Override
+    public MutableComposite(
+        String name,
+        Collection< Node > baseContent,
+        Collection< Node > overwriteContent
+    ) {
+        super( name );
+        baseContent.forEach( node -> content.put( node.getName(), node ) );
+        overwriteContent.forEach( node -> content.put( node.getName(), node ) );
+    }
+    
     /**
      * Returns mutable content list
      */
-    public List< Node > getContent() {
-        return content;
+    @Override
+    public Collection< Node > getContent() {
+        return content.values();
     }
     
     public void addContent( Node content ) {
-        this.content.add( content );
+        this.content.put( content.getName(), content );
     }
 }

@@ -27,7 +27,7 @@ public class Transformations2DParser extends TransformationsParser< Object2DTran
     }
     
     @Override
-    protected Class< ? extends Object2DTransformations > getClassForName( String name ) {
+    public Class< ? extends Object2DTransformations > newInstance( String name ) {
         return parser.classForName( name );
     }
 }

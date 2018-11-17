@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.input.parsers.object;
 
 import com.firststory.firstoracle.data.Index2D;
+import com.firststory.firstoracle.data.Position2D;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
 import com.firststory.firstoracle.input.SharedObjects;
@@ -22,9 +23,10 @@ import java.util.List;
  * @author n1t4chi
  */
 public class ObjectParser2D extends ObjectParser<
+    Position2D,
+    Index2D,
     PositionableObject2D< ?, ? >,
     Terrain2D< ? >,
-    Index2D,
     Object2DClassParser,
     Terrain2DClassParser
 > {
@@ -38,8 +40,18 @@ public class ObjectParser2D extends ObjectParser<
     }
     
     @Override
-    List< Index2D > parseIndex( String text ) {
+    List< Index2D > parseIndices( String text ) {
         return ParseUtils.toIndices2D( text );
+    }
+    
+    @Override
+    Position2D parsePosition( String text ) {
+        return ParseUtils.toPosition2D( text );
+    }
+    
+    @Override
+    String positionToString( Position2D position ) {
+        return ParseUtils.fromPosition2D( position );
     }
     
     @Override
@@ -53,7 +65,7 @@ public class ObjectParser2D extends ObjectParser<
     }
     
     @Override
-    List< ParameterParser< ? > > getSpecificObjectParsers( SharedData sharedData ) {
+    List< ParameterParser< ?, ? > > getSpecificObjectParsers( SharedData sharedData ) {
         return List.of(
             sharedData.getPosition2DParser(),
             sharedData.getPositionableTransformations2DParser()
@@ -61,7 +73,7 @@ public class ObjectParser2D extends ObjectParser<
     }
     
     @Override
-    List< ParameterParser< ? > > getSpecificTerrainParsers( SharedData sharedData ) {
+    List< ParameterParser< ?, ? > > getSpecificTerrainParsers( SharedData sharedData ) {
         return List.of(
             sharedData.getPosition2DCalculatorParser(),
             sharedData.getTransformations2DParser()
@@ -69,7 +81,7 @@ public class ObjectParser2D extends ObjectParser<
     }
     
     @Override
-    List< ParameterParser< ? > > getSpecificCommonParsers( SharedData sharedData ) {
+    List< ParameterParser< ?, ? > > getSpecificCommonParsers( SharedData sharedData ) {
         return List.of(
             sharedData.getVertices2DParser(),
             sharedData.getRotation2DParser(),

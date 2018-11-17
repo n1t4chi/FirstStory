@@ -17,9 +17,9 @@ import java.util.Map;
 /**
  * @author n1t4chi
  */
-public abstract class ParameterParser< Type > implements ShareableParser< Type >, Comparable< ParameterParser<?> > {
+public abstract class ParameterParser< Type, ShareableContainer > implements ShareableParser< Type, ShareableContainer >, Comparable< ParameterParser<?, ?> > {
     
-    private final Map< String, Type > sharedInstances = new HashMap<>();
+    private final Map< String, ShareableContainer > sharedInstances = new HashMap<>();
     
     public abstract int getPriority();
     
@@ -29,18 +29,20 @@ public abstract class ParameterParser< Type > implements ShareableParser< Type >
     
     public abstract String getSetterName();
     
+    public abstract Type unbox( ShareableContainer container );
+    
     @Override
-    public int compareTo( @NotNull ParameterParser< ? > o ) {
+    public int compareTo( @NotNull ParameterParser< ?, ? > o ) {
         return Integer.compare( getPriority(), o.getPriority() );
     }
     
     @Override
-    public Type getSharedInstance( String name ) {
+    public ShareableContainer getSharedInstance( String name ) {
         return sharedInstances.get( normalizeSharedKey( name ) );
     }
     
     @Override
-    public void addSharedInstance( String name, Type instance ) {
+    public void addSharedInstance( String name, ShareableContainer instance ) {
         sharedInstances.put( name, instance );
     }
     
@@ -69,9 +71,9 @@ public abstract class ParameterParser< Type > implements ShareableParser< Type >
             if( instance == null ) {
                 throw new SharedDataKeyNotFoundException( node.getValue(), getSharedName() );
             }
-            return instance;
+            return unbox( instance );
         }
-        return newInstance( node.getValue() );
+        return unbox( newInstance( node.getValue() ) );
     }
     
     private void applyUnsafe(

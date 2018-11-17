@@ -13,7 +13,7 @@ import com.firststory.firstoracle.object.UvMap;
  */
 public class NonAnimatedRectangleGrid
     extends
-    AbstractTerrain2D< Plane2DVertices >
+        AbstractTerrain2D< Plane2DVertices >
     implements
         RectangleGrid,
         NonAnimatedObject2D< Identity2DTransformations, Plane2DVertices >,

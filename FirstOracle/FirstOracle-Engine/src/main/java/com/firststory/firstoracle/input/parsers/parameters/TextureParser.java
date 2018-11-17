@@ -6,13 +6,13 @@ package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
-import com.firststory.firstoracle.input.parsers.ParameterParser;
+import com.firststory.firstoracle.input.parsers.InstanceBasedParameterParser;
 import com.firststory.firstoracle.object.Texture;
 
 /**
  * @author n1t4chi
  */
-public class TextureParser extends ParameterParser< Texture > {
+public class TextureParser extends InstanceBasedParameterParser< Texture > {
     
     @Override
     public Texture newInstance( String text ) {

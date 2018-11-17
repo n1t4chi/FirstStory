@@ -23,6 +23,10 @@ public class PositionableObject3DImpl
     private Vertices3D vertices;
     private Colouring colouring;
     
+    public PositionableObject3DImpl() {
+        setTransformations( new MutablePositionable3DTransformations() );
+    }
+    
     public void setColouring( Colouring colouring ) {
         this.colouring = colouring;
     }

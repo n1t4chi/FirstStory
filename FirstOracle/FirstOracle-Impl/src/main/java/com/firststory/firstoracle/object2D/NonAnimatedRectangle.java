@@ -23,6 +23,10 @@ public class NonAnimatedRectangle
 {
     private Texture texture;
     
+    public NonAnimatedRectangle() {
+        setTransformations( new MutablePositionable2DTransformations() );
+    }
+    
     @Override
     public Texture getTexture() {
         return texture;

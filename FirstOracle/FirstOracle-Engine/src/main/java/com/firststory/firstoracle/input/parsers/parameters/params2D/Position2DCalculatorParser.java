@@ -27,7 +27,7 @@ public class Position2DCalculatorParser extends PositionCalculatorParser< Positi
     }
     
     @Override
-    protected Class< ? extends Position2DCalculator > getClassForName( String name ) {
+    public Class< ? extends Position2DCalculator > newInstance( String name ) {
         return classParser.classForName( name );
     }
 }

@@ -11,7 +11,7 @@ public class Leaf extends Node {
     
     private final String value;
     
-    Leaf( String name, String value ) {
+    public Leaf( String name, String value ) {
         super( name );
         this.value = removeWhitespaces( value );
     }

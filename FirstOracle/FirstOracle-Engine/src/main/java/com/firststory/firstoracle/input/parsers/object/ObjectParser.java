@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.input.parsers.object;
 
 import com.firststory.firstoracle.data.Index;
+import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
 import com.firststory.firstoracle.input.SharedObjects;
@@ -13,30 +14,35 @@ import com.firststory.firstoracle.input.parsers.ParameterParser;
 import com.firststory.firstoracle.input.parsers.classes.ObjectClassParser;
 import com.firststory.firstoracle.input.parsers.classes.TerrainClassParser;
 import com.firststory.firstoracle.input.structure.Composite;
+import com.firststory.firstoracle.input.structure.Leaf;
+import com.firststory.firstoracle.input.structure.MutableComposite;
 import com.firststory.firstoracle.object.GraphicObject;
 import com.firststory.firstoracle.object.PositionableObject;
 import com.firststory.firstoracle.object.Terrain;
 
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.firststory.firstoracle.input.ParseUtils.*;
 
 /**
- * Both PositionableObjectType and TerrainType must inherit ObjectType!
  * @author n1t4chi
  */
 public abstract class ObjectParser<
-    PositionableObjectType extends PositionableObject< ?, ?, ?, ?, ?, ? >,
-    TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType >,
+    PositionType extends Position,
     IndexType extends Index,
+    PositionableObjectType extends PositionableObject< PositionType, ?, ?, ?, ?, ? >,
+    TerrainType extends Terrain< PositionType, ?, ?, ?, ?, ?, IndexType >,
     ObjectClassParserType extends ObjectClassParser< PositionableObjectType >,
     TerrainClassParserType extends TerrainClassParser< TerrainType >
 > {
     
-    abstract List< IndexType > parseIndex( String text );
+    abstract List< IndexType > parseIndices( String text );
+    
+    abstract PositionType parsePosition( String text );
+    
+    abstract String positionToString( PositionType position );
     
     abstract ObjectClassParserType getObjectClassParser( SharedData sharedData );
     
@@ -46,42 +52,15 @@ public abstract class ObjectParser<
     
     abstract Class< ? extends TerrainType > getDefaultTerrainClass();
     
-    abstract List< ParameterParser< ? > > getSpecificObjectParsers( SharedData sharedData );
+    abstract List< ParameterParser< ?, ? > > getSpecificObjectParsers( SharedData sharedData );
     
-    abstract List< ParameterParser< ? > > getSpecificTerrainParsers( SharedData sharedData );
+    abstract List< ParameterParser< ?, ? > > getSpecificTerrainParsers( SharedData sharedData );
     
-    abstract List< ParameterParser< ? > > getSpecificCommonParsers( SharedData sharedData );
+    abstract List< ParameterParser< ?, ? > > getSpecificCommonParsers( SharedData sharedData );
     
     abstract SharedObjectsParser getSharedTerrainsParser( SharedObjects sharedObjects );
     
     abstract SharedObjectsParser getSharedObjectsParser( SharedObjects sharedObjects );
-    
-    public Map< String, TerrainPair< TerrainType, IndexType > > getTerrains(
-        SharedData sharedData,
-        SharedObjects sharedObjects,
-        Composite sceneNode
-    ) {
-        return getTerrains(
-            sharedData,
-            sharedObjects,
-            sceneNode,
-            this::toTerrain,
-            this::toIndices
-        );
-    }
-    
-    public Map< String, PositionableObjectType > getObjects(
-        SharedData sharedData,
-        SharedObjects sharedObjects,
-        Composite sceneNode
-        ) {
-        return getObjects(
-            sharedData,
-            sharedObjects,
-            sceneNode,
-            this::toObject
-        );
-    }
     
     private PositionableObjectType toObject( SharedData sharedData, SharedObjects sharedObjects, Composite node ) {
         return toGraphicObject(
@@ -94,20 +73,20 @@ public abstract class ObjectParser<
         );
     }
     
-    private PriorityQueue< ParameterParser< ? > > getObjectParsers( SharedData sharedData ) {
+    private PriorityQueue< ParameterParser< ?, ? > > getObjectParsers( SharedData sharedData ) {
         var list = getCommonParsers( sharedData );
         list.addAll( getSpecificObjectParsers( sharedData ) );
         return new PriorityQueue<>( list );
     }
     
-    private PriorityQueue< ParameterParser< ? > > getTerrainParsers( SharedData sharedData ) {
+    private PriorityQueue< ParameterParser< ?, ? > > getTerrainParsers( SharedData sharedData ) {
         var list = getCommonParsers( sharedData );
         list.addAll( getSpecificTerrainParsers( sharedData ) );
         return new PriorityQueue<>( list );
     }
     
-    private List< ParameterParser< ? > > getCommonParsers( SharedData sharedData ) {
-        var list = new ArrayList< ParameterParser< ? >>();
+    private List< ParameterParser< ?, ? > > getCommonParsers( SharedData sharedData ) {
+        var list = new ArrayList< ParameterParser< ?, ? > >();
         list.add( sharedData.getUvMapParser() );
         list.add( sharedData.getColouringParser() );
         list.add( sharedData.getTextureParser() );
@@ -161,18 +140,16 @@ public abstract class ObjectParser<
         ) );
     }
     
-    private Map< String, TerrainPair< TerrainType, IndexType > > getTerrains(
+    public Map< String, TerrainPair< TerrainType, IndexType > > getTerrains(
         SharedData sharedData,
         SharedObjects sharedObjects,
-        Composite sceneNode,
-        TriFunction< SharedData, SharedObjects, Composite, TerrainType > toTerrain,
-        Function< String, List< IndexType > > toIndices
+        Composite sceneNode
     ) {
         return sceneNode.findComposite( SCENE_TERRAINS ).getComposites().stream().map( terrain -> Map.entry(
             terrain.getName(),
             new TerrainPair<>(
-                toTerrain.apply( sharedData, sharedObjects, terrain ),
-                toIndices.apply( terrain.findValueOrThrow( SCENE_PARAM_INDICES ) )
+                toTerrain( sharedData, sharedObjects, terrain ),
+                toIndices( terrain.findValueOrThrow( SCENE_PARAM_INDICES ) )
             )
         ) ).collect( Collectors.toMap(
             Map.Entry::getKey,
@@ -180,23 +157,48 @@ public abstract class ObjectParser<
         ) );
     }
     
-    private Map< String, PositionableObjectType > getObjects(
+    public Map< String, List< PositionableObjectType > > getObjects(
         SharedData sharedData,
         SharedObjects sharedObjects,
-        Composite sceneNode,
-        TriFunction< SharedData, SharedObjects, Composite, PositionableObjectType > toObject
+        Composite sceneNode
     ) {
-        return sceneNode.findComposite( SCENE_OBJECTS ).getComposites().stream().map( composite -> Map.entry(
-            composite.getName(),
-            toObject.apply(
-                sharedData,
-                sharedObjects,
-                composite
+        return sceneNode.findComposite( SCENE_OBJECTS ).getComposites().stream()
+            .map( composite ->
+                new ObjectPair<>(
+                    composite,
+                    toPositions( composite.findValue( SCENE_PARAM_POSITIONS, "[]" ) )
+                )
             )
-        ) ).collect( Collectors.toMap(
-            Map.Entry::getKey,
-            Map.Entry::getValue
-        ) );
+            .map( pair -> {
+                var positions = pair.getPositions();
+                var node = pair.getObjectNode();
+                List< Composite > parsedNodes;
+                
+                if( positions.isEmpty() ) {
+                    parsedNodes = List.of( node );
+                } else {
+                    parsedNodes = positions.stream()
+                        .map( position -> new MutableComposite(
+                            node.getName(),
+                            node.getContent(),
+                            List.of( new Leaf( ParseUtils.SCENE_PARAM_POSITION, positionToString( position )  ) )
+                        ) )
+                        .collect( Collectors.toList());
+                }
+                
+                return Map.entry( node.getName(), parsedNodes.stream()
+                    .map( parsedNode -> toObject(
+                        sharedData,
+                        sharedObjects,
+                        parsedNode
+                    ) )
+                    .collect( Collectors.toList() )
+                );
+            } ).collect( Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue
+            ) );
+        
     }
     
     private <ObjectType extends GraphicObject< ?, ?, ?, ?, ?, ?> > ObjectType toGraphicObject(
@@ -205,7 +207,7 @@ public abstract class ObjectParser<
         Composite node,
         BiFunction< SharedData, String, ObjectType > objectCreator,
         Class< ? extends ObjectType > defaultClass,
-        PriorityQueue< ParameterParser< ? > > parsers
+        PriorityQueue< ParameterParser< ?, ? > > parsers
     ) {
         var parsedNode = sharedObjectsParser.parseNode( node );
         var object = objectCreator.apply(
@@ -213,7 +215,7 @@ public abstract class ObjectParser<
             parsedNode.findValue( SCENE_PARAM_CLASS, defaultClass.getName() )
         );
         
-        ParameterParser< ? > parser;
+        ParameterParser< ?, ? > parser;
         while( ( parser = parsers.poll() ) != null ) {
             parser.tryToApply( object, parsedNode );
         }
@@ -231,6 +233,17 @@ public abstract class ObjectParser<
     }
     
     private List< IndexType > toIndices( String text ) {
-        return ParseUtils.toList( text ).stream().map( this::parseIndex ).flatMap( Collection::stream ).collect( Collectors.toList() );
+        return ParseUtils.toList( text ).stream()
+            .map( this::parseIndices )
+            .flatMap( Collection::stream )
+            .collect( Collectors.toList() )
+        ;
+    }
+    
+    private List< PositionType > toPositions( String text ) {
+        return ParseUtils.toList( text ).stream()
+            .map( this::parsePosition )
+            .collect( Collectors.toList() )
+        ;
     }
 }

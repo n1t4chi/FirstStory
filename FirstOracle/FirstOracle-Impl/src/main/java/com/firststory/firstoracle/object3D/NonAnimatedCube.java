@@ -22,6 +22,10 @@ public class NonAnimatedCube
 {
     private Texture texture;
     
+    public NonAnimatedCube() {
+        setTransformations( new MutablePositionable3DTransformations() );
+    }
+    
     @Override
     public Texture getTexture() {
         return texture;

@@ -7,7 +7,7 @@ package com.firststory.firstoracle.input.parsers.parameters;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.parsers.ParameterParser;
+import com.firststory.firstoracle.input.parsers.InstanceBasedParameterParser;
 import com.firststory.firstoracle.object.Vertices;
 
 import java.util.List;
@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
 /**
  * @author n1t4chi
  */
-public abstract class VerticesParser<
-    VerticesType extends Vertices< ?, ? >,
-    PositionType extends Position > extends ParameterParser< VerticesType
-> {
+public abstract class VerticesParser< VerticesType extends Vertices< ?, ? >, PositionType extends Position >
+    extends InstanceBasedParameterParser< VerticesType >
+{
     
     @Override
     public VerticesType newInstance( String text ) {

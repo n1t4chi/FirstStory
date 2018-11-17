@@ -5,6 +5,7 @@
 package com.firststory.firstoracle.input.parsers.object;
 
 import com.firststory.firstoracle.data.Index3D;
+import com.firststory.firstoracle.data.Position3D;
 import com.firststory.firstoracle.input.ParseUtils;
 import com.firststory.firstoracle.input.SharedData;
 import com.firststory.firstoracle.input.SharedObjects;
@@ -22,9 +23,10 @@ import java.util.List;
  * @author n1t4chi
  */
 public class ObjectParser3D extends ObjectParser<
+    Position3D,
+    Index3D,
     PositionableObject3D< ?, ? >,
     Terrain3D< ? >,
-    Index3D,
     Object3DClassParser,
     Terrain3DClassParser
 > {
@@ -42,8 +44,18 @@ public class ObjectParser3D extends ObjectParser<
     }
     
     @Override
-    List< Index3D > parseIndex( String text ) {
+    List< Index3D > parseIndices( String text ) {
         return ParseUtils.toIndices3D( text );
+    }
+    
+    @Override
+    Position3D parsePosition( String text ) {
+        return ParseUtils.toPosition3D( text );
+    }
+    
+    @Override
+    String positionToString( Position3D position ) {
+        return ParseUtils.fromPosition3D( position );
     }
     
     @Override
@@ -57,7 +69,7 @@ public class ObjectParser3D extends ObjectParser<
     }
     
     @Override
-    List< ParameterParser< ? > > getSpecificObjectParsers( SharedData sharedData ) {
+    List< ParameterParser< ?, ? > > getSpecificObjectParsers( SharedData sharedData ) {
         return List.of(
             sharedData.getPosition3DParser(),
             sharedData.getPositionableTransformations3DParser()
@@ -65,7 +77,7 @@ public class ObjectParser3D extends ObjectParser<
     }
     
     @Override
-    List< ParameterParser< ? > > getSpecificTerrainParsers( SharedData sharedData ) {
+    List< ParameterParser< ?, ? > > getSpecificTerrainParsers( SharedData sharedData ) {
         return List.of(
             sharedData.getPosition3DCalculatorParser(),
             sharedData.getTransformations3DParser()
@@ -73,7 +85,7 @@ public class ObjectParser3D extends ObjectParser<
     }
     
     @Override
-    List< ParameterParser< ? > > getSpecificCommonParsers( SharedData sharedData ) {
+    List< ParameterParser< ?, ? > > getSpecificCommonParsers( SharedData sharedData ) {
         return List.of(
             sharedData.getVertices3DParser(),
             sharedData.getRotation3DParser(),

@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import static com.fasterxml.jackson.core.JsonToken.END_ARRAY;
+
 /**
  * @author n1t4chi
  */
@@ -105,14 +107,60 @@ public class Roots {
                     currentComposite
                 );
                 break;
+            case START_ARRAY:
+                handleArrayValue(
+                    parser,
+                    currentComposite
+                );
+                break;
+            case VALUE_EMBEDDED_OBJECT:
+            case VALUE_FALSE:
+            case VALUE_NULL:
+            case VALUE_NUMBER_FLOAT:
+            case VALUE_NUMBER_INT:
+            case VALUE_TRUE:
+                System.err.println( "Non String token: " +token+ " -> " + parser.getText() );
             case VALUE_STRING:
                 handleValue(
                     parser,
                     currentComposite
                 );
                 break;
+            case FIELD_NAME:
+                break;
+            default:
+                throw new ParseFailedException( "unsupported node found: " + token );
         }
         return returnedComposite;
+    }
+    
+    private void handleArrayValue(
+        JsonParser parser,
+        MutableComposite currentComposite
+    ) throws IOException {
+        JsonToken token;
+        var text = new StringBuilder( "[" );
+        var name = parser.getCurrentName();
+        while ( ( token = parser.nextToken() ) != END_ARRAY ) {
+            switch ( token ) {
+                case VALUE_EMBEDDED_OBJECT:
+                case VALUE_FALSE:
+                case VALUE_NULL:
+                case VALUE_NUMBER_FLOAT:
+                case VALUE_NUMBER_INT:
+                case VALUE_TRUE:
+                    System.err.println( "Non String token: " +token+ " -> " + parser.getText() );
+                case VALUE_STRING:
+                    text.append( parser.getText() ).append( "," );
+                    break;
+                default:
+                    throw new ParseFailedException( "unsupported node found: " + token );
+            }
+        }
+        currentComposite.addContent( new Leaf(
+            name,
+            text.append( "]" ).toString()
+        ) );
     }
     
     private void handleValue(

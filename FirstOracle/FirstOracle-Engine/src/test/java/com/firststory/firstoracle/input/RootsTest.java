@@ -13,6 +13,7 @@ import com.firststory.firstoracle.input.structure.Roots;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,10 +85,11 @@ public class RootsTest {
         Assertions.assertEquals( 2, scenes.size() );
         var scene2d = scenes.get( 0 );
         Assertions.assertEquals( 2, scene2d.getContent().size() );
-        assertShallowComposite( scene2d.getContent().get( 0 ), Map.of(
+        
+        assertShallowComposite( scene2d.getContent(), "object1", Map.of(
             "class", "PositionableObject2DImpl"
         ) );
-        assertShallowComposite( scene2d.getContent().get( 1 ), Map.of(
+        assertShallowComposite( scene2d.getContent(), "object2", Map.of(
             "class", "PositionableObject2DImpl",
             "position", "2, 2",
             "rotation", "22"
@@ -95,20 +97,25 @@ public class RootsTest {
         
         var scene3d = scenes.get( 1 );
         Assertions.assertEquals( 2, scene3d.getContent().size() );
-        assertShallowComposite( scene3d.getContent().get( 0 ), Map.of(
+        assertShallowComposite( scene3d.getContent(), "object3", Map.of(
             "class", "PositionableObject3DImpl",
             "position", "3, 3"
         ) );
-        assertShallowComposite( scene3d.getContent().get( 1 ), Map.of(
+        assertShallowComposite( scene3d.getContent(), "object4", Map.of(
             "class", "PositionableObject3DImpl",
             "position", "4, 4"
         ) );
     }
     
     private void assertShallowComposite(
-        Node object,
+        Collection< Node > nodes,
+        String name,
         Map< String, String > validEntries
     ) {
+        var object = nodes.stream().filter( node -> name.equals( node.getName() ) )
+            .findFirst()
+            .orElse( null );
+        Assertions.assertNotNull( object );
         Assertions.assertTrue( object.isComposite() );
         var composite = ( Composite ) object;
         var content = composite.getContent();

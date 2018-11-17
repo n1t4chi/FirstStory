@@ -12,8 +12,6 @@ import com.firststory.firstoracle.input.parsers.ClassBasedParameterParser;
  */
 public abstract class PositionCalculatorParser< PositionCalculator > extends ClassBasedParameterParser< PositionCalculator > {
     
-    protected abstract Class< ? extends PositionCalculator > getClassForName( String name );
-    
     @Override
     public String getSetterName() {
         return ParseUtils.METHOD_SET_POSITION_CALCULATOR;

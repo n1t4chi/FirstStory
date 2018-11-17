@@ -6,12 +6,12 @@ package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.parsers.ParameterParser;
+import com.firststory.firstoracle.input.parsers.InstanceBasedParameterParser;
 
 /**
  * @author n1t4chi
  */
-public abstract class PositionParser< PositionType extends Position > extends ParameterParser< PositionType > {
+public abstract class PositionParser< PositionType extends Position > extends InstanceBasedParameterParser< PositionType > {
     
     @Override
     public String getParameterName() {

@@ -55,6 +55,7 @@ public class TextObject2D
         this.settings = settings;
         this.factory = factory;
         textData = FirstOracleConstants.EMPTY_TEXT;
+        setTransformations( new MutablePositionable2DTransformations() );
     }
     
     @Override

@@ -27,7 +27,7 @@ public class PositionableTransformations3DParser extends PositionableTransformat
     }
     
     @Override
-    protected Class< ? extends PositionableObject3DTransformations > getClassForName( String name ) {
+    public Class< ? extends PositionableObject3DTransformations > newInstance( String name ) {
         return parser.classForName( name );
     }
 }

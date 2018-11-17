@@ -460,11 +460,7 @@ class SceneParserTest {
                 "objects": {
                     "object1": {
                         "base": "$baseObj2d",
-                        "position": "1, 1"
-                    },
-                    "object2": {
-                        "base": "$baseObj2d",
-                        "position": "2, 2"
+                        "positions": "[{1,1},{2,2}]"
                     }
                 },
                 "terrains": {
@@ -478,11 +474,7 @@ class SceneParserTest {
                 "objects": {
                     "object3": {
                         "base": "$baseObj3d",
-                        "position": "1, 1, 1"
-                    },
-                    "object4": {
-                        "base": "$baseObj3d",
-                        "position": "2, 2, 2"
+                        "positions": "[{1,1,1},{2,2,2}]"
                     }
                 },
                 "terrains": {

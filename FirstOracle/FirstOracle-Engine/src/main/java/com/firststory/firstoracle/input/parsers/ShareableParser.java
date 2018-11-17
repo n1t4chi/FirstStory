@@ -12,17 +12,17 @@ import com.firststory.firstoracle.input.structure.Node;
 /**
  * @author n1t4chi
  */
-public interface ShareableParser< Type > extends NodeParser< Type, Leaf > {
+public interface ShareableParser< Type, ShareableContainer > extends NodeParser< Type, Leaf > {
     
-    Type newInstance( String text );
+    ShareableContainer newInstance( String text );
     
     String getSharedName();
     
-    Type getSharedInstance( String name );
+    ShareableContainer getSharedInstance( String name );
     
     void addSharedInstance(
         String name,
-        Type instance
+        ShareableContainer instance
     );
     
     default void parseShared( Composite sharedNode ) {

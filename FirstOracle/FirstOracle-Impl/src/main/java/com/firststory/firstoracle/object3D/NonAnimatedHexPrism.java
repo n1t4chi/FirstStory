@@ -23,6 +23,10 @@ public class NonAnimatedHexPrism
 {
     private Texture texture;
     
+    public NonAnimatedHexPrism() {
+        setTransformations( new MutablePositionable3DTransformations() );
+    }
+    
     @Override
     public Texture getTexture() {
         return texture;

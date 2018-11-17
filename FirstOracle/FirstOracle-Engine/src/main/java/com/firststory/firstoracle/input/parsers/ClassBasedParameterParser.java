@@ -9,19 +9,17 @@ import com.firststory.firstoracle.input.exceptions.ParsedClassNotFoundException;
 /**
  * @author n1t4chi
  */
-public abstract class ClassBasedParameterParser< Type > extends ParameterParser<Type> {
-    
-    protected abstract Class< ? extends Type > getClassForName( String name );
+public abstract class ClassBasedParameterParser< Type > extends ParameterParser< Type, Class< ? extends Type > > {
     
     @Override
-    public Type newInstance( String text ) {
+    public Type unbox( Class< ? extends Type > aClass ) {
         try {
-            return getClassForName( text )
+            return aClass
                 .getDeclaredConstructor()
                 .newInstance()
-                ;
+            ;
         } catch ( Exception ex ) {
-            throw new ParsedClassNotFoundException( text, getSetterParameterClass(), ex );
+            throw new ParsedClassNotFoundException( aClass.getName(), getSetterParameterClass(), ex );
         }
     }
 }

@@ -41,6 +41,7 @@ public interface ParseUtils {
     String SCENE_PARAM_VERTICES = "vertices";
     String SCENE_PARAM_COLOURING = "colouring";
     String SCENE_PARAM_INDICES = "indices";
+    String SCENE_PARAM_POSITIONS = "positions";
     String SCENE_PARAM_POSITION_CALC = "positionCalculator";
     String SCENE_PARAM_TRANSFORMATIONS = "transformations";
     
@@ -137,6 +138,16 @@ public interface ParseUtils {
         );
     }
     
+    static List< Index3D > toIndices3D( String text ) {
+        return toIndices(
+            text,
+            PatternVeci3,
+            PatternRangeVeci3,
+            ParseUtils::toIndex3D,
+            ParseUtils::range3DToList
+        );
+    }
+    
     static List<Index2D> range2DToList(
         Index2D start,
         Index2D end
@@ -151,16 +162,6 @@ public interface ParseUtils {
                         .mapToObj( y -> Index2D.id2( x, y ) )
                         .collect( Collectors.toList() )
                 ).flatMap( Collection::stream )
-        );
-    }
-    
-    static List< Index3D > toIndices3D( String text ) {
-        return toIndices(
-            text,
-            PatternVeci3,
-            PatternRangeVeci3,
-            ParseUtils::toIndex3D,
-            ParseUtils::range3DToList
         );
     }
     
@@ -183,6 +184,20 @@ public interface ParseUtils {
                         .collect( Collectors.toList() )
                 ).flatMap( Collection::stream )
         );
+    }
+    
+    static < PositionType extends Position > List< PositionType > toPositions(
+        String text,
+        Pattern singlePattern,
+        Function< String, PositionType > positionParser
+    ) {
+        text = normalizeVectorText( text );
+        var singleMatcher = singlePattern.matcher( text );
+        if( singleMatcher.matches() ) {
+            return List.of( positionParser.apply( text ) );
+        }
+        
+        throw new ParseFailedException( "Cannot parse " + text + " into neither index nor index range." );
     }
     
     static < IndexType extends Index > List< IndexType > toIndices(
@@ -239,6 +254,14 @@ public interface ParseUtils {
     
     static Position3D toPosition3D( String text ) {
         return Position3D.pos3( toVec3( text ) );
+    }
+    
+    static String fromPosition2D( Position2D position ) {
+        return "{" + position.x() + "," + position.y() + "}";
+    }
+    
+    static String fromPosition3D( Position3D position ) {
+        return "{" + position.x() + "," + position.y() + "," + position.z() + "}";
     }
     
     static Scale2D toScale2D( String text ) {
@@ -352,10 +375,19 @@ public interface ParseUtils {
     
     static List< String > toList( String arrayText ) {
         arrayText = arrayText.strip();
+        if( arrayText.isEmpty() ) {
+            return List.of();
+        }
         if( !( arrayText.startsWith( "[" ) && arrayText.endsWith( "]" ) ) ) {
             throw new ParseFailedException( arrayText + " does not match [ a, b, c,... ] format" );
         }
-        arrayText = arrayText.substring( 1, arrayText.length()-1 ) + ',';
+        arrayText = arrayText.substring( 1, arrayText.length()-1 ).strip();
+        if( arrayText.isEmpty() ) {
+            return List.of();
+        }
+        if( !arrayText.endsWith( "," ) ) {
+            arrayText += ',';
+        }
         var length = arrayText.length();
         var list = new ArrayList< String >();
         var startIndex = 0;
@@ -367,7 +399,9 @@ public interface ParseUtils {
             } else if( c == ']' || c == '}' ) {
                 openedBracket--;
             } else if( openedBracket == 0 && c == ',' ) {
-                list.add( arrayText.substring( startIndex, index ) );
+                if( startIndex != index ) {
+                    list.add( arrayText.substring( startIndex, index ) );
+                }
                 startIndex = index + 1;
             }
         }

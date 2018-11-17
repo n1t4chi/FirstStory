@@ -6,7 +6,7 @@ package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.parsers.ParameterParser;
+import com.firststory.firstoracle.input.parsers.InstanceBasedParameterParser;
 import com.firststory.firstoracle.object.Colouring;
 
 import java.util.stream.Collectors;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * @author n1t4chi
  */
-public class ColouringParser extends ParameterParser< Colouring > {
+public class ColouringParser extends InstanceBasedParameterParser< Colouring > {
     
     @Override
     public Colouring newInstance( String text ) {

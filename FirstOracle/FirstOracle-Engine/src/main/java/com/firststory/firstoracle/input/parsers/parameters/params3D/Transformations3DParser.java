@@ -27,7 +27,7 @@ public class Transformations3DParser extends TransformationsParser< Object3DTran
     }
     
     @Override
-    protected Class< ? extends Object3DTransformations > getClassForName( String name ) {
+    public Class< ? extends Object3DTransformations > newInstance( String name ) {
         return parser.classForName( name );
     }
 }

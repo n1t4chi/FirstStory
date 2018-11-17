@@ -6,6 +6,7 @@ package com.firststory.firstoracle.input.structure;
 
 import com.firststory.firstoracle.input.exceptions.NoEntryFoundException;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -22,7 +23,7 @@ public abstract class Composite extends Node {
         super( name );
     }
     
-    public abstract List< Node > getContent();
+    public abstract Collection< Node > getContent();
     
     public List< Composite > getComposites() {
         return getContent().stream()

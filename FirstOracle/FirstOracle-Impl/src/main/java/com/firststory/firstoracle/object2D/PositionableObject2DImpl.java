@@ -23,6 +23,10 @@ public class PositionableObject2DImpl
     private Vertices2D vertices;
     private Colouring colouring;
     
+    public PositionableObject2DImpl() {
+        setTransformations( new MutablePositionable2DTransformations() );
+    }
+    
     public void setColouring( Colouring colouring ) {
         this.colouring = colouring;
     }

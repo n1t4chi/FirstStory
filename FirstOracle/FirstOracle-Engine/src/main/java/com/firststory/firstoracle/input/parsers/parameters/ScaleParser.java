@@ -6,12 +6,12 @@ package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.data.Scale;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.parsers.ParameterParser;
+import com.firststory.firstoracle.input.parsers.InstanceBasedParameterParser;
 
 /**
  * @author n1t4chi
  */
-public abstract class ScaleParser< ScaleType extends Scale > extends ParameterParser< ScaleType > {
+public abstract class ScaleParser< ScaleType extends Scale > extends InstanceBasedParameterParser< ScaleType > {
     
     @Override
     public String getParameterName() {

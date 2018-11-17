@@ -6,12 +6,12 @@ package com.firststory.firstoracle.input.parsers.parameters;
 
 import com.firststory.firstoracle.data.Rotation;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.parsers.ParameterParser;
+import com.firststory.firstoracle.input.parsers.InstanceBasedParameterParser;
 
 /**
  * @author n1t4chi
  */
-public abstract class RotationParser< RotationType extends Rotation > extends ParameterParser< RotationType > {
+public abstract class RotationParser< RotationType extends Rotation > extends InstanceBasedParameterParser< RotationType > {
     
     @Override
     public String getParameterName() {

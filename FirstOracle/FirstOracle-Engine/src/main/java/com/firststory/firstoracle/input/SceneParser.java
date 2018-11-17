@@ -7,6 +7,7 @@ package com.firststory.firstoracle.input;
 import com.firststory.firstoracle.data.Index;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.data.Index3D;
+import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.parsers.classes.ObjectClassParser;
 import com.firststory.firstoracle.input.parsers.classes.TerrainClassParser;
@@ -120,8 +121,9 @@ public class SceneParser {
     private <
         Scene,
         IndexType extends Index,
-        PositionableObjectType extends PositionableObject< ?, ?, ?, ?, ?, ? >,
-        TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType >,
+        PositionType extends Position,
+        PositionableObjectType extends PositionableObject< PositionType, ?, ?, ?, ?, ? >,
+        TerrainType extends Terrain< PositionType, ?, ?, ?, ?, ?, IndexType >,
         ObjectClassParserType extends ObjectClassParser< PositionableObjectType >,
         TerrainClassParserType extends TerrainClassParser< TerrainType >
     > Scene parseScene(
@@ -132,9 +134,10 @@ public class SceneParser {
         IndexType shift,
         SceneSupplier< IndexType, Scene > sceneSupplier,
         ObjectParser<
+            PositionType,
+            IndexType,
             PositionableObjectType,
             TerrainType,
-            IndexType,
             ObjectClassParserType,
             TerrainClassParserType
         > parser,
@@ -150,7 +153,9 @@ public class SceneParser {
         terrains.forEach( ( name, pair ) ->
             registerTerrain.accept( scene, pair.getTerrain(), pair.getIndices() )
         );
-        registerObject.accept( scene, objects.values() );
+        objects.forEach( ( name, list ) -> {
+            registerObject.accept( scene, list );
+        } );
         return scene;
     }
     

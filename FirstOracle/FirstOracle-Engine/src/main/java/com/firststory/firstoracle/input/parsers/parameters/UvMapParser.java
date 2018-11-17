@@ -7,7 +7,7 @@ package com.firststory.firstoracle.input.parsers.parameters;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.UV;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.parsers.ParameterParser;
+import com.firststory.firstoracle.input.parsers.InstanceBasedParameterParser;
 import com.firststory.firstoracle.object.UvMap;
 
 import java.util.stream.Collectors;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * @author n1t4chi
  */
-public class UvMapParser extends ParameterParser< UvMap > {
+public class UvMapParser extends InstanceBasedParameterParser< UvMap > {
     
     @Override
     public UvMap newInstance( String text ) {

@@ -23,6 +23,10 @@ public class NonAnimatedPlane3D
 {
     private Texture texture;
     
+    public NonAnimatedPlane3D() {
+        setTransformations( new MutablePositionable3DTransformations() );
+    }
+    
     @Override
     public Texture getTexture() {
         return texture;

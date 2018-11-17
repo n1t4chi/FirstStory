@@ -29,12 +29,16 @@ public class GenerateTrees {
                 continue;
             }
             indices.add( index );
-            System.out.println(
-                "\"tree" + i + "\": {" +
-                    "\"class\": \"$obj3d\", \"rotation\": \"$rot3d\", \"scale\": \"$scaleObj3d\", \"texture\": \"$tree3d\"," +
-                    "\"position\": \"" + x + ",13," + z +"\"" +
-                    "},"
-            );
         }
+        System.err.print( `"position": [` );
+        var i = 0;
+        for( var index : indices ) {
+            if( i%10 == 0 ) {
+                System.err.print( "\",\n\"" );
+            }
+            System.err.print( "{" + index.x() + ",13," + index.y() + "}," );
+            i++;
+        }
+        System.err.println( "\"\n]" );
     }
 }
