@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.object.DirectionController;
 import com.firststory.firstoracle.object.HexPrismUvMap;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
@@ -22,9 +23,20 @@ public class NonAnimatedHexPrism
         MutableTransformationsObject3D< HexPrismVertices >
 {
     private Texture texture;
+    private DirectionController directionController = direction -> 0;
     
     public NonAnimatedHexPrism() {
         setTransformations( new MutablePositionable3DTransformations() );
+    }
+    
+    
+    public void setDirectionController( DirectionController directionController ) {
+        this.directionController = directionController;
+    }
+    
+    @Override
+    public int getCurrentUvMapDirection( double currentCameraRotation ) {
+        return directionController.getCurrentDirection( currentCameraRotation );
     }
     
     @Override

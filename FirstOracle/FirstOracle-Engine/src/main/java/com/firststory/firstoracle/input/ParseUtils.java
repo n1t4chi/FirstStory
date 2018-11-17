@@ -44,6 +44,8 @@ public interface ParseUtils {
     String SCENE_PARAM_POSITIONS = "positions";
     String SCENE_PARAM_POSITION_CALC = "positionCalculator";
     String SCENE_PARAM_TRANSFORMATIONS = "transformations";
+    String SCENE_PARAM_CONTROLLER_DIRECITON = "directionController";
+    String SCENE_PARAM_CONTROLLER_FRAME = "frameController";
     
     String METHOD_SET_POSITION = "setPosition";
     String METHOD_SET_SCALE = "setScale";
@@ -54,7 +56,8 @@ public interface ParseUtils {
     String METHOD_SET_VERTICES = "setVertices";
     String METHOD_SET_POSITION_CALCULATOR = "setPositionCalculator";
     String METHOD_SET_TRANSFORMATIONS = "setTransformations";
-    
+    String METHOD_SET_CONTROLLER_DIRECITON = "setDirectionController";
+    String METHOD_SET_CONTROLLER_FRAME = "setFrameController";
     
     String SHARED_NAME_PREFIX = "$";
     
@@ -89,6 +92,8 @@ public interface ParseUtils {
     String SHARED_PARAM_TEXTURES = "textures";
     String SHARED_PARAM_UV_MAPS = "uvMaps";
     String SHARED_PARAM_COLOURINGS = "colourings";
+    String SHARED_PARAM_CONTROLLER_DIRECITON = "directionControllers";
+    String SHARED_PARAM_CONTROLLER_FRAME = "frameControllers";
     
     
     String CONFIGURATION = "configuration";

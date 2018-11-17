@@ -20,14 +20,14 @@ public class Object3DClassParser extends ObjectClassParser< PositionableObject3D
     
     @Override
     @SuppressWarnings( {"unchecked",  "rawtypes"} )
-    Class< PositionableObject3D< ?, ? > > getBaseClass() {
+    public Class< PositionableObject3D< ?, ? > > getBaseClass() {
         return ( Class< PositionableObject3D< ?, ? > > ) (
             ( Class< ? extends PositionableObject3D > ) PositionableObject3D.class
         );
     }
     
     @Override
-    String getDefaultPackage() {
+    public String getDefaultPackage() {
         return FirstOracleConstants.OBJECT_3D_PACKAGE_NAME;
     }
 }

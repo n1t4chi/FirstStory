@@ -4,9 +4,7 @@
 
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.Colouring;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object.*;
 
 /**
  * @author n1t4chi
@@ -22,6 +20,16 @@ public class PositionableObject3DImpl
     private Texture texture;
     private Vertices3D vertices;
     private Colouring colouring;
+    private DirectionController directionController = direction -> 0;
+    private FrameController frameController = time -> 0;
+    
+    public void setDirectionController( DirectionController directionController ) {
+        this.directionController = directionController;
+    }
+    
+    public void setFrameController( FrameController frameController ) {
+        this.frameController = frameController;
+    }
     
     public PositionableObject3DImpl() {
         setTransformations( new MutablePositionable3DTransformations() );
@@ -65,12 +73,12 @@ public class PositionableObject3DImpl
     
     @Override
     public int getCurrentUvMapDirection( double currentCameraRotation ) {
-        return 0;
+        return directionController.getCurrentDirection( currentCameraRotation );
     }
     
     @Override
     public int getCurrentUvMapFrame( double currentTimeSnapshot ) {
-        return 0;
+        return frameController.getCurrentFrame( currentTimeSnapshot );
     }
     
     @Override

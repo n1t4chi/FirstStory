@@ -4,8 +4,8 @@
 
 package com.firststory.firstoracle.input.parsers.parameters.params2D;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.parsers.classes.Transformation2DClassParser;
 import com.firststory.firstoracle.input.parsers.parameters.TransformationsParser;
 import com.firststory.firstoracle.object2D.Object2DTransformations;
 
@@ -14,7 +14,15 @@ import com.firststory.firstoracle.object2D.Object2DTransformations;
  */
 public class Transformations2DParser extends TransformationsParser< Object2DTransformations > {
     
-    private static final Transformation2DClassParser parser = new Transformation2DClassParser();
+    @Override
+    public Class< Object2DTransformations > getBaseClass() {
+        return Object2DTransformations.class;
+    }
+    
+    @Override
+    public String getDefaultPackage() {
+        return FirstOracleConstants.OBJECT_2D_PACKAGE_NAME;
+    }
     
     @Override
     public Class< Object2DTransformations > getSetterParameterClass() {
@@ -24,10 +32,5 @@ public class Transformations2DParser extends TransformationsParser< Object2DTran
     @Override
     public String getSharedName() {
         return ParseUtils.SHARED_PARAM_TRANSFORMATIONS_2D;
-    }
-    
-    @Override
-    public Class< ? extends Object2DTransformations > newInstance( String name ) {
-        return parser.classForName( name );
     }
 }

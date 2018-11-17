@@ -20,14 +20,14 @@ public class Object2DClassParser extends ObjectClassParser< PositionableObject2D
     
     @Override
     @SuppressWarnings( {"unchecked",  "rawtypes"} )
-    Class< PositionableObject2D< ?, ? > > getBaseClass() {
+    public Class< PositionableObject2D< ?, ? > > getBaseClass() {
         return ( Class< PositionableObject2D< ?, ? > > ) (
             ( Class< ? extends PositionableObject2D > ) PositionableObject2D.class
         );
     }
     
     @Override
-    String getDefaultPackage() {
+    public String getDefaultPackage() {
         return FirstOracleConstants.OBJECT_2D_PACKAGE_NAME;
     }
 }

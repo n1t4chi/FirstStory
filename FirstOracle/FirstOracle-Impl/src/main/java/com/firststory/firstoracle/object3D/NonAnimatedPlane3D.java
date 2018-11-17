@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.object.DirectionController;
 import com.firststory.firstoracle.object.PlaneUvMap;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
@@ -22,9 +23,20 @@ public class NonAnimatedPlane3D
         MutableTransformationsObject3D< Plane3DVertices >
 {
     private Texture texture;
+    private DirectionController directionController = direction -> 0;
     
     public NonAnimatedPlane3D() {
         setTransformations( new MutablePositionable3DTransformations() );
+    }
+    
+    
+    public void setDirectionController( DirectionController directionController ) {
+        this.directionController = directionController;
+    }
+    
+    @Override
+    public int getCurrentUvMapDirection( double currentCameraRotation ) {
+        return directionController.getCurrentDirection( currentCameraRotation );
     }
     
     @Override

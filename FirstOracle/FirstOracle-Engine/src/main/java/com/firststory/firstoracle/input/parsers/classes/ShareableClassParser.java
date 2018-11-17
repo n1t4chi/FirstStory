@@ -15,8 +15,9 @@ import java.util.Map;
  * @author n1t4chi
  */
 public abstract class ShareableClassParser< Type >
-    extends ClassParser< Type >
-    implements ShareableParser< Class< ? extends Type>, Class< ? extends Type> >
+    implements
+        ClassParser< Type >,
+        ShareableParser< Class< ? extends Type>, Class< ? extends Type> >
 {
     private final Map< String, Class< ? extends Type> > sharedInstances = new HashMap<>();
     

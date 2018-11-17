@@ -90,6 +90,8 @@ public abstract class ObjectParser<
         list.add( sharedData.getUvMapParser() );
         list.add( sharedData.getColouringParser() );
         list.add( sharedData.getTextureParser() );
+        list.add( sharedData.getDirectionControllerParser() );
+        list.add( sharedData.getFrameControllerParser() );
         list.addAll( getSpecificCommonParsers( sharedData ) );
         return list;
     }

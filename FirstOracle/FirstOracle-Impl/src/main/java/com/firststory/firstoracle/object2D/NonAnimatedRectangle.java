@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.object2D;
 
+import com.firststory.firstoracle.object.DirectionController;
 import com.firststory.firstoracle.object.PlaneUvMap;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
@@ -22,6 +23,16 @@ public class NonAnimatedRectangle
         MutableTransformationsObject2D< Plane2DVertices >
 {
     private Texture texture;
+    private DirectionController directionController = direction -> 0;
+    
+    public void setDirectionController( DirectionController directionController ) {
+        this.directionController = directionController;
+    }
+    
+    @Override
+    public int getCurrentUvMapDirection( double currentCameraRotation ) {
+        return directionController.getCurrentDirection( currentCameraRotation );
+    }
     
     public NonAnimatedRectangle() {
         setTransformations( new MutablePositionable2DTransformations() );

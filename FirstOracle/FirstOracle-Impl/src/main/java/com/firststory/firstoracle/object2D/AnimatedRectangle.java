@@ -22,10 +22,15 @@ public class AnimatedRectangle
         MutableTransformationsObject2D< Plane2DVertices >
 {
     
-    private DirectionController directionController;
+    private DirectionController directionController = direction -> 0;
     private FrameController frameController;
     private Texture texture;
     private UvMap uvMap;
+    
+    @Override
+    public int getCurrentUvMapDirection( double currentCameraRotation ) {
+        return directionController.getCurrentDirection( currentCameraRotation );
+    }
     
     public AnimatedRectangle() {
         setTransformations( new MutablePositionable2DTransformations() );

@@ -4,8 +4,8 @@
 
 package com.firststory.firstoracle.input.parsers.parameters.params3D;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.parsers.classes.PositionableTransformation3DClassParser;
 import com.firststory.firstoracle.input.parsers.parameters.PositionableTransformationsParser;
 import com.firststory.firstoracle.object3D.PositionableObject3DTransformations;
 
@@ -14,7 +14,15 @@ import com.firststory.firstoracle.object3D.PositionableObject3DTransformations;
  */
 public class PositionableTransformations3DParser extends PositionableTransformationsParser< PositionableObject3DTransformations > {
     
-    private static final PositionableTransformation3DClassParser parser = new PositionableTransformation3DClassParser();
+    @Override
+    public Class< PositionableObject3DTransformations > getBaseClass() {
+        return PositionableObject3DTransformations.class;
+    }
+    
+    @Override
+    public String getDefaultPackage() {
+        return FirstOracleConstants.OBJECT_3D_PACKAGE_NAME;
+    }
     
     @Override
     public Class< PositionableObject3DTransformations > getSetterParameterClass() {
@@ -24,10 +32,5 @@ public class PositionableTransformations3DParser extends PositionableTransformat
     @Override
     public String getSharedName() {
         return ParseUtils.SHARED_PARAM_POSITIONABLE_TRANSFORMATIONS_3D;
-    }
-    
-    @Override
-    public Class< ? extends PositionableObject3DTransformations > newInstance( String name ) {
-        return parser.classForName( name );
     }
 }

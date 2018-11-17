@@ -5,12 +5,11 @@ package com.firststory.firstoracle;
 
 import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.object.Colouring;
+import com.firststory.firstoracle.object.GraphicObject;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.object2D.Position2DCalculator;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object3D.Position3DCalculator;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
+import com.firststory.firstoracle.object2D.Object2D;
+import com.firststory.firstoracle.object3D.Object3D;
 import com.firststory.firstoracle.text.TextData;
 import com.firststory.firstoracle.text.TextImageFactory;
 import org.joml.*;
@@ -18,10 +17,14 @@ import org.joml.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.lang.Math;
+import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.firststory.firstoracle.data.Colour.col;
@@ -114,10 +117,9 @@ public interface FirstOracleConstants {
     float[] EMPTY_FLOAT_ARRAY = new float[ 0 ];
     
     TextData EMPTY_TEXT = TextImageFactory.provide().createText3D( "" );
-    String OBJECT_2D_PACKAGE_NAME = PositionableObject2D.class.getPackageName();
-    String OBJECT_3D_PACKAGE_NAME = PositionableObject3D.class.getPackageName();
-    String POSITION_CALCULATOR_2D_PACKAGE_NAME = Position2DCalculator.class.getPackageName();
-    String POSITION_CALCULATOR_3D_PACKAGE_NAME = Position3DCalculator.class.getPackageName();
+    String OBJECT_PACKAGE_NAME = GraphicObject.class.getPackageName();
+    String OBJECT_2D_PACKAGE_NAME = Object2D.class.getPackageName();
+    String OBJECT_3D_PACKAGE_NAME = Object3D.class.getPackageName();
     
     static <T> List<T>[][][] singletonArray3D( List<T> value ){
         List< T >[][][] array = array( 1, 1, 1 );
@@ -324,5 +326,25 @@ public interface FirstOracleConstants {
             yLength = ( array.length == 0 ? 0 : array[0].length ),
             yLength == 0 ? 0 : array[0][0].length
         );
+    }
+    
+    static < Type > void executeOnAllFields(
+        Object executingObject,
+        Predicate< Field > isCorrectField,
+        Class< Type > fieldSuperclass,
+        Consumer< Type > execute
+    ) {
+        var fields = executingObject.getClass().getDeclaredFields();
+        for ( var field : fields ) {
+            try {
+                if( isCorrectField.test( field ) ) {
+                    field.setAccessible( true );
+                    var obj = fieldSuperclass.cast( field.get( executingObject ) );
+                    execute.accept( obj );
+                }
+            } catch ( Exception ex ) {
+                logger.log( Level.WARNING, "Exception while trying to execute parseShared method", ex );
+            }
+        }
     }
 }

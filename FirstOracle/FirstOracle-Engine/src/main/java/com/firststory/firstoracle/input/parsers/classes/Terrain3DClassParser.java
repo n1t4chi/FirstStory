@@ -20,12 +20,12 @@ public class Terrain3DClassParser extends TerrainClassParser< Terrain3D< ? > > {
     
     @Override
     @SuppressWarnings( {"unchecked",  "rawtypes"} )
-    Class< Terrain3D< ? > > getBaseClass() {
+    public Class< Terrain3D< ? > > getBaseClass() {
         return ( Class< Terrain3D< ? > > ) ( ( Class< ? extends Terrain3D > ) Terrain3D.class );
     }
     
     @Override
-    String getDefaultPackage() {
+    public String getDefaultPackage() {
         return FirstOracleConstants.OBJECT_3D_PACKAGE_NAME;
     }
 }

@@ -4,8 +4,8 @@
 
 package com.firststory.firstoracle.input.parsers.parameters.params3D;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.parsers.classes.Position3DCalculatorClassParser;
 import com.firststory.firstoracle.input.parsers.parameters.PositionCalculatorParser;
 import com.firststory.firstoracle.object3D.Position3DCalculator;
 
@@ -14,7 +14,15 @@ import com.firststory.firstoracle.object3D.Position3DCalculator;
  */
 public class Position3DCalculatorParser extends PositionCalculatorParser< Position3DCalculator > {
     
-    private static Position3DCalculatorClassParser classParser = new Position3DCalculatorClassParser();
+    @Override
+    public Class< Position3DCalculator > getBaseClass() {
+        return Position3DCalculator.class;
+    }
+    
+    @Override
+    public String getDefaultPackage() {
+        return FirstOracleConstants.OBJECT_3D_PACKAGE_NAME;
+    }
     
     @Override
     public Class< Position3DCalculator > getSetterParameterClass() {
@@ -24,10 +32,5 @@ public class Position3DCalculatorParser extends PositionCalculatorParser< Positi
     @Override
     public String getSharedName() {
         return ParseUtils.SHARED_PARAM_POSITION_CALCULATORS_3D;
-    }
-    
-    @Override
-    public Class< ? extends Position3DCalculator > newInstance( String name ) {
-        return classParser.classForName( name );
     }
 }

@@ -89,7 +89,8 @@
         "position": "18,13,50",
         "rotation": "$rot3d",
         "scale": "$scaleObj3d",
-        "texture": "$hero3d"
+        "texture": "$hero3d",
+        "directionController": "FourDirectionController"
       },
       "tree0": {
         "base": "$tree",

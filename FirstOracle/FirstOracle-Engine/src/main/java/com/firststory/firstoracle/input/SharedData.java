@@ -4,13 +4,13 @@
 
 package com.firststory.firstoracle.input;
 
+import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.input.parsers.ShareableParser;
 import com.firststory.firstoracle.input.parsers.classes.Object2DClassParser;
 import com.firststory.firstoracle.input.parsers.classes.Object3DClassParser;
 import com.firststory.firstoracle.input.parsers.classes.Terrain2DClassParser;
 import com.firststory.firstoracle.input.parsers.classes.Terrain3DClassParser;
-import com.firststory.firstoracle.input.parsers.parameters.ColouringParser;
-import com.firststory.firstoracle.input.parsers.parameters.TextureParser;
-import com.firststory.firstoracle.input.parsers.parameters.UvMapParser;
+import com.firststory.firstoracle.input.parsers.parameters.*;
 import com.firststory.firstoracle.input.parsers.parameters.params2D.*;
 import com.firststory.firstoracle.input.parsers.parameters.params3D.*;
 import com.firststory.firstoracle.input.structure.Composite;
@@ -19,7 +19,6 @@ import com.firststory.firstoracle.input.structure.Composite;
  * @author n1t4chi
  */
 public class SharedData {
-    
     private final Object2DClassParser object2DClassParser = new Object2DClassParser();
     private final Terrain2DClassParser terrain2DClassParser = new Terrain2DClassParser();
     private final Position2DCalculatorParser position2DCalculatorParser = new Position2DCalculatorParser();
@@ -43,18 +42,17 @@ public class SharedData {
     private final UvMapParser uvMapParser = new UvMapParser();
     private final ColouringParser colouringParser = new ColouringParser();
     private final TextureParser textureParser = new TextureParser();
+    private final FrameControllerParser frameControllerParser = new FrameControllerParser();
+    private final DirectionControllerParser directionControllerParser = new DirectionControllerParser();
+    
     
     public SharedData( Composite sharedDataNode ) {
-        parseClasses( sharedDataNode );
-        parseTransformations( sharedDataNode );
-        parsePositions( sharedDataNode );
-        parseRotations( sharedDataNode );
-        parseScales( sharedDataNode );
-        parseVertices( sharedDataNode );
-        parseTextures( sharedDataNode );
-        parseUvMaps( sharedDataNode );
-        parseColourings( sharedDataNode );
-        parsePositionCalculators( sharedDataNode );
+        FirstOracleConstants.executeOnAllFields(
+            this,
+            field -> field.getName().endsWith( "Parser" ),
+            ShareableParser.class,
+            obj -> obj.parseShared( sharedDataNode )
+        );
     }
     
     public Vertices2DParser getVertices2DParser() {
@@ -141,54 +139,11 @@ public class SharedData {
         return transformations3DParser;
     }
     
-    private void parseTransformations( Composite sharedDataNode ) {
-        positionableTransformations2DParser.parseShared( sharedDataNode );
-        transformations2DParser.parseShared( sharedDataNode );
-        positionableTransformations3DParser.parseShared( sharedDataNode );
-        transformations3DParser.parseShared( sharedDataNode );
+    public FrameControllerParser getFrameControllerParser() {
+        return frameControllerParser;
     }
     
-    private void parsePositionCalculators( Composite sharedDataNode ) {
-        position2DCalculatorParser.parseShared( sharedDataNode );
-        position3DCalculatorParser.parseShared( sharedDataNode );
-    }
-    
-    private void parseTextures( Composite sharedDataNode ) {
-        textureParser.parseShared( sharedDataNode );
-    }
-    
-    private void parseVertices( Composite sharedDataNode ) {
-        vertices2DParser.parseShared( sharedDataNode );
-        vertices3DParser.parseShared( sharedDataNode );
-    }
-    
-    private void parseUvMaps( Composite sharedDataNode ) {
-        uvMapParser.parseShared( sharedDataNode );
-    }
-    
-    private void parseColourings( Composite sharedDataNode ) {
-        colouringParser.parseShared( sharedDataNode );
-    }
-    
-    private void parseScales( Composite sharedDataNode ) {
-        scale2DParser.parseShared( sharedDataNode );
-        scale3DParser.parseShared( sharedDataNode );
-    }
-    
-    private void parseRotations( Composite sharedDataNode ) {
-        rotation2DParser.parseShared( sharedDataNode );
-        rotation3DParser.parseShared( sharedDataNode );
-    }
-    
-    private void parsePositions( Composite sharedDataNode ) {
-        position2DParser.parseShared( sharedDataNode );
-        position3DParser.parseShared( sharedDataNode );
-    }
-    
-    private void parseClasses( Composite sharedDataNode ) {
-        terrain2DClassParser.parseShared( sharedDataNode );
-        terrain3DClassParser.parseShared( sharedDataNode );
-        object2DClassParser.parseShared( sharedDataNode );
-        object3DClassParser.parseShared( sharedDataNode );
+    public DirectionControllerParser getDirectionControllerParser() {
+        return directionControllerParser;
     }
 }

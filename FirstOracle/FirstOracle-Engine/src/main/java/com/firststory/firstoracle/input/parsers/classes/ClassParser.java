@@ -7,8 +7,6 @@ package com.firststory.firstoracle.input.parsers.classes;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.input.SceneParser;
 import com.firststory.firstoracle.input.exceptions.ParsedClassNotFoundException;
-import com.firststory.firstoracle.input.parsers.NodeParser;
-import com.firststory.firstoracle.input.structure.Leaf;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,21 +14,15 @@ import java.util.logging.Logger;
 /**
  * @author n1t4chi
  */
-public abstract class ClassParser< Type > implements NodeParser< Class< ? extends Type >, Leaf > {
+public interface ClassParser< Type > {
     
-    private static final Logger logger = FirstOracleConstants.getLogger( ClassParser.class );
+    Logger logger = FirstOracleConstants.getLogger( ClassParser.class );
     
-    abstract Class< Type > getBaseClass();
+    Class< Type > getBaseClass();
     
-    abstract String getDefaultPackage();
+    String getDefaultPackage();
     
-    @Override
-    public Class< ? extends Type > parse( Leaf node ) {
-        var className = node.getValue();
-        return classForName( className );
-    }
-    
-    public Class< ? extends Type > classForName( String className ) {
+    default Class< ? extends Type > classForName( String className ) {
         try {
             return SceneParser.class.getClassLoader()
                 .loadClass( className )
