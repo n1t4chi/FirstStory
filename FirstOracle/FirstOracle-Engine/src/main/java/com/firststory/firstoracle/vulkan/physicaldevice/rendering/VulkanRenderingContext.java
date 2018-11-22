@@ -71,8 +71,8 @@ public class VulkanRenderingContext implements RenderingContext {
         this.device = device;
         this.shouldDrawBorder = shouldDrawBorder;
         this.shouldDrawTextures = shouldDrawTextures;
-        executorService = Executors.newFixedThreadPool( 4 );
-        executorService2 = Executors.newFixedThreadPool( 8 );
+        executorService = Executors.newFixedThreadPool( 1 );
+        executorService2 = Executors.newFixedThreadPool( PropertiesUtil.getIntegerProperty( "vulkan.threads", 1 ) );
     }
     
     public void dispose() {

@@ -19,8 +19,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>X</maven.compiler.source>
-        <maven.compiler.target>X</maven.compiler.target>
+        <maven.compiler.source>12</maven.compiler.source>
+        <maven.compiler.target>12</maven.compiler.target>
         <first.oracle.version>0.5-SNAPSHOT</first.oracle.version>
         <lwjgl.version>3.1.6</lwjgl.version>
         <joml.version>1.9.11</joml.version>
@@ -33,8 +33,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.0</version>
                     <configuration>
-                        <target>X</target>
-                        <release>X</release>
+                        <target>12</target>
+                        <release>12</release>
                         <compilerArgs>
                             <arg>--enable-preview</arg>
                             <arg>-Xlint:all</arg>
