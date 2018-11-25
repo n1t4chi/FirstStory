@@ -327,9 +327,7 @@ public class VulkanDeviceAllocator {
         swapChains.deregister( swapChain );
     }
     
-    public VulkanGraphicPipelines createGraphicPipelines(
-        int topologyType
-    ) {
+    public VulkanGraphicPipelines createGraphicPipelines( int topologyType ) {
         return graphicPipelines.register(
             () -> new VulkanGraphicPipelines( this, device, topologyType )
         );
@@ -339,8 +337,7 @@ public class VulkanDeviceAllocator {
         graphicPipelines.deregister( pipelines );
     }
     
-    public VulkanGraphicCommandPool createGraphicCommandPool(
-    ) {
+    public VulkanGraphicCommandPool createGraphicCommandPool() {
         return graphicCommandPools.register(
             () -> new VulkanGraphicCommandPool( this, device ),
             pool -> {}

@@ -34,12 +34,13 @@
       "scaleObj3d": "1, 2, 1"
     },
     "textures": {
+      "hero2d": "resources/First Oracle/textures/hero.png",
       "grass2d": "resources/First Oracle/textures/grass2D.png",
       "grass3d": "resources/First Oracle/textures/grass3D.png",
       "water3d": "resources/First Oracle/textures/water3D.png",
       "sand3d": "resources/First Oracle/textures/sand3D.png",
       "tree3d": "resources/First Oracle/textures/tree3D.png",
-      "hero3d": "[resources/First Oracle/textures/hero3D.png, 4, 1, 4, 1]"
+      "hero3d": "[resources/First Oracle/textures/hero3D/hero3D_#direction#.png, 4, 1]"
     }
   },
   "sharedObjects": {
@@ -56,28 +57,31 @@
   },
   "scene2D": {
     "objects": {
-      "object1": {
-        "class": "$obj2d",
-        "transformations": "$posTrans2D",
-        "position": "$pos2d",
-        "rotation": "$rot2d",
-        "scale": "$scl2d",
-        "texture": "$grass2d"
-      },
       "object2": {
         "class": "$obj2d",
         "transformations": "$posTrans2D",
-        "position": "$pos2d",
         "rotation": "$rot2d",
         "scale": "$scl2d",
-        "texture": "$grass2d"
+        "texture": "$hero2d",
+        "positions": [
+          "{70,32},{36,62},{52,12},{72,28},{34,50},{30,42},{6,18},{76,20},{40,46},{0,6},",
+          "{4,72},{22,26},{56,54},{22,18},{6,2},{68,62},{64,54},{52,38},{76,62},{34,18},",
+          "{0,48},{8,56},{46,26},{0,40},{30,68},{40,72},{46,76},{36,64},{58,18},{22,44},",
+          "{56,72},{50,2},{22,36},{62,10},{4,16},{12,24},{58,2},{6,78},{2,70},{26,28},",
+          "{72,6},{78,10},{20,16},{12,8},{16,74},{64,56},{18,4},{38,20},{30,12},{64,40},",
+          "{14,54},{70,36},{54,20},{12,42},{20,50},{10,38},{36,0},{56,16},{50,70},{2,22},",
+          "{68,16},{10,22},{66,12},{54,62},{30,38},{68,74},{56,58},{68,66},{20,18},{66,62},",
+          "{46,38},{44,34},{68,50},{52,34},{20,2},{62,38},{24,60},{2,32},{46,6},{28,52},",
+          "{32,52},{70,22},{36,52},{56,2},{8,78},{8,12},{74,72},{10,8},{30,24},{20,78},",
+          "{4,62},{6,58},{46,24},{54,32},{12,54},{34,8},{32,70},{8,46},{40,12},{30,0},"
+        ]
       }
     },
     "terrains": {
       "terrain1": {
         "class": "$terr2d",
         "texture": "$grass2d",
-        "indices": "[ {0,0}x{1,2} ]"
+        "indices": "[ {0,0}x{40,40} ]"
       }
     }
   },
@@ -86,7 +90,7 @@
       "hero": {
         "class": "$obj3d",
         "transformations": "$posTrans3D",
-        "position": "18,14,50",
+        "position": "18,13,50",
         "rotation": "$rot3d",
         "scale": "$scaleObj3d",
         "texture": "$hero3d",

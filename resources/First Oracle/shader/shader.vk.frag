@@ -28,9 +28,9 @@ void mixColour( in vec4 base, in vec4 overlay, out vec4 ret ) {
 
 void main() {
     vec4 baseVertexColour = texture( textureSampler, UV ).rgba;
-    //c = base.x * base.a + overlay.x * overlay.a*(1- base.a)
+
     mixColour( baseVertexColour, overlayColour, outColor );
-//    mixColour( outColor, colour, outColor );
+    mixColour( outColor, colour, outColor );
 
     if(maxAlphaChannel < outColor.a){
         outColor.a = maxAlphaChannel;

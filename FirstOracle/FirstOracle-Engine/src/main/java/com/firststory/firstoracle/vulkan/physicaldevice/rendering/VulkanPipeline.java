@@ -284,19 +284,20 @@ public class VulkanPipeline {
             .width( swapChain.getWidth() )
             .height( swapChain.getHeight() )
             .minDepth( 0f )
-            .maxDepth( 1f );
+            .maxDepth( 1f )
+        ;
     }
     
     private VkPipelineInputAssemblyStateCreateInfo createInputAssemblyStateCreateInfo() {
         return VkPipelineInputAssemblyStateCreateInfo.calloc()
             .sType( VK10.VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO )
             .topology( topologyType )
-            .primitiveRestartEnable( false );
+            .primitiveRestartEnable( false )
+        ;
     }
     
     private VkPipelineVertexInputStateCreateInfo createVertexInputStateCreateInfo() {
-        var
-            attributeDescriptions = VkVertexInputAttributeDescription.calloc( 3 + ATTRIBUTE_UNIFORM_SIZE )
+        var attributeDescriptions = VkVertexInputAttributeDescription.calloc( 3 + ATTRIBUTE_UNIFORM_SIZE )
                 .put( 0, createPositionAttributeDescription() )
                 .put( 1, createUvMapAttributeDescription() )
                 .put( 2, createColourAttributeDescription() );
