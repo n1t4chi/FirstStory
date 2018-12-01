@@ -24,7 +24,7 @@ Isometric view is meant to easily extend 2D environment with discrete levels to 
 
 If you would want to try to check out just the graphic engine head to [releases](FirstOracle/release)
 and try one of many launchers that can show some of the features. 
-See [requirements](##Requirements) to check what need before running them.
+See [requirements](#Requirements) to check what need before running them.
 
 But if you want to see the code that drives the game, then it is best to start with templates that are under this 
 [directory](FirstOracle\FirstOracle-Engine\src\main\java\com\firststory\firstoracle\templates)
