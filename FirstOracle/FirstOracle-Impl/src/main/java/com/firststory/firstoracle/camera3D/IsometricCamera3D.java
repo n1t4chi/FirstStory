@@ -4,10 +4,7 @@
 package com.firststory.firstoracle.camera3D;
 
 import com.firststory.firstoracle.WindowSettings;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
+import org.joml.*;
 
 /**
  * @author n1t4chi
@@ -35,11 +32,11 @@ public class IsometricCamera3D extends Camera3D {
     public IsometricCamera3D(
         WindowSettings settings,
         float size,
-        int X,
-        int Y,
-        int Z,
-        int rotationX,
-        int rotationY,
+        float X,
+        float Y,
+        float Z,
+        float rotationX,
+        float rotationY,
         int alpha
     ) {
         this.settings = settings;

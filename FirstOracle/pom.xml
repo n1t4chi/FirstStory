@@ -11,16 +11,40 @@
     <groupId>com.FirstStory.FirstOracle</groupId>
     <artifactId>FirstOracle</artifactId>
     <version>${first.oracle.version}</version>
+
     <properties>
-        <FirstOracle.LibDir>${project.basedir}/../FirstOracle</FirstOracle.LibDir>
+        <first.oracle.version>0.5-SNAPSHOT</first.oracle.version>
+        <first.oracle.out>${project.basedir}/../release/${first.oracle.version}</first.oracle.out>
+        <first.oracle.out.javadoc>${first.oracle.out}/javadoc</first.oracle.out.javadoc>
+        <first.oracle.out.sources>${first.oracle.out}/sources</first.oracle.out.sources>
+        <first.oracle.out.deploy>${first.oracle.out}/deploy</first.oracle.out.deploy>
+        <first.oracle.out.deploy.lib>${first.oracle.out.deploy}/lib</first.oracle.out.deploy.lib>
+        <first.oracle.out.module>${first.oracle.out}/module</first.oracle.out.module>
     </properties>
+
     <parent>
         <groupId>com.FirstStory</groupId>
         <artifactId>FirstStory</artifactId>
-        <version>${first.oracle.version}</version>
+        <version>${first.story.version}</version>
     </parent>
 
+
     <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-jlink-plugin</artifactId>
+                <version>3.0.0-alpha-1</version>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jmod-plugin</artifactId>
+                <version>3.0.0-alpha-1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <modulePath>${first.oracle.out.module}</modulePath>
+                </configuration>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -33,7 +57,7 @@
                     </executions>
                     <configuration>
                         <goal>package</goal>
-                        <outputDirectory>${FirstOracle.LibDir}</outputDirectory>
+                        <outputDirectory>${first.oracle.out.sources}</outputDirectory>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -46,7 +70,7 @@
                     </executions>
                     <configuration>
                         <goal>package</goal>
-                        <jarOutputDirectory>${FirstOracle.LibDir}</jarOutputDirectory>
+                        <jarOutputDirectory>${first.oracle.out.javadoc}</jarOutputDirectory>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -59,8 +83,29 @@
                     </executions>
                     <configuration>
                         <goal>package</goal>
-                        <outputDirectory>${FirstOracle.LibDir}</outputDirectory>
+                        <outputDirectory>${first.oracle.out.deploy}</outputDirectory>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.0.2</version>
+                    <executions>
+                        <execution>
+                            <id>copy-dependencies</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${first.oracle.out.deploy.lib}</outputDirectory>
+                                <overWriteReleases>false</overWriteReleases>
+                                <overWriteSnapshots>false</overWriteSnapshots>
+                                <overWriteIfNewer>true</overWriteIfNewer>
+                                <excludeGroupIds>com.FirstStory.FirstOracle</excludeGroupIds>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>

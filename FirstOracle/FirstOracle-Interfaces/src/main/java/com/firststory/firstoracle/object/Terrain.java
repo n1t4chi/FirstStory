@@ -4,15 +4,10 @@
 
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.data.Index;
-import com.firststory.firstoracle.data.Position;
-import com.firststory.firstoracle.data.Rotation;
-import com.firststory.firstoracle.data.Scale;
+import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.rendering.RenderData;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -30,24 +25,28 @@ public interface Terrain<
 {
     /**
      * Store render data list for later use via {@link #getStoredRenderDataList(Position)}
+     * @param position specific position of terrain
      * @param renderDatas list of render data of this object
      */
     void storeRenderDataList( Position position, List< RenderData > renderDatas );
     
     /**
      * Return previously stored render data list via {@link #storeRenderDataList(Position, List)}  or null if none was stored.
+     * @param position specific position of terrain
      * @return stored render data list or null if none was stored
      */
     List< RenderData > getStoredRenderDataList( Position position );
     
     /**
      * Store render data builders list for later use via {@link #getStoredRenderDataBuilderList(Position)}
+     * @param position specific position of terrain
      * @param renderDataBuilders list of render data of this object
      */
     void storeRenderDataBuilderList( Position position, List< RenderData.RenderDataBuilder > renderDataBuilders );
     
     /**
      * Return previously stored render data builders list via {@link #storeRenderDataBuilderList(Position, List)}  or null if none was stored.
+     * @param position specific position of terrain
      * @return stored render data list or null if none was stored
      */
     List< RenderData.RenderDataBuilder > getStoredRenderDataBuilderList( Position position );
@@ -62,6 +61,7 @@ public interface Terrain<
      * For implementations it is advised to reuse all necessary Render Datas,
      * And update them if they would change.
      * Also implementation must provide unique Render Data for each unique position.
+     * @param position specific position of terrain
      * @param cameraRotation camera rotation
      * @param timeSnapshot time snap shot
      * @return List of Render Datas (terrain, border etc.)

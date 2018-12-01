@@ -4,18 +4,10 @@
 
 package com.firststory.firstoracle.window;
 
-import com.firststory.firstoracle.FrameworkProviderContext;
-import com.firststory.firstoracle.PropertiesUtil;
-import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.gui.GuiApplicationData;
-import com.firststory.firstoracle.gui.GuiFrameworkProvider;
-import com.firststory.firstoracle.rendering.Renderer;
-import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
-import com.firststory.firstoracle.rendering.WindowRenderer;
-import com.firststory.firstoracle.scene.RegistrableScene;
-import com.firststory.firstoracle.scene.RegistrableSceneProvider;
-import com.firststory.firstoracle.scene.RegistrableSceneProviderImpl;
-import com.firststory.firstoracle.scene.SceneProvider;
+import com.firststory.firstoracle.*;
+import com.firststory.firstoracle.gui.*;
+import com.firststory.firstoracle.rendering.*;
+import com.firststory.firstoracle.scene.*;
 
 /**
  * @author n1t4chi
@@ -83,7 +75,7 @@ public abstract class WindowBuilder< WindowType extends WindowImpl > {
     }
     
     public WindowType build() {
-        WindowType window = createWindowInstance();
+        var window = createWindowInstance();
         window.init();
         return window;
     }

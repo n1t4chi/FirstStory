@@ -4,27 +4,18 @@
 
 package com.firststory.firstoracle.templates.optimisation;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.WindowMode;
-import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.controller.CameraController;
-import com.firststory.firstoracle.controller.CameraKeyMap;
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.notyfying.WindowListener;
-import com.firststory.firstoracle.notyfying.WindowSizeEvent;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
+import com.firststory.firstoracle.*;
+import com.firststory.firstoracle.controller.*;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.notyfying.*;
+import com.firststory.firstoracle.object2D.*;
+import com.firststory.firstoracle.object3D.*;
 import com.firststory.firstoracle.scene.RegistrableScene;
 import com.firststory.firstoracle.templates.FpsCounter;
-import com.firststory.firstoracle.window.RegistrableWindow;
-import com.firststory.firstoracle.window.WindowBuilder;
+import com.firststory.firstoracle.window.*;
 
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.*;
 
 import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
 
@@ -135,9 +126,14 @@ public class BaseApp {
     public void run() {
         var width = 300;
         var height = 300;
-        var settings =
-            WindowSettings.builder().setVerticalSync( false ).setResizeable( true ).setWindowMode( WindowMode.WINDOWED ).setWidth( width ).setHeight( height )
-                .build();
+        var settings = WindowSettings.builder()
+            .setVerticalSync( false )
+            .setResizeable( true )
+            .setWindowMode( WindowMode.WINDOWED )
+            .setWidth( width )
+            .setHeight( height )
+            .build()
+        ;
         var window = WindowBuilder.registrableWindow( settings ).build();
         var cameraController = CameraController.createAndStart(
             window,

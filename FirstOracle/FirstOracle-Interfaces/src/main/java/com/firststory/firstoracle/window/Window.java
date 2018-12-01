@@ -7,8 +7,7 @@ package com.firststory.firstoracle.window;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.gui.GuiFramework;
 import com.firststory.firstoracle.notyfying.*;
-import com.firststory.firstoracle.rendering.Renderer;
-import com.firststory.firstoracle.rendering.RenderingFramework;
+import com.firststory.firstoracle.rendering.*;
 
 /**
  * @author n1t4chi
@@ -37,7 +36,7 @@ public interface Window extends TimeNotifier, WindowListener, QuitNotifier, FpsN
     
     void setupRenderCycleVariables();
     
-    void setUpRunInsideRedneringFramework();
+    void setUpRunInsideRenderingFramework();
     
     void setUpRun();
     
@@ -48,9 +47,7 @@ public interface Window extends TimeNotifier, WindowListener, QuitNotifier, FpsN
     default void run() {
         setUpRun();
         try {
-            getRenderingFramework().invoke( instance -> {
-                setUpRunInsideRedneringFramework();
-            } );
+            getRenderingFramework().invoke( instance -> setUpRunInsideRenderingFramework() );
             
             getRenderLoop().loop( this, getRenderingFramework() );
             notifyQuitListeners();

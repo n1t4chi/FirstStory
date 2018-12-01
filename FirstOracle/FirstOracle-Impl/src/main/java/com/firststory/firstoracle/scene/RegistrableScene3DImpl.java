@@ -4,16 +4,11 @@
 
 package com.firststory.firstoracle.scene;
 
-import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.camera3D.IdentityCamera3D;
+import com.firststory.firstoracle.camera3D.*;
 import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
+import com.firststory.firstoracle.object3D.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
 
@@ -22,7 +17,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
  */
 public class RegistrableScene3DImpl implements RegistrableScene3D {
     
-    private final Set< PositionableObject3D< ?, ? > > objects = new HashSet<>();
+    private final Set< PositionableObject3D< ?, ? > > objects = new LinkedHashSet<>();
     private final Terrain3D< ? >[][][] terrainsXYZ;
     private final Index3D terrainSize;
     private final Index3D terrainShift;

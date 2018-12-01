@@ -3,20 +3,12 @@
  */
 package com.firststory.firstoracle.window;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.gui.GuiApplicationData;
-import com.firststory.firstoracle.gui.GuiFramework;
-import com.firststory.firstoracle.gui.GuiFrameworkProvider;
-import com.firststory.firstoracle.notyfying.FpsListener;
-import com.firststory.firstoracle.notyfying.QuitListener;
-import com.firststory.firstoracle.notyfying.TimeListener;
-import com.firststory.firstoracle.rendering.Renderer;
-import com.firststory.firstoracle.rendering.RenderingFramework;
-import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
+import com.firststory.firstoracle.*;
+import com.firststory.firstoracle.gui.*;
+import com.firststory.firstoracle.notyfying.*;
+import com.firststory.firstoracle.rendering.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -104,7 +96,7 @@ public class WindowImpl implements Window {
     
     @Override
     @SuppressWarnings( "unchecked" )
-    public void setUpRunInsideRedneringFramework() {
+    public void setUpRunInsideRenderingFramework() {
         context.show();
         guiFramework = (( GuiFrameworkProvider< GuiApplicationData<?>> ) guiFrameworkProvider).provide( context, guiApplicationData );
         logger.finest( this + ": GUI context: " + guiFramework );

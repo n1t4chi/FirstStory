@@ -12,10 +12,11 @@ public class RenderData {
     private static final LineData DEFAULT_BORDER_COLOUR = FirstOracleConstants.RED_LINE_LOOP;
     
     /**
-     * Returns builder which returns can return unique Render Data.
+     * Returns builder which returns unique Render Data. Render Data is mutable only via Builder.
      * Same Render Data is returned each time {@link RenderDataBuilder#build()} is called.
      * Builder is initialised for given positionable object, aside from dynamic data like vertex frame
      * @param object object
+     * @return builder
      */
     public static RenderDataBuilder borderRenderDataForObject(
         PositionableObject< ?, ?, ?, ?, ?, ? > object
@@ -25,10 +26,12 @@ public class RenderData {
     
     /**
      * Returns builder which returns can return unique Render Data.
+     * Render Data is mutable only via Builder.
      * Same Render Data is returned each time {@link RenderDataBuilder#build()} is called.
      * Builder is initialised for given terrain, aside from dynamic data like vertex frame
      * @param terrain terrain
      * @param position terrain position
+     * @return builder
      */
     public static RenderDataBuilder borderRenderDataForTerrain(
         Terrain< ?, ?, ?, ?, ?, ?, ? > terrain,
@@ -39,9 +42,11 @@ public class RenderData {
     
     /**
      * Returns builder which returns can return unique Render Data.
+     * Render Data is mutable only via Builder.
      * Same Render Data is returned each time {@link RenderDataBuilder#build()} is called.
      * Builder is initialised for given positionable object, aside from dynamic data like vertex frame
      * @param object object
+     * @return builder
      */
     public static RenderDataBuilder baseRenderDataForObject(
         PositionableObject< ?, ?, ?, ?, ?, ? > object
@@ -51,10 +56,12 @@ public class RenderData {
     
     /**
      * Returns builder which returns can return unique Render Data.
+     * Render Data is mutable only via Builder.
      * Same Render Data is returned each time {@link RenderDataBuilder#build()} is called.
      * Builder is initialised for given terrain, aside from dynamic data like vertex frame
      * @param terrain terrain
      * @param position terrain position
+     * @return builder
      */
     public static RenderDataBuilder baseRenderDataForTerrain(
         Terrain< ?, ?, ?, ?, ?, ?, ? > terrain,
@@ -65,10 +72,12 @@ public class RenderData {
     
     /**
      * Returns builder which returns can return unique Render Data.
+     * Render Data is mutable only via Builder.
      * Same Render Data is returned each time {@link RenderDataBuilder#build()} is called.
      * Builder is initialised for base rendering of object, aside from dynamic data like vertex frame
      * @param object object
      * @param position object position
+     * @return builder
      */
     public static RenderDataBuilder baseRenderData(
         GraphicObject< ?, ?, ?, ?, ?, ? > object,
@@ -89,10 +98,12 @@ public class RenderData {
     
     /**
      * Returns builder which returns can return unique Render Data.
+     * Render Data is mutable only via Builder.
      * Same Render Data is returned each time {@link RenderDataBuilder#build()} is called.
      * Builder is fully initialised for border rendering of object, aside from dynamic data like vertex frame
      * @param object object
      * @param position object position
+     * @return builder
      */
     public static RenderDataBuilder borderRenderData(
         GraphicObject< ?, ?, ?, ?, ?, ? > object,
@@ -111,6 +122,7 @@ public class RenderData {
     
     /**
      * Returns builder which returns can return unique Render Data.
+     * Render Data is mutable only via Builder.
      * Same Render Data is returned each time {@link RenderDataBuilder#build()} is called.
      * Builder is fully initialised for rendering of line objects
      * @param vertices vertices
@@ -119,6 +131,7 @@ public class RenderData {
      * @param scale scale
      * @param rotation rotation
      * @param lineData lineData
+     * @return builder
      */
     public static RenderDataBuilder renderLineData(
         Vertices< ?, ? > vertices,
@@ -141,8 +154,10 @@ public class RenderData {
     
     /**
      * Returns builder which returns can return unique Render Data.
+     * Render Data is mutable only via Builder.
      * Same Render Data is returned each time {@link RenderDataBuilder#build()} is called.
      * @param type render type
+     * @return builder
      */
     public static RenderDataBuilder renderData( RenderType type ) {
         return new RenderDataBuilder().setRenderType( type );

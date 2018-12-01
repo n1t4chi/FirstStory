@@ -8,18 +8,13 @@ import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.rendering.RenderData;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanFrameBuffer;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanSwapChain;
+import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.*;
+import java.util.logging.*;
 import java.util.stream.Collectors;
 
 /**
@@ -135,7 +130,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
             .filter( Objects::nonNull )
             .collect( Collectors.toList() )
         ;
-        return new VulkanRenderBatchData( descriptorPool, uniformBuffers, partialDatas );
+        return new VulkanRenderBatchData( device.getDescriptor().createDescriptorPool( textures.size() ), uniformBuffers, partialDatas );
     }
     
     private VulkanRenderBatchPartialData renderBatch(
