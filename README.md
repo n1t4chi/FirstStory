@@ -27,7 +27,7 @@ and try one of many launchers that can show some of the features.
 See [requirements](#Requirements) to check what need before running them.
 
 But if you want to see the code that drives the game, then it is best to start with templates that are under this 
-[directory](FirstOracle\FirstOracle-Engine\src\main\java\com\firststory\firstoracle\templates)
+[directory](FirstOracle/FirstOracle-Engine/src/main/java/com/firststory/firstoracle/templates)
 
 ## Requirements
 Currently the project is developed with Java 12 and it's preview features so most likely you head out to
