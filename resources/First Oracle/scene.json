@@ -36,11 +36,13 @@
     "textures": {
       "hero2d": "resources/First Oracle/textures/hero.png",
       "grass2d": "resources/First Oracle/textures/grass2D.png",
+      "test2d": "resources/First Oracle/textures/test2D.png",
       "grass3d": "resources/First Oracle/textures/grass3D.png",
       "water3d": "resources/First Oracle/textures/water3D.png",
       "sand3d": "resources/First Oracle/textures/sand3D.png",
       "tree3d": "resources/First Oracle/textures/tree3D.png",
-      "hero3d": "[resources/First Oracle/textures/hero3D/hero3D_#direction#.png, 4, 1]"
+      "hero3d": "[resources/First Oracle/textures/hero3D/hero3D_#direction#.png, 4, 1]",
+      "hero3d2": "resources/First Oracle/textures/hero3D/hero3D.png"
     }
   },
   "sharedObjects": {

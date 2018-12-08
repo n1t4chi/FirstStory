@@ -4,18 +4,11 @@
 
 package com.firststory.firstoracle.input.parsers.object;
 
-import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.data.Position3D;
-import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.SharedObjects;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.input.*;
 import com.firststory.firstoracle.input.parsers.ParameterParser;
-import com.firststory.firstoracle.input.parsers.classes.Object3DClassParser;
-import com.firststory.firstoracle.input.parsers.classes.Terrain3DClassParser;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.PositionableObject3DImpl;
-import com.firststory.firstoracle.object3D.Terrain3D;
-import com.firststory.firstoracle.object3D.Terrain3DImpl;
+import com.firststory.firstoracle.input.parsers.classes.*;
+import com.firststory.firstoracle.object3D.*;
 
 import java.util.List;
 
@@ -26,7 +19,7 @@ public class ObjectParser3D extends ObjectParser<
     Position3D,
     Index3D,
     PositionableObject3D< ?, ? >,
-    Terrain3D< ? >,
+    Terrain3D< ?, ? >,
     Object3DClassParser,
     Terrain3DClassParser
 > {

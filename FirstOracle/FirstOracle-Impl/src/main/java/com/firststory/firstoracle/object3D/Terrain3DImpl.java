@@ -4,17 +4,13 @@
 
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.data.Position3D;
-import com.firststory.firstoracle.object.Colouring;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object.*;
 
 /**
  * @author n1t4chi
  */
 public class Terrain3DImpl
-    extends AbstractTerrain3D< Vertices3D >
+    extends AbstractTerrain3D< Vertices3D, Position3DCalculator >
 {
     private UvMap uvMap;
     private Texture texture;
@@ -39,6 +35,11 @@ public class Terrain3DImpl
     }
     
     public void setPositionCalculator( Position3DCalculator calculator ) { this.calculator = calculator; }
+    
+    @Override
+    public Position3DCalculator getPositionCalculator() {
+        return calculator;
+    }
     
     @Override
     public Colouring getColouring() {
@@ -73,15 +74,5 @@ public class Terrain3DImpl
     @Override
     public int getCurrentVertexFrame( double currentTimeSnapshot ) {
         return 0;
-    }
-    
-    @Override
-    public Position3D computePosition(
-        int x,
-        int y,
-        int z,
-        Index3D arrayShift
-    ) {
-        return calculator.compute( x, y, z, arrayShift );
     }
 }

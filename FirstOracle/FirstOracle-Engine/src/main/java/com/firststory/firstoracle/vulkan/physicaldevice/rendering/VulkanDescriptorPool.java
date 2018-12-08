@@ -4,18 +4,13 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
-import com.firststory.firstoracle.vulkan.VulkanAddress;
-import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.*;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanDescriptorPoolException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
-import org.lwjgl.vulkan.VK10;
-import org.lwjgl.vulkan.VkDescriptorPoolCreateInfo;
-import org.lwjgl.vulkan.VkDescriptorPoolSize;
+import org.lwjgl.vulkan.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -23,7 +18,6 @@ import java.util.ListIterator;
 public class VulkanDescriptorPool {
     private final List< VulkanDescriptorSet > setList;
     private final int setCount;
-    private final ListIterator< VulkanDescriptorSet > setsIterator;
     private final VulkanDeviceAllocator allocator;
     private final VulkanPhysicalDevice device;
     private final VulkanDescriptor descriptor;
@@ -41,7 +35,6 @@ public class VulkanDescriptorPool {
         this.descriptor = descriptor;
         this.setCount = sets;
         setList = new ArrayList<>( setCount );
-        setsIterator = setList.listIterator();
         descriptorPool = createDescriptorPool();
     }
     
@@ -49,13 +42,10 @@ public class VulkanDescriptorPool {
         return descriptorPool;
     }
     
-    VulkanDescriptorSet getNextDescriptorSet() {
-        if ( !setsIterator.hasNext() ) {
-            var descriptorSet = createDescriptorSet();
-            setsIterator.add( descriptorSet );
-            return descriptorSet;
-        }
-        return setsIterator.next();
+    synchronized VulkanDescriptorSet getNextDescriptorSet() {
+        var descriptorSet = createDescriptorSet();
+        setList.add( descriptorSet );
+        return descriptorSet;
     }
     
     private VulkanAddress createDescriptorPool() {
@@ -88,6 +78,8 @@ public class VulkanDescriptorPool {
     }
     
     public void disposeUnsafe() {
+        setList.forEach( VulkanDescriptorSet::dispose );
+        setList.clear();
         VK10.vkDestroyDescriptorPool( device.getLogicalDevice(), descriptorPool.getValue(), null );
     }
 }

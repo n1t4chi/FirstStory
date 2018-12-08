@@ -9,6 +9,6 @@ import com.firststory.firstoracle.object.Terrain;
 /**
  * @author n1t4chi
  */
-public abstract class TerrainClassParser< Type extends Terrain< ?, ?, ?, ?, ?, ?, ? > > extends ShareableClassParser< Type > {
+public abstract class TerrainClassParser< Type extends Terrain< ?, ?, ?, ?, ?, ?, ?, ? > > extends ShareableClassParser< Type > {
 
 }

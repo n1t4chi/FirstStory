@@ -6,12 +6,9 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.rendering.RenderData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static com.firststory.firstoracle.scene.SceneTestUtils.*;
@@ -107,7 +104,9 @@ class OptimisedRegistrableScene2DImplTest {
         
         var terrainsData = terrainsDataStrictlyInside( size, MID_OBJ_XY );
         var objectsData = objectsDataStrictlyInside( size, MID_OBJ_XY );
-        Assertions.assertTrue( objects2DRenderData.size() >= ( terrainsData.size() + objectsData.size() ) );
+        Assertions.assertTrue( objects2DRenderData.size() >= ( terrainsData.size() + objectsData.size() ), "" +
+            "was " + objects2DRenderData.size() + " should be at least " + ( terrainsData.size() + objectsData.size() )
+        );
         Assertions.assertTrue( objects2DRenderData.containsAll( terrainsData ) );
         Assertions.assertTrue( objects2DRenderData.containsAll( objectsData ) );
         objects2DRenderData.forEach( renderData -> {

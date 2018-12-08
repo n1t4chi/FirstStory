@@ -4,8 +4,7 @@
 
 package com.firststory.firstoracle.scene;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -29,7 +28,7 @@ class PlaneTest {
     }
     
     @Test
-    void returnsEmptyBoundariesIfOutside() {
+    void returnsNullIfOutside() {
         var plane = Plane.planeXY(
             vec3( -1, 1, 0 ),
             vec3( 1, 1, 0 ),
@@ -38,12 +37,10 @@ class PlaneTest {
         );
     
         var out1 = plane.getBoundsAtDim1( -2 );
-        Assertions.assertEquals( 0, out1.getMin(), MID_DELTA );
-        Assertions.assertEquals( 0, out1.getMax(), MID_DELTA );
+        Assertions.assertNull( out1 );
     
         var out2 = plane.getBoundsAtDim1( 2 );
-        Assertions.assertEquals( 0, out2.getMin(), MID_DELTA );
-        Assertions.assertEquals( 0, out2.getMax(), MID_DELTA );
+        Assertions.assertNull( out2 );
         
     }
     

@@ -4,14 +4,14 @@
 
 package com.firststory.firstoracle.buffer;
 
-import java.io.IOException; /**
+/**
  * @author n1t4chi
  */
 public class BufferException extends RuntimeException {
     
     public BufferException() {}
     
-    public BufferException( IOException e ) {
+    public BufferException( Exception e ) {
         super( e );
     }
     

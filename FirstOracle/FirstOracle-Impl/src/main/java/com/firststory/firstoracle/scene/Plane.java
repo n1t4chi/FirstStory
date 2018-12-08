@@ -8,8 +8,7 @@ import org.joml.Vector3fc;
 
 import java.util.function.Function;
 
-import static com.firststory.firstoracle.FirstOracleConstants.isReallyClose;
-import static com.firststory.firstoracle.FirstOracleConstants.vec3ToStr;
+import static com.firststory.firstoracle.FirstOracleConstants.*;
 
 /**
  * @author n1t4chi
@@ -57,10 +56,10 @@ class Plane {
     
     public Bounds getBoundsAtDim1( float d1 ) {
         if( d1 < minDim1_Floor() ) {
-            return newBounds( 0, 0 );
+            return null;
         }
         if( d1 > maxDim1_Ceil() ) {
-            return newBounds( 0, 0 );
+            return null;
         }
         
         var isRightToHightLeft = isToRight( d1, dim1.apply( highLeft ) );
@@ -95,28 +94,30 @@ class Plane {
         return d2;
     }
     
-    private boolean isToRight( float x, float x2 ) {
-        return x > x2;
+    private boolean isToRight( float d1_1, float d1_2 ) {
+        return d1_1 > d1_2;
     }
     
-    private Bounds newBounds( float minY, float maxY ) {
-        return new Bounds( ( int ) Math.floor( minY ), ( int ) Math.ceil( maxY ) );
+    private Bounds newBounds( float d2_1, float d2_2 ) {
+        var minD2 = Math.min( d2_1,d2_2 );
+        var maxD2 = Math.max( d2_1,d2_2 );
+        return new Bounds( ( int ) Math.floor( minD2 ), ( int ) Math.ceil( maxD2 ) );
     }
     
     int minDim1_Floor() {
-        return ( int ) Math.floor( dim1.apply( left ) );
+        return ( int ) Math.floor( Math.min( dim1.apply( left ), dim1.apply( right ) ) );
     }
     
     int maxDim1_Ceil() {
-        return ( int ) Math.ceil( dim1.apply( right ) );
+        return ( int ) Math.ceil( Math.max( dim1.apply( left ), dim1.apply( right ) ) );
     }
     
     int minDim2_Floor() {
-        return ( int ) Math.floor( dim2.apply( lowRight ) );
+        return ( int ) Math.floor( Math.min( dim2.apply( lowRight ), dim2.apply( highLeft ) ) );
     }
     
     int maxDim2_Ceil() {
-        return ( int ) Math.ceil( dim2.apply( highLeft ) );
+        return ( int ) Math.ceil( Math.max( dim2.apply( lowRight ), dim2.apply( highLeft ) ) );
     }
     
     @Override

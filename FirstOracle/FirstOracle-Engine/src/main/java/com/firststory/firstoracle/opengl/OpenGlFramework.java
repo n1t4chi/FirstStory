@@ -5,13 +5,8 @@
 package com.firststory.firstoracle.opengl;
 
 import com.firststory.firstoracle.PropertiesUtil;
-import com.firststory.firstoracle.rendering.FrameworkCommands;
-import com.firststory.firstoracle.rendering.Renderer;
-import com.firststory.firstoracle.rendering.RenderingFramework;
-import org.lwjgl.opengl.ARBVertexArrayObject;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLCapabilities;
+import com.firststory.firstoracle.rendering.*;
+import org.lwjgl.opengl.*;
 
 import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
@@ -112,8 +107,10 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     }
     
     private void enableFunctionality() {
-        GL11.glEnable( GL11.GL_CULL_FACE );
-        GL11.glCullFace( GL11.GL_BACK );
+        //todo:
+//        GL11.glEnable( GL11.GL_CULL_FACE );
+//        GL11.glCullFace( GL11.GL_BACK );
+//        GL11.glCullFace( GL11.GL_NONE );
         GL11.glEnable( GL11.GL_BLEND );
         GL11.glEnable( GL11.GL_TEXTURE_2D );
         GL11.glBlendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );

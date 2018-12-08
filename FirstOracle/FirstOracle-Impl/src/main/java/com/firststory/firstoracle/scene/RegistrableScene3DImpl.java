@@ -18,7 +18,7 @@ import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
 public class RegistrableScene3DImpl implements RegistrableScene3D {
     
     private final Set< PositionableObject3D< ?, ? > > objects = new LinkedHashSet<>();
-    private final Terrain3D< ? >[][][] terrainsXYZ;
+    private final Terrain3D< ?, ? >[][][] terrainsXYZ;
     private final Index3D terrainSize;
     private final Index3D terrainShift;
     private Camera3D camera = IdentityCamera3D.getCamera();
@@ -31,7 +31,7 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
         );
     }
     
-    public RegistrableScene3DImpl( Terrain3D< ? >[][][] terrains, Index3D terrainShift ) {
+    public RegistrableScene3DImpl( Terrain3D< ?, ? >[][][] terrains, Index3D terrainShift ) {
         this(
             arraySize( terrains ),
             terrains,
@@ -41,13 +41,14 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
     
     private RegistrableScene3DImpl(
         Index3D terrainSize,
-        Terrain3D< ? >[][][] terrain,
+        Terrain3D< ?, ? >[][][] terrains,
         Index3D terrainShift
     ) {
         this.terrainSize = terrainSize;
         this.terrainShift = terrainShift;
-        terrainsXYZ = terrain;
+        terrainsXYZ = terrains;
     }
+    
     public Index3D getTerrainSize() {
         return terrainSize;
     }
@@ -63,12 +64,12 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
     }
     
     @Override
-    public void registerTerrain3D( Terrain3D< ? > terrain, Index3D index ) {
+    public void registerTerrain3D( Terrain3D< ?, ? > terrain, Index3D index ) {
         terrainsXYZ[ index.x() ][ index.y() ][ index.z() ] = terrain;
     }
     
     @Override
-    public void deregisterTerrain3D( Terrain3D< ? > terrain, Index3D index ) {
+    public void deregisterTerrain3D( Terrain3D< ?, ? > terrain, Index3D index ) {
         terrainsXYZ[ index.x() ][ index.y() ][ index.z() ] = null;
     }
     
@@ -76,10 +77,12 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
     public void deregisterAllObjects3D() {
         objects.clear();
         for ( var terrainYZ : terrainsXYZ ) {
-            for ( var terrainZ : terrainsXYZ ) {
+            for ( var terrainZ : terrainYZ ) {
                 Arrays.fill( terrainZ, null );
             }
+            Arrays.fill( terrainYZ, null );
         }
+        Arrays.fill( terrainsXYZ, null );
     }
     
     @Override
@@ -98,7 +101,7 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
     }
     
     @Override
-    public Terrain3D< ? >[][][] getTerrains3D() {
+    public Terrain3D< ?, ? >[][][] getTerrains3D() {
         return terrainsXYZ;
     }
     

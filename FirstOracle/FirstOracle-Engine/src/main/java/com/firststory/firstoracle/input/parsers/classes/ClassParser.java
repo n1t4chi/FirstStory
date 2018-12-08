@@ -8,7 +8,6 @@ import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.input.SceneParser;
 import com.firststory.firstoracle.input.exceptions.ParsedClassNotFoundException;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -29,7 +28,6 @@ public interface ClassParser< Type > {
                 .asSubclass( getBaseClass() )
             ;
         } catch ( Exception e1 ) {
-            logger.log( Level.WARNING, "Exception while extracting object class " + className, e1 );
             try {
                 return ClassParser.class.getClassLoader()
                     .loadClass( getDefaultPackage() + "." + className )

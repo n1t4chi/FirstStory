@@ -141,7 +141,6 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         HashMap< Texture, VulkanDescriptorSet > setsByTexture,
         List< RenderData > renderDataList
     ) {
-        
         var renderPass = trianglePipeline.getRenderPass();
         var commandPool = device.getAllocator().createGraphicCommandPool();
         var primaryBuffer = commandPool.provideNextPrimaryBuffer();

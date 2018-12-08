@@ -4,12 +4,11 @@
 
 package com.firststory.firstoracle.scene;
 
-import com.firststory.firstoracle.Camera;
-import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.object.BoundingBox;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
+
+import java.lang.Math;
 
 /**
  * @author n1t4chi
@@ -35,7 +34,7 @@ class CameraView {
     private final Line3D left;
     
     CameraView( Camera camera ) {
-        invMatrix = camera.getMatrixRepresentation().invert( new Matrix4f() );
+        invMatrix = camera.getMatrixRepresentation().invert( new Matrix4f() ).scale( 1.1f );
         
         var lines = new Line3D[]{
             /*UpRight*/ createLine( 1, 1 ),
@@ -51,7 +50,7 @@ class CameraView {
         left = lines[ ( highLeftIndex + 3 ) % lines.length ];
     }
     
-    public Plane getPlaneForZ( int z ) {
+    public Plane getPlaneForZ( float z ) {
         return Plane.planeXY(
             highLeft.getPointAtZ( z ),
             right.getPointAtZ( z ),
@@ -60,7 +59,7 @@ class CameraView {
         );
     }
     
-    public Plane getPlaneForY( int y ) {
+    public Plane getPlaneForY( float y ) {
         return Plane.planeXZ(
             highLeft.getPointAtY( y ),
             right.getPointAtY( y ),
@@ -69,21 +68,62 @@ class CameraView {
         );
     }
     
-    boolean shouldDisplay( BoundingBox< ?, ?, ? > box ) {
+    boolean shouldDisplay2D( BoundingBox< ?, ?, ? > box ) {
         return insideRectangleAtZ( box, box.getMinZ() ) || insideRectangleAtZ( box, box.getMaxZ() );
     }
     
     private boolean insideRectangleAtZ( BoundingBox< ?, ?, ? > box, float z ) {
+        var l = left.getPointAtZ( z ).x();
+        var r = right.getPointAtZ( z ).x();
+        var lr = lowRight.getPointAtZ( z ).y();
+        var hl = highLeft.getPointAtZ( z ).y();
+        var minX = Math.min( l, r );
+        var maxX = Math.max( l, r );
+        var minY = Math.min( lr, hl );
+        var maxY = Math.max( lr, hl );
+        
         return FirstOracleConstants.objectWithinBoundary(
             box.getMinX(),
             box.getMaxX(),
             box.getMinY(),
             box.getMaxY(),
-            left.getPointAtZ( z ).x(),
-            right.getPointAtZ( z ).x(),
-            lowRight.getPointAtZ( z ).y(),
-            highLeft.getPointAtZ( z ).y()
+            minX,
+            maxX,
+            minY,
+            maxY
         );
+    }
+    
+    boolean shouldDisplay3D( BoundingBox< ?, ?, ? > box ) {
+        return insideRectangleAtY( box, box.getMinY() ) || insideRectangleAtY( box, box.getMaxY() );
+    }
+    
+    private boolean insideRectangleAtY( BoundingBox< ?, ?, ? > box, float y ) {
+        var l = left.getPointAtY( y ).x();
+        var r = right.getPointAtY( y ).x();
+        var lr = lowRight.getPointAtY( y ).z();
+        var hl = highLeft.getPointAtY( y ).z();
+        var minX = Math.min( l, r );
+        var maxX = Math.max( l, r );
+        var minZ = Math.min( lr, hl );
+        var maxZ = Math.max( lr, hl );
+        
+        var v = FirstOracleConstants.objectWithinBoundary(
+            box.getMinX(),
+            box.getMaxX(),
+            box.getMinZ(),
+            box.getMaxZ(),
+            minX,
+            maxX,
+            minZ,
+            maxZ
+        );
+        
+        if( !v ) {
+            System.err.println( "not displayed ["+minX+","+maxX+"]x["+y+"]x["+minZ+","+maxZ+"] vs " + box );
+        }
+        
+        return v;
     }
     
     Line3D getHighLeft() {

@@ -6,19 +6,12 @@ package com.firststory.firstoracle.input;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.object.PositionableObject;
-import com.firststory.firstoracle.object.Terrain;
-import com.firststory.firstoracle.object2D.PlanePositionCalculator;
-import com.firststory.firstoracle.object2D.PositionableObject2DImpl;
-import com.firststory.firstoracle.object2D.Terrain2DImpl;
-import com.firststory.firstoracle.object3D.CubePositionCalculator;
-import com.firststory.firstoracle.object3D.PositionableObject3DImpl;
-import com.firststory.firstoracle.object3D.Terrain3DImpl;
+import com.firststory.firstoracle.object.*;
+import com.firststory.firstoracle.object2D.*;
+import com.firststory.firstoracle.object3D.*;
 import com.firststory.firstoracle.rendering.RenderType;
-import com.firststory.firstoracle.scene.RegistrableScene2DImpl;
-import com.firststory.firstoracle.scene.RegistrableScene3DImpl;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import com.firststory.firstoracle.scene.*;
+import org.junit.jupiter.api.*;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -130,7 +123,7 @@ class SceneParserTest {
                         "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
                         "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
                         "indices": "[ {0,2} ]",
-                        "positionCalculator": "PlanePositionCalculator"
+                        "positionCalculator": "RectanglePositionCalculator"
                     }
                 }
             }
@@ -145,7 +138,7 @@ class SceneParserTest {
             scene2D.getTerrains2D()[0][2],
             Index2D.id2( 0,2 ),
             scene2D.getTerrain2DShift(),
-            PlanePositionCalculator.computePlanePosition( 3, 5, FirstOracleConstants.INDEX_ZERO_2I ),
+            RectanglePositionCalculator.instance.indexToPosition( 3, 5, FirstOracleConstants.INDEX_ZERO_2I ),
             Terrain2DImpl.class,
             "resources/First Oracle/textures/grass2D.png",
             new float[]{ 1,1,0, 2,2,0, 3,3,0 },
@@ -185,7 +178,7 @@ class SceneParserTest {
             scene3D.getTerrains3D()[0][0][2],
             Index3D.id3( 0,0, 2 ),
             scene3D.getTerrain3DShift(),
-            CubePositionCalculator.computeCubePosition( 3, 3, 5, FirstOracleConstants.INDEX_ZERO_3I ),
+            CubePositionCalculator.instance.indexToPosition( 3, 3, 5, FirstOracleConstants.INDEX_ZERO_3I ),
             Terrain3DImpl.class,
             "resources/First Oracle/textures/grass2D.png",
             new float[]{ 1,1,1, 2,2,2, 3,3,3 },
@@ -283,7 +276,7 @@ class SceneParserTest {
                         "vertices": "$vert2d",
                         "colouring": "$col",
                         "indices": "[ {0,0}x{0,2}, {1,2} ]",
-                        "positionCalculator": "PlanePositionCalculator"
+                        "positionCalculator": "RectanglePositionCalculator"
                     }
                 }
             },
@@ -371,7 +364,7 @@ class SceneParserTest {
             scene2D.getTerrains2D()[1][2],
             Index2D.id2( 1,2 ),
             scene2D.getTerrain2DShift(),
-            PlanePositionCalculator.computePlanePosition( 1, 2, FirstOracleConstants.INDEX_ZERO_2I ),
+            RectanglePositionCalculator.instance.indexToPosition( 1, 2, FirstOracleConstants.INDEX_ZERO_2I ),
             Terrain2DImpl.class,
             expectedTexturePath,
             expectedVertices2D,
@@ -383,7 +376,7 @@ class SceneParserTest {
                 scene2D.getTerrains2D()[0][i],
                 Index2D.id2( 0,i ),
                 scene2D.getTerrain2DShift(),
-                PlanePositionCalculator.computePlanePosition( 0, i, FirstOracleConstants.INDEX_ZERO_2I ),
+                RectanglePositionCalculator.instance.indexToPosition( 0, i, FirstOracleConstants.INDEX_ZERO_2I ),
                 Terrain2DImpl.class,
                 expectedTexturePath,
                 expectedVertices2D,
@@ -394,7 +387,7 @@ class SceneParserTest {
                 scene3D.getTerrains3D()[0][0][i],
                 Index3D.id3( 0, 0, i ),
                 scene3D.getTerrain3DShift(),
-                CubePositionCalculator.computeCubePosition( 0, 0, i, FirstOracleConstants.INDEX_ZERO_3I ),
+                CubePositionCalculator.instance.indexToPosition( 0, 0, i, FirstOracleConstants.INDEX_ZERO_3I ),
                 Terrain3DImpl.class,
                 expectedTexturePath,
                 expectedVertices3D,
@@ -430,7 +423,7 @@ class SceneParserTest {
                         "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
                         "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
                         "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
-                        "positionCalculator": "PlanePositionCalculator"
+                        "positionCalculator": "RectanglePositionCalculator"
                     }
                 },
                 "objects3D": {
@@ -540,7 +533,7 @@ class SceneParserTest {
                     scene2D.getTerrains2D()[x][y],
                     Index2D.id2( x,y ),
                     scene2D.getTerrain2DShift(),
-                    PlanePositionCalculator.computePlanePosition( x, y, FirstOracleConstants.INDEX_ZERO_2I ),
+                    RectanglePositionCalculator.instance.indexToPosition( x, y, FirstOracleConstants.INDEX_ZERO_2I ),
                     Terrain2DImpl.class,
                     expectedTexturePath,
                     expectedVertices2D,
@@ -556,7 +549,7 @@ class SceneParserTest {
                         scene3D.getTerrains3D()[x][y][z],
                         Index3D.id3( x, y, z ),
                         scene3D.getTerrain3DShift(),
-                        CubePositionCalculator.computeCubePosition( x, y, z, FirstOracleConstants.INDEX_ZERO_3I ),
+                        CubePositionCalculator.instance.indexToPosition( x, y, z, FirstOracleConstants.INDEX_ZERO_3I ),
                         Terrain3DImpl.class,
                         expectedTexturePath,
                         expectedVertices3D,
@@ -569,18 +562,18 @@ class SceneParserTest {
     }
     
     private < IndexType extends Index, PositionType extends Position > void assertTerrain(
-        Terrain< PositionType, ?, ?, ?, ?, ?, IndexType > terrain,
+        Terrain< PositionType, ?, ?, ?, ?, ?, IndexType, ? > terrain,
         IndexType index,
         IndexType shift,
         PositionType expectedCalculatedPosition,
-        Class< ? extends Terrain< ?, ?, ?, ?, ?, ?, ? > > expectedClass,
+        Class< ? extends Terrain< ?, ?, ?, ?, ?, ?, ?, ? > > expectedClass,
         String expectedTexturePath,
         float[] expectedVertices,
         float[] expectedUvMap,
         float[] expectedColouring
     ) {
         Assertions.assertNotNull( terrain );
-        var data = terrain.getRenderData( terrain.computePosition( index, shift ), 0, 0 ).stream()
+        var data = terrain.getRenderData( terrain.getPositionCalculator().indexToPosition( index, shift ), 0, 0 ).stream()
             .filter( renderData -> renderData.getType() == RenderType.TRIANGLES )
             .findFirst()
             .orElse( null );

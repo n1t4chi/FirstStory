@@ -11,7 +11,7 @@ import com.firststory.firstoracle.object3D.Terrain3D;
 /**
  * @author n1t4chi
  */
-public class Terrain3DClassParser extends TerrainClassParser< Terrain3D< ? > > {
+public class Terrain3DClassParser extends TerrainClassParser< Terrain3D< ?, ? > > {
     
     @Override
     public String getSharedName() {
@@ -20,8 +20,8 @@ public class Terrain3DClassParser extends TerrainClassParser< Terrain3D< ? > > {
     
     @Override
     @SuppressWarnings( {"unchecked",  "rawtypes"} )
-    public Class< Terrain3D< ? > > getBaseClass() {
-        return ( Class< Terrain3D< ? > > ) ( ( Class< ? extends Terrain3D > ) Terrain3D.class );
+    public Class< Terrain3D< ?, ? > > getBaseClass() {
+        return ( Class< Terrain3D< ?, ? > > ) ( ( Class< ? extends Terrain3D > ) Terrain3D.class );
     }
     
     @Override

@@ -6,8 +6,7 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
+import com.firststory.firstoracle.object3D.*;
 
 import java.util.Collection;
 
@@ -20,19 +19,19 @@ public interface RegistrableScene3D extends RenderableScene3D {
     
     void deregisterObject3D( PositionableObject3D< ?, ? > object );
     
-    void registerTerrain3D( Terrain3D< ? > terrain, Index3D index );
+    void registerTerrain3D( Terrain3D< ?, ? > terrain, Index3D index );
     
-    void deregisterTerrain3D( Terrain3D< ? > terrain, Index3D index );
+    void deregisterTerrain3D( Terrain3D< ?, ? > terrain, Index3D index );
     
     void deregisterAllObjects3D();
     
     void setScene3DCamera( Camera3D camera );
     
-    default void registerTerrain3D( Terrain3D< ? > terrain, int x, int y, int z ) {
+    default void registerTerrain3D( Terrain3D< ?, ? > terrain, int x, int y, int z ) {
         registerTerrain3D( terrain, Index3D.id3( x, y, z ) );
     }
     
-    default void deregisterTerrain3D( Terrain3D< ? > terrain, int x, int y, int z ) {
+    default void deregisterTerrain3D( Terrain3D< ?, ? > terrain, int x, int y, int z ) {
         deregisterTerrain3D( terrain, Index3D.id3( x, y, z ) );
     }
     
@@ -40,7 +39,7 @@ public interface RegistrableScene3D extends RenderableScene3D {
         objects.forEach( this::deregisterObject3D );
     }
     
-    default void deregisterMultipleTerrains3D( Terrain3D< ? > terrain, Collection< Index3D > positions ) {
+    default void deregisterMultipleTerrains3D( Terrain3D< ?, ? > terrain, Collection< Index3D > positions ) {
         positions.forEach( position -> deregisterTerrain3D( terrain, position ) );
     }
     
@@ -48,7 +47,7 @@ public interface RegistrableScene3D extends RenderableScene3D {
         objects.forEach( this::registerObject3D );
     }
     
-    default void registerMultipleTerrains3D( Terrain3D< ? > terrain, Collection< Index3D > indices ) {
+    default void registerMultipleTerrains3D( Terrain3D< ?, ? > terrain, Collection< Index3D > indices ) {
         indices.forEach( index -> registerTerrain3D( terrain, index ) );
     }
     
@@ -56,7 +55,7 @@ public interface RegistrableScene3D extends RenderableScene3D {
         deregisterAllObjects3D();
     }
     
-    default void registerMultipleTerrains3D( Terrain3D<?>[][][] terrainsXYZ ) {
+    default void registerMultipleTerrains3D( Terrain3D< ?, ? >[][][] terrainsXYZ ) {
         for ( var x = 0; x < terrainsXYZ.length; x++ ) {
             for ( var y = 0; y < terrainsXYZ[ x ].length; y++ ) {
                 for ( var z = 0; z < terrainsXYZ[ x ][ y ].length; z++ ) {

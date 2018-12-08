@@ -6,13 +6,9 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.object2D.*;
+import com.firststory.firstoracle.object3D.*;
 
 import java.util.Collection;
 
@@ -73,7 +69,7 @@ public interface RegistrableScene extends RenderableScene, RegistrableScene2D, R
     }
     
     @Override
-    default void registerTerrain2D( Terrain2D< ? > terrain, Index2D index ) {
+    default void registerTerrain2D( Terrain2D< ?, ? > terrain, Index2D index ) {
         getScene2D().registerTerrain2D( terrain, index );
     }
     
@@ -83,7 +79,7 @@ public interface RegistrableScene extends RenderableScene, RegistrableScene2D, R
     }
     
     @Override
-    default void deregisterTerrain2D( Terrain2D< ? > terrain, Index2D index ) {
+    default void deregisterTerrain2D( Terrain2D< ?, ? > terrain, Index2D index ) {
         getScene2D().deregisterTerrain2D( terrain, index );
     }
     
@@ -98,7 +94,7 @@ public interface RegistrableScene extends RenderableScene, RegistrableScene2D, R
     }
     
     @Override
-    default void registerTerrain3D( Terrain3D< ? > terrain, Index3D index ) {
+    default void registerTerrain3D( Terrain3D< ?, ? > terrain, Index3D index ) {
         getScene3D().registerTerrain3D( terrain, index );
     }
     
@@ -108,7 +104,7 @@ public interface RegistrableScene extends RenderableScene, RegistrableScene2D, R
     }
     
     @Override
-    default void deregisterTerrain3D( Terrain3D< ? > terrain, Index3D index ) {
+    default void deregisterTerrain3D( Terrain3D< ?, ? > terrain, Index3D index ) {
         getScene3D().deregisterTerrain3D( terrain, index );
     }
     
@@ -153,7 +149,7 @@ public interface RegistrableScene extends RenderableScene, RegistrableScene2D, R
     }
     
     @Override
-    default Terrain2D< ? >[][] getTerrains2D() {
+    default Terrain2D< ?, ? >[][] getTerrains2D() {
         return getScene2D().getTerrains2D();
     }
     
@@ -173,7 +169,7 @@ public interface RegistrableScene extends RenderableScene, RegistrableScene2D, R
     }
     
     @Override
-    default Terrain3D< ? >[][][] getTerrains3D() {
+    default Terrain3D< ?, ? >[][][] getTerrains3D() {
         return getScene3D().getTerrains3D();
     }
     

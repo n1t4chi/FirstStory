@@ -6,17 +6,15 @@ package com.firststory.firstoracle.object3D;
 import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.rendering.RenderData;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class representing 3D terrain, contains texture, UV mapping, vertices and objectTransformations.
  * This abstract class implements some of the boiler plate code like transformations or render data methods
  * @author n1t4chi
  */
-public abstract class AbstractTerrain3D< Vertices extends Vertices3D >
-    implements Terrain3D< Vertices >
+public abstract class AbstractTerrain3D< Vertices extends Vertices3D, PositionCalculatorType extends Position3DCalculator >
+    implements Terrain3D< Vertices, PositionCalculatorType >
 {
     private Map< Position, List< RenderData.RenderDataBuilder > > renderDataBuildersMap = new HashMap<>();
     private Map< Position, List< RenderData > > renderDatasMap = new HashMap<>();

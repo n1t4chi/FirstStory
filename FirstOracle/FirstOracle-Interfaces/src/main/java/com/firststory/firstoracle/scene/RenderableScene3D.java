@@ -6,13 +6,10 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
+import com.firststory.firstoracle.object3D.*;
 import com.firststory.firstoracle.rendering.RenderData;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -23,7 +20,7 @@ public interface RenderableScene3D {
     
     Collection< PositionableObject3D< ?, ? > > getObjects3D();
     
-    Terrain3D< ? >[][][] getTerrains3D();
+    Terrain3D< ?, ? >[][][] getTerrains3D();
     
     Index3D getTerrain3DShift();
     
@@ -40,7 +37,7 @@ public interface RenderableScene3D {
                     var terrain = terrainsZ[ z ];
                     if( terrain != null ) {
                         list.addAll( terrain.getRenderData(
-                            terrain.computePosition( x, y, z, terrainShift ),
+                            terrain.getPositionCalculator().indexToPosition( x, y, z, terrainShift ),
                             currentRenderTime,
                             cameraRotation )
                         );

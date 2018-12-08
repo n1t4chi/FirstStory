@@ -6,11 +6,9 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
+import com.firststory.firstoracle.object3D.*;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -20,12 +18,12 @@ public class RenderableScene3DImpl implements RenderableScene3D {
     private final Camera3D camera;
     private final List< PositionableObject3D< ?, ? > > objects;
     private final Index3D terrainShift;
-    private final Terrain3D< ? >[][][] terrains;
+    private final Terrain3D< ?, ? >[][][] terrains;
     
     public RenderableScene3DImpl(
         Camera3D camera,
         List< PositionableObject3D< ?, ? > > objects,
-        Terrain3D< ? >[][][] terrains,
+        Terrain3D< ?, ? >[][][] terrains,
         Index3D terrainShift
     ) {
         this.camera = camera;
@@ -35,7 +33,7 @@ public class RenderableScene3DImpl implements RenderableScene3D {
     }
     
     @Override
-    public Terrain3D< ? >[][][] getTerrains3D() {
+    public Terrain3D< ?, ? >[][][] getTerrains3D() {
         return terrains;
     }
     

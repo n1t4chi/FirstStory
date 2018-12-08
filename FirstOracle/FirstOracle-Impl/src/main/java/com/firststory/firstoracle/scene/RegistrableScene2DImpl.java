@@ -5,16 +5,11 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.camera2D.Camera2D;
-import com.firststory.firstoracle.camera2D.IdentityCamera2D;
+import com.firststory.firstoracle.camera2D.*;
 import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
+import com.firststory.firstoracle.object2D.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -22,7 +17,7 @@ import java.util.Set;
 public class RegistrableScene2DImpl implements RegistrableScene2D {
     
     private final Set< PositionableObject2D< ?, ? > > objects = new HashSet<>();
-    private final Terrain2D< ? >[][] terrainsXY;
+    private final Terrain2D< ?, ? >[][] terrainsXY;
     private final Index2D terrainSize;
     private final Index2D terrainShift;
     private Camera2D camera = IdentityCamera2D.getCamera();
@@ -31,7 +26,7 @@ public class RegistrableScene2DImpl implements RegistrableScene2D {
         this( terrainSize, new Terrain2D[ terrainSize.x() ][ terrainSize.y() ], terrainShift );
     }
     
-    public RegistrableScene2DImpl( Terrain2D< ? >[][] terrains, Index2D terrainShift ) {
+    public RegistrableScene2DImpl( Terrain2D< ?, ? >[][] terrains, Index2D terrainShift ) {
         this(
             FirstOracleConstants.arraySize( terrains ),
             terrains,
@@ -39,7 +34,7 @@ public class RegistrableScene2DImpl implements RegistrableScene2D {
         );
     }
     
-    private RegistrableScene2DImpl( Index2D terrainSize, Terrain2D< ? >[][] terrains, Index2D terrainShift ) {
+    private RegistrableScene2DImpl( Index2D terrainSize, Terrain2D< ?, ? >[][] terrains, Index2D terrainShift ) {
         this.terrainSize = terrainSize;
         this.terrainShift = terrainShift;
         terrainsXY = terrains;
@@ -56,12 +51,12 @@ public class RegistrableScene2DImpl implements RegistrableScene2D {
     }
     
     @Override
-    public void registerTerrain2D( Terrain2D< ? > terrain, Index2D index ) {
+    public void registerTerrain2D( Terrain2D< ?, ? > terrain, Index2D index ) {
         terrainsXY[index.x()][index.y()] = terrain;
     }
     
     @Override
-    public void deregisterTerrain2D( Terrain2D< ? > terrain, Index2D index ) {
+    public void deregisterTerrain2D( Terrain2D< ?, ? > terrain, Index2D index ) {
         terrainsXY[index.x()][index.y()] = null;
     }
     
@@ -89,7 +84,7 @@ public class RegistrableScene2DImpl implements RegistrableScene2D {
     }
     
     @Override
-    public Terrain2D< ? >[][] getTerrains2D() {
+    public Terrain2D< ?, ? >[][] getTerrains2D() {
         return terrainsXY;
     }
     

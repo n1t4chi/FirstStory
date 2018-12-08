@@ -4,21 +4,17 @@
 
 package com.firststory.firstoracle.scene;
 
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Position;
-import com.firststory.firstoracle.data.Position2D;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
-import com.firststory.firstoracle.object2D.AbstractTerrain2D;
-import com.firststory.firstoracle.rendering.RenderData;
-import com.firststory.firstoracle.rendering.RenderType;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.object.*;
+import com.firststory.firstoracle.object2D.*;
+import com.firststory.firstoracle.rendering.*;
 
 import java.util.List;
 
 /**
  * @author n1t4chi
  */
-class MockTerrain2D extends AbstractTerrain2D< MockVertices2D > {
+class MockTerrain2D extends AbstractTerrain2D< MockVertices2D, IdentityPosition2DCalculator > {
     
     private final MockVertices2D vertices;
     private final RenderData.RenderDataBuilder builder;
@@ -28,7 +24,8 @@ class MockTerrain2D extends AbstractTerrain2D< MockVertices2D > {
         builder = RenderData
             .renderData( RenderType.TRIANGLES )
             .setVertices( vertices )
-            .setPosition( computePosition( x, y, shift ) );
+            .setPosition( getPositionCalculator().indexToPosition( x, y, shift ) )
+        ;
     }
     
     @Override
@@ -62,12 +59,8 @@ class MockTerrain2D extends AbstractTerrain2D< MockVertices2D > {
     }
     
     @Override
-    public Position2D computePosition(
-        int x,
-        int y,
-        Index2D arrayShift
-    ) {
-        return Position2D.pos2( x + arrayShift.x(), y + arrayShift.y()  );
+    public IdentityPosition2DCalculator getPositionCalculator() {
+        return IdentityPosition2DCalculator.instance;
     }
     
     @Override

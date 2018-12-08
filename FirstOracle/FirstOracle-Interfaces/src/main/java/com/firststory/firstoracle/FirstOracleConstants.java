@@ -4,14 +4,10 @@
 package com.firststory.firstoracle;
 
 import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.object.Colouring;
-import com.firststory.firstoracle.object.GraphicObject;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.Object2D;
 import com.firststory.firstoracle.object3D.Object3D;
-import com.firststory.firstoracle.text.TextData;
-import com.firststory.firstoracle.text.TextImageFactory;
+import com.firststory.firstoracle.text.*;
 import org.joml.*;
 
 import java.awt.*;
@@ -19,13 +15,10 @@ import java.awt.image.BufferedImage;
 import java.lang.Math;
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.function.*;
+import java.util.logging.*;
 
 import static com.firststory.firstoracle.data.Colour.col;
 import static com.firststory.firstoracle.data.Index2D.id2;
@@ -227,9 +220,7 @@ public interface FirstOracleConstants {
         return coordinate / 2 - terrainShift;
     }
     
-    static float transAbsolutePlaneSpaceToDiscrete(
-        float coordinate, float terrainShift
-    )
+    static float transAbsolutePlaneSpaceToDiscrete( float coordinate, float terrainShift )
     {
         return coordinate - terrainShift;
     }

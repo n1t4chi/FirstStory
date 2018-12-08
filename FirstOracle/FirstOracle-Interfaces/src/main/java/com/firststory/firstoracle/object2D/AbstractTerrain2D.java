@@ -6,17 +6,15 @@ package com.firststory.firstoracle.object2D;
 import com.firststory.firstoracle.data.Position;
 import com.firststory.firstoracle.rendering.RenderData;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class representing 2D terrain, contains texture, UV mapping, vertices and objectTransformations.
  * This abstract class implements some of the boiler plate code like transformations or render data methods
  * @author n1t4chi
  */
-public abstract class AbstractTerrain2D< Vertices extends Vertices2D >
-    implements Terrain2D< Vertices >
+public abstract class AbstractTerrain2D< Vertices extends Vertices2D, PositionCalculatorType extends Position2DCalculator >
+    implements Terrain2D< Vertices, PositionCalculatorType >
 {
     private Map< Position, List< RenderData.RenderDataBuilder > > renderDataBuildersMap = new HashMap<>();
     private Map< Position, List< RenderData > > renderDatasMap = new HashMap<>();

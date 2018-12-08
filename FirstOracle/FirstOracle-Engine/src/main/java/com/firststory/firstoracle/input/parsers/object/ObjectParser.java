@@ -4,21 +4,13 @@
 
 package com.firststory.firstoracle.input.parsers.object;
 
-import com.firststory.firstoracle.data.Index;
-import com.firststory.firstoracle.data.Position;
-import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.SharedObjects;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.input.*;
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.parsers.ParameterParser;
-import com.firststory.firstoracle.input.parsers.classes.ObjectClassParser;
-import com.firststory.firstoracle.input.parsers.classes.TerrainClassParser;
-import com.firststory.firstoracle.input.structure.Composite;
-import com.firststory.firstoracle.input.structure.Leaf;
-import com.firststory.firstoracle.input.structure.MutableComposite;
-import com.firststory.firstoracle.object.GraphicObject;
-import com.firststory.firstoracle.object.PositionableObject;
-import com.firststory.firstoracle.object.Terrain;
+import com.firststory.firstoracle.input.parsers.classes.*;
+import com.firststory.firstoracle.input.structure.*;
+import com.firststory.firstoracle.object.*;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -33,7 +25,7 @@ public abstract class ObjectParser<
     PositionType extends Position,
     IndexType extends Index,
     PositionableObjectType extends PositionableObject< PositionType, ?, ?, ?, ?, ? >,
-    TerrainType extends Terrain< PositionType, ?, ?, ?, ?, ?, IndexType >,
+    TerrainType extends Terrain< PositionType, ?, ?, ?, ?, ?, IndexType, ? >,
     ObjectClassParserType extends ObjectClassParser< PositionableObjectType >,
     TerrainClassParserType extends TerrainClassParser< TerrainType >
 > {

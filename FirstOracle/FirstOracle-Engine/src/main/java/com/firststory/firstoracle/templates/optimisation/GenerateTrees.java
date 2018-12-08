@@ -6,9 +6,7 @@ package com.firststory.firstoracle.templates.optimisation;
 
 import com.firststory.firstoracle.data.Index2D;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -19,10 +17,10 @@ public class GenerateTrees {
     public static void main( String[] args ) {
         Random r = ThreadLocalRandom.current();
         Set< Index2D > indices = new HashSet<>();
-        var shift = 15;
-        for( var i=0; i< 400 ; i++ ) {
-            var x = 2*( r.nextInt(50- shift ) + shift );
-            var z = 2*( r.nextInt(50 ) );
+        var shift = 0 ;
+        for( var i=0; i< 100 ; i++ ) {
+            var x = 2*( r.nextInt(40- shift ) + shift );
+            var z = 2*( r.nextInt(40 ) );
             var index = Index2D.id2( x, z );
             if( indices.contains( index ) ) {
                 i--;
@@ -36,7 +34,7 @@ public class GenerateTrees {
             if( i%10 == 0 ) {
                 System.err.print( "\",\n\"" );
             }
-            System.err.print( "{" + index.x() + ",13," + index.y() + "}," );
+            System.err.print( "{" + index.x() + "," + index.y() + "}," );
             i++;
         }
         System.err.println( "\"\n]" );

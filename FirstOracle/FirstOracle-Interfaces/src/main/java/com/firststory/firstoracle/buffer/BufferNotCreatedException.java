@@ -4,14 +4,14 @@
 
 package com.firststory.firstoracle.buffer;
 
-import java.io.IOException; /**
+/**
  * @author n1t4chi
  */
 public class BufferNotCreatedException extends BufferException {
     
     public BufferNotCreatedException() {}
     
-    public BufferNotCreatedException( IOException e ) {
+    public BufferNotCreatedException( Exception e ) {
         super( e );
     }
     

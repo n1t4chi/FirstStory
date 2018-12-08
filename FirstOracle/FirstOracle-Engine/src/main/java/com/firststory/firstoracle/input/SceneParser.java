@@ -4,21 +4,12 @@
 
 package com.firststory.firstoracle.input;
 
-import com.firststory.firstoracle.data.Index;
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.data.Position;
+import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
-import com.firststory.firstoracle.input.parsers.classes.ObjectClassParser;
-import com.firststory.firstoracle.input.parsers.classes.TerrainClassParser;
-import com.firststory.firstoracle.input.parsers.object.ObjectParser;
-import com.firststory.firstoracle.input.parsers.object.ObjectParser2D;
-import com.firststory.firstoracle.input.parsers.object.ObjectParser3D;
-import com.firststory.firstoracle.input.parsers.object.TerrainPair;
-import com.firststory.firstoracle.input.structure.Composite;
-import com.firststory.firstoracle.input.structure.Roots;
-import com.firststory.firstoracle.object.PositionableObject;
-import com.firststory.firstoracle.object.Terrain;
+import com.firststory.firstoracle.input.parsers.classes.*;
+import com.firststory.firstoracle.input.parsers.object.*;
+import com.firststory.firstoracle.input.structure.*;
+import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.Terrain2D;
 import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.scene.*;
@@ -123,7 +114,7 @@ public class SceneParser {
         IndexType extends Index,
         PositionType extends Position,
         PositionableObjectType extends PositionableObject< PositionType, ?, ?, ?, ?, ? >,
-        TerrainType extends Terrain< PositionType, ?, ?, ?, ?, ?, IndexType >,
+        TerrainType extends Terrain< PositionType, ?, ?, ?, ?, ?, IndexType, ? >,
         ObjectClassParserType extends ObjectClassParser< PositionableObjectType >,
         TerrainClassParserType extends TerrainClassParser< TerrainType >
     > Scene parseScene(
@@ -161,7 +152,7 @@ public class SceneParser {
     
     private Index2D getTerrainSize2D(
         @Nullable Index2D size,
-        Collection< TerrainPair< Terrain2D< ? >, Index2D > > terrains
+        Collection< TerrainPair< Terrain2D< ?, ? >, Index2D > > terrains
     ) {
         return getTerrainSize(
             size,
@@ -175,7 +166,7 @@ public class SceneParser {
     
     private Index3D getTerrainSize3D(
         @Nullable Index3D size,
-        Collection< TerrainPair< Terrain3D< ? >, Index3D > > terrains
+        Collection< TerrainPair< Terrain3D< ?, ? >, Index3D > > terrains
     ) {
         return getTerrainSize(
             size,
@@ -187,7 +178,7 @@ public class SceneParser {
         );
     }
     
-    private < IndexType extends Index, TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType > > IndexType getTerrainSize(
+    private < IndexType extends Index, TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType, ? > > IndexType getTerrainSize(
         @Nullable IndexType size,
         Collection< TerrainPair< TerrainType, IndexType > > terrains,
         IndexType negativeOneSize,

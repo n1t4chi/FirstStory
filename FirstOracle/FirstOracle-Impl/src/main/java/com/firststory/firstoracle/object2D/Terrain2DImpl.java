@@ -4,17 +4,13 @@
 
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Position2D;
-import com.firststory.firstoracle.object.Colouring;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object.*;
 
 /**
  * @author n1t4chi
  */
 public class Terrain2DImpl
-    extends AbstractTerrain2D< Vertices2D >
+    extends AbstractTerrain2D< Vertices2D, Position2DCalculator >
 {
     private UvMap uvMap;
     private Texture texture;
@@ -39,6 +35,11 @@ public class Terrain2DImpl
     }
     
     public void setPositionCalculator( Position2DCalculator calculator ) { this.calculator = calculator; }
+    
+    @Override
+    public Position2DCalculator getPositionCalculator() {
+        return calculator;
+    }
     
     @Override
     public Colouring getColouring() {
@@ -73,14 +74,5 @@ public class Terrain2DImpl
     @Override
     public int getCurrentVertexFrame( double currentTimeSnapshot ) {
         return 0;
-    }
-    
-    @Override
-    public Position2D computePosition(
-        int x,
-        int y,
-        Index2D arrayShift
-    ) {
-        return calculator.compute( x, y, arrayShift );
     }
 }

@@ -19,7 +19,8 @@ public interface Terrain<
     TransformationsType extends ObjectTransformations< ScaleType, RotationType >,
     BoundingBoxType extends BoundingBox< BoundingBoxType, ?, PositionType >,
     VerticesType extends Vertices< PositionType, BoundingBoxType >,
-    IndexType extends Index
+    IndexType extends Index,
+    PositionCalculatorType extends PositionCalculator< IndexType, PositionType >
 > extends
     GraphicObject< PositionType, ScaleType, RotationType, TransformationsType, BoundingBoxType, VerticesType >
 {
@@ -51,10 +52,15 @@ public interface Terrain<
      */
     List< RenderData.RenderDataBuilder > getStoredRenderDataBuilderList( Position position );
     
-    PositionType computePosition(
-        IndexType position,
-        IndexType arrayShift
-    );
+    PositionCalculatorType getPositionCalculator();
+    
+    default PositionType indexToPosition( IndexType index, IndexType shift ) {
+        return getPositionCalculator().indexToPosition( index, shift );
+    }
+    
+    default IndexType positionToIndex( PositionType position, IndexType shift ) {
+        return getPositionCalculator().positionToIndex( position, shift );
+    }
     
     /**
      * Returns Render Data for this terrain for given position.
@@ -96,6 +102,4 @@ public interface Terrain<
             RenderData.borderRenderDataForTerrain( this, position )
         );
     }
-    
-    
 }

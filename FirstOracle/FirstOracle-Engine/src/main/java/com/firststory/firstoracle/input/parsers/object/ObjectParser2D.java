@@ -4,18 +4,11 @@
 
 package com.firststory.firstoracle.input.parsers.object;
 
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Position2D;
-import com.firststory.firstoracle.input.ParseUtils;
-import com.firststory.firstoracle.input.SharedData;
-import com.firststory.firstoracle.input.SharedObjects;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.input.*;
 import com.firststory.firstoracle.input.parsers.ParameterParser;
-import com.firststory.firstoracle.input.parsers.classes.Object2DClassParser;
-import com.firststory.firstoracle.input.parsers.classes.Terrain2DClassParser;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.PositionableObject2DImpl;
-import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object2D.Terrain2DImpl;
+import com.firststory.firstoracle.input.parsers.classes.*;
+import com.firststory.firstoracle.object2D.*;
 
 import java.util.List;
 
@@ -26,7 +19,7 @@ public class ObjectParser2D extends ObjectParser<
     Position2D,
     Index2D,
     PositionableObject2D< ?, ? >,
-    Terrain2D< ? >,
+    Terrain2D< ?, ? >,
     Object2DClassParser,
     Terrain2DClassParser
 > {

@@ -11,7 +11,7 @@ import com.firststory.firstoracle.object2D.Terrain2D;
 /**
  * @author n1t4chi
  */
-public class Terrain2DClassParser extends TerrainClassParser< Terrain2D< ? > > {
+public class Terrain2DClassParser extends TerrainClassParser< Terrain2D< ?, ? > > {
     
     @Override
     public String getSharedName() {
@@ -20,8 +20,8 @@ public class Terrain2DClassParser extends TerrainClassParser< Terrain2D< ? > > {
     
     @Override
     @SuppressWarnings( {"unchecked",  "rawtypes"} )
-    public Class< Terrain2D< ? > > getBaseClass() {
-        return ( Class< Terrain2D< ? > > ) ( ( Class< ? extends Terrain2D > ) Terrain2D.class );
+    public Class< Terrain2D< ?, ? > > getBaseClass() {
+        return ( Class< Terrain2D< ?, ? > > ) ( ( Class< ? extends Terrain2D > ) Terrain2D.class );
     }
     
     @Override

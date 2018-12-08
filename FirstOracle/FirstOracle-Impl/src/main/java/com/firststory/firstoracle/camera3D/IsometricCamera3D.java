@@ -99,6 +99,10 @@ public class IsometricCamera3D extends Camera3D {
         return true;
     }
     
+    public WindowSettings getSettings() {
+        return settings;
+    }
+    
     private void updateMatrix() {
         if ( mustUpdate() ) {
             var planeX = initialHalfXSize;

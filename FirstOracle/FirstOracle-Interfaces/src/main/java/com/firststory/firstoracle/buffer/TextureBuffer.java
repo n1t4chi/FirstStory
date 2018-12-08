@@ -6,8 +6,6 @@ package com.firststory.firstoracle.buffer;
 
 import com.firststory.firstoracle.data.TextureData;
 
-import java.io.IOException;
-
 /**
  * @author n1t4chi
  */
@@ -57,7 +55,7 @@ public class TextureBuffer<Context> implements DataBuffer< TextureData > {
             loader.loadUnsafe( context, data.getByteBuffer(), data.getName() );
             this.data = data;
             isLoaded = true;
-        } catch ( IOException e ) {
+        } catch ( Exception e ) {
             throw new BufferNotCreatedException( e );
         }
     }

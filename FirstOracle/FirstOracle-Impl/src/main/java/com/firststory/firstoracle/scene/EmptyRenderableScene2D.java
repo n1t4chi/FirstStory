@@ -5,14 +5,11 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.camera2D.Camera2D;
-import com.firststory.firstoracle.camera2D.IdentityCamera2D;
+import com.firststory.firstoracle.camera2D.*;
 import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
+import com.firststory.firstoracle.object2D.*;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -28,7 +25,7 @@ public class EmptyRenderableScene2D implements RenderableScene2D {
     private EmptyRenderableScene2D() {}
     
     @Override
-    public Terrain2D< ? >[][] getTerrains2D() {
+    public Terrain2D< ?, ? >[][] getTerrains2D() {
         return new Terrain2D[ 0 ][];
     }
     

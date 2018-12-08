@@ -5,14 +5,11 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.camera3D.IdentityCamera3D;
+import com.firststory.firstoracle.camera3D.*;
 import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
+import com.firststory.firstoracle.object3D.*;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -28,7 +25,7 @@ public class EmptyRenderableScene3D implements RenderableScene3D {
     private EmptyRenderableScene3D() {}
     
     @Override
-    public Terrain3D< ? >[][][] getTerrains3D() {
+    public Terrain3D< ?, ? >[][][] getTerrains3D() {
         return new Terrain3D[ 0 ][][];
     }
     

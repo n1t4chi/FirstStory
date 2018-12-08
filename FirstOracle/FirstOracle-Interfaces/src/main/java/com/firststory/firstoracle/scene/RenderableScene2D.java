@@ -6,13 +6,10 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
+import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.rendering.RenderData;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -23,7 +20,7 @@ public interface RenderableScene2D {
     
     Collection< PositionableObject2D< ?, ? > > getObjects2D();
     
-    Terrain2D< ? >[][] getTerrains2D();
+    Terrain2D< ?, ? >[][] getTerrains2D();
     
     Index2D getTerrain2DShift();
     
@@ -38,7 +35,7 @@ public interface RenderableScene2D {
                 var terrain = terrainsY[ y ];
                 if( terrain != null ) {
                     list.addAll(
-                        terrain.getRenderData( terrain.computePosition( x, y, terrainShift ),
+                        terrain.getRenderData( terrain.getPositionCalculator().indexToPosition( x, y, terrainShift ),
                         currentRenderTime,
                         cameraRotation )
                     );

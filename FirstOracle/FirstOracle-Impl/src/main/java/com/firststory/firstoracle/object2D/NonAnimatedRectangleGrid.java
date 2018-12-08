@@ -4,16 +4,14 @@
 
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.object.PlaneUvMap;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object.*;
 
 /**
  * @author n1t4chi
  */
 public class NonAnimatedRectangleGrid
     extends
-        AbstractTerrain2D< Plane2DVertices >
+        AbstractTerrain2D< Plane2DVertices, RectanglePositionCalculator >
     implements
         RectangleGrid,
         NonAnimatedObject2D< Identity2DTransformations, Plane2DVertices >,

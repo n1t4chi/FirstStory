@@ -6,11 +6,9 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
+import com.firststory.firstoracle.object2D.*;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -20,12 +18,12 @@ public class RenderableScene2DImpl implements RenderableScene2D {
     private final Camera2D camera;
     private final List< PositionableObject2D< ?, ? > > objects;
     private final Index2D terrainShift;
-    private final Terrain2D< ? >[][] terrains;
+    private final Terrain2D< ?, ? >[][] terrains;
     
     public RenderableScene2DImpl(
         Camera2D camera,
         List< PositionableObject2D< ?, ? > > objects,
-        Terrain2D< ? >[][] terrains,
+        Terrain2D< ?, ? >[][] terrains,
         Index2D terrainShift
     ) {
         this.camera = camera;
@@ -35,7 +33,7 @@ public class RenderableScene2DImpl implements RenderableScene2D {
     }
     
     @Override
-    public Terrain2D< ? >[][] getTerrains2D() {
+    public Terrain2D< ?, ? >[][] getTerrains2D() {
         return terrains;
     }
     

@@ -4,9 +4,7 @@
 
 package com.firststory.firstoracle.templates.thesis.examples;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.WindowMode;
-import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object3D.NonAnimatedCube;
 import com.firststory.firstoracle.window.WindowBuilder;
@@ -25,7 +23,7 @@ public class PerspectiveComparison {
         var perspective = new Matrix4f()
             .setPerspective( 90, 1, 1, POSITIVE_INFINITY )
             .lookAtPerspective(
-                -4, 4, 4,
+                -3f, 3f, 3f,
                 0, 0, 0,
                 0, 1, 0,
                 new Matrix4f()
@@ -51,8 +49,8 @@ public class PerspectiveComparison {
     
     public static void display( Matrix4f matrix4f, String name ) {
         System.setProperty( "DrawBorder", "true" );
-        var width = 300;
-        var height = 300;
+        var width = 700;
+        var height = 700;
         var settings = WindowSettings.builder().setVerticalSync( false )
             .setTitle( name )
             .setResizeable( false )

@@ -9,8 +9,7 @@ import org.joml.AABBf;
 
 import java.util.List;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 /**
  * @author n1t4chi
@@ -163,7 +162,7 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         minX *= scale.x();
         minX += position.x();
         maxX *= scale.x();
-        maxX += position.y();
+        maxX += position.x();
         minY *= scale.y();
         minY += position.y();
         maxY *= scale.y();
@@ -172,6 +171,7 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         minZ += position.z();
         maxZ *= scale.z();
         maxZ += position.z();
+        
         return new BoundingBox3D( minX, maxX, minY, maxY, minZ, maxZ );
     }
 }

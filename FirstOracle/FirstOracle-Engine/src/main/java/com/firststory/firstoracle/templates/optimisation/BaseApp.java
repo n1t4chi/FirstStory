@@ -48,7 +48,7 @@ public class BaseApp {
     }
     
     BaseApp(
-        Terrain2D< ? >[][] terrains2D,
+        Terrain2D< ?, ? >[][] terrains2D,
         Index2D terrain2dShift,
         List< PositionableObject2D< ?, ? > > renderables2D,
         BiConsumer< SceneData, RegistrableWindow > createScene
@@ -65,7 +65,7 @@ public class BaseApp {
     }
     
     BaseApp(
-        Terrain3D< ? >[][][] terrains3D,
+        Terrain3D< ?, ? >[][][] terrains3D,
         Index3D terrain3dShift,
         List< PositionableObject3D< ?, ? > > renderables3D,
         BiConsumer< SceneData, RegistrableWindow > createScene
@@ -82,10 +82,10 @@ public class BaseApp {
     }
     
     private BaseApp(
-        Terrain2D< ? >[][] terrains2D,
+        Terrain2D< ?, ? >[][] terrains2D,
         Index2D terrain2dShift,
         List< PositionableObject2D< ?, ? > > renderables2D,
-        Terrain3D< ? >[][][] terrains3D,
+        Terrain3D< ?, ? >[][][] terrains3D,
         Index3D terrain3dShift,
         List< PositionableObject3D< ?, ? > > renderables3D,
         BiConsumer< SceneData, RegistrableWindow > createScene
@@ -179,20 +179,20 @@ public class BaseApp {
     
     private class SceneData {
         
-        private final Terrain2D< ? >[][] terrains2D;
+        private final Terrain2D< ?, ? >[][] terrains2D;
         private final Index2D terrain2dShift;
         private final Index2D terrain2dSize;
-        private final Terrain3D< ? >[][][] terrains3D;
+        private final Terrain3D< ?, ? >[][][] terrains3D;
         private final Index3D terrain3dShift;
         private final Index3D terrain3dSize;
         private final List< PositionableObject3D< ?, ? > > renderables3D;
         private final List< PositionableObject2D< ?, ? > > renderables2D;
         
         private SceneData(
-            Terrain2D< ? >[][] terrains2D,
+            Terrain2D< ?, ? >[][] terrains2D,
             Index2D terrain2dShift,
             Index2D terrain2dSize,
-            Terrain3D< ? >[][][] terrains3D,
+            Terrain3D< ?, ? >[][][] terrains3D,
             Index3D terrain3dShift,
             Index3D terrain3dSize,
             List< PositionableObject3D< ?, ? > > renderables3D,

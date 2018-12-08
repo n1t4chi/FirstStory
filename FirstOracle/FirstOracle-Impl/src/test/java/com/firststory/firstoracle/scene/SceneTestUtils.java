@@ -7,8 +7,7 @@ package com.firststory.firstoracle.scene;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.rendering.RenderData;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
+import org.joml.*;
 
 import java.util.Set;
 import java.util.function.Predicate;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public interface SceneTestUtils {
     
-    float DIST_BUFFOR = 1;
+    float DIST_BUFFOR = 3;
     
     static Vector3fc vec3( float x, float y, float z ) {
         return new Vector3f( x, y, z );

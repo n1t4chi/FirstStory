@@ -5,8 +5,7 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
+import org.joml.*;
 
 import static com.firststory.firstoracle.FirstOracleConstants.vec3ToStr;
 
@@ -93,8 +92,7 @@ class Line3D {
             if( FirstOracleConstants.isClose( point0Dim, dim ) ) {
                 return point0;
             }
-            System.err.println( " Returning " );
-            return point0;
+            return null;
         }
         var t = ( dim - point0Dim ) / directionDim;
         return new Vector3f( this.direction ).mul( t ).add( point0 );

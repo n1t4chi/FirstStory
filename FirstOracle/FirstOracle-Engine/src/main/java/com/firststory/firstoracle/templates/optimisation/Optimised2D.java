@@ -7,12 +7,8 @@ package com.firststory.firstoracle.templates.optimisation;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.input.SceneParser;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.scene.RegistrableBackgroundImpl;
-import com.firststory.firstoracle.scene.RegistrableOverlayImpl;
-import com.firststory.firstoracle.scene.RegistrableScene3DImpl;
-import com.firststory.firstoracle.scene.RegistrableSceneImpl;
+import com.firststory.firstoracle.object2D.*;
+import com.firststory.firstoracle.scene.*;
 
 import java.util.List;
 
@@ -22,7 +18,7 @@ import java.util.List;
 public class Optimised2D extends BaseApp {
     
     public Optimised2D(
-        Terrain2D< ? >[][] terrains2D,
+        Terrain2D< ?, ? >[][] terrains2D,
         Index2D terrain2dShift,
         List< PositionableObject2D< ?, ? > > renderables2D
     ) {

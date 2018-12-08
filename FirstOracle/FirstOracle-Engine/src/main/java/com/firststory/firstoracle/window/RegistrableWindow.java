@@ -7,20 +7,12 @@ package com.firststory.firstoracle.window;
 import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.gui.GuiApplicationData;
-import com.firststory.firstoracle.gui.GuiFrameworkProvider;
-import com.firststory.firstoracle.object2D.PositionableObject2D;
-import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
-import com.firststory.firstoracle.rendering.Renderer;
-import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
-import com.firststory.firstoracle.scene.RegistrableScene;
-import com.firststory.firstoracle.scene.RegistrableSceneImpl;
-import com.firststory.firstoracle.scene.RegistrableSceneProvider;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.gui.*;
+import com.firststory.firstoracle.object2D.*;
+import com.firststory.firstoracle.object3D.*;
+import com.firststory.firstoracle.rendering.*;
+import com.firststory.firstoracle.scene.*;
 
 import java.util.Collection;
 
@@ -137,11 +129,11 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).deregisterObject3D( object );
     }
     
-    public void registerTerrains3D( int index, Terrain3D< ? > terrain, Index3D terrainIndex ) {
+    public void registerTerrains3D( int index, Terrain3D< ?, ? > terrain, Index3D terrainIndex ) {
         getScene( index ).registerTerrain3D( terrain, terrainIndex);
     }
     
-    public void deregisterTerrains3D( int index, Terrain3D< ? > terrain, Index3D terrainIndex ) {
+    public void deregisterTerrains3D( int index, Terrain3D< ?, ? > terrain, Index3D terrainIndex ) {
         getScene( index ).deregisterTerrain3D( terrain, terrainIndex );
     }
     
@@ -149,11 +141,11 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).deregisterAllObjects3D();
     }
     
-    public void registerTerrains3D( int index, Terrain3D< ? > terrain, int x, int y, int z ) {
+    public void registerTerrains3D( int index, Terrain3D< ?, ? > terrain, int x, int y, int z ) {
         getScene( index ).registerTerrain3D( terrain, x, y, z );
     }
     
-    public void deregisterTerrains3D( int index, Terrain3D< ? > terrain, int x, int y, int z ) {
+    public void deregisterTerrains3D( int index, Terrain3D< ?, ? > terrain, int x, int y, int z ) {
         getScene( index ).deregisterTerrain3D( terrain, x, y, z );
     }
     
@@ -161,7 +153,7 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).deregisterMultipleObjects3D( objects );
     }
     
-    public void deregisterMultipleTerrains3D( int index, Terrain3D< ? > terrain, Collection< Index3D > positions ) {
+    public void deregisterMultipleTerrains3D( int index, Terrain3D< ?, ? > terrain, Collection< Index3D > positions ) {
         getScene( index ).deregisterMultipleTerrains3D( terrain, positions );
     }
     
@@ -169,11 +161,11 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).registerMultipleObjects3D( objects );
     }
     
-    public void registerMultipleTerrains3D( int index, Terrain3D< ? > terrain, Collection< Index3D > indices ) {
+    public void registerMultipleTerrains3D( int index, Terrain3D< ?, ? > terrain, Collection< Index3D > indices ) {
         getScene( index ).registerMultipleTerrains3D( terrain, indices );
     }
     
-    public void registerMultipleTerrains3D( int index, Terrain3D< ? >[][][] terrainsXYZ ) {
+    public void registerMultipleTerrains3D( int index, Terrain3D< ?, ? >[][][] terrainsXYZ ) {
         getScene( index ).registerMultipleTerrains3D( terrainsXYZ );
     }
     
@@ -185,11 +177,11 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).deregisterObject2D( object );
     }
     
-    public void registerTerrains2D( int index, Terrain2D< ? > terrain, Index2D terrainIndex ) {
+    public void registerTerrains2D( int index, Terrain2D< ?, ? > terrain, Index2D terrainIndex ) {
         getScene( index ).registerTerrain2D( terrain, terrainIndex );
     }
     
-    public void deregisterTerrains2D( int index, Terrain2D< ? > terrain, Index2D terrainIndex ) {
+    public void deregisterTerrains2D( int index, Terrain2D< ?, ? > terrain, Index2D terrainIndex ) {
         getScene( index ).deregisterTerrain2D( terrain, terrainIndex );
     }
     
@@ -197,11 +189,11 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).deregisterAllObjects2D();
     }
     
-    public void deregisterTerrains2D( int index, Terrain2D< ? > terrain, int x, int y ) {
+    public void deregisterTerrains2D( int index, Terrain2D< ?, ? > terrain, int x, int y ) {
         getScene( index ).deregisterTerrain2D( terrain, x, y );
     }
     
-    public void registerTerrains2D( int index, Terrain2D< ? > terrain, int x, int y ) {
+    public void registerTerrains2D( int index, Terrain2D< ?, ? > terrain, int x, int y ) {
         getScene( index ).registerTerrain2D( terrain, x, y );
     }
     
@@ -209,7 +201,7 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).deregisterMultipleObjects2D( objects );
     }
     
-    public void deregisterMultipleTerrains2D( int index, Terrain2D< ? > terrain, Collection< Index2D > indices ) {
+    public void deregisterMultipleTerrains2D( int index, Terrain2D< ?, ? > terrain, Collection< Index2D > indices ) {
         getScene( index ).deregisterMultipleTerrains2D( terrain, indices );
     }
     
@@ -217,11 +209,11 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).registerMultipleObjects2D( objects );
     }
     
-    public void registerMultipleTerrains2D( int index, Terrain2D< ? > terrain, Collection< Index2D > indices ) {
+    public void registerMultipleTerrains2D( int index, Terrain2D< ?, ? > terrain, Collection< Index2D > indices ) {
         getScene( index ).registerMultipleTerrains2D( terrain, indices );
     }
     
-    public void registerMultipleTerrains2D( int index, Terrain2D< ? >[][] terrainsXY ) {
+    public void registerMultipleTerrains2D( int index, Terrain2D< ?, ? >[][] terrainsXY ) {
         getScene( index ).registerMultipleTerrains2D( terrainsXY );
     }
     

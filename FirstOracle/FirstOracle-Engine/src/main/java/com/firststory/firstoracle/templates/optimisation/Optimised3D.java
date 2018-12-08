@@ -7,12 +7,8 @@ package com.firststory.firstoracle.templates.optimisation;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.input.SceneParser;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.object3D.Terrain3D;
-import com.firststory.firstoracle.scene.RegistrableBackgroundImpl;
-import com.firststory.firstoracle.scene.RegistrableOverlayImpl;
-import com.firststory.firstoracle.scene.RegistrableScene2DImpl;
-import com.firststory.firstoracle.scene.RegistrableSceneImpl;
+import com.firststory.firstoracle.object3D.*;
+import com.firststory.firstoracle.scene.*;
 
 import java.util.List;
 
@@ -22,7 +18,7 @@ import java.util.List;
 public class Optimised3D extends BaseApp {
     
     public Optimised3D(
-        Terrain3D< ? >[][][] terrains3D,
+        Terrain3D< ?, ? >[][][] terrains3D,
         Index3D terrain3dShift,
         List< PositionableObject3D< ?, ? > > renderables3D
     ) {
