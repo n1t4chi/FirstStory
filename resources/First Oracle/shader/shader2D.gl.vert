@@ -3,8 +3,10 @@
 
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec2 vertexUV;
+layout (location = 2) in vec4 vertexColour;
 
 layout (location = 0) out vec2 UV;
+layout (location = 1) out vec4 colour;
 
 uniform mat4 camera;
 uniform vec2 translation;
@@ -18,6 +20,7 @@ float toRadians(float angle){
 
 void main(){
     UV = vertexUV;
+    colour = vertexColour;
     float posX = vertexPosition.x*scale.x;
     float posY = vertexPosition.y*scale.y;
 

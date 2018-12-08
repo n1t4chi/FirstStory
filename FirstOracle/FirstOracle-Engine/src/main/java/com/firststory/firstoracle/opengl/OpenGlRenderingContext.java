@@ -7,12 +7,9 @@ package com.firststory.firstoracle.opengl;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.data.LineType;
-import com.firststory.firstoracle.rendering.RenderData;
-import com.firststory.firstoracle.rendering.RenderingContext;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.rendering.*;
+import org.lwjgl.opengl.*;
 
 import java.util.List;
 
@@ -136,11 +133,13 @@ public class OpenGlRenderingContext implements RenderingContext {
     void enableVertexAttributes() {
         GL20.glEnableVertexAttribArray( 0 );
         GL20.glEnableVertexAttribArray( 1 );
+        GL20.glEnableVertexAttribArray( 2 );
     }
     
     void disableVertexAttributes() {
         GL20.glDisableVertexAttribArray( 0 );
         GL20.glDisableVertexAttribArray( 1 );
+        GL20.glDisableVertexAttribArray( 2 );
     }
     
     private void disableDepth() {

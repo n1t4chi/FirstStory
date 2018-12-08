@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.*;
 import java.util.function.*;
 import java.util.logging.*;
+import java.util.stream.IntStream;
 
 import static com.firststory.firstoracle.data.Colour.col;
 import static com.firststory.firstoracle.data.Index2D.id2;
@@ -101,7 +102,15 @@ public interface FirstOracleConstants {
     LineData RED_LINE_LOOP = LineData.lineLoop( 1, FirstOracleConstants.RED );
     LineData NONE = null;
     
-    Colouring EMPTY_COLOURING = new Colouring( Collections.singletonList( col( 0, 0, 0, 0 ) ) );
+    Colouring EMPTY_COLOURING = createEmptyColouring();
+    private static Colouring createEmptyColouring() {
+        var list = new ArrayList< Colour >();
+    
+        var col = col( 0, 0, 0, 0 );
+        IntStream.rangeClosed( 0, 300_000 ).forEach( i -> list.add( col ) );
+        return new Colouring( list );
+    }
+    
     UvMap EMPTY_UV_MAP = new UvMap( singletonArray2D( Arrays.asList( uv( 0,0 ), uv( 1,1 ), uv( 1,0 ) ) ) );
     Texture EMPTY_TEXTURE = createEmptyTexture();
     

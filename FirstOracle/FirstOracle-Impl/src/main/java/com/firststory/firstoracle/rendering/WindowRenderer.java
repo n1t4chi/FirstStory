@@ -3,16 +3,11 @@
  */
 package com.firststory.firstoracle.rendering;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.PropertiesUtil;
-import com.firststory.firstoracle.ReflectionUtils;
-import com.firststory.firstoracle.scene.RenderableScene;
-import com.firststory.firstoracle.scene.SceneProvider;
+import com.firststory.firstoracle.*;
+import com.firststory.firstoracle.scene.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.logging.*;
 
 import static com.firststory.firstoracle.rendering.DummyGrid2D.DUMMY_GRID_2D;
 import static com.firststory.firstoracle.rendering.DummyGrid3D.DUMMY_GRID_3D;
@@ -91,29 +86,35 @@ public class WindowRenderer implements Renderer {
         renderingContext.renderBackground(
             scene.getBackground().getBackgroundCamera(),
             scene.getBackground().getBackgroundColour(),
-            scene.getBackground().getBackgroundRenderData( currentRenderTime, cameraRotation2D )
+            scene.getBackground().getBackgroundRenderData( currentRenderTime, 0 )
         );
         renderingContext.renderScene2D(
             scene.getScene2D().getScene2DCamera(),
             mergeLists(
-                scene.getScene2D().getObjects2DRenderData( currentRenderTime, cameraRotation2D ),
-                grid2D.toRenderDataList()
+                grid2D.toRenderDataList(),
+                scene.getScene2D().getObjects2DRenderData( currentRenderTime, cameraRotation2D )
             )
         );
         renderingContext.renderScene3D(
             scene.getScene3D().getScene3DCamera(),
             mergeLists(
-                scene.getScene3D().getObjects3DRenderData( currentRenderTime, cameraRotation3D ),
-                grid3D.toRenderDataList()
+                grid3D.toRenderDataList(),
+                scene.getScene3D().getObjects3DRenderData( currentRenderTime, cameraRotation3D )
             )
         );
         renderingContext.renderOverlay(
             scene.getOverlay().getOverlayCamera(),
-            scene.getOverlay().getOverlayRenderData( currentRenderTime, cameraRotation2D )
+            scene.getOverlay().getOverlayRenderData( currentRenderTime, 0 )
         );
     }
     
     private List< RenderData > mergeLists( List< RenderData > list1, List< RenderData > list2 ) {
+        if( list1.isEmpty() ) {
+            return list2;
+        }
+        if( list2.isEmpty() ) {
+            return list1;
+        }
         var list = new ArrayList<>( list1 );
         list.addAll( list2 );
         return list;

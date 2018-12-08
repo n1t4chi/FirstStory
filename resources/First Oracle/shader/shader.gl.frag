@@ -1,13 +1,14 @@
 #version 330 core
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (location = 0) in vec2 UV;
-
+layout( location = 0 ) in vec2 UV;
+layout( location = 1 ) in vec4 colour;
 layout( location = 0 ) out vec4 outColor;
-
 uniform sampler2D textureSampler;
 uniform vec4 overlayColour;
 uniform float maxAlphaChannel;
+
+
 
 void mixColour( in vec4 base, in vec4 overlay, out vec4 ret ) {
     if( overlay.a >= 1 ){
@@ -22,18 +23,17 @@ void mixColour( in vec4 base, in vec4 overlay, out vec4 ret ) {
 
         ret = vec4( r/a, g/a, b/a, a );
     }
-    if( ret.a == 0 ) {
-        discard;
-    }
 }
 
 void main() {
-    vec4 baseVertexColour = texture( textureSampler, UV ).rgba;
-    //c = base.x * base.a + overlay.x * overlay.a*(1- base.a)
-    mixColour( baseVertexColour, overlayColour, outColor );
-//    mixColour( outColor, colour, outColor );
+    outColor = texture( textureSampler, UV ).rgba;
+    mixColour( outColor, colour, outColor );
+    mixColour( outColor, overlayColour, outColor );
 
-    if(maxAlphaChannel < outColor.a){
+    if( maxAlphaChannel < outColor.a ) {
         outColor.a = maxAlphaChannel;
+    }
+    if( outColor.a == 0 ) {
+        discard;
     }
 }
