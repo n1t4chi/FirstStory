@@ -40,8 +40,8 @@ public class OptimisedRegistrableScene2DImpl extends RegistrableScene2DImpl {
         var terrainsXY = getTerrains2D();
         var objects2D = getObjects2D();
         
-        var view = new CameraView( getScene2DCamera() );
-        var plane = view.getPlaneForZ( 0 );
+        var view = new CameraView2D( getScene2DCamera() );
+        var plane = view.getPlaneForDimOther( 0 );
     
         var minPosX = plane.minDim1_Floor();
         var maxPosX = plane.maxDim1_Ceil();
@@ -68,7 +68,7 @@ public class OptimisedRegistrableScene2DImpl extends RegistrableScene2DImpl {
                     var maxPosY = Math.max( bounds1.getMax(), bounds2.getMax() );
                     var minUnboundedIndexY = calculator.yPositionToIndex( minPosY, shift ) - 2;
                     var maxUnboundedIndexY = calculator.yPositionToIndex( maxPosY, shift ) + 2;
-                    if( maxUnboundedIndexY >= 0 || minUnboundedIndexY  < terrainsXY.length ) {
+                    if( maxUnboundedIndexY >= 0 || minUnboundedIndexY  < terrainsY.length ) {
                         var minIndexY = boundValue( minUnboundedIndexY, terrainsY );
                         var maxIndexY = boundValue( maxUnboundedIndexY, terrainsY );
                         for ( var indexY = minIndexY; indexY <= maxIndexY; indexY++ ) {
@@ -87,7 +87,7 @@ public class OptimisedRegistrableScene2DImpl extends RegistrableScene2DImpl {
         }
     
         for ( var object : objects2D ) {
-            if( view.shouldDisplay2D( object.getBBO() ) ) {
+            if( view.shouldDisplay( object.getBBO() ) ) {
                 list.addAll( object.getRenderData( currentRenderTime, cameraRotation ) );
             }
         }

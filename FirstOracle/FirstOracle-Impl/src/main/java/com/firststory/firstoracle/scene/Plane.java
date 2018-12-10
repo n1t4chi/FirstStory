@@ -21,23 +21,6 @@ class Plane {
     private final Function< Vector3fc , Float > dim1;
     private final Function< Vector3fc , Float > dim2;
     
-    static Plane planeXY(
-        Vector3fc highLeft,
-        Vector3fc right,
-        Vector3fc lowRight,
-        Vector3fc left
-    ) {
-        return new Plane( highLeft, right, lowRight, left, Vector3fc::x, Vector3fc::y );
-    }
-    static Plane planeXZ(
-        Vector3fc highLeft,
-        Vector3fc right,
-        Vector3fc lowRight,
-        Vector3fc left
-    ) {
-        return new Plane( highLeft, right, lowRight, left, Vector3fc::x, Vector3fc::z );
-    }
-    
     Plane(
         Vector3fc highLeft, 
         Vector3fc right, 

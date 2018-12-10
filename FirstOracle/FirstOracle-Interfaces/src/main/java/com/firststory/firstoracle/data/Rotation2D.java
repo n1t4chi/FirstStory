@@ -19,7 +19,7 @@ public class Rotation2D extends Rotation {
     
     @Override
     public String toString() {
-        return "Rotation2D{ " + ox() + " }";
+        return "Rotation2D{ " + oz() + " }";
     }
     
     public Float toVec1f() {

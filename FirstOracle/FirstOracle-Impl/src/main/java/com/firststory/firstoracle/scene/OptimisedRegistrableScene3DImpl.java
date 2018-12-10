@@ -35,71 +35,53 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
     @Override
     public List< RenderData > getObjects3DRenderData( double currentRenderTime, double cameraRotation ) {
         List< RenderData > list = new ArrayList<>(  );
-    
+        var terrainSize = getTerrainSize();
         var shift = getTerrain3DShift();
         var terrainsXYZ = getTerrains3D();
         var objects2D = getObjects3D();
     
-        var view = new CameraView( getScene3DCamera() );
-        var plane = view.getPlaneForZ( 0 );
+        var view = new CameraView3D( getScene3DCamera() );
     
-        var minPosX = plane.minDim1_Floor();
-        var maxPosX = plane.maxDim1_Ceil();
-        var minUnboundedIndexX = calculator.xPositionToIndex( minPosX, shift ) - 2;
-        var maxUnboundedIndexX = calculator.xPositionToIndex( maxPosX, shift ) + 2;
+        for ( var indexY = 0; indexY < terrainSize.y(); indexY++ ) {
+            var positionY = calculator.yIndexToPosition( indexY, shift );
+            var plane = view.getPlaneForDimOther( positionY );
     
-        if( maxUnboundedIndexX >= 0 || minUnboundedIndexX  < terrainsXYZ.length ) {
-            var minIndexX = boundValue( minUnboundedIndexX, terrainsXYZ );
-            var maxIndexX = boundValue( maxUnboundedIndexX, terrainsXYZ );
+            var minPosX = plane.minDim1_Floor();
+            var maxPosX = plane.maxDim1_Ceil();
+            var minUnboundedIndexX = calculator.xPositionToIndex( minPosX, shift ) - 2;
+            var maxUnboundedIndexX = calculator.xPositionToIndex( maxPosX, shift ) + 2;
+    
+            if( maxUnboundedIndexX >= 0 || minUnboundedIndexX  < terrainSize.x() ) {
+                var minIndexX = boundValue( minUnboundedIndexX, terrainSize.x() );
+                var maxIndexX = boundValue( maxUnboundedIndexX, terrainSize.x() );
         
-            for ( var indexX = minIndexX; indexX <= maxIndexX; indexX++ ) {
-                var terrainsYZ = terrainsXYZ[ indexX ];
-                var posX = calculator.xIndexToPosition( indexX, shift );
-                var bounds1 = plane.getBoundsAtDim1( posX-1 );
-                var bounds2 = plane.getBoundsAtDim1( posX+1 );
-                if( bounds1 != null || bounds2 != null ) {
-                    if( bounds1 == null ) {
-                        bounds1 = bounds2;
-                    }
-                    if( bounds2 == null ) {
-                        bounds2 = bounds1;
-                    }
-                    var minPosY = Math.min( bounds1.getMin(), bounds2.getMin() );
-                    var maxPosY = Math.max( bounds1.getMax(), bounds2.getMax() );
-                    var minUnboundedIndexY = calculator.yPositionToIndex( minPosY, shift ) - 2;
-                    var maxUnboundedIndexY = calculator.yPositionToIndex( maxPosY, shift ) + 2;
-                    if( maxUnboundedIndexY >= 0 || minUnboundedIndexY  < terrainsXYZ.length ) {
-                        var minIndexY = boundValue( minUnboundedIndexY, terrainsYZ );
-                        var maxIndexY = boundValue( maxUnboundedIndexY, terrainsYZ );
-                        for ( var indexY = minIndexY; indexY <= maxIndexY; indexY++ ) {
-                            var terrainsZ = terrainsYZ[ indexY ];
-                            var posY = calculator.yIndexToPosition( indexY, shift );
-                            var bounds3 = plane.getBoundsAtDim1( posY-1 );
-                            var bounds4 = plane.getBoundsAtDim1( posY+1 );
-                            if( bounds3 != null || bounds4 != null ) {
-                                if( bounds3 == null ) {
-                                    bounds3 = bounds4;
-                                }
-                                if( bounds4 == null ) {
-                                    bounds4 = bounds3;
-                                }
-                                var minPosZ = Math.min( bounds3.getMin(), bounds4.getMin() );
-                                var maxPosZ = Math.max( bounds3.getMax(), bounds4.getMax() );
-                                var minUnboundedIndexZ = calculator.zPositionToIndex( minPosZ, shift ) - 2;
-                                var maxUnboundedIndexZ = calculator.zPositionToIndex( maxPosZ, shift ) + 2;
-                                if( maxUnboundedIndexZ >= 0 || minUnboundedIndexZ  < terrainsZ.length ) {
-                                    var minIndexZ = boundValue( minUnboundedIndexZ, terrainsZ );
-                                    var maxIndexZ = boundValue( maxUnboundedIndexZ, terrainsZ );
-                                    for ( var indexZ = minIndexZ; indexZ <= maxIndexZ; indexZ++ ) {
-                                        var terrain = terrainsZ[ indexZ ];
-                                        if( terrain != null ) {
-                                            list.addAll( terrain.getRenderData(
-                                                terrain.indexToPosition( indexX, indexY, indexZ, shift ),
-                                                currentRenderTime,
-                                                cameraRotation )
-                                            );
-                                        }
-                                    }
+                for ( var indexX = minIndexX; indexX <= maxIndexX; indexX++ ) {
+                    var terrainsZ = terrainsXYZ[ indexX ][ indexY ];
+                    var posX = calculator.xIndexToPosition( indexX, shift );
+                    var bounds1 = plane.getBoundsAtDim1( posX-1 );
+                    var bounds2 = plane.getBoundsAtDim1( posX+1 );
+                    if( bounds1 != null || bounds2 != null ) {
+                        if( bounds1 == null ) {
+                            bounds1 = bounds2;
+                        }
+                        if( bounds2 == null ) {
+                            bounds2 = bounds1;
+                        }
+                        var minPosZ = Math.min( bounds1.getMin(), bounds2.getMin() );
+                        var maxPosZ = Math.max( bounds1.getMax(), bounds2.getMax() );
+                        var minUnboundedIndexZ = calculator.zPositionToIndex( minPosZ, shift ) - 2;
+                        var maxUnboundedIndexZ = calculator.zPositionToIndex( maxPosZ, shift ) + 2;
+                        if( maxUnboundedIndexZ >= 0 || minUnboundedIndexZ  < terrainSize.x() ) {
+                            var minIndexZ = boundValue( minUnboundedIndexZ, terrainSize.z() );
+                            var maxIndexZ = boundValue( maxUnboundedIndexZ, terrainSize.z() );
+                            for ( var indexZ = minIndexZ; indexZ <= maxIndexZ; indexZ++ ) {
+                                var terrain = terrainsZ[ indexZ ];
+                                if( terrain != null ) {
+                                    list.addAll( terrain.getRenderData(
+                                        terrain.indexToPosition( indexX, indexY, indexZ, shift ),
+                                        currentRenderTime,
+                                        cameraRotation )
+                                    );
                                 }
                             }
                         }
@@ -109,18 +91,18 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
         }
     
         for ( var object : objects2D ) {
-            if( view.shouldDisplay2D( object.getBBO() ) ) {
+            if( view.shouldDisplay( object.getBBO() ) ) {
                 list.addAll( object.getRenderData( currentRenderTime, cameraRotation ) );
             }
         }
         return list;
     }
     
-    private int boundValue( int value, Object[] array ) {
+    private int boundValue( int value, int arraySize) {
         if( value < 0 ) {
             return 0;
-        } else if ( value > array.length-1 ) {
-            return array.length-1;
+        } else if ( value > arraySize-1 ) {
+            return arraySize-1;
         }
         return value;
     }

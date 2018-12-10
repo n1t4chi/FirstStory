@@ -4,10 +4,7 @@
 
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.object.DirectionController;
-import com.firststory.firstoracle.object.FrameController;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object.*;
 
 /**
  * @author n1t4chi
@@ -15,7 +12,8 @@ import com.firststory.firstoracle.object.UvMap;
 public class AnimatedRectangle
     extends
         AbstractPositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >
-    implements Rectangle< MutablePositionable2DTransformations >,
+    implements
+        Rectangle< MutablePositionable2DTransformations >,
         AnimatedObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,

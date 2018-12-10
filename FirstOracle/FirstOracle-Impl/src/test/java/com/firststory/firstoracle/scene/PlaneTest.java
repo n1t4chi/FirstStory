@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.scene;
 
+import org.joml.Vector3fc;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -15,11 +16,13 @@ class PlaneTest {
     
     @Test
     void returnsValidMinMaxValues() {
-        var plane = Plane.planeXY(
+        var plane = new Plane(
             vec3( -3f, 2.5f, 0 ),
             vec3( 3.5f, 1.5f, 0 ),
             vec3( 1.5f, -5f, 0 ),
-            vec3( -4.5f, -2.5f, 0 )
+            vec3( -4.5f, -2.5f, 0 ),
+            Vector3fc::x,
+            Vector3fc::y
         );
         Assertions.assertEquals( 4, plane.maxDim1_Ceil(), MID_DELTA );
         Assertions.assertEquals( -5, plane.minDim1_Floor(), MID_DELTA );
@@ -29,11 +32,13 @@ class PlaneTest {
     
     @Test
     void returnsNullIfOutside() {
-        var plane = Plane.planeXY(
+        var plane = new Plane(
             vec3( -1, 1, 0 ),
             vec3( 1, 1, 0 ),
             vec3( 1, -1, 0 ),
-            vec3( -1, -1, 0 )
+            vec3( -1, -1, 0 ),
+            Vector3fc::x,
+            Vector3fc::y
         );
     
         var out1 = plane.getBoundsAtDim1( -2 );
@@ -54,11 +59,13 @@ class PlaneTest {
         "0.25, -5, 2",
     } )
     void returnsValidBoundariesOnXs1( float x, int expectedMin, int expectedMax ) {
-        var plane = Plane.planeXY(
+        var plane = new Plane(
             vec3( -3f, 2.5f, 0 ),
             vec3( 3.5f, 1.5f, 0 ),
             vec3( 1.5f, -5f, 0 ),
-            vec3( -4.5f, -2.5f, 0 )
+            vec3( -4.5f, -2.5f, 0 ),
+            Vector3fc::x,
+            Vector3fc::y
         );
         Assertions.assertEquals( new Bounds( expectedMin, expectedMax ) , plane.getBoundsAtDim1( x ) );
     }
@@ -72,11 +79,13 @@ class PlaneTest {
         "0.5, -1, 1",
     } )
     void returnsValidBoundariesOnXs2( float x, int expectedMin, int expectedMax ) {
-        var plane = Plane.planeXY(
+        var plane = new Plane(
             vec3( -1, 1, 0 ),
             vec3( 1, 1, 0 ),
             vec3( 1, -1, 0 ),
-            vec3( -1, -1, 0 )
+            vec3( -1, -1, 0 ),
+            Vector3fc::x,
+            Vector3fc::y
         );
         Assertions.assertEquals( new Bounds( expectedMin, expectedMax ) , plane.getBoundsAtDim1( x ) );
     }

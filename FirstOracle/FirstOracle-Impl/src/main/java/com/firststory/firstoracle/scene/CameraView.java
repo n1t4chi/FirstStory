@@ -13,7 +13,8 @@ import java.lang.Math;
 /**
  * @author n1t4chi
  */
-class CameraView {
+abstract class CameraView {
+    
     private final Matrix4f invMatrix;
     
     /*
@@ -32,10 +33,9 @@ class CameraView {
     private final Line3D right;
     private final Line3D lowRight;
     private final Line3D left;
-    
     CameraView( Camera camera ) {
         invMatrix = camera.getMatrixRepresentation().invert( new Matrix4f() ).scale( 1.1f );
-        
+    
         var lines = new Line3D[]{
             /*UpRight*/ createLine( 1, 1 ),
             /*DownRight*/ createLine( 1, -1 ),
@@ -49,81 +49,43 @@ class CameraView {
         lowRight = lines[ ( highLeftIndex + 2 ) % lines.length ];
         left = lines[ ( highLeftIndex + 3 ) % lines.length ];
     }
+
+    abstract float dim1( Vector3fc vector );
+
+    abstract float dim2( Vector3fc vector );
+
+    abstract float minDim1Box( BoundingBox< ?, ?, ? > box );
+
+    abstract float maxDim1Box( BoundingBox< ?, ?, ? > box );
+
+    abstract float minDim2Box( BoundingBox< ?, ?, ? > box );
+
+    abstract float maxDim2Box( BoundingBox< ?, ?, ? > box );
+
+    abstract float minDimOtherBox( BoundingBox< ?, ?, ? > box );
+
+    abstract float maxDimOtherBox( BoundingBox< ?, ?, ? > box );
     
-    public Plane getPlaneForZ( float z ) {
-        return Plane.planeXY(
-            highLeft.getPointAtZ( z ),
-            right.getPointAtZ( z ),
-            lowRight.getPointAtZ( z ),
-            left.getPointAtZ( z )
+    abstract Vector3fc pointAtDimOther( Line3D line, float dimOther );
+    
+    @Override
+    public String toString() {
+        return "CameraView{ hl=" + highLeft + ", r=" + right + ", lr=" + lowRight + ", l=" + left + '}';
+    }
+    
+    Plane getPlaneForDimOther( float dimOther ) {
+        return new Plane(
+            pointAtDimOther( highLeft, dimOther ),
+            pointAtDimOther( right, dimOther ),
+            pointAtDimOther( lowRight, dimOther ),
+            pointAtDimOther( left, dimOther ),
+            this::dim1,
+            this::dim2
         );
     }
     
-    public Plane getPlaneForY( float y ) {
-        return Plane.planeXZ(
-            highLeft.getPointAtY( y ),
-            right.getPointAtY( y ),
-            lowRight.getPointAtY( y ),
-            left.getPointAtY( y )
-        );
-    }
-    
-    boolean shouldDisplay2D( BoundingBox< ?, ?, ? > box ) {
-        return insideRectangleAtZ( box, box.getMinZ() ) || insideRectangleAtZ( box, box.getMaxZ() );
-    }
-    
-    private boolean insideRectangleAtZ( BoundingBox< ?, ?, ? > box, float z ) {
-        var l = left.getPointAtZ( z ).x();
-        var r = right.getPointAtZ( z ).x();
-        var lr = lowRight.getPointAtZ( z ).y();
-        var hl = highLeft.getPointAtZ( z ).y();
-        var minX = Math.min( l, r );
-        var maxX = Math.max( l, r );
-        var minY = Math.min( lr, hl );
-        var maxY = Math.max( lr, hl );
-        
-        return FirstOracleConstants.objectWithinBoundary(
-            box.getMinX(),
-            box.getMaxX(),
-            box.getMinY(),
-            box.getMaxY(),
-            minX,
-            maxX,
-            minY,
-            maxY
-        );
-    }
-    
-    boolean shouldDisplay3D( BoundingBox< ?, ?, ? > box ) {
-        return insideRectangleAtY( box, box.getMinY() ) || insideRectangleAtY( box, box.getMaxY() );
-    }
-    
-    private boolean insideRectangleAtY( BoundingBox< ?, ?, ? > box, float y ) {
-        var l = left.getPointAtY( y ).x();
-        var r = right.getPointAtY( y ).x();
-        var lr = lowRight.getPointAtY( y ).z();
-        var hl = highLeft.getPointAtY( y ).z();
-        var minX = Math.min( l, r );
-        var maxX = Math.max( l, r );
-        var minZ = Math.min( lr, hl );
-        var maxZ = Math.max( lr, hl );
-        
-        var v = FirstOracleConstants.objectWithinBoundary(
-            box.getMinX(),
-            box.getMaxX(),
-            box.getMinZ(),
-            box.getMaxZ(),
-            minX,
-            maxX,
-            minZ,
-            maxZ
-        );
-        
-        if( !v ) {
-            System.err.println( "not displayed ["+minX+","+maxX+"]x["+y+"]x["+minZ+","+maxZ+"] vs " + box );
-        }
-        
-        return v;
+    boolean shouldDisplay( BoundingBox< ?, ?, ? > box ) {
+        return insideRectangleAtOther( box, minDimOtherBox( box ) ) || insideRectangleAtOther( box, maxDimOtherBox( box ) );
     }
     
     Line3D getHighLeft() {
@@ -142,7 +104,27 @@ class CameraView {
         return left;
     }
     
-    
+    private boolean insideRectangleAtOther( BoundingBox< ?, ?, ? > box, float dimOther ) {
+        var l = dim1( pointAtDimOther( left, dimOther ) );
+        var r = dim1( pointAtDimOther( right, dimOther ) );
+        var lr = dim2( pointAtDimOther( lowRight, dimOther ) );
+        var hl = dim2( pointAtDimOther( highLeft, dimOther ) );
+        var minDim1 = Math.min( l, r );
+        var maxDim1 = Math.max( l, r );
+        var minDim2 = Math.min( lr, hl );
+        var maxDim2 = Math.max( lr, hl );
+        
+        return FirstOracleConstants.objectWithinBoundary(
+            minDim1Box( box ),
+            maxDim1Box( box ),
+            minDim2Box( box ),
+            maxDim2Box( box ),
+            minDim1,
+            maxDim1,
+            minDim2,
+            maxDim2
+        );
+    }
     
     private int selectHighLeftIndexAndSwapNeighboursIfNeeded( Line3D[] lines ) {
         var highLeftIndex = selectHighLeftIndex( lines );
@@ -161,17 +143,23 @@ class CameraView {
     }
     
     private int selectHighLeftIndex( Line3D[] lines ) {
-        return updateHightLeftIfPreviousIsValid( lines, selectHighLeftIndexBasedOnY( lines ) );
+        return updateHightLeftIfPreviousIsValid( lines, selectHighLeftIndexBasedOnDim2( lines ) );
     }
     
     private int updateHightLeftIfPreviousIsValid( Line3D[] lines, int highLeftIndex ) {
         var prev = getPrevIndex( lines, highLeftIndex );
-        if( lines[ highLeftIndex ].sameY( lines[ prev ] ) &&
-            lines[ highLeftIndex ].toRightOf( lines[ prev ] )
-        ) {
+        if( sameDim2( lines[ highLeftIndex ], lines[ prev ] ) && furtherOnDim1( lines[ highLeftIndex ], lines[ prev ] ) ) {
             highLeftIndex = prev;
         }
         return highLeftIndex;
+    }
+    
+    private boolean furtherOnDim1( Line3D line, Line3D line1 ) {
+        return dim1( line.getPoint0() ) > dim1( line1.getPoint0() );
+    }
+    
+    private boolean sameDim2( Line3D line, Line3D line1 ) {
+        return FirstOracleConstants.isReallyClose( dim2( line.getPoint0() ), dim2( line1.getPoint0() ) );
     }
     
     private int getPrevIndex( Line3D[] lines, int highLeftIndex ) {
@@ -182,14 +170,14 @@ class CameraView {
         return ( highLeftIndex + 1 ) % lines.length;
     }
     
-    private int selectHighLeftIndexBasedOnY( Line3D[] lines ) {
+    private int selectHighLeftIndexBasedOnDim2( Line3D[] lines ) {
         var highLeftIndex = 0;
-        var maxY = lines[0].getPoint0().y();
+        var maxDim2 = dim2( lines[0].getPoint0() );
         for( var it = 1; it< lines.length; it ++ ) {
-            var y = lines[ it ].getPoint0().y();
-            if( maxY < y ) {
+            var dim2 = this.dim2( lines[ it ].getPoint0() );
+            if( maxDim2 < dim2 ) {
                 highLeftIndex = it;
-                maxY = y;
+                maxDim2 = dim2;
             }
         }
         return highLeftIndex;
@@ -205,10 +193,5 @@ class CameraView {
     private Vector3f invertTo3D( Matrix4f invMatrix, Vector4f in ) {
         var vec4 = in.mul( invMatrix );
         return new Vector3f( vec4.x(), vec4.y(), vec4.z() );
-    }
-    
-    @Override
-    public String toString() {
-        return "CameraView{ hl=" + highLeft + ", r=" + right + ", lr=" + lowRight + ", l=" + left + '}';
     }
 }

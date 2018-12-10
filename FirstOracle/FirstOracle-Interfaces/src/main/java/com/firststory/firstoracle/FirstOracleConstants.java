@@ -286,20 +286,20 @@ public interface FirstOracleConstants {
     }
     
     static boolean objectWithinBoundary(
-        float objectMinX,
-        float objectMaxX,
-        float objectMinY,
-        float objectMaxY,
-        float boundaryMinX,
-        float boundaryMaxX,
-        float boundaryMinY,
-        float boundaryMaxY
+        float objectMinDim1,
+        float objectMaxDim1,
+        float objectMinDim2,
+        float objectMaxDim2,
+        float boundaryMinDim1,
+        float boundaryMaxDim1,
+        float boundaryMinDim2,
+        float boundaryMaxDim2
     ) {
         return !(
-            objectMaxX <= boundaryMinX ||
-            objectMinX >= boundaryMaxX ||
-            objectMaxY <= boundaryMinY ||
-            objectMinY >= boundaryMaxY
+            objectMaxDim1 <= boundaryMinDim1 ||
+            objectMinDim1 >= boundaryMaxDim1 ||
+            objectMaxDim2 <= boundaryMinDim2 ||
+            objectMinDim2 >= boundaryMaxDim2
         );
     }
     DecimalFormat FORMATTER = new DecimalFormat("#.##");
