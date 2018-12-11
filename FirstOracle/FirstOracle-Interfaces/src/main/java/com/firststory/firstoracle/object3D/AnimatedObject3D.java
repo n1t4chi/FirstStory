@@ -3,7 +3,6 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.DirectionController;
 import com.firststory.firstoracle.object.FrameController;
 
 /**
@@ -15,18 +14,9 @@ public interface AnimatedObject3D< Transformations extends Object3DTransformatio
     extends Object3D< Transformations, Vertices >
 {
     
-    DirectionController getDirectionController();
-    
-    void setDirectionController( DirectionController directionController );
-    
     FrameController getFrameController();
     
     void setFrameController( FrameController frameController );
-    
-    @Override
-    default int getCurrentUvMapDirection( double currentCameraRotation ) {
-        return getDirectionController().getCurrentDirection( currentCameraRotation );
-    }
     
     @Override
     default int getCurrentUvMapFrame( double currentTimeSnapshot ) {

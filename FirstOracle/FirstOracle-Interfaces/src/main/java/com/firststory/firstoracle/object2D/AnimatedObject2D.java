@@ -3,9 +3,7 @@
  */
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.object.DirectionController;
 import com.firststory.firstoracle.object.FrameController;
-import com.firststory.firstoracle.object.UvMap;
 
 /**
  * Class representing 2D Object, contains texture, UV mapping, vertices and objectTransformations.
@@ -16,20 +14,9 @@ public interface AnimatedObject2D< Transformations extends Object2DTransformatio
     extends Object2D< Transformations, Vertices >
 {
     
-    DirectionController getDirectionController();
-    
-    void setDirectionController( DirectionController directionController );
-    
     FrameController getFrameController();
     
     void setFrameController( FrameController frameController );
-    
-    void setUvMap( UvMap uvMap );
-    
-    @Override
-    default int getCurrentUvMapDirection( double currentCameraRotation ) {
-        return getDirectionController().getCurrentDirection( currentCameraRotation );
-    }
     
     @Override
     default int getCurrentUvMapFrame( double currentTimeSnapshot ) {

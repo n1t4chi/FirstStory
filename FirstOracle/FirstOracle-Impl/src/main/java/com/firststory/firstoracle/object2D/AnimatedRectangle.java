@@ -15,13 +15,14 @@ public class AnimatedRectangle
     implements
         Rectangle< MutablePositionable2DTransformations >,
         AnimatedObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        DirectableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTransformationsObject2D< Plane2DVertices >
 {
     
     private DirectionController directionController = direction -> 0;
-    private FrameController frameController;
+    private FrameController frameController = time -> 0;
     private Texture texture;
     private UvMap uvMap;
     
@@ -64,7 +65,6 @@ public class AnimatedRectangle
         return uvMap;
     }
     
-    @Override
     public void setUvMap( UvMap uvMap ) {
         this.uvMap = uvMap;
     }
