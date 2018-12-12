@@ -3,29 +3,16 @@
  */
 package com.firststory.firstoracle.templates;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.WindowMode;
-import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.controller.CameraController;
-import com.firststory.firstoracle.controller.CameraKeyMap;
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Index3D;
-import com.firststory.firstoracle.notyfying.WindowListener;
-import com.firststory.firstoracle.notyfying.WindowSizeEvent;
-import com.firststory.firstoracle.object.DefaultDirectionController;
-import com.firststory.firstoracle.object.LoopedFrameController;
-import com.firststory.firstoracle.object.PlaneUvMap;
-import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.*;
+import com.firststory.firstoracle.controller.*;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.notyfying.*;
+import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.*;
-import com.firststory.firstoracle.object3D.NonAnimatedCube;
-import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
-import com.firststory.firstoracle.object3D.NonAnimatedHexPrism;
-import com.firststory.firstoracle.object3D.PositionableObject3D;
-import com.firststory.firstoracle.window.RegistrableWindow;
-import com.firststory.firstoracle.window.WindowBuilder;
+import com.firststory.firstoracle.object3D.*;
+import com.firststory.firstoracle.window.*;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Main class that initialises whole test application.
@@ -68,19 +55,19 @@ public class TestGlfwApplication {
         var bgTex = Texture.create( "resources/First Oracle/background.png" );
         var ovTex = Texture.create( "resources/First Oracle/overlay.png" );
     
-        var bg = new NonAnimatedRectangle();
+        var bg = new DirectableRectangle();
         bg.setTexture( bgTex );
     
-        var ov = new NonAnimatedRectangle();
+        var ov = new DirectableRectangle();
         ov.setTexture( ovTex );
         ov.getTransformations().setPosition( 0, -0.5f );
         ov.getTransformations().setScale( 1f, 0.5f );
     
-        var rectangle = new NonAnimatedRectangle();
+        var rectangle = new DirectableRectangle();
         rectangle.setTexture( texture2D );
         rectangle.getTransformations().setPosition( 0, 4);
         
-        var rectangleCompound = new AnimatedRectangle();
+        var rectangleCompound = new FullyAnimatedRectangle();
         
         var frameController = new LoopedFrameController();
         var directionController = new DefaultDirectionController( compoundTexture.getDirections() );
@@ -89,24 +76,23 @@ public class TestGlfwApplication {
         frameController.setCurrentState( compoundTexture.getFrames(), 0, 1 );
         
         rectangleCompound.setFrameController( frameController );
-        rectangleCompound.setUvMap( new PlaneUvMap( compoundTexture ) );
         rectangleCompound.getTransformations().setPosition( 4, 4 );
         rectangleCompound.setTexture( compoundTexture );
         
-        var cube1 = new NonAnimatedCube();
+        var cube1 = new StaticCube();
         cube1.setTexture( texture3D_1 );
         cube1.getTransformations().setPosition( 0, 0, 0 );
     
-        var cube2 = new NonAnimatedCube();
+        var cube2 = new StaticCube();
         cube2.setTexture( texture3D_2 );
         cube2.getTransformations().setPosition( 4, 0, 0 );
     
-        var emptyHex = new NonAnimatedHexPrism();
+        var emptyHex = new StaticHexPrism();
         emptyHex.setTexture( FirstOracleConstants.EMPTY_TEXTURE );
         emptyHex.getTransformations().setPosition( 8, 0, 0 );
 
     
-        var terrain2D = new NonAnimatedRectangleGrid();
+        var terrain2D = new StaticRectangleGrid();
         terrain2D.setTexture( textureTerrain2D );
         
         var terrains2D = new RectangleGrid[ TERRAIN_2D_DIM.x() ][ TERRAIN_2D_DIM.y() ];
@@ -116,10 +102,10 @@ public class TestGlfwApplication {
             }
         }
         
-        var terrain3D = new NonAnimatedCubeGrid();
+        var terrain3D = new StaticCubeGrid();
         terrain3D.setTexture( textureTerrain3D );
         
-        var terrains3D = new NonAnimatedCubeGrid[ TERRAIN_3D_DIM.x() ][ TERRAIN_3D_DIM.y() ][ TERRAIN_3D_DIM.z() ];
+        var terrains3D = new StaticCubeGrid[ TERRAIN_3D_DIM.x() ][ TERRAIN_3D_DIM.y() ][ TERRAIN_3D_DIM.z() ];
         for ( var x = 0; x < terrains3D.length; x++ ) {
             for ( var y = 0; y < terrains3D[ x ].length; y++ ) {
                 for ( var z = 0; z < terrains3D[ x ][ y ].length; z++ ) {

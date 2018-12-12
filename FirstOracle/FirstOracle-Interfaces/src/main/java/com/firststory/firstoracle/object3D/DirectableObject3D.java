@@ -3,7 +3,8 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.DirectionController;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.object.DirectableObject;
 
 /**
  * Class representing 3D Object, contains texture, UV mapping, vertices and objectTransformations.
@@ -11,16 +12,7 @@ import com.firststory.firstoracle.object.DirectionController;
  * @author n1t4chi
  */
 public interface DirectableObject3D< Transformations extends Object3DTransformations, Vertices extends Vertices3D >
-    extends Object3D< Transformations, Vertices >
+    extends Object3D< Transformations, Vertices >,
+        DirectableObject< Position3D, Scale3D, Rotation3D, Transformations, BoundingBox3D, Vertices >
 {
-    
-    DirectionController getDirectionController();
-    
-    void setDirectionController( DirectionController directionController );
-    
-    @Override
-    default int getCurrentUvMapDirection( double currentCameraRotation ) {
-        return getDirectionController().getCurrentDirection( currentCameraRotation );
-    }
-    
 }

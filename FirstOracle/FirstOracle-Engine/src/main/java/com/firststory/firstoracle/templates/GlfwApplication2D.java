@@ -3,24 +3,15 @@
  */
 package com.firststory.firstoracle.templates;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.WindowMode;
-import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.camera2D.IdentityCamera2D;
-import com.firststory.firstoracle.controller.CameraController;
-import com.firststory.firstoracle.controller.CameraKeyMap;
-import com.firststory.firstoracle.object.DefaultDirectionController;
-import com.firststory.firstoracle.object.LoopedFrameController;
-import com.firststory.firstoracle.object.PlaneUvMap;
-import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.controller.*;
+import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.scene.*;
-import com.firststory.firstoracle.window.WindowBuilder;
-import com.firststory.firstoracle.window.WindowImpl;
+import com.firststory.firstoracle.window.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Main class that initialises whole test application.
@@ -58,21 +49,20 @@ public class GlfwApplication2D {
             4,
             6
         );
-        var terrain = new NonAnimatedRectangleGrid();
+        var terrain = new StaticRectangleGrid();
         terrain.setTexture( texture1 );
     
-        var object = new NonAnimatedRectangle();
+        var object = new DirectableRectangle();
         object.setTransformations( new MutablePositionable2DTransformations() );
         object.setTexture( texture2 );
         
         var directionController = new DefaultDirectionController( compoundTexture.getDirections() );
         var frameController = new LoopedFrameController();
-        var compound = new AnimatedRectangle();
+        var compound = new FullyAnimatedRectangle();
         frameController.setCurrentState( compoundTexture.getFrames(), 0, 1 );
         
         compound.setDirectionController( directionController );
         compound.setFrameController( frameController );
-        compound.setUvMap( new PlaneUvMap( compoundTexture ) );
         compound.setTexture( compoundTexture );
         compound.setTransformations( new MutablePositionable2DTransformations() );
         compound.getTransformations().setPosition( -4, -4 );

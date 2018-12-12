@@ -9,12 +9,12 @@ import com.firststory.firstoracle.object.*;
 /**
  * @author n1t4chi
  */
-public class NonAnimatedHexPrismGrid
+public class StaticHexPrismGrid
     extends
         AbstractTerrain3D< HexPrismVertices, HexPrismPositionCalculator >
     implements
         HexPrismGrid,
-        NonAnimatedObject3D< Identity3DTransformations, HexPrismVertices >,
+        StaticObject3D< Identity3DTransformations, HexPrismVertices >,
         MutableTextureObject3D< Identity3DTransformations, HexPrismVertices >
 {
     private Texture texture;

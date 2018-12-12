@@ -9,12 +9,12 @@ import com.firststory.firstoracle.object.*;
 /**
  * @author n1t4chi
  */
-public class NonAnimatedHexGrid
+public class StaticHexGrid
     extends
         AbstractTerrain2D< Hex2DVertices, HexPositionCalculator >
     implements
         Hex2DGrid,
-        NonAnimatedObject2D< Identity2DTransformations, Hex2DVertices >,
+        StaticObject2D< Identity2DTransformations, Hex2DVertices >,
         MutableTextureObject2D< Identity2DTransformations, Hex2DVertices >
 {
     private Texture texture;

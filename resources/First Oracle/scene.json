@@ -1,10 +1,10 @@
 {
   "sharedData": {
     "objectClasses2D": {
-      "obj2d": "NonAnimatedRectangle"
+      "obj2d": "FullyAnimatedRectangle"
     },
     "terrainClasses2D": {
-      "terr2d": "NonAnimatedRectangleGrid"
+      "terr2d": "StaticRectangleGrid"
     },
     "positionableTransformations2D": {
       "posTrans2D": "MutablePositionable2DTransformations"
@@ -22,10 +22,10 @@
       "scl2d": "1, 1"
     },
     "objectClasses3D": {
-      "obj3d": "StillDirectionalNonAnimatedPlane3D"
+      "obj3d": "FullyAnimatedPlane3D"
     },
     "terrainClasses3D": {
-      "terr3d": "NonAnimatedCubeGrid"
+      "terr3d": "StaticCubeGrid"
     },
     "rotations3D": {
       "rot3d": "0, 0, 0"

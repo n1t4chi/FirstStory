@@ -7,7 +7,9 @@ package com.firststory.firstoracle.object2D;
  * @author n1t4chi
  */
 public interface RectangleGrid
-    extends Terrain2D< Plane2DVertices, RectanglePositionCalculator >, Rectangle< Identity2DTransformations >
+    extends
+        Terrain2D< Plane2DVertices, RectanglePositionCalculator >,
+        Rectangle< Identity2DTransformations >
 {
     
     @Override

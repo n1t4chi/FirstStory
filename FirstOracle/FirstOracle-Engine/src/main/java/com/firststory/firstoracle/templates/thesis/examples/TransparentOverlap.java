@@ -4,14 +4,10 @@
 
 package com.firststory.firstoracle.templates.thesis.examples;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.WindowMode;
-import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
-import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.data.Position3D;
-import com.firststory.firstoracle.data.Rotation3D;
-import com.firststory.firstoracle.object3D.NonAnimatedPlane3D;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.object3D.StaticPlane3D;
 import com.firststory.firstoracle.window.WindowBuilder;
 
 /**
@@ -20,7 +16,7 @@ import com.firststory.firstoracle.window.WindowBuilder;
 public class TransparentOverlap {
     
     public static void main( String[] args ) throws Exception {
-        var front = new NonAnimatedPlane3D() {
+        var front = new StaticPlane3D() {
             @Override
             public Colour getOverlayColour() {
                 return Colour.col( 1,0,0,0.5f );
@@ -29,7 +25,7 @@ public class TransparentOverlap {
         front.setTexture( FirstOracleConstants.EMPTY_TEXTURE );
         front.setPosition( Position3D.pos3( 0, 0, 0 ) );
         
-        var back = new NonAnimatedPlane3D() {
+        var back = new StaticPlane3D() {
             @Override
             public Colour getOverlayColour() {
                 return Colour.col( 0,0,1,0.5f );
@@ -48,8 +44,8 @@ public class TransparentOverlap {
     }
     
     public static void display(
-        NonAnimatedPlane3D plane1,
-        NonAnimatedPlane3D plane2,
+        StaticPlane3D plane1,
+        StaticPlane3D plane2,
         String name,
         float rotX,
         float rotY
@@ -67,7 +63,7 @@ public class TransparentOverlap {
         var window = WindowBuilder.registrableWindow( settings ).build();
     
     
-        var plane3 = new NonAnimatedPlane3D() {
+        var plane3 = new StaticPlane3D() {
             @Override
             public Colour getOverlayColour() {
                 return Colour.col( 0,1,0,1f );

@@ -4,38 +4,37 @@
 
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.object.DirectionController;
-import com.firststory.firstoracle.object.PlaneUvMap;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.object.*;
 
 /**
  * @author n1t4chi
  */
-public class NonAnimatedRectangle
+public class DirectableRectangle
     extends
         AbstractPositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >
     implements
         Rectangle< MutablePositionable2DTransformations >,
         NonAnimatedObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        DirectableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTransformationsObject2D< Plane2DVertices >
 {
     private Texture texture;
     private DirectionController directionController = direction -> 0;
+    private UvMap uvMap;
     
-    public void setDirectionController( DirectionController directionController ) {
-        this.directionController = directionController;
+    public DirectableRectangle() {
+        setTransformations( new MutablePositionable2DTransformations() );
     }
     
     @Override
-    public int getCurrentUvMapDirection( double currentCameraRotation ) {
-        return directionController.getCurrentDirection( currentCameraRotation );
+    public DirectionController getDirectionController() {
+        return directionController;
     }
     
-    public NonAnimatedRectangle() {
-        setTransformations( new MutablePositionable2DTransformations() );
+    public void setDirectionController( DirectionController directionController ) {
+        this.directionController = directionController;
     }
     
     @Override
@@ -46,10 +45,16 @@ public class NonAnimatedRectangle
     @Override
     public void setTexture( Texture texture ) {
         this.texture = texture;
+        this.uvMap = PlaneUvMap.getPlaneUvMap(
+            texture.getDirections(),
+            texture.getFrames(),
+            texture.getColumns(),
+            texture.getRows()
+        );
     }
     
     @Override
     public UvMap getUvMap() {
-        return PlaneUvMap.getPlaneUvMap();
+        return uvMap;
     }
 }

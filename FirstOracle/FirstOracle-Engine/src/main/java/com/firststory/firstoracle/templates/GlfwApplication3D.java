@@ -3,20 +3,15 @@
  */
 package com.firststory.firstoracle.templates;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.WindowMode;
-import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.camera2D.IdentityCamera2D;
-import com.firststory.firstoracle.controller.CameraController;
-import com.firststory.firstoracle.controller.CameraKeyMap;
+import com.firststory.firstoracle.controller.*;
 import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object2D.NonAnimatedRectangle;
-import com.firststory.firstoracle.object3D.CubeGrid;
-import com.firststory.firstoracle.object3D.NonAnimatedCubeGrid;
+import com.firststory.firstoracle.object2D.DirectableRectangle;
+import com.firststory.firstoracle.object3D.*;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.*;
-import com.firststory.firstoracle.window.WindowBuilder;
-import com.firststory.firstoracle.window.WindowImpl;
+import com.firststory.firstoracle.window.*;
 
 import java.util.Collections;
 
@@ -60,11 +55,11 @@ public class GlfwApplication3D {
         //Texture path can be either file in filesystem or within jar
         var texture1 = Texture.create( "resources/First Oracle/grid.png" );
         var texture2 = Texture.create( "resources/First Oracle/texture3D.png" );
-        var overlayObject = new NonAnimatedRectangle();
+        var overlayObject = new DirectableRectangle();
         overlayObject.setTexture( texture1 );
         
         //Example initialisation of map
-        var terrain = new NonAnimatedCubeGrid();
+        var terrain = new StaticCubeGrid();
         terrain.setTexture( texture2 );
     
         var array = new CubeGrid[ 20 ][ 10 ][ 20 ];

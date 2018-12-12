@@ -9,22 +9,23 @@ import com.firststory.firstoracle.object.*;
 /**
  * @author n1t4chi
  */
-public class AnimatedRectangle
+public class FullyAnimatedRectangle
     extends
         AbstractPositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >
     implements
         Rectangle< MutablePositionable2DTransformations >,
         AnimatedObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
-        NonDirectableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        DirectableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTransformationsObject2D< Plane2DVertices >
 {
     private FrameController frameController = time -> 0;
+    private DirectionController directionController = direction -> 0;
     private Texture texture;
     private UvMap uvMap;
     
-    public AnimatedRectangle() {
+    public FullyAnimatedRectangle() {
         setTransformations( new MutablePositionable2DTransformations() );
     }
     
@@ -36,6 +37,15 @@ public class AnimatedRectangle
     @Override
     public void setFrameController( FrameController frameController ) {
         this.frameController = frameController;
+    }
+    
+    @Override
+    public DirectionController getDirectionController() {
+        return directionController;
+    }
+    
+    public void setDirectionController( DirectionController directionController ) {
+        this.directionController = directionController;
     }
     
     @Override

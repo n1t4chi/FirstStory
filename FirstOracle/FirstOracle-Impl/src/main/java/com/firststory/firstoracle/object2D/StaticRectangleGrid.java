@@ -9,12 +9,12 @@ import com.firststory.firstoracle.object.*;
 /**
  * @author n1t4chi
  */
-public class NonAnimatedRectangleGrid
+public class StaticRectangleGrid
     extends
         AbstractTerrain2D< Plane2DVertices, RectanglePositionCalculator >
     implements
         RectangleGrid,
-        NonAnimatedObject2D< Identity2DTransformations, Plane2DVertices >,
+        StaticObject2D< Identity2DTransformations, Plane2DVertices >,
         MutableTextureObject2D< Identity2DTransformations, Plane2DVertices >
 {
     private Texture texture;

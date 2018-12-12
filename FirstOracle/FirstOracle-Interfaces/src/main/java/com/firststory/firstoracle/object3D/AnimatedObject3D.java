@@ -3,7 +3,8 @@
  */
 package com.firststory.firstoracle.object3D;
 
-import com.firststory.firstoracle.object.FrameController;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.object.AnimatedObject;
 
 /**
  * Class representing 3D Object, contains texture, UV mapping, vertices and objectTransformations.
@@ -11,16 +12,8 @@ import com.firststory.firstoracle.object.FrameController;
  * @author n1t4chi
  */
 public interface AnimatedObject3D< Transformations extends Object3DTransformations, Vertices extends Vertices3D >
-    extends Object3D< Transformations, Vertices >
+    extends 
+        Object3D< Transformations, Vertices >,
+        AnimatedObject< Position3D, Scale3D, Rotation3D, Transformations, BoundingBox3D, Vertices >
 {
-    
-    FrameController getFrameController();
-    
-    void setFrameController( FrameController frameController );
-    
-    @Override
-    default int getCurrentUvMapFrame( double currentTimeSnapshot ) {
-        return getFrameController().getCurrentFrame( currentTimeSnapshot );
-    }
-    
 }

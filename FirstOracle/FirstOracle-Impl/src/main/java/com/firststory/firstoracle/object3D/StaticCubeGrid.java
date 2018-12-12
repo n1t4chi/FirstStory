@@ -9,12 +9,12 @@ import com.firststory.firstoracle.object.*;
 /**
  * @author n1t4chi
  */
-public class NonAnimatedCubeGrid
+public class StaticCubeGrid
     extends
         AbstractTerrain3D< CubeVertices, CubePositionCalculator >
     implements
         CubeGrid,
-        NonAnimatedObject3D< Identity3DTransformations, CubeVertices >,
+        StaticObject3D< Identity3DTransformations, CubeVertices >,
         MutableTextureObject3D< Identity3DTransformations, CubeVertices >
 {
     private Texture texture;

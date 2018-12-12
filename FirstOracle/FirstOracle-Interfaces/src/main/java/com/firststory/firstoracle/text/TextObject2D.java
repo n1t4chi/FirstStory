@@ -4,14 +4,10 @@
 
 package com.firststory.firstoracle.text;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.notyfying.WindowListener;
-import com.firststory.firstoracle.notyfying.WindowSizeEvent;
-import com.firststory.firstoracle.object.PlaneUvMap;
-import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object.UvMap;
+import com.firststory.firstoracle.notyfying.*;
+import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.window.Window;
 
@@ -22,7 +18,7 @@ public class TextObject2D
     extends
         AbstractPositionableObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >
     implements
-        NonAnimatedObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >,
+        StaticObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >,
         PositionableObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >,
         WindowListener
 {

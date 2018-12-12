@@ -15,6 +15,7 @@ public class AnimatedHexagon
     implements
         Hexagon2D< MutablePositionable2DTransformations >,
         AnimatedObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
+        NonDirectableObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         PositionableObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTransformationsObject2D< Hex2DVertices >
@@ -58,10 +59,5 @@ public class AnimatedHexagon
     
     public void setUvMap( UvMap uvMap ) {
         this.uvMap = uvMap;
-    }
-    
-    @Override
-    public int getCurrentUvMapDirection( double currentCameraRotation ) {
-        return 0;
     }
 }

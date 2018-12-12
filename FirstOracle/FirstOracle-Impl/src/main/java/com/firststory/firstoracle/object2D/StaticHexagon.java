@@ -9,25 +9,20 @@ import com.firststory.firstoracle.object.*;
 /**
  * @author n1t4chi
  */
-public class NonAnimatedHexagon
+public class StaticHexagon
     extends
         AbstractPositionableObject2D< MutablePositionable2DTransformations, Hex2DVertices >
     implements
         Hexagon2D< MutablePositionable2DTransformations >,
-        NonAnimatedObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
+        StaticObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         PositionableObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTransformationsObject2D< Hex2DVertices >
 {
     private Texture texture;
-    private DirectionController directionController = direction -> 0;
     
-    public NonAnimatedHexagon() {
+    public StaticHexagon() {
         setTransformations( new MutablePositionable2DTransformations() );
-    }
-    
-    public void setDirectionController( DirectionController directionController ) {
-        this.directionController = directionController;
     }
     
     @Override
@@ -43,10 +38,5 @@ public class NonAnimatedHexagon
     @Override
     public UvMap getUvMap() {
         return Hex2DUvMap.getHex2DUvMap();
-    }
-    
-    @Override
-    public int getCurrentUvMapDirection( double currentCameraRotation ) {
-        return directionController.getCurrentDirection( currentCameraRotation );
     }
 }

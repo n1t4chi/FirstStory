@@ -6,7 +6,7 @@ package com.firststory.firstoracle.templates.thesis.examples;
 
 import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.object.Texture;
-import com.firststory.firstoracle.object3D.NonAnimatedCube;
+import com.firststory.firstoracle.object3D.StaticCube;
 import com.firststory.firstoracle.window.WindowBuilder;
 import org.joml.Matrix4f;
 
@@ -61,7 +61,7 @@ public class PerspectiveComparison {
         
         var window = WindowBuilder.registrableWindow( settings ).build();
         
-        var cube = new NonAnimatedCube();
+        var cube = new StaticCube();
         Texture texture2D = null;
         try {
             texture2D = Texture.create( "resources/First Oracle/texture3Dc.png" );
