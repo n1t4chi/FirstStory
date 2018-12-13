@@ -3,23 +3,19 @@
  */
 package com.firststory.firstoracle.controller;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
-import com.firststory.firstoracle.key.Key;
-import com.firststory.firstoracle.key.KeyCode;
+import com.firststory.firstoracle.key.*;
 import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.window.WindowImpl;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import org.joml.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
+import java.lang.Math;
 
 /**
  * @author n1t4chi
@@ -88,10 +84,12 @@ public class CameraController extends Thread implements
     }
     
     public MovableCamera2D getCamera2D() {
+        updateMovableCamera2D( camera2D );
         return camera2D;
     }
     
     public IsometricCamera3D getCamera3D() {
+        updateIsometricCamera3D( camera3D );
         return camera3D;
     }
     
@@ -160,6 +158,10 @@ public class CameraController extends Thread implements
         return pos3D;
     }
     
+    public void setPos3D( float x, float y, float z ) {
+        this.pos3D.set( x, y, z );
+    }
+    
     public void setPos3D( Vector3f pos3D ) {
         this.pos3D = pos3D;
     }
@@ -170,6 +172,10 @@ public class CameraController extends Thread implements
     
     public void setPos2D( Vector2f pos2D ) {
         this.pos2D = pos2D;
+    }
+    
+    public void setPos2D( float x, float y ) {
+        this.pos2D.set( x, y );
     }
     
     public void setPos2DX( float X ) {

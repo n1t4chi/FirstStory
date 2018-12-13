@@ -16,7 +16,6 @@ public class StaticHexagon
         Hexagon2D< MutablePositionable2DTransformations >,
         StaticObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
-        PositionableObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTransformationsObject2D< Hex2DVertices >
 {
     private Texture texture;

@@ -12,19 +12,30 @@ import java.util.List;
 /**
  * @author n1t4chi
  */
-public class DirectablePlane3D
+public class FullyAnimatedAutoRotablePlane3D
     extends
-        SimplePlane3D
+        AutoRotablePlane3D
     implements
-        NonAnimatedObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
+        AnimatedObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
         DirectableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
 {
+    private FrameController frameController = time -> 0;
+    private DirectionController directionController = direction -> 0;
     private Texture texture;
     private UvMap uvMap;
-    private DirectionController directionController = direction -> 0;
     
-    public DirectablePlane3D() {
+    public FullyAnimatedAutoRotablePlane3D() {
         setTransformations( new MutablePositionable3DTransformations() );
+    }
+    
+    @Override
+    public FrameController getFrameController() {
+        return frameController;
+    }
+    
+    @Override
+    public void setFrameController( FrameController frameController ) {
+        this.frameController = frameController;
     }
     
     @Override
@@ -32,20 +43,18 @@ public class DirectablePlane3D
         return directionController;
     }
     
-    @Override
     public void setDirectionController( DirectionController directionController ) {
         this.directionController = directionController;
     }
     
     @Override
-    public List< RenderData > getRenderData( double timeSnapshot, double cameraRotation ) {
-        getTransformations().setRotation( 0, 45 + ( float ) cameraRotation,0 );
-        return super.getRenderData( timeSnapshot, cameraRotation );
+    public Texture getTexture() {
+        return texture;
     }
     
     @Override
-    public Texture getTexture() {
-        return texture;
+    public UvMap getUvMap() {
+        return uvMap;
     }
     
     @Override
@@ -60,7 +69,8 @@ public class DirectablePlane3D
     }
     
     @Override
-    public UvMap getUvMap() {
-        return uvMap;
+    public List< RenderData > getRenderData( double timeSnapshot, double cameraRotation ) {
+        getTransformations().setRotation( 0, 45 + ( float ) cameraRotation,0 );
+        return super.getRenderData( timeSnapshot, cameraRotation );
     }
 }

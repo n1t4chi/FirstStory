@@ -16,7 +16,6 @@ public class StaticHexPrism
         HexPrism< MutablePositionable3DTransformations >,
         StaticObject3D< MutablePositionable3DTransformations, HexPrismVertices >,
         MutableTextureObject3D< MutablePositionable3DTransformations, HexPrismVertices >,
-        PositionableObject3D< MutablePositionable3DTransformations, HexPrismVertices >,
         MutableTransformationsObject3D< HexPrismVertices >
 {
     private Texture texture;

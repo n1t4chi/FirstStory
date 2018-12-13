@@ -16,7 +16,6 @@ public class StaticRectangle
         Rectangle< MutablePositionable2DTransformations >,
         StaticObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
-        PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTransformationsObject2D< Plane2DVertices >
 {
     private Texture texture;

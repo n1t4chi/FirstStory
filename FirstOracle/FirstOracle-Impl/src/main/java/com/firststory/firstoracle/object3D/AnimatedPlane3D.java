@@ -11,14 +11,10 @@ import com.firststory.firstoracle.object.*;
  */
 public class AnimatedPlane3D
     extends
-        AbstractPositionableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
+        SimplePlane3D
     implements
-        Plane3D< MutablePositionable3DTransformations >,
         AnimatedObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
-        DirectableObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
-        MutableTextureObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
-        PositionableObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
-        MutableTransformationsObject3D< Plane3DVertices >
+        DirectableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
 {
     private Texture texture;
     private DirectionController directionController = direction -> 0;

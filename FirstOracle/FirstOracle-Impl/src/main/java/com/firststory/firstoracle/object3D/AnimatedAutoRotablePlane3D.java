@@ -2,29 +2,27 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.object2D;
+package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.object.*;
 
 /**
  * @author n1t4chi
  */
-public class DirectableRectangle
+public class AnimatedAutoRotablePlane3D
     extends
-        AbstractPositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >
+        AutoRotablePlane3D
     implements
-        Rectangle< MutablePositionable2DTransformations >,
-        NonAnimatedObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
-        DirectableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
-        MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
-        MutableTransformationsObject2D< Plane2DVertices >
+        AnimatedObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
+        DirectableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
 {
     private Texture texture;
     private DirectionController directionController = direction -> 0;
+    private FrameController frameController = time -> 0;
     private UvMap uvMap;
     
-    public DirectableRectangle() {
-        setTransformations( new MutablePositionable2DTransformations() );
+    public AnimatedAutoRotablePlane3D() {
+        setTransformations( new MutablePositionable3DTransformations() );
     }
     
     @Override
@@ -34,6 +32,21 @@ public class DirectableRectangle
     
     public void setDirectionController( DirectionController directionController ) {
         this.directionController = directionController;
+    }
+    
+    @Override
+    public FrameController getFrameController() {
+        return frameController;
+    }
+    
+    @Override
+    public void setFrameController( FrameController frameController ) {
+        this.frameController = frameController;
+    }
+    
+    @Override
+    public int getCurrentUvMapDirection( double currentCameraRotation ) {
+        return directionController.getCurrentDirection( currentCameraRotation );
     }
     
     @Override

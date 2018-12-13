@@ -9,17 +9,16 @@ import com.firststory.firstoracle.object.*;
 /**
  * @author n1t4chi
  */
-public class StaticCube
+public class StaticAutoRotablePlane3D
     extends
-        AbstractPositionableObject3D< MutablePositionable3DTransformations, CubeVertices >
-    implements Cube< MutablePositionable3DTransformations >,
-        StaticObject3D< MutablePositionable3DTransformations, CubeVertices >,
-        MutableTextureObject3D< MutablePositionable3DTransformations, CubeVertices >,
-        MutableTransformationsObject3D< CubeVertices >
+        AutoRotablePlane3D
+    implements
+        StaticObject3D< MutablePositionable3DTransformations, Plane3DVertices >
 {
     private Texture texture;
+    private UvMap uvMap;
     
-    public StaticCube() {
+    public StaticAutoRotablePlane3D() {
         setTransformations( new MutablePositionable3DTransformations() );
     }
     
@@ -31,10 +30,16 @@ public class StaticCube
     @Override
     public void setTexture( Texture texture ) {
         this.texture = texture;
+        this.uvMap = PlaneUvMap.getPlaneUvMap(
+            texture.getDirections(),
+            texture.getFrames(),
+            texture.getColumns(),
+            texture.getRows()
+        );
     }
     
     @Override
     public UvMap getUvMap() {
-        return CubeUvMap.getCubeUvMap();
+        return uvMap;
     }
 }

@@ -17,7 +17,6 @@ public class AnimatedHexagon
         AnimatedObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         NonDirectableObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
-        PositionableObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTransformationsObject2D< Hex2DVertices >
 {
     private Texture texture;

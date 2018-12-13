@@ -5,9 +5,7 @@ package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.data.UV;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.firststory.firstoracle.FirstOracleConstants.*;
 import static com.firststory.firstoracle.data.UV.uv;
@@ -53,39 +51,64 @@ public class Hex2DUvMap extends UvMap {
             throw new IllegalArgumentException(
                 "Illegal frame:" + frame + " for frames:" + frames + ", rows:" + rows + "." );
         }
-        var hor = 1 / 8f;
         //lower a bit UV map so pixels from other face will not be taken into consideration.
         var vertUp = ( frame ) / ( float ) rows + UV_DELTA;
         var vertDown = ( frame + 1 ) / ( float ) rows - UV_DELTA;
     
         var vertMiddle = ( frame + 0.5f ) / ( float ) rows;
-        var vertMidUp = ( frame + 0.5f - SQRT3_DIV2 / 2 ) / rows + UV_DELTA;
-        var vertMidDown = ( frame + 0.5f + SQRT3_DIV2 / 2 ) / rows - UV_DELTA;
-        
+        //     4
+        //  3     5
+        //  2     6
+        //     1
         return Arrays.asList(
-            uv( 0.5f * hor, vertMiddle ),
-            uv( 0.75f * hor - UV_DELTA, vertUp ),
-            uv( 0.25f * hor + UV_DELTA, vertUp ),
-            uv( 0.5f * hor, vertMiddle ),
-            uv( 0.25f * hor + UV_DELTA, vertUp ),
-            uv( 0 * hor + UV_DELTA, vertMiddle ),
-            uv( 0.5f * hor, vertMiddle ),
+            //1
+            uv( 0.5f, vertMiddle ),
+            uv( 0.75f - UV_DELTA, vertDown ),
+            uv( 0.25f + UV_DELTA, vertDown ),
+    
+            //2
+            uv( 0.5f, vertMiddle ),
+            uv( 0.25f + UV_DELTA, vertDown ),
+            uv( 0 + UV_DELTA, vertMiddle ),
 
-            uv( 0 * hor + UV_DELTA, vertMiddle ),
-            uv( 0.25f * hor + UV_DELTA, vertDown ),
-            uv( 0.5f * hor, vertMiddle ),
-
-            uv( 0.25f * hor + UV_DELTA, vertDown ),
-            uv( 0.75f * hor - UV_DELTA, vertDown ),
-            uv( 0.5f * hor, vertMiddle ),
-
-            uv( 0.75f * hor - UV_DELTA, vertDown ),
-            uv( 1 * hor - UV_DELTA, vertMiddle ),
-            uv( 0.5f * hor, vertMiddle ),
-
-            uv( 1 * hor - UV_DELTA, vertMiddle ),
-            uv( 0.75f * hor - UV_DELTA, vertUp )
+            //3
+            uv( 0.5f, vertMiddle ),
+            uv( 0 + UV_DELTA, vertMiddle ),
+            uv( 0.25f + UV_DELTA, vertUp ),
             
+            //4
+            uv( 0.5f, vertMiddle ),
+            uv( 0.25f + UV_DELTA, vertUp ),
+            uv( 0.75f - UV_DELTA, vertUp ),
+            
+            //5
+            uv( 0.5f, vertMiddle ),
+            uv( 0.75f - UV_DELTA, vertUp ),
+            uv( 1 - UV_DELTA, vertMiddle ),
+            
+            //6
+            uv( 0.5f, vertMiddle ),
+            uv( 1 - UV_DELTA, vertMiddle ),
+            uv( 0.75f - UV_DELTA, vertDown ),
+            
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
+            uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 )
         );
     }
     

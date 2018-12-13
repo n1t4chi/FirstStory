@@ -17,7 +17,6 @@ public class FullyAnimatedRectangle
         AnimatedObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         DirectableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
-        PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTransformationsObject2D< Plane2DVertices >
 {
     private FrameController frameController = time -> 0;

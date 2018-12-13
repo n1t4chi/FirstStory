@@ -14,14 +14,10 @@ import java.util.List;
  */
 public class FullyAnimatedPlane3D
     extends
-        AbstractPositionableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
+        SimplePlane3D
     implements
-        Plane3D< MutablePositionable3DTransformations >,
         AnimatedObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
-        DirectableObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
-        MutableTextureObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
-        PositionableObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
-        MutableTransformationsObject3D< Plane3DVertices >
+        DirectableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
 {
     private FrameController frameController = time -> 0;
     private DirectionController directionController = direction -> 0;

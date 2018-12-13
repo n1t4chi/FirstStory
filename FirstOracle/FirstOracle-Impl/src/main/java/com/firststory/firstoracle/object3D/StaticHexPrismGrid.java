@@ -26,7 +26,7 @@ public class StaticHexPrismGrid
     
     @Override
     public UvMap getUvMap() {
-        return Hex2DUvMap.getHex2DUvMap();
+        return HexPrismUvMap.getHexPrismUvMap();
     }
     
     @Override

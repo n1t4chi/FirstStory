@@ -2,29 +2,29 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.object2D;
+package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.object.*;
+import com.firststory.firstoracle.rendering.RenderData;
+
+import java.util.List;
 
 /**
  * @author n1t4chi
  */
-public class DirectableRectangle
+public class DirectableAutoRotablePlane3D
     extends
-        AbstractPositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >
+        AutoRotablePlane3D
     implements
-        Rectangle< MutablePositionable2DTransformations >,
-        NonAnimatedObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
-        DirectableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
-        MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
-        MutableTransformationsObject2D< Plane2DVertices >
+        NonAnimatedObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
+        DirectableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
 {
     private Texture texture;
-    private DirectionController directionController = direction -> 0;
     private UvMap uvMap;
+    private DirectionController directionController = direction -> 0;
     
-    public DirectableRectangle() {
-        setTransformations( new MutablePositionable2DTransformations() );
+    public DirectableAutoRotablePlane3D() {
+        setTransformations( new MutablePositionable3DTransformations() );
     }
     
     @Override
@@ -32,8 +32,15 @@ public class DirectableRectangle
         return directionController;
     }
     
+    @Override
     public void setDirectionController( DirectionController directionController ) {
         this.directionController = directionController;
+    }
+    
+    @Override
+    public List< RenderData > getRenderData( double timeSnapshot, double cameraRotation ) {
+        getTransformations().setRotation( 0, 45 + ( float ) cameraRotation,0 );
+        return super.getRenderData( timeSnapshot, cameraRotation );
     }
     
     @Override

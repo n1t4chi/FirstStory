@@ -9,16 +9,18 @@ import com.firststory.firstoracle.object.*;
 /**
  * @author n1t4chi
  */
-public class StaticPlane3D
+public abstract class SimplePlane3D
     extends
-        SimplePlane3D
+        AbstractPositionableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
     implements
-        StaticObject3D< MutablePositionable3DTransformations, Plane3DVertices >
+        Plane3D< MutablePositionable3DTransformations >,
+        MutableTextureObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
+        MutableTransformationsObject3D< Plane3DVertices >
 {
     private Texture texture;
     private UvMap uvMap;
     
-    public StaticPlane3D() {
+    public SimplePlane3D() {
         setTransformations( new MutablePositionable3DTransformations() );
     }
     
