@@ -60,6 +60,13 @@ public class RegistrableWindow extends WindowImpl {
     public void createNewScene( int index, Index2D terrain2DSize, Index2D terrain2DShift, Index3D terrain3DSize, Index3D terrain3DShift ) {
         provider.registerScene( index, RegistrableSceneImpl.provide( terrain2DSize, terrain2DShift, terrain3DSize, terrain3DShift ) );
     }
+    public void createNewOptimisedScene2D( int index, Index2D terrain2DSize, Index2D terrain2DShift ) {
+        provider.registerScene( index, RegistrableSceneImpl.provideOptimised2D( terrain2DSize, terrain2DShift ) );
+    }
+    
+    public void createNewOptimisedScene3D( int index, Index3D terrain3DSize, Index3D terrain3DShift ) {
+        provider.registerScene( index, RegistrableSceneImpl.provideOptimised3D( terrain3DSize, terrain3DShift ) );
+    }
     
     public void createNewOptimisedScene( int index, Index2D terrain2DSize, Index2D terrain2DShift, Index3D terrain3DSize, Index3D terrain3DShift ) {
         provider.registerScene( index, RegistrableSceneImpl.provideOptimised( terrain2DSize, terrain2DShift, terrain3DSize, terrain3DShift ) );
@@ -177,11 +184,11 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).deregisterObject2D( object );
     }
     
-    public void registerTerrains2D( int index, Terrain2D< ?, ? > terrain, Index2D terrainIndex ) {
+    public void registerTerrain2D( int index, Terrain2D< ?, ? > terrain, Index2D terrainIndex ) {
         getScene( index ).registerTerrain2D( terrain, terrainIndex );
     }
     
-    public void deregisterTerrains2D( int index, Terrain2D< ?, ? > terrain, Index2D terrainIndex ) {
+    public void deregisterTerrain2D( int index, Terrain2D< ?, ? > terrain, Index2D terrainIndex ) {
         getScene( index ).deregisterTerrain2D( terrain, terrainIndex );
     }
     
@@ -189,11 +196,11 @@ public class RegistrableWindow extends WindowImpl {
         getScene( index ).deregisterAllObjects2D();
     }
     
-    public void deregisterTerrains2D( int index, Terrain2D< ?, ? > terrain, int x, int y ) {
+    public void deregisterTerrain2D( int index, Terrain2D< ?, ? > terrain, int x, int y ) {
         getScene( index ).deregisterTerrain2D( terrain, x, y );
     }
     
-    public void registerTerrains2D( int index, Terrain2D< ?, ? > terrain, int x, int y ) {
+    public void registerTerrain2D( int index, Terrain2D< ?, ? > terrain, int x, int y ) {
         getScene( index ).registerTerrain2D( terrain, x, y );
     }
     

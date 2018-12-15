@@ -11,11 +11,11 @@ import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.window.WindowImpl;
 import org.joml.*;
 
+import java.lang.Math;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
-import java.lang.Math;
 
 /**
  * @author n1t4chi
@@ -43,12 +43,16 @@ public class CameraController extends Thread implements
     private float rotationX = 0;
     private Vector3f pos3D = new Vector3f( 0, 0, 0 );
     private Vector2f pos2D = new Vector2f( 0, 0 );
-    private float cameraSize = 25;
+    private float cameraSize = 15;
     private volatile boolean keepWorking = true;
     private double currentTimeUpdate;
     
     private final MovableCamera2D camera2D;
     private final IsometricCamera3D camera3D;
+    
+    public static CameraController createAndStart( WindowImpl window, WindowSettings settings ) {
+        return createAndStart( window, settings, CameraKeyMap.getFunctionalKeyLayout(), 10, 15f );
+    }
     
     public static CameraController createAndStart( WindowImpl window, WindowSettings settings, CameraKeyMap cameraKeyMap, long refreshLatency, float speed ) {
         var cameraController = new CameraController( settings, cameraKeyMap, refreshLatency, speed );

@@ -7,9 +7,7 @@ package com.firststory.firstoracle.scene;
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
-import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.data.Index2D;
-import com.firststory.firstoracle.data.Index3D;
+import com.firststory.firstoracle.data.*;
 
 /**
  * @author n1t4chi
@@ -36,6 +34,14 @@ public class RegistrableSceneImpl implements RegistrableScene {
             new RegistrableBackgroundImpl(),
             new RegistrableOverlayImpl()
         );
+    }
+    
+    public static RegistrableSceneImpl provideOptimised3D( Index3D terrain3DSize, Index3D terrain3DShift ) {
+        return provideOptimised( FirstOracleConstants.INDEX_ZERO_2I, FirstOracleConstants.INDEX_ZERO_2I, terrain3DSize, terrain3DShift );
+    }
+    
+    public static RegistrableSceneImpl provideOptimised2D( Index2D terrain2DSize, Index2D terrain2DShift ) {
+        return provideOptimised( terrain2DSize, terrain2DShift, FirstOracleConstants.INDEX_ZERO_3I, FirstOracleConstants.INDEX_ZERO_3I );
     }
     
     public static RegistrableSceneImpl provideOptimised(

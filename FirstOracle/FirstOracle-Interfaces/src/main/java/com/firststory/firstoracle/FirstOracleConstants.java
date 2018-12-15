@@ -88,6 +88,8 @@ public interface FirstOracleConstants {
     
     Index2D INDEX_ZERO_2I = id2( 0, 0 );
     Index3D INDEX_ZERO_3I = id3( 0, 0, 0 );
+    Index2D INDEX_ONE_2I = id2( 1, 1 );
+    Index3D INDEX_ONE_3I = id3( 1, 1, 1 );
     
     Colour TRANSPARENT = col( 0, 0, 0, 0 );
     Colour RED = col( 1, 0, 0, 1 );
