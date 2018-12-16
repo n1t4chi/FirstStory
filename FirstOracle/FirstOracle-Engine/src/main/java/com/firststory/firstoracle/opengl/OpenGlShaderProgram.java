@@ -3,16 +3,10 @@
  */
 package com.firststory.firstoracle.opengl;
 
-import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.data.Position;
-import com.firststory.firstoracle.data.Rotation;
-import com.firststory.firstoracle.data.Scale;
-import com.firststory.firstoracle.shader.ShaderException;
-import com.firststory.firstoracle.shader.ShaderProgram;
+import com.firststory.firstoracle.data.*;
+import com.firststory.firstoracle.shader.*;
 import org.joml.Matrix4fc;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -121,7 +115,16 @@ class OpenGlShaderProgram implements ShaderProgram {
         maxAlphaChannelLocation.bind( value );
     }
     
-    OpenGlUniformLocation createUniformLocation( String locationName ) {
+    private void initUniformLocations() {
+        positionLocation = createUniformLocation( UNIFORM_LOCATION_POSITION );
+        scaleLocation = createUniformLocation( UNIFORM_LOCATION_SCALE );
+        rotationLocation = createUniformLocation( UNIFORM_LOCATION_ROTATION );
+        overlayColourLocation = createUniformLocation( UNIFORM_LOCATION_OVERLAY_COLOUR );
+        maxAlphaChannelLocation = createUniformLocation( UNIFORM_LOCATION_MAX_ALPHA_CHANNEL );
+        cameraLocation = createUniformLocation( UNIFORM_LOCATION_CAMERA );
+    }
+    
+    private OpenGlUniformLocation createUniformLocation( String locationName ) {
         if ( !uniformLocations.containsKey( locationName ) ) {
             var uniformLocation = new OpenGlUniformLocation( program, locationName );
             uniformLocations.put( locationName, uniformLocation );
@@ -129,15 +132,6 @@ class OpenGlShaderProgram implements ShaderProgram {
         } else {
             throw new ShaderException( "Uniform location already created:" + locationName );
         }
-    }
-    
-    protected void initUniformLocations() {
-        positionLocation = createUniformLocation( UNIFORM_LOCATION_POSITION );
-        scaleLocation = createUniformLocation( UNIFORM_LOCATION_SCALE );
-        rotationLocation = createUniformLocation( UNIFORM_LOCATION_ROTATION );
-        overlayColourLocation = createUniformLocation( UNIFORM_LOCATION_OVERLAY_COLOUR );
-        maxAlphaChannelLocation = createUniformLocation( UNIFORM_LOCATION_MAX_ALPHA_CHANNEL );
-        cameraLocation = createUniformLocation( UNIFORM_LOCATION_CAMERA );
     }
     
     private int compileSource( int type, String source ) {

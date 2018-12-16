@@ -4,10 +4,8 @@
 
 package com.firststory.firstoracle;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.lang.reflect.*;
+import java.util.*;
 import java.util.logging.Logger;
 
 
@@ -22,7 +20,7 @@ import java.util.logging.Logger;
  * WARNING: Early exit from that method will result in engine termination which might lead to unwanted crashes.
  */
 public class Runner {
-    private static final ArrayList<FrameworkProvider > FRAMEWORK_PROVIDERS = new ArrayList<>();
+    private static final ArrayList< FrameworkProvider > FRAMEWORK_PROVIDERS = new ArrayList<>();
     private static final Logger logger = FirstOracleConstants.getLogger( Runner.class );
     
     public static void registerFramework( FrameworkProvider provider ) {

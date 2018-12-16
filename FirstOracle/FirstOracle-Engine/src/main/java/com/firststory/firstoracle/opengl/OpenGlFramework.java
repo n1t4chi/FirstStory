@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     
-    private static final ReentrantLock contextLock = new ReentrantLock(true);
+    private static final ReentrantLock contextLock = new ReentrantLock( true );
     private final OpenGlArrayBufferLoader bufferLoader = new OpenGlArrayBufferLoader();
     private final OpenGlVertexAttributeLoader attributeLoader = new OpenGlVertexAttributeLoader( bufferLoader );
     private final OpenGlTextureLoader textureLoader = new OpenGlTextureLoader();
@@ -82,7 +82,7 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     }
 
     @Override
-        public void compileShaders() throws IOException {
+    public void compileShaders() throws IOException {
         shader.compile();
     }
     
@@ -108,9 +108,8 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     
     private void enableFunctionality() {
         //todo:
-//        GL11.glEnable( GL11.GL_CULL_FACE );
-//        GL11.glCullFace( GL11.GL_BACK );
-//        GL11.glCullFace( GL11.GL_NONE );
+        GL11.glEnable( GL11.GL_CULL_FACE );
+        GL11.glCullFace( GL11.GL_BACK );
         GL11.glEnable( GL11.GL_BLEND );
         GL11.glEnable( GL11.GL_TEXTURE_2D );
         GL11.glBlendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );

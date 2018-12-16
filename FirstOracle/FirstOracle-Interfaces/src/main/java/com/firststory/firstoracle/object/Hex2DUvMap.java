@@ -63,33 +63,33 @@ public class Hex2DUvMap extends UvMap {
         return Arrays.asList(
             //1
             uv( 0.5f, vertMiddle ),
-            uv( 0.75f - UV_DELTA, vertDown ),
             uv( 0.25f + UV_DELTA, vertDown ),
+            uv( 0.75f - UV_DELTA, vertDown ),
     
             //2
             uv( 0.5f, vertMiddle ),
-            uv( 0.25f + UV_DELTA, vertDown ),
             uv( 0 + UV_DELTA, vertMiddle ),
+            uv( 0.25f + UV_DELTA, vertDown ),
 
             //3
             uv( 0.5f, vertMiddle ),
-            uv( 0 + UV_DELTA, vertMiddle ),
             uv( 0.25f + UV_DELTA, vertUp ),
+            uv( 0 + UV_DELTA, vertMiddle ),
             
             //4
             uv( 0.5f, vertMiddle ),
-            uv( 0.25f + UV_DELTA, vertUp ),
             uv( 0.75f - UV_DELTA, vertUp ),
+            uv( 0.25f + UV_DELTA, vertUp ),
             
             //5
             uv( 0.5f, vertMiddle ),
-            uv( 0.75f - UV_DELTA, vertUp ),
             uv( 1 - UV_DELTA, vertMiddle ),
+            uv( 0.75f - UV_DELTA, vertUp ),
             
             //6
             uv( 0.5f, vertMiddle ),
-            uv( 1 - UV_DELTA, vertMiddle ),
             uv( 0.75f - UV_DELTA, vertDown ),
+            uv( 1 - UV_DELTA, vertMiddle ),
             
             uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),
             uv( 0, 0 ), uv( 0, 0 ), uv( 0, 0 ),

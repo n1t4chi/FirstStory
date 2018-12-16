@@ -5,8 +5,7 @@ package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.data.Position2D;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.firststory.firstoracle.FirstOracleConstants.SQRT3_DIV2;
 import static com.firststory.firstoracle.data.Position2D.pos2;
@@ -34,12 +33,12 @@ public class Hex2DVertices extends FramelessVertices2D {
         };
 
         short[] points = {
-            0, 2, 3,
-            0, 3, 4,
-            0, 4, 5,
-            0, 5, 6,
-            0, 6, 1,
-            0, 1, 2
+            0, 3, 2,
+            0, 4, 3,
+            0, 5, 4,
+            0, 6, 5,
+            0, 1, 6,
+            0, 2, 1
         };
     
         List< Position2D > list = new ArrayList<>( points.length );

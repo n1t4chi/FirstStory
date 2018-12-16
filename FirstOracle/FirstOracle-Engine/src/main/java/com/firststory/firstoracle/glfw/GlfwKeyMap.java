@@ -4,24 +4,35 @@
 
 package com.firststory.firstoracle.glfw;
 
-import com.firststory.firstoracle.key.Key;
-import com.firststory.firstoracle.key.KeyAction;
-import com.firststory.firstoracle.key.KeyCode;
-import com.firststory.firstoracle.key.KeyModificators;
+import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.key.*;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.logging.*;
 
 /**
  * @author n1t4chi
  */
 public class GlfwKeyMap {
+    private static final Logger logger = FirstOracleConstants.getLogger( GlfwKeyMap.class );
     
     public static Key parseKeyCode( int keyCode, int scancode, int action, int mods ) {
-        System.out.println( "\n"
+        logger.log( Level.FINEST, () -> keystrokeToString( keyCode, action, mods ) );
+        return Key.create( parseKeyCode(keyCode), parseKeyAction(action), parseKeyMods( mods ) );
+    }
+    
+    @NotNull
+    public static String keystrokeToString(
+        int keyCode,
+        int action,
+        int mods
+    ) {
+        return ""
             +"key: "+keyCode+" -> "+ parseKeyCode(keyCode) +"\n"
             +"action: "+action+" -> "+parseKeyAction(action) +"\n"
             +"mods: "+mods+" -> "+parseKeyMods( mods ) +"\n"
-        );
-        return Key.create( parseKeyCode(keyCode), parseKeyAction(action), parseKeyMods( mods ) );
+            ;
     }
     
     public static int parseKeyScanCode( int scancode ) {
