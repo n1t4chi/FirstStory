@@ -74,9 +74,9 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
     
     @Override
     public void invoke( FrameworkCommands renderingCommands ) throws Exception{
-        clearCanvas();
-        shader.useProgram();
-        try( var instance = acquireLock()){
+        try( var instance = acquireLock() ){
+            clearCanvas();
+            shader.useProgram();
             renderingCommands.execute( instance );
         }
     }

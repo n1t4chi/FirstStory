@@ -8,8 +8,7 @@ import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.window.WindowFramework;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -17,6 +16,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  * @author n1t4chi
  */
 public class GlfwFramework implements WindowFramework {
+    
     private static final Set<GlfwWindowContext > instances = new HashSet<>();
     
     private static void registerWindow( GlfwWindowContext window ) {
@@ -30,78 +30,108 @@ public class GlfwFramework implements WindowFramework {
     GlfwFramework(){}
 
     @Override
-    public synchronized GlfwWindowContext createWindowContext( WindowSettings settings, boolean isOpenGLWindow ){
-        setWindowHints(settings);
-        if( !isOpenGLWindow ) {
-            setNonOpenGlWindowHints();
-        }
-    
-        long monitor;
-        if(settings.getMonitorIndex() <= 0 ){
-            monitor = GLFW.glfwGetPrimaryMonitor();
-        }else{
-            var pointerBuffer = GLFW.glfwGetMonitors();
-            if(settings.getMonitorIndex() > pointerBuffer.capacity()){
-                throw new MonitorIndexOutOfBoundException(settings.getMonitorIndex(),pointerBuffer.capacity());
+    public GlfwWindowContext createWindowContext( WindowSettings settings, boolean isOpenGLWindow ) {
+        synchronized( GlfwFramework.class ) {
+            setWindowHints( settings );
+            if ( !isOpenGLWindow ) {
+                setNonOpenGlWindowHints();
             }
-            monitor = pointerBuffer.get( settings.getMonitorIndex()-1 );
-        }
     
-        var mode = GLFW.glfwGetVideoMode( monitor );
+            long monitor;
+            if ( settings.getMonitorIndex() <= 0 ) {
+                monitor = GLFW.glfwGetPrimaryMonitor();
+            } else {
+                var pointerBuffer = GLFW.glfwGetMonitors();
+                if ( settings.getMonitorIndex() > pointerBuffer.capacity() ) {
+                    throw new MonitorIndexOutOfBoundException(
+                        settings.getMonitorIndex(),
+                        pointerBuffer.capacity()
+                    );
+                }
+                monitor = pointerBuffer.get( settings.getMonitorIndex() - 1 );
+            }
     
-        // Create the window
-        var width = settings.getWidth();
-        var height = settings.getHeight();
-        width = ( width > 0 ) ? width : mode.width();
-        height = ( height > 0 ) ? height : mode.height();
-        settings.setWidth( width );
-        settings.setHeight( height );
-        long windowId;
-        switch ( settings.getWindowMode() ) {
-            case FULLSCREEN:
-                GLFW.glfwWindowHint( GLFW.GLFW_RED_BITS, mode.redBits() );
-                GLFW.glfwWindowHint( GLFW.GLFW_GREEN_BITS, mode.greenBits() );
-                GLFW.glfwWindowHint( GLFW.GLFW_BLUE_BITS, mode.blueBits() );
-                GLFW.glfwWindowHint( GLFW.GLFW_REFRESH_RATE, mode.refreshRate() );
-                break;
-            case BORDERLESS:
-                GLFW.glfwWindowHint( GLFW.GLFW_DECORATED, GLFW.GLFW_FALSE );
-            case WINDOWED:
-            default:
-                monitor = NULL;
-                break;
-        }
-        
-        windowId = GLFW.glfwCreateWindow(
-            width,
-            height,
-            settings.getTitle(),
-            monitor,
-            NULL
-        );
-        if ( windowId == NULL ) {
-            throw new CannotCreateWindowException();
-        }
-        var left = new int[ 1 ];
-        var top = new int[ 1 ];
-        var right = new int[ 1 ];
-        var bottom = new int[ 1 ];
+            var mode = GLFW.glfwGetVideoMode( monitor );
     
-        GLFW.glfwGetWindowFrameSize( windowId, left, top, right, bottom );
-        if ( settings.getPositionX() != 0 || settings.getPositionY() != 0 ) {
-            GLFW.glfwSetWindowPos( windowId,
-                settings.getPositionX() + left[ 0 ],
-                settings.getPositionY() + top[ 0 ]
+            // Create the window
+            var width = settings.getWidth();
+            var height = settings.getHeight();
+            width = ( width > 0 ) ? width : mode.width();
+            height = ( height > 0 ) ? height : mode.height();
+            settings.setWidth( width );
+            settings.setHeight( height );
+            long windowId;
+            switch ( settings.getWindowMode() ) {
+                case FULLSCREEN:
+                    GLFW.glfwWindowHint(
+                        GLFW.GLFW_RED_BITS,
+                        mode.redBits()
+                    );
+                    GLFW.glfwWindowHint(
+                        GLFW.GLFW_GREEN_BITS,
+                        mode.greenBits()
+                    );
+                    GLFW.glfwWindowHint(
+                        GLFW.GLFW_BLUE_BITS,
+                        mode.blueBits()
+                    );
+                    GLFW.glfwWindowHint(
+                        GLFW.GLFW_REFRESH_RATE,
+                        mode.refreshRate()
+                    );
+                    break;
+                case BORDERLESS:
+                    GLFW.glfwWindowHint(
+                        GLFW.GLFW_DECORATED,
+                        GLFW.GLFW_FALSE
+                    );
+                case WINDOWED:
+                default:
+                    monitor = NULL;
+                    break;
+            }
+    
+            windowId = GLFW.glfwCreateWindow(
+                width,
+                height,
+                settings.getTitle(),
+                monitor,
+                NULL
             );
-        }
+            if ( windowId == NULL ) {
+                throw new CannotCreateWindowException();
+            }
+            var left = new int[ 1 ];
+            var top = new int[ 1 ];
+            var right = new int[ 1 ];
+            var bottom = new int[ 1 ];
     
-        var window = new GlfwWindowContext( windowId, isOpenGLWindow );
-        registerWindow(window);
-        
-        window.setVerticalSync( settings.isVerticalSync() );
-        window.setWindowToCurrentThread();
-        
-        return window;
+            GLFW.glfwGetWindowFrameSize(
+                windowId,
+                left,
+                top,
+                right,
+                bottom
+            );
+            if ( settings.getPositionX() != 0 || settings.getPositionY() != 0 ) {
+                GLFW.glfwSetWindowPos(
+                    windowId,
+                    settings.getPositionX() + left[ 0 ],
+                    settings.getPositionY() + top[ 0 ]
+                );
+            }
+    
+            var window = new GlfwWindowContext(
+                windowId,
+                isOpenGLWindow
+            );
+            registerWindow( window );
+    
+            window.setVerticalSync( settings.isVerticalSync() );
+            window.setWindowToCurrentThread();
+    
+            return window;
+        }
     }
     
     private void setNonOpenGlWindowHints() {
