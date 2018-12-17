@@ -33,7 +33,7 @@ void main() {
     if( maxAlphaChannel < outColor.a ) {
         outColor.a = maxAlphaChannel;
     }
-    if( outColor.a == 0 ) {
+    if( outColor.a <= 0 ) {
         discard;
     }
 }

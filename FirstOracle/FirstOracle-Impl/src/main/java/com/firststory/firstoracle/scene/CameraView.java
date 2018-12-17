@@ -84,6 +84,10 @@ abstract class CameraView {
         );
     }
     
+    protected Matrix4f getInvMatrix() {
+        return invMatrix;
+    }
+    
     boolean shouldDisplay( BoundingBox< ?, ?, ? > box ) {
         return insideRectangleAtOther( box, minDimOtherBox( box ) ) || insideRectangleAtOther( box, maxDimOtherBox( box ) );
     }

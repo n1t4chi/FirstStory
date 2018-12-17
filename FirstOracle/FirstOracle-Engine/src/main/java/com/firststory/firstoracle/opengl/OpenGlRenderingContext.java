@@ -17,7 +17,8 @@ import java.util.List;
  * @author n1t4chi
  */
 public class OpenGlRenderingContext implements RenderingContext {
-
+    private static float lastLineWidth = -1;
+    
     private final OpenGlVertexAttributeLoader attributeLoader;
     private final OpenGlTextureLoader textureLoader;
     private final OpenGlShaderProgram shaderProgram;
@@ -71,7 +72,6 @@ public class OpenGlRenderingContext implements RenderingContext {
     }
     
     private void render( RenderData renderData ) {
-    
         shaderProgram.bindPosition( renderData.getPosition() );
         shaderProgram.bindRotation( renderData.getRotation() );
         shaderProgram.bindScale( renderData.getScale() );
@@ -84,11 +84,11 @@ public class OpenGlRenderingContext implements RenderingContext {
         attributeLoader.bindColouring( renderData.getColouring() );
         var bufferSize = renderData.getVertices().getVertexLength( renderData.getVertexFrame() );
         
-        textureLoader.bind( shouldUseTextures() ? renderData.getTexture() : FirstOracleConstants.EMPTY_TEXTURE );
+        textureLoader.bind( useTexture ? renderData.getTexture() : FirstOracleConstants.EMPTY_TEXTURE );
         
         switch ( renderData.getType() ) {
             case BORDER:
-                if( !shouldDrawBorder() ) {
+                if( !drawBorder ) {
                     break;
                 }
             case LINE_LOOP:
@@ -104,7 +104,10 @@ public class OpenGlRenderingContext implements RenderingContext {
     }
     
     private void setLineWidth( float width ) {
-        GL11.glLineWidth( width );
+        if( lastLineWidth != width ) {
+            lastLineWidth = width;
+            GL11.glLineWidth( width );
+        }
     }
     
     private void drawLines( int bufferSize, LineType type ) {
@@ -153,14 +156,6 @@ public class OpenGlRenderingContext implements RenderingContext {
         GL11.glEnable( GL11.GL_DEPTH_TEST );
         GL11.glDepthFunc( GL11.GL_LEQUAL );
         GL11.glClear( GL11.GL_DEPTH_BUFFER_BIT );
-    }
-    
-    boolean shouldUseTextures() {
-        return useTexture;
-    }
-    
-    boolean shouldDrawBorder() {
-        return drawBorder;
     }
     
     private void drawObjects( int objectType, int bufferSize ) {

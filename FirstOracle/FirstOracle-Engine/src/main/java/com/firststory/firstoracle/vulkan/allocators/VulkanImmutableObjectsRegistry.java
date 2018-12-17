@@ -4,15 +4,13 @@
 
 package com.firststory.firstoracle.vulkan.allocators;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
 
 /**
  * @author n1t4chi
  */
-class VulkanImmutableObjectsRegistry< T > {
+class VulkanImmutableObjectsRegistry< T > implements VulkanRegistry {
     
     private final Set< T > usedInstances = new HashSet<>();
     private final Consumer< T > disposeAction;
@@ -40,7 +38,8 @@ class VulkanImmutableObjectsRegistry< T > {
         );
     }
     
-    void dispose() {
+    @Override
+    public void dispose() {
         synchronized ( usedInstances ) {
             usedInstances.forEach( disposeAction );
             usedInstances.clear();

@@ -9,10 +9,10 @@ import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.*;
-import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
-import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferData;
+import com.firststory.firstoracle.vulkan.physicaldevice.transfer.*;
 
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
 
 /**
  * @author n1t4chi
@@ -22,29 +22,51 @@ public class VulkanDeviceAllocator {
     private final VulkanFrameworkAllocator allocator;
     private final VulkanPhysicalDevice device;
     
-    private final VulkanImmutableObjectsRegistry< VulkanFrameBuffer > frameBuffers = new VulkanImmutableObjectsRegistry<>( VulkanFrameBuffer::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanTransferCommandPool > transferCommandPools = new VulkanImmutableObjectsRegistry<>( VulkanTransferCommandPool::disposeUnsafe );
-    private final VulkanReusableObjectsRegistry< VulkanGraphicCommandPool > graphicCommandPools = new VulkanReusableObjectsRegistry<>( VulkanGraphicCommandPool::disposeUnsafe, pool -> {} );
-    private final VulkanImmutableObjectsRegistry< VulkanGraphicPipelines > graphicPipelines = new VulkanImmutableObjectsRegistry<>( VulkanGraphicPipelines::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanSwapChain > swapChains = new VulkanImmutableObjectsRegistry<>( VulkanSwapChain::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanBufferProvider > bufferProviders = new VulkanImmutableObjectsRegistry<>( VulkanBufferProvider::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanDescriptor > descriptors = new VulkanImmutableObjectsRegistry<>( VulkanDescriptor::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanDescriptorPool > descriptorPools = new VulkanImmutableObjectsRegistry<>( VulkanDescriptorPool::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanDescriptorSet > descriptorSets = new VulkanImmutableObjectsRegistry<>( VulkanDescriptorSet::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanTextureLoader > textureLoaders = new VulkanImmutableObjectsRegistry<>( VulkanTextureLoader::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanDepthResources > depthResources = new VulkanImmutableObjectsRegistry<>( VulkanDepthResources::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanShaderProgram > shaderPrograms = new VulkanImmutableObjectsRegistry<>( VulkanShaderProgram::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanTextureSampler > textureSamplers = new VulkanImmutableObjectsRegistry<>(VulkanTextureSampler::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanImageView > imageViews = new VulkanImmutableObjectsRegistry<>( VulkanImageView::disposeUnsafe );
-    private final VulkanReusableObjectsRegistry< VulkanInMemoryImage > inMemoryImages = new VulkanReusableObjectsRegistry<>( VulkanInMemoryImage::disposeUnsafe );
-    private final VulkanReusableObjectsRegistry< VulkanSwapChainImage > swapChainImages = new VulkanReusableObjectsRegistry<>( VulkanSwapChainImage::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanSemaphore > semaphores = new VulkanImmutableObjectsRegistry<>( VulkanSemaphore::disposeUnsafe );
-    private final VulkanReusableObjectsRegistry< VulkanTextureData > textureDatas = new VulkanReusableObjectsRegistry<>( VulkanTextureData::disposeUnsafe );
-    private final VulkanReusableObjectsRegistry< VulkanFence > fences = new VulkanReusableObjectsRegistry<>( VulkanFence::disposeUnsafe, fence -> {} );
-    private final VulkanImmutableObjectsRegistry< VulkanCommandBufferAllocator<?> > commandBufferAllocators = new VulkanImmutableObjectsRegistry<>( VulkanCommandBufferAllocator::disposeUnsafe );
-    private final VulkanReusableObjectsRegistry< VulkanTransferData > transferDatas = new VulkanReusableObjectsRegistry<>( data -> {}, data -> {} );
-    private final VulkanImmutableObjectsRegistry< VulkanPipelineAllocator > pipelineAllocators = new VulkanImmutableObjectsRegistry<>( VulkanPipelineAllocator::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanDataBufferAllocator > dataBufferAllocators = new VulkanImmutableObjectsRegistry<>( VulkanDataBufferAllocator::disposeUnsafe );
+    private final List< VulkanRegistry > registryList = new ArrayList<>();
+    
+    private final VulkanImmutableObjectsRegistry< VulkanFrameBuffer > frameBuffers = newImmutableRegistry( VulkanFrameBuffer::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanTransferCommandPool > transferCommandPools = newImmutableRegistry( VulkanTransferCommandPool::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanGraphicCommandPool > graphicCommandPools = newReusableRegistry( VulkanGraphicCommandPool::disposeUnsafe, pool -> {} );
+    private final VulkanImmutableObjectsRegistry< VulkanGraphicPipelines > graphicPipelines = newImmutableRegistry( VulkanGraphicPipelines::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanSwapChain > swapChains = newImmutableRegistry( VulkanSwapChain::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanBufferProvider > bufferProviders = newImmutableRegistry( VulkanBufferProvider::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDescriptor > descriptors = newImmutableRegistry( VulkanDescriptor::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDescriptorPool > descriptorPools = newImmutableRegistry( VulkanDescriptorPool::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDescriptorSet > descriptorSets = newImmutableRegistry( VulkanDescriptorSet::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanTextureLoader > textureLoaders = newImmutableRegistry( VulkanTextureLoader::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDepthResources > depthResources = newImmutableRegistry( VulkanDepthResources::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanShaderProgram > shaderPrograms = newImmutableRegistry( VulkanShaderProgram::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanTextureSampler > textureSamplers = newImmutableRegistry(VulkanTextureSampler::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanImageView > imageViews = newImmutableRegistry( VulkanImageView::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanInMemoryImage > inMemoryImages = newReusableRegistry( VulkanInMemoryImage::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanSwapChainImage > swapChainImages = newReusableRegistry( VulkanSwapChainImage::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanSemaphore > semaphores = newImmutableRegistry( VulkanSemaphore::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanTextureData > textureDatas = newReusableRegistry( VulkanTextureData::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanFence > fences = newReusableRegistry( VulkanFence::disposeUnsafe, fence -> {} );
+    private final VulkanImmutableObjectsRegistry< VulkanCommandBufferAllocator<?> > commandBufferAllocators = newImmutableRegistry( VulkanCommandBufferAllocator::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanTransferData > transferDatas = newReusableRegistry( data -> {}, data -> {} );
+    private final VulkanImmutableObjectsRegistry< VulkanPipelineAllocator > pipelineAllocators = newImmutableRegistry( VulkanPipelineAllocator::disposeUnsafe );
+    private final VulkanImmutableObjectsRegistry< VulkanDataBufferAllocator > dataBufferAllocators = newImmutableRegistry( VulkanDataBufferAllocator::disposeUnsafe );
+    
+    private <T> VulkanImmutableObjectsRegistry< T > newImmutableRegistry( Consumer< T > disposeAction ) {
+        var registry = new VulkanImmutableObjectsRegistry<>( disposeAction );
+        registryList.add( registry );
+        return registry;
+    }
+    
+    private <T> VulkanReusableObjectsRegistry< T > newReusableRegistry( Consumer< T > disposeFreeAction ) {
+        var registry = new VulkanReusableObjectsRegistry<>( disposeFreeAction );
+        registryList.add( registry );
+        return registry;
+    }
+    
+    private <T> VulkanReusableObjectsRegistry< T > newReusableRegistry( Consumer< T > disposeFreeAction, Consumer<T> disposeUsedAction ) {
+        var registry = new VulkanReusableObjectsRegistry<>( disposeFreeAction, disposeUsedAction );
+        registryList.add( registry );
+        return registry;
+    }
+    
+    
     
     
     public VulkanDeviceAllocator(
@@ -56,27 +78,7 @@ public class VulkanDeviceAllocator {
     }
     
     public void disposeUnsafe() {
-        frameBuffers.dispose();
-        transferCommandPools.dispose();
-        graphicCommandPools.dispose();
-        graphicPipelines.dispose();
-        swapChains.dispose();
-        bufferProviders.dispose();
-        descriptors.dispose();
-        textureLoaders.dispose();
-        textureDatas.dispose();
-        inMemoryImages.dispose();
-        swapChainImages.dispose();
-        imageViews.dispose();
-        
-        depthResources.dispose();
-        shaderPrograms.dispose();
-        textureSamplers.dispose();
-        semaphores.dispose();
-        fences.dispose();
-        commandBufferAllocators.dispose();
-        pipelineAllocators.dispose();
-        dataBufferAllocators.dispose();
+        registryList.forEach( VulkanRegistry::dispose );
     }
     
     public VulkanDataBufferAllocator createDataBufferAllocator() {

@@ -55,7 +55,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         this.device = device;
         this.executorService = executorService;
         this.stage = stage;
-        textureSampler = device.getTextureSampler();
+        this.textureSampler = device.getTextureSampler();
         this.dataBuffers = dataBuffers;
         this.availableDataBuffers = availableDataBuffers;
         this.shouldDrawTextures = shouldDrawTextures;
@@ -130,7 +130,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
             .filter( Objects::nonNull )
             .collect( Collectors.toList() )
         ;
-        return new VulkanRenderBatchData( device.getDescriptor().createDescriptorPool( textures.size() ), uniformBuffers, partialDatas );
+        return new VulkanRenderBatchData( device.getDescriptor().createDescriptorPool( textures.size() ), uniformBuffers, partialDatas, setsByTexture );
     }
     
     private VulkanRenderBatchPartialData renderBatch(

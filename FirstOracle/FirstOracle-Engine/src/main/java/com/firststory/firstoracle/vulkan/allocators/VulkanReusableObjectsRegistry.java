@@ -4,17 +4,13 @@
 
 package com.firststory.firstoracle.vulkan.allocators;
 
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
 
 /**
  * @author n1t4chi
  */
-class VulkanReusableObjectsRegistry< T > {
+class VulkanReusableObjectsRegistry< T > implements VulkanRegistry {
     
     private final Deque< T > freeInstances = new LinkedList<>();
     private final Set< T > usedInstances = new HashSet<>();
@@ -77,7 +73,8 @@ class VulkanReusableObjectsRegistry< T > {
         }
     }
     
-    void dispose() {
+    @Override
+    public void dispose() {
         synchronized ( usedInstances ) {
             usedInstances.forEach( disposeUsedAction );
             usedInstances.clear();

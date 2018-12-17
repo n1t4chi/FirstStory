@@ -7,6 +7,7 @@ package com.firststory.firstoracle.scene;
 import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.object3D.*;
 import com.firststory.firstoracle.rendering.RenderData;
+import org.joml.Vector4f;
 
 import java.util.*;
 
@@ -38,7 +39,7 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
         var terrainSize = getTerrainSize();
         var shift = getTerrain3DShift();
         var terrainsXYZ = getTerrains3D();
-        var objects2D = getObjects3D();
+        var objects3D = getObjects3D();
     
         var view = new CameraView3D( getScene3DCamera() );
     
@@ -89,14 +90,45 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
                 }
             }
         }
-    
-        for ( var object : objects2D ) {
+        var queue = new PriorityQueue< Pair >();
+        var invMatrix = view.getInvMatrix();
+        var vec = new Vector4f();
+        for ( var object : objects3D ) {
             if( view.shouldDisplay( object.getBBO() ) ) {
-                list.addAll( object.getRenderData( currentRenderTime, cameraRotation ) );
+                var renderData = object.getRenderData( currentRenderTime, cameraRotation );
+                var position = object.getPosition();
+                vec.set( position.x(), position.y(), position.z(), 1 );
+                vec.mul( invMatrix );
+                queue.add( new Pair( renderData, vec.z() ) );
             }
+        }
+        Pair pair;
+        while( ( pair = queue.poll() ) != null )
+        {
+           list.addAll( pair.renderData );
         }
         return list;
     }
+    
+    private class Pair implements Comparable< Pair > {
+        private Collection< RenderData > renderData;
+        private float distance;
+        
+    
+        private Pair(
+            Collection< RenderData > renderData,
+            float distance
+        ) {
+            this.renderData = renderData;
+            this.distance = distance;
+        }
+    
+        @Override
+        public int compareTo( Pair o ) {
+            return Float.compare( o.distance, distance );
+        }
+    }
+    
     
     private int boundValue( int value, int arraySize) {
         if( value < 0 ) {

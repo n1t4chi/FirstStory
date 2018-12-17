@@ -4,17 +4,13 @@
 
 package com.firststory.firstoracle.opengl;
 
-import com.firststory.firstoracle.buffer.BufferNotCreatedException;
-import com.firststory.firstoracle.buffer.CannotCreateBufferException;
-import com.firststory.firstoracle.buffer.TextureBufferLoader;
+import com.firststory.firstoracle.buffer.*;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.*;
 import org.lwjgl.stb.STBImage;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -61,7 +57,8 @@ public class OpenGlTextureLoader implements TextureBufferLoader<Integer> {
             height,
             0,
             GL11.GL_RGBA,
-            GL11.GL_UNSIGNED_BYTE, texture
+            GL11.GL_UNSIGNED_BYTE,
+            texture
         );
         
         //todo: repeat, could be used for giant objects.
