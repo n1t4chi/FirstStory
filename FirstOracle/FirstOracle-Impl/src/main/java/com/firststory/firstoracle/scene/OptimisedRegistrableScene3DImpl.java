@@ -77,7 +77,7 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
                             var maxIndexZ = boundValue( maxUnboundedIndexZ, terrainSize.z() );
                             for ( var indexZ = minIndexZ; indexZ <= maxIndexZ; indexZ++ ) {
                                 var terrain = terrainsZ[ indexZ ];
-                                if( terrain != null ) {
+                                if( terrain != null && isNotHidden( terrainsXYZ, indexX, indexY, indexZ, terrainSize ) ) {
                                     list.addAll( terrain.getRenderData(
                                         terrain.indexToPosition( indexX, indexY, indexZ, shift ),
                                         currentRenderTime,
@@ -108,6 +108,34 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
            list.addAll( pair.renderData );
         }
         return list;
+    }
+    
+    private boolean isNotHidden(
+        Terrain3D< ?, ? >[][][] terrainsXYZ,
+        int indexX,
+        int indexY,
+        int indexZ,
+        Index3D terrainSize
+    ) {
+        if( indexX <= 0 || indexZ <= 0)
+        {
+            return true;
+        }
+        if( indexX >= terrainSize.x()-1 || indexY >= terrainSize.y()-1 || indexZ >= terrainSize.z()-1 )
+        {
+            return true;
+        }
+        for( var x = indexX-1; x <= indexX+1 ; x++)
+        {
+            for( var z = indexZ-1; z <= indexZ+1 ; z++)
+            {
+                if( terrainsXYZ[ x ][ indexY ][ z ] == null )
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     private class Pair implements Comparable< Pair > {
