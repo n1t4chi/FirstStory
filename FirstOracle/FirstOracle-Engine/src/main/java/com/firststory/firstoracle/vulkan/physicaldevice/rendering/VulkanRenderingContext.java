@@ -147,46 +147,65 @@ public class VulkanRenderingContext implements RenderingContext {
             executorService2
         ) ) );
     }
+    Future< ? > submit = null;
     
     public void tearDownSingleRender() {
+        if( submit != null )
+        {
+            try {
+                submit.get();
+            } catch ( InterruptedException e ) {
+                throw new RuntimeException( e );
+            } catch ( Exception e ) {
+                logger.log( Level.WARNING, "exception during execution of rendering", e );
+            }
+            submit = null;
+        }
         var parameters = renderParameters;
         var backgroundBatchDatas = waitAndGet( parameters.getBackgroundFuture(), BACKGROUND );
         var scene2dBatchDatas = waitAndGet( parameters.getScene2DFuture(), SCENE_2D );
         var scene3dBatchDatas = waitAndGet( parameters.getScene3DFuture(), SCENE_3D );
         var overlayBatchDatas = waitAndGet( parameters.getOverlayFuture(), OVERLAY );
-        
         var imageAvailableSemaphore = parameters.getImageIndex().getImageAvailableSemaphore();
         var renderFinishedSemaphore = parameters.getImageIndex().getRenderFinishedSemaphore();
-        
         List< VulkanSemaphore > initialWaitSemaphores = new ArrayList<>(  );
         for ( var transferCommandPool : parameters.getTransferCommandPools() ) {
             initialWaitSemaphores.addAll( transferCommandPool.executeTransfers() );
         }
         initialWaitSemaphores.add( imageAvailableSemaphore );
-        
-        List< VulkanRenderBatchData > batchDatas = new ArrayList<>();
-        batchDatas.add( backgroundBatchDatas );
-        batchDatas.add( scene2dBatchDatas );
-        batchDatas.add( scene3dBatchDatas );
-        batchDatas.add( overlayBatchDatas );
-        batchDatas.removeIf( Objects::isNull );
-        
-        var processedInfo = processBatchDatas( parameters.getAllocator(), batchDatas, initialWaitSemaphores, renderFinishedSemaphore );
-        
-        var fence = parameters.getAllocator().createFence();
-        
-        device.getGraphicQueueFamily().submit( fence, processedInfo.getSubmitInfos() );
-        
-        parameters.getSwapChain().presentQueue( parameters.getImageIndex() );
-        
-        fence.executeWhenFinishedThenDispose( () -> {
-            batchDatas.forEach( VulkanRenderBatchData::dispose );
-            initialWaitSemaphores.forEach( VulkanSemaphore::finishedWait );
-            processedInfo.getSemaphores().forEach( semaphore -> {
-                semaphore.finishedSignal();
-                semaphore.finishedWait();
+    
+        submit = executorService.submit( () -> {
+            List< VulkanRenderBatchData > batchDatas = new ArrayList<>();
+            batchDatas.add( backgroundBatchDatas );
+            batchDatas.add( scene2dBatchDatas );
+            batchDatas.add( scene3dBatchDatas );
+            batchDatas.add( overlayBatchDatas );
+            batchDatas.removeIf( Objects::isNull );
+            
+            var processedInfo = processBatchDatas( parameters.getAllocator(),
+                batchDatas,
+                initialWaitSemaphores,
+                renderFinishedSemaphore
+            );
+            
+            var fence = parameters.getAllocator().createFence();
+            
+            device.getGraphicQueueFamily().submit(
+                fence,
+                processedInfo.getSubmitInfos()
+            );
+            
+            parameters.getSwapChain().presentQueue( parameters.getImageIndex() );
+            
+            fence.executeWhenFinishedThenDispose( () -> {
+                batchDatas.forEach( VulkanRenderBatchData::dispose );
+                initialWaitSemaphores.forEach( VulkanSemaphore::finishedWait );
+                processedInfo.getSemaphores().forEach( semaphore -> {
+                    semaphore.finishedSignal();
+                    semaphore.finishedWait();
+                } );
+                renderFinishedSemaphore.finishedSignal();
             } );
-            renderFinishedSemaphore.finishedSignal();
         } );
     }
     
