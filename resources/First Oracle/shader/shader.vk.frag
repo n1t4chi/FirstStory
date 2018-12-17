@@ -15,6 +15,8 @@ void mixColour( in vec4 base, in vec4 overlay, out vec4 ret ) {
         ret = overlay;
     } if( overlay.a <= 0 ){
         ret = base;
+    } if( base.a <= 0 ){
+        ret = base;
     } else {
         float r = overlay.r * overlay.a +  base.r * base.a * ( 1 - overlay.a );
         float g = overlay.g * overlay.a +  base.g * base.a * ( 1 - overlay.a );

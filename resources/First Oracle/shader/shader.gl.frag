@@ -13,6 +13,8 @@ uniform float maxAlphaChannel;
 void mixColour( in vec4 base, in vec4 overlay, out vec4 ret ) {
     if( overlay.a >= 1 ){
         ret = overlay;
+    } if( overlay.a <= 0 ){
+         ret = base;
     } if( base.a <= 0 ){
         ret = base;
     } else {
