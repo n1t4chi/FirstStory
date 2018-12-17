@@ -72,8 +72,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanDescriptor descriptor;
     private final VulkanTextureLoader textureLoader;
     private final VulkanDepthResources depthResources;
-    private final VulkanShaderProgram shaderProgram3D;
-//    private final VulkanTextureSampler textureSampler;
+    private final VulkanShaderProgram shaderProgram;
     
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
     private final ExecutorService executorService;
@@ -150,13 +149,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             depthResources = allocator.createDepthResource();
             descriptor = allocator.createDescriptor();
             textureLoader = allocator.createTextureLoader( bufferProvider );
-//            textureSampler = allocator.createTextureSampler();
             
-            shaderProgram3D = allocator.createShaderProgram( bufferProvider );
-            //shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
+            shaderProgram = allocator.createShaderProgram( bufferProvider );
             try {
-                shaderProgram3D.compile();
-                //shaderProgram2D.compile();
+                shaderProgram.compile();
             } catch ( IOException ex ) {
                 throw new CannotCreateVulkanPhysicalDeviceException( this, ex );
             }
@@ -241,8 +237,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         return vertexAttributeLoader;
     }
     
-    public VulkanShaderProgram getShaderProgram3D() {
-        return shaderProgram3D;
+    public VulkanShaderProgram getShaderProgram() {
+        return shaderProgram;
     }
     
     public VulkanTextureLoader getTextureLoader() {
@@ -279,7 +275,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private void updatePipeline( VulkanGraphicPipelines pipeline ) {
         pipeline.update(
             swapChain,
-            shaderProgram3D.getShaderStages(),
+            shaderProgram.getShaderStages(),
             depthResources,
             descriptor.getDescriptorSetLayout()
         );

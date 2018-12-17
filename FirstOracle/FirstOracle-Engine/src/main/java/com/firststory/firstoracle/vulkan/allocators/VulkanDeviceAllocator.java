@@ -36,7 +36,7 @@ public class VulkanDeviceAllocator {
     private final VulkanImmutableObjectsRegistry< VulkanTextureLoader > textureLoaders = newImmutableRegistry( VulkanTextureLoader::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanDepthResources > depthResources = newImmutableRegistry( VulkanDepthResources::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanShaderProgram > shaderPrograms = newImmutableRegistry( VulkanShaderProgram::disposeUnsafe );
-    private final VulkanReusableObjectsRegistry< VulkanTextureSampler > textureSamplers = newReusableRegistry(VulkanTextureSampler::disposeUnsafe, pool -> {} );
+    private final VulkanReusableObjectsRegistry< VulkanTextureSampler > textureSamplers = newReusableRegistry( sampler -> {}, VulkanTextureSampler::disposeUnsafe, VulkanTextureSampler::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanImageView > imageViews = newImmutableRegistry( VulkanImageView::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanInMemoryImage > inMemoryImages = newReusableRegistry( VulkanInMemoryImage::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanSwapChainImage > swapChainImages = newReusableRegistry( VulkanSwapChainImage::disposeUnsafe );
@@ -62,6 +62,16 @@ public class VulkanDeviceAllocator {
     
     private <T> VulkanReusableObjectsRegistry< T > newReusableRegistry( Consumer< T > disposeFreeAction, Consumer<T> disposeUsedAction ) {
         var registry = new VulkanReusableObjectsRegistry<>( disposeFreeAction, disposeUsedAction );
+        registryList.add( registry );
+        return registry;
+    }
+    
+    private < T > VulkanReusableObjectsRegistry< T > newReusableRegistry(
+        Consumer< T > deregisterAction,
+        Consumer< T > disposeFreeAction,
+        Consumer< T > disposeUsedAction
+    ) {
+        var registry = new VulkanReusableObjectsRegistry<>( deregisterAction, disposeFreeAction, disposeUsedAction );
         registryList.add( registry );
         return registry;
     }

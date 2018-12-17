@@ -74,9 +74,9 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
     
     private VulkanRenderBatchData renderStage() {
         var uniformBuffers = new ArrayList< VulkanDataBuffer>();
-        var uniformBuffer = device.getShaderProgram3D().bindUniformData( stage.getCamera().getMatrixRepresentation() );
+        var uniformBuffer = device.getShaderProgram().bindUniformData( stage.getCamera().getMatrixRepresentation() );
         uniformBuffers.add( uniformBuffer );
-        var uniformBufferInfo = device.getShaderProgram3D().createDescriptorBufferInfo( uniformBuffer );
+        var uniformBufferInfo = device.getShaderProgram().createDescriptorBufferInfo( uniformBuffer );
         
         var renderDatas = stage.getRenderDatas();
         List< List< RenderData > > batches = new ArrayList<>(  );
@@ -260,6 +260,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
                     textureBuffer.getContext(),
                     uniformBufferInfo
                 );
+                set.setSampler( textureSampler );
                 return set;
             } );
         
@@ -290,7 +291,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         Deque< VulkanDataBuffer > availableBuffers,
         RenderData renderData
     ) {
-        var shader = device.getShaderProgram3D();
+        var shader = device.getShaderProgram();
         shader.bindPosition( renderData.getPosition() );
         shader.bindScale( renderData.getScale() );
         shader.bindRotation( renderData.getRotation() );

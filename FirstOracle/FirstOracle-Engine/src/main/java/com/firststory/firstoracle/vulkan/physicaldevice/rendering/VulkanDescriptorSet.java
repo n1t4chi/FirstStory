@@ -4,8 +4,7 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
-import com.firststory.firstoracle.vulkan.VulkanAddress;
-import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.*;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanDescriptorSetException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanTextureData;
@@ -20,6 +19,7 @@ public class VulkanDescriptorSet {
     private final VulkanDeviceAllocator allocator;
     private final VulkanDescriptor descriptor;
     private final VulkanAddress descriptorSet;
+    private VulkanTextureSampler textureSampler;
     
     public VulkanDescriptorSet(
         VulkanDeviceAllocator allocator,
@@ -42,6 +42,10 @@ public class VulkanDescriptorSet {
             ),
             resultCode -> new CannotCreateVulkanDescriptorSetException( descriptor.getDevice(), resultCode )
         );
+    }
+    
+    void setSampler( VulkanTextureSampler textureSampler ) {
+        this.textureSampler = textureSampler;
     }
     
     void updateDescriptorSet( VulkanTextureSampler sampler, VulkanTextureData textureData, VkDescriptorBufferInfo uniformBufferInfo ) {
@@ -86,6 +90,10 @@ public class VulkanDescriptorSet {
     }
     
     public void dispose() {
+        if( textureSampler != null ) {
+            textureSampler.dispose();
+            textureSampler = null;
+        }
         allocator.deregisterDescriptorSet( this );
     }
     
