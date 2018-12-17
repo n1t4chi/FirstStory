@@ -76,7 +76,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
     private final ExecutorService executorService;
-    private VulkanImageIndex currentImageIndex;
     
     public VulkanPhysicalDevice(
         VulkanFrameworkAllocator instanceAllocator,
@@ -282,7 +281,8 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     public void setUpSingleRender( VulkanRenderingContext renderingContext ) {
-        currentImageIndex = acquireNextImageIndex();
+        var currentImageIndex = acquireNextImageIndex();
+        currentImageIndex.getRenderFinishedSemaphore().ignoreWait();
         renderingContext.setUpSingleRender(
             trianglePipelines,
             linePipelines,
@@ -294,7 +294,6 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     
     public void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
         renderingContext.tearDownSingleRender();
-        currentImageIndex.getRenderFinishedSemaphore().ignoreWait();
 //        presentationFamily.waitForQueue();
     }
     

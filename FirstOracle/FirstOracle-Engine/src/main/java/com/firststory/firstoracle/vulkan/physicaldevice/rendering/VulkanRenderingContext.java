@@ -154,7 +154,7 @@ public class VulkanRenderingContext implements RenderingContext {
         var scene2dBatchDatas = waitAndGet( parameters.getScene2DFuture(), SCENE_2D );
         var scene3dBatchDatas = waitAndGet( parameters.getScene3DFuture(), SCENE_3D );
         var overlayBatchDatas = waitAndGet( parameters.getOverlayFuture(), OVERLAY );
-    
+        
         var imageAvailableSemaphore = parameters.getImageIndex().getImageAvailableSemaphore();
         var renderFinishedSemaphore = parameters.getImageIndex().getRenderFinishedSemaphore();
         
@@ -176,7 +176,7 @@ public class VulkanRenderingContext implements RenderingContext {
         var fence = parameters.getAllocator().createFence();
         
         device.getGraphicQueueFamily().submit( fence, processedInfo.getSubmitInfos() );
-    
+        
         parameters.getSwapChain().presentQueue( parameters.getImageIndex() );
         
         fence.executeWhenFinishedThenDispose( () -> {
