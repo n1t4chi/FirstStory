@@ -36,24 +36,12 @@ public class VulkanRenderingContext implements RenderingContext {
     private final boolean shouldDrawTextures;
     private final List< VulkanDataBuffer > dataBuffers = new ArrayList<>( 5000 );
     
-    private VulkanStages stages;
     private final ExecutorService executorService;
     private final ExecutorService executorService2;
     
     private final Deque< VulkanDataBuffer > availableDataBuffers = new LinkedList<>();
     
-    private Colour backgroundColour;
-    private VulkanFrameBuffer frameBuffer;
-    private VulkanDeviceAllocator deviceAllocator;
-    private VulkanGraphicPipelines trianglePipelines;
-    private VulkanGraphicPipelines linePipelines;
-    private VulkanImageIndex imageIndex;
-    private VulkanSwapChain swapChain;
-    private List< VulkanTransferCommandPool > transferCommandPools;
-    private Future< VulkanRenderBatchData > backgroundFuture;
-    private Future< VulkanRenderBatchData > scene2DFuture;
-    private Future< VulkanRenderBatchData > scene3DFuture;
-    private Future< VulkanRenderBatchData > overlayFuture;
+    private RenderParameters renderParameters;
     
     public VulkanRenderingContext(
         VulkanFrameworkAllocator allocator,
@@ -76,8 +64,7 @@ public class VulkanRenderingContext implements RenderingContext {
         this.shouldDrawBorder = shouldDrawBorder;
         this.shouldDrawTextures = shouldDrawTextures;
         executorService = Executors.newFixedThreadPool( 4 );
-//        executorService2 = Executors.newFixedThreadPool( PropertiesUtil.getIntegerProperty( "vulkan.threads", 8 ) );
-        executorService2 = Executors.newFixedThreadPool( 8 );
+        executorService2 = Executors.newFixedThreadPool( PropertiesUtil.getIntegerProperty( "vulkan.threads", 8 ) );
     }
     
     public void dispose() {
@@ -96,91 +83,83 @@ public class VulkanRenderingContext implements RenderingContext {
         VulkanSwapChain swapChain,
         List< VulkanTransferCommandPool > transferCommandPools
     ) {
-        this.trianglePipelines = trianglePipelines;
-        this.linePipelines = linePipelines;
-        this.imageIndex = imageIndex;
-        this.swapChain = swapChain;
-        this.transferCommandPools = transferCommandPools;
-        stages = new VulkanStages();
-        deviceAllocator = device.getAllocator();
-        frameBuffer = imageIndex.getFrameBuffer();
+        
         availableDataBuffers.clear();
         availableDataBuffers.addAll( dataBuffers );
-    }
-    
-    @Override
-    public void renderOverlay( Camera2D camera, List< RenderData > renderDatas ) {
-        var overlay = stages.getOverlay();
-        overlay.addRenderDatas( renderDatas );
-        overlay.setCamera( camera );
-        overlayFuture = executorService.submit( createWorker(
+        
+        renderParameters = new RenderParameters(
             trianglePipelines,
             linePipelines,
             swapChain,
-            frameBuffer,
-            overlay,
-            executorService2
-        ) );
+            imageIndex,
+            imageIndex.getFrameBuffer(),
+            transferCommandPools,
+            device.getAllocator()
+        );
     }
     
     @Override
     public void renderBackground( Camera2D camera, Colour backgroundColour, List< RenderData > renderDatas ) {
-        this.backgroundColour = backgroundColour;
-        var background = stages.getBackground();
+        renderParameters.setBackgroundColour( backgroundColour );
+        var background = renderParameters.getVulkanStages().getBackground();
         background.addRenderDatas( renderDatas );
         background.setCamera( camera );
     
-        backgroundFuture = executorService.submit( createWorker(
-            trianglePipelines,
-            linePipelines,
-            swapChain,
-            frameBuffer,
+        renderParameters.setBackgroundFuture( executorService.submit( createWorker(
+            renderParameters,
             background,
             executorService2
-        ) );
-    }
-    
-    @Override
-    public void renderScene3D( Camera3D camera, List< RenderData > renderDatas ) {
-        var scene3D = stages.getScene3D();
-        scene3D.addRenderDatas( renderDatas );
-        scene3D.setCamera( camera );
-        scene3DFuture = executorService.submit( createWorker(
-            trianglePipelines,
-            linePipelines,
-            swapChain,
-            frameBuffer,
-            scene3D,
-            executorService2
-        ) );
+        ) ) );
     }
     
     @Override
     public void renderScene2D( Camera2D camera, List< RenderData > renderDatas ) {
-        var scene2D = stages.getScene2D();
+        var scene2D = renderParameters.getVulkanStages().getScene2D();
         scene2D.addRenderDatas( renderDatas );
         scene2D.setCamera( camera );
-        scene2DFuture = executorService.submit( createWorker(
-            trianglePipelines,
-            linePipelines,
-            swapChain,
-            frameBuffer,
+        renderParameters.setScene2DFuture( executorService.submit( createWorker(
+            renderParameters,
             scene2D,
             executorService2
-        ) );
+        ) ) );
+    }
+    
+    @Override
+    public void renderScene3D( Camera3D camera, List< RenderData > renderDatas ) {
+        var scene3D = renderParameters.getVulkanStages().getScene3D();
+        scene3D.addRenderDatas( renderDatas );
+        scene3D.setCamera( camera );
+        renderParameters.setScene3DFuture( executorService.submit( createWorker(
+            renderParameters,
+            scene3D,
+            executorService2
+        ) ) );
+    }
+    
+    @Override
+    public void renderOverlay( Camera2D camera, List< RenderData > renderDatas ) {
+        var overlay = renderParameters.getVulkanStages().getOverlay();
+        overlay.addRenderDatas( renderDatas );
+        overlay.setCamera( camera );
+        renderParameters.setOverlayFuture( executorService.submit( createWorker(
+            renderParameters,
+            overlay,
+            executorService2
+        ) ) );
     }
     
     public void tearDownSingleRender() {
-        var backgroundBatchDatas = waitAndGet( backgroundFuture, BACKGROUND );
-        var scene2dBatchDatas = waitAndGet( scene2DFuture, SCENE_2D );
-        var scene3dBatchDatas = waitAndGet( scene3DFuture, SCENE_3D );
-        var overlayBatchDatas = waitAndGet( overlayFuture, OVERLAY );
+        var parameters = renderParameters;
+        var backgroundBatchDatas = waitAndGet( parameters.getBackgroundFuture(), BACKGROUND );
+        var scene2dBatchDatas = waitAndGet( parameters.getScene2DFuture(), SCENE_2D );
+        var scene3dBatchDatas = waitAndGet( parameters.getScene3DFuture(), SCENE_3D );
+        var overlayBatchDatas = waitAndGet( parameters.getOverlayFuture(), OVERLAY );
     
-        var imageAvailableSemaphore = imageIndex.getImageAvailableSemaphore();
-        var renderFinishedSemaphore = imageIndex.getRenderFinishedSemaphore();
+        var imageAvailableSemaphore = parameters.getImageIndex().getImageAvailableSemaphore();
+        var renderFinishedSemaphore = parameters.getImageIndex().getRenderFinishedSemaphore();
         
         List< VulkanSemaphore > initialWaitSemaphores = new ArrayList<>(  );
-        for ( var transferCommandPool : transferCommandPools ) {
+        for ( var transferCommandPool : parameters.getTransferCommandPools() ) {
             initialWaitSemaphores.addAll( transferCommandPool.executeTransfers() );
         }
         initialWaitSemaphores.add( imageAvailableSemaphore );
@@ -192,13 +171,13 @@ public class VulkanRenderingContext implements RenderingContext {
         batchDatas.add( overlayBatchDatas );
         batchDatas.removeIf( Objects::isNull );
         
-        var processedInfo = processBatchDatas( deviceAllocator, batchDatas, initialWaitSemaphores, renderFinishedSemaphore );
+        var processedInfo = processBatchDatas( parameters.getAllocator(), batchDatas, initialWaitSemaphores, renderFinishedSemaphore );
         
-        var fence = deviceAllocator.createFence();
+        var fence = parameters.getAllocator().createFence();
         
         device.getGraphicQueueFamily().submit( fence, processedInfo.getSubmitInfos() );
-        
-        swapChain.presentQueue( imageIndex );
+    
+        parameters.getSwapChain().presentQueue( parameters.getImageIndex() );
         
         fence.executeWhenFinishedThenDispose( () -> {
             batchDatas.forEach( VulkanRenderBatchData::dispose );
@@ -212,10 +191,7 @@ public class VulkanRenderingContext implements RenderingContext {
     }
     
     private VulkanRenderStageWorker createWorker(
-        VulkanGraphicPipelines trianglePipelines,
-        VulkanGraphicPipelines linePipelines,
-        VulkanSwapChain swapChain,
-        VulkanFrameBuffer frameBuffer,
+        RenderParameters renderParameters,
         VulkanStage stage,
         ExecutorService executorService
     ) {
@@ -227,11 +203,11 @@ public class VulkanRenderingContext implements RenderingContext {
             shouldDrawBorder,
             executorService,
             stage,
-            swapChain,
-            frameBuffer,
-            backgroundColour,
-            linePipelines,
-            trianglePipelines
+            renderParameters.getSwapChain(),
+            renderParameters.getFrameBuffer(),
+            renderParameters.getBackgroundColour(),
+            renderParameters.getLinePipelines(),
+            renderParameters.getTrianglePipelines()
         );
     }
     

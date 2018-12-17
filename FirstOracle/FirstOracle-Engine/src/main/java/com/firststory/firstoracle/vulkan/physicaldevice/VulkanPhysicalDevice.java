@@ -295,7 +295,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     public void tearDownSingleRender( VulkanRenderingContext renderingContext ) {
         renderingContext.tearDownSingleRender();
         currentImageIndex.getRenderFinishedSemaphore().ignoreWait();
-        presentationFamily.waitForQueue();
+//        presentationFamily.waitForQueue();
     }
     
     public void dispose() {
