@@ -86,10 +86,10 @@ public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer< Vu
         );
     }
     
-    void bindDescriptorSets( VulkanGraphicPipelines graphicPipelines, VulkanDescriptorSet descriptorSet ) {
+    void bindDescriptorSets( VulkanPipeline graphicPipeline, VulkanDescriptorSet descriptorSet ) {
         VK10.vkCmdBindDescriptorSets( getCommandBuffer(),
             VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-            graphicPipelines.getPipelineLayout().getValue(),
+            graphicPipeline.getPipelineLayout().getValue(),
             0,
             MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getAddress().getValue() ),
             null

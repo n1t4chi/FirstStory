@@ -222,11 +222,7 @@ public class VulkanRenderingContext implements RenderingContext {
             shouldDrawBorder,
             executorService,
             stage,
-            renderParameters.getSwapChain(),
-            renderParameters.getFrameBuffer(),
-            renderParameters.getBackgroundColour(),
-            renderParameters.getLinePipelines(),
-            renderParameters.getTrianglePipelines()
+            renderParameters
         );
     }
     

@@ -5,10 +5,9 @@
 package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.rendering.RenderData;
-import com.firststory.firstoracle.vulkan.physicaldevice.*;
+import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
@@ -26,19 +25,14 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
     private final VulkanPhysicalDevice device;
     private final ExecutorService executorService;
     private final VulkanStage stage;
-//    private final VulkanTextureSampler textureSampler;
     private final List< VulkanDataBuffer > dataBuffers;
     private final Deque< VulkanDataBuffer > availableDataBuffers;
     private final boolean shouldDrawTextures;
     private final boolean shouldDrawBorder;
-    private final VulkanSwapChain swapChain;
-    private final VulkanFrameBuffer frameBuffer;
-    private final Colour backgroundColour;
-    private final VulkanGraphicPipelines linePipelines;
-    private final VulkanGraphicPipelines trianglePipelines;
+    private final RenderParameters renderParameters;
     private static final int CHUNK_SIZE = 2000;
     
-    VulkanRenderStageWorker(
+    public VulkanRenderStageWorker(
         VulkanPhysicalDevice device,
         List< VulkanDataBuffer > dataBuffers,
         Deque< VulkanDataBuffer > availableDataBuffers,
@@ -46,25 +40,16 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         boolean shouldDrawBorder,
         ExecutorService executorService,
         VulkanStage stage,
-        VulkanSwapChain swapChain,
-        VulkanFrameBuffer frameBuffer,
-        Colour backgroundColour,
-        VulkanGraphicPipelines linePipelines,
-        VulkanGraphicPipelines trianglePipelines
+        RenderParameters renderParameters
     ) {
         this.device = device;
         this.executorService = executorService;
         this.stage = stage;
-//        this.textureSampler = device.getTextureSampler();
         this.dataBuffers = dataBuffers;
         this.availableDataBuffers = availableDataBuffers;
         this.shouldDrawTextures = shouldDrawTextures;
         this.shouldDrawBorder = shouldDrawBorder;
-        this.swapChain = swapChain;
-        this.frameBuffer = frameBuffer;
-        this.backgroundColour = backgroundColour;
-        this.linePipelines = linePipelines;
-        this.trianglePipelines = trianglePipelines;
+        this.renderParameters = renderParameters;
     }
     
     @Override
@@ -97,15 +82,15 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         for ( var renderDataList : batches ) {
             var trianglePipeline = first
                 ? stage.isInitialStage()
-                    ? trianglePipelines.getFirstRenderPipeline()
-                    : trianglePipelines.getFirstStageRenderPipeline()
-                : trianglePipelines.getContinuingRenderPipeline()
+                    ? renderParameters.getTrianglePipelines().getFirstRenderPipeline()
+                    : renderParameters.getTrianglePipelines().getFirstStageRenderPipeline()
+                : renderParameters.getTrianglePipelines().getContinuingRenderPipeline()
             ;
             var linePipeline = first
                 ? stage.isInitialStage()
-                    ? linePipelines.getFirstRenderPipeline()
-                    : linePipelines.getFirstStageRenderPipeline()
-                : linePipelines.getContinuingRenderPipeline()
+                    ? renderParameters.getLinePipelines().getFirstRenderPipeline()
+                    : renderParameters.getLinePipelines().getFirstStageRenderPipeline()
+                : renderParameters.getLinePipelines().getContinuingRenderPipeline()
             ;
             first = false;
             
@@ -146,10 +131,10 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         var primaryBuffer = commandPool.provideNextPrimaryBuffer();
         primaryBuffer.fillQueueSetup();
         primaryBuffer.beginRenderPass(
-            swapChain,
+            renderParameters.getSwapChain(),
             renderPass,
-            frameBuffer,
-            backgroundColour
+            renderParameters.getFrameBuffer(),
+            renderParameters.getBackgroundColour()
         );
         var secondaryBuffers = List.of( renderDataList(
             trianglePipeline,
@@ -186,7 +171,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         secondaryBuffer.update(
             renderPass,
             0,
-            frameBuffer
+            renderParameters.getFrameBuffer()
         );
         secondaryBuffer.fillQueueSetup();
     
@@ -265,11 +250,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
             } );
         
             buffer.bindDescriptorSets(
-                linePipelines,
-                descriptorSet
-            );
-            buffer.bindDescriptorSets(
-                trianglePipelines,
+                pipeline,
                 descriptorSet
             );
             

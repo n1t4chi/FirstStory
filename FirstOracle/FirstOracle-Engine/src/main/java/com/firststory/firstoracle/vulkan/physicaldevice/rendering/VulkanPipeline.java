@@ -4,13 +4,10 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
-import com.firststory.firstoracle.vulkan.VulkanAddress;
-import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.*;
 import com.firststory.firstoracle.vulkan.allocators.VulkanPipelineAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanGraphicPipelineException;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanDepthResources;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanSwapChain;
+import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
@@ -61,6 +58,10 @@ public class VulkanPipeline {
         this.pipelinesFirstUseOnly = pipelinesFirstUseOnly;
         this.renderPass = new VulkanRenderPass( device );
         this.keepInitialDepthAttachment = keepInitialDepthAttachment;
+    }
+    
+    VulkanAddress getPipelineLayout() {
+        return pipelineLayout;
     }
     
     VulkanRenderPass getRenderPass() {
