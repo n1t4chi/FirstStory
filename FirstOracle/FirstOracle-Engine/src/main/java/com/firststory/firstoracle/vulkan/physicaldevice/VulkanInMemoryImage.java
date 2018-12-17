@@ -4,13 +4,9 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
-import com.firststory.firstoracle.vulkan.VulkanAddress;
-import com.firststory.firstoracle.vulkan.VulkanHelper;
+import com.firststory.firstoracle.vulkan.*;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
-import com.firststory.firstoracle.vulkan.exceptions.CannotAllocateVulkanImageMemoryException;
-import com.firststory.firstoracle.vulkan.exceptions.CannotBindVulkanImageMemoryException;
-import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanImageException;
-import com.firststory.firstoracle.vulkan.exceptions.CannotTransitionVulkanImage;
+import com.firststory.firstoracle.vulkan.exceptions.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandBuffer;
 import org.lwjgl.vulkan.*;
 
@@ -305,16 +301,14 @@ public class VulkanInMemoryImage extends VulkanImage {
                 .layerCount( 1 )
             )
         ;
-        synchronized ( Object.class ) {
-            VK10.vkCmdBlitImage( commandBuffer.getCommandBuffer(),
-                getAddress().getValue(),
-                VK10.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                getAddress().getValue(),
-                VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                VkImageBlit.calloc( 1 ).put( 0, blit ),
-                VK10.VK_FILTER_LINEAR
-            );
-        }
+        VK10.vkCmdBlitImage( commandBuffer.getCommandBuffer(),
+            getAddress().getValue(),
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            getAddress().getValue(),
+            VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VkImageBlit.calloc( 1 ).put( 0, blit ),
+            VK10.VK_FILTER_LINEAR
+        );
     }
     
     private void invokePipelineBarrier(
@@ -323,17 +317,15 @@ public class VulkanInMemoryImage extends VulkanImage {
         VulkanTransferCommandBuffer commandBuffer,
         VkImageMemoryBarrier barrierBuffer
     ) {
-        synchronized ( Object.class ) {
-            VK10.vkCmdPipelineBarrier(
-                commandBuffer.getCommandBuffer(),
-                srcStageMask,
-                dstStageMask,
-                0,
-                null,
-                null,
-                createSingleMemoryBarrierBuffer( barrierBuffer )
-            );
-        }
+        VK10.vkCmdPipelineBarrier(
+            commandBuffer.getCommandBuffer(),
+            srcStageMask,
+            dstStageMask,
+            0,
+            null,
+            null,
+            createSingleMemoryBarrierBuffer( barrierBuffer )
+        );
     }
     
     private VkImageMemoryBarrier.Buffer createSingleMemoryBarrierBuffer( VkImageMemoryBarrier barrier ) {

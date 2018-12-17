@@ -6,13 +6,11 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.allocators.VulkanCommandBufferAllocator;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanFrameBuffer;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
+import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.vulkan.VK10;
-import org.lwjgl.vulkan.VkCommandBufferInheritanceInfo;
+import org.lwjgl.vulkan.*;
 
 /**
  * @author n1t4chi
@@ -54,9 +52,7 @@ public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer< Vu
     }
     
     void setLineWidth( Float lineWidth ) {
-        synchronized ( Object.class ) {
-            VK10.vkCmdSetLineWidth( getCommandBuffer(), lineWidth );
-        }
+        VK10.vkCmdSetLineWidth( getCommandBuffer(), lineWidth );
     }
     
     void draw(
@@ -66,51 +62,45 @@ public class VulkanGraphicSecondaryCommandBuffer extends VulkanCommandBuffer< Vu
         VulkanDataBuffer dataBuffer,
         int bufferSize
     ) {
-        synchronized ( Object.class ) {
-            VK10.vkCmdBindVertexBuffers( getCommandBuffer(),
-                0,
-                new long[]{
-                    vertexBuffer.getBufferAddress().getValue(),
-                    uvBuffer.getBufferAddress().getValue(),
-                    colourBuffer.getBufferAddress().getValue(),
-                    dataBuffer.getBufferAddress().getValue()
-                },
-                new long[]{
-                    vertexBuffer.getMemoryOffset(),
-                    uvBuffer.getMemoryOffset(),
-                    colourBuffer.getMemoryOffset(),
-                    dataBuffer.getMemoryOffset(),
-                }
-            );
-            VK10.vkCmdDraw(
-                getCommandBuffer(),
-                bufferSize,
-                1,
-                0,
-                0
-            );
-        }
+        VK10.vkCmdBindVertexBuffers( getCommandBuffer(),
+            0,
+            new long[]{
+                vertexBuffer.getBufferAddress().getValue(),
+                uvBuffer.getBufferAddress().getValue(),
+                colourBuffer.getBufferAddress().getValue(),
+                dataBuffer.getBufferAddress().getValue()
+            },
+            new long[]{
+                vertexBuffer.getMemoryOffset(),
+                uvBuffer.getMemoryOffset(),
+                colourBuffer.getMemoryOffset(),
+                dataBuffer.getMemoryOffset(),
+            }
+        );
+        VK10.vkCmdDraw(
+            getCommandBuffer(),
+            bufferSize,
+            1,
+            0,
+            0
+        );
     }
     
     void bindDescriptorSets( VulkanGraphicPipelines graphicPipelines, VulkanDescriptorSet descriptorSet ) {
-        synchronized ( Object.class ) {
-            VK10.vkCmdBindDescriptorSets( getCommandBuffer(),
-                VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-                graphicPipelines.getPipelineLayout().getValue(),
-                0,
-                MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getAddress().getValue() ),
-                null
-            );
-        }
+        VK10.vkCmdBindDescriptorSets( getCommandBuffer(),
+            VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
+            graphicPipelines.getPipelineLayout().getValue(),
+            0,
+            MemoryUtil.memAllocLong( 1 ).put( 0, descriptorSet.getAddress().getValue() ),
+            null
+        );
     }
     
     void bindPipeline( VulkanPipeline graphicPipeline ) {
-        synchronized ( Object.class ) {
-            VK10.vkCmdBindPipeline(
-                getCommandBuffer(),
-                VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
-                graphicPipeline.getGraphicPipeline().getValue()
-            );
-        }
+        VK10.vkCmdBindPipeline(
+            getCommandBuffer(),
+            VK10.VK_PIPELINE_BIND_POINT_GRAPHICS,
+            graphicPipeline.getGraphicPipeline().getValue()
+        );
     }
 }

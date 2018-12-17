@@ -5,32 +5,22 @@
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.vulkan.VulkanFramework;
-import com.firststory.firstoracle.vulkan.VulkanHelper;
-import com.firststory.firstoracle.vulkan.VulkanWindowSurface;
-import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
-import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
+import com.firststory.firstoracle.vulkan.*;
+import com.firststory.firstoracle.vulkan.allocators.*;
 import com.firststory.firstoracle.vulkan.exceptions.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.*;
+import org.lwjgl.system.*;
 import org.lwjgl.vulkan.*;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
+import java.nio.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.logging.*;
 import java.util.stream.Collectors;
 
 /**
@@ -83,7 +73,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     private final VulkanTextureLoader textureLoader;
     private final VulkanDepthResources depthResources;
     private final VulkanShaderProgram shaderProgram3D;
-    private final VulkanTextureSampler textureSampler;
+//    private final VulkanTextureSampler textureSampler;
     
     private final VulkanVertexAttributeLoader vertexAttributeLoader;
     private final ExecutorService executorService;
@@ -159,7 +149,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
             depthResources = allocator.createDepthResource();
             descriptor = allocator.createDescriptor();
             textureLoader = allocator.createTextureLoader( bufferProvider );
-            textureSampler = allocator.createTextureSampler();
+//            textureSampler = allocator.createTextureSampler();
             
             shaderProgram3D = allocator.createShaderProgram( bufferProvider );
             //shaderProgram2D = new VulkanShaderProgram2D( this, bufferProvider );
@@ -199,7 +189,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     public VulkanTextureSampler getTextureSampler() {
-        return textureSampler;
+        return allocator.createTextureSampler();
     }
     
     public VulkanDeviceAllocator getAllocator() {

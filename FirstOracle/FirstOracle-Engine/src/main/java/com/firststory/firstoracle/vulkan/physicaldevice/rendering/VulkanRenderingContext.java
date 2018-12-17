@@ -4,27 +4,20 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.PropertiesUtil;
+import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.camera3D.Camera3D;
 import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.rendering.RenderData;
-import com.firststory.firstoracle.rendering.RenderingContext;
-import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
-import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
+import com.firststory.firstoracle.rendering.*;
+import com.firststory.firstoracle.vulkan.allocators.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.*;
+import java.util.logging.*;
 
 /**
  * @author n1t4chi
@@ -71,8 +64,8 @@ public class VulkanRenderingContext implements RenderingContext {
         this.device = device;
         this.shouldDrawBorder = shouldDrawBorder;
         this.shouldDrawTextures = shouldDrawTextures;
-        executorService = Executors.newFixedThreadPool( 1 );
-        executorService2 = Executors.newFixedThreadPool( PropertiesUtil.getIntegerProperty( "vulkan.threads", 1 ) );
+        executorService = Executors.newFixedThreadPool( 4 );
+        executorService2 = Executors.newFixedThreadPool( PropertiesUtil.getIntegerProperty( "vulkan.threads", 8 ) );
     }
     
     public void dispose() {

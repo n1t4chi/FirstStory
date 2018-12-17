@@ -4,8 +4,7 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
-import com.firststory.firstoracle.buffer.BufferNotCreatedException;
-import com.firststory.firstoracle.buffer.TextureBufferLoader;
+import com.firststory.firstoracle.buffer.*;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
 import org.lwjgl.BufferUtils;
@@ -110,15 +109,13 @@ public class VulkanTextureLoader implements TextureBufferLoader< VulkanTextureDa
     
             var regionBuffer = VkBufferImageCopy.calloc( 1 ).put( 0, region );
     
-            synchronized ( Object.class ) {
-                VK10.vkCmdCopyBufferToImage(
-                    commandBuffer.getCommandBuffer(),
-                    textureData.getBuffer().getBufferAddress().getValue(),
-                    textureData.getImage().getAddress().getValue(),
-                    VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                    regionBuffer
-                );
-            }
+            VK10.vkCmdCopyBufferToImage(
+                commandBuffer.getCommandBuffer(),
+                textureData.getBuffer().getBufferAddress().getValue(),
+                textureData.getImage().getAddress().getValue(),
+                VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                regionBuffer
+            );
             regionBuffer.free();
         } );
     }

@@ -7,9 +7,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice.rendering;
 import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.allocators.VulkanCommandBufferAllocator;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanFrameBuffer;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
-import com.firststory.firstoracle.vulkan.physicaldevice.VulkanSwapChain;
+import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.*;
@@ -51,9 +49,7 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
         for ( var i = 0; i < secondaryBuffers.size(); i++ ) {
             buffers.put( i, secondaryBuffers.get( i ).getCommandBuffer().address() );
         }
-        synchronized ( Object.class ) {
-            VK10.vkCmdExecuteCommands( getCommandBuffer(), buffers );
-        }
+        VK10.vkCmdExecuteCommands( getCommandBuffer(), buffers );
     }
     
     private boolean activeRenderPass = false;
@@ -61,9 +57,7 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
     void beginRenderPass( VulkanSwapChain swapChain, VulkanRenderPass renderPass, VulkanFrameBuffer frameBuffer, Colour backgroundColour ) {
         activeRenderPass = true;
         var renderPassBeginInfo = createRenderPassBeginInfo( renderPass, swapChain, frameBuffer, backgroundColour );
-        synchronized ( Object.class ) {
-            VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
-        }
+        VK10.vkCmdBeginRenderPass( getCommandBuffer(), renderPassBeginInfo, VK10.VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS );
     }
     
     private void endRenderPass() {
@@ -71,9 +65,7 @@ public class VulkanGraphicPrimaryCommandBuffer extends VulkanCommandBuffer< Vulk
             throw new RuntimeException( "cannot end render pass" );
         }
         activeRenderPass = false;
-        synchronized ( Object.class ) {
-            VK10.vkCmdEndRenderPass( getCommandBuffer() );
-        }
+        VK10.vkCmdEndRenderPass( getCommandBuffer() );
     }
     
     private VkRenderPassBeginInfo createRenderPassBeginInfo(

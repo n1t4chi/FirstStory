@@ -5,8 +5,7 @@
 package com.firststory.firstoracle.vulkan.physicaldevice.transfer;
 
 import com.firststory.firstoracle.vulkan.VulkanAddress;
-import org.lwjgl.vulkan.VK10;
-import org.lwjgl.vulkan.VkBufferCopy;
+import org.lwjgl.vulkan.*;
 
 /**
  * @author n1t4chi
@@ -57,20 +56,17 @@ public class VulkanTransferData {
         if ( source.isNull() || destination.isNull() ) {
             return;
         }
-    
-        synchronized ( Object.class ) {
-            VK10.vkCmdCopyBuffer(
-                commandBuffer.getCommandBuffer(),
-                source.getValue(),
-                destination.getValue(),
-                regions.put(
-                    0,
-                    region
-                        .srcOffset( sourceOffset )
-                        .dstOffset( destinationOffset )
-                        .size( length )
-                )
-            );
-        }
+        VK10.vkCmdCopyBuffer(
+            commandBuffer.getCommandBuffer(),
+            source.getValue(),
+            destination.getValue(),
+            regions.put(
+                0,
+                region
+                    .srcOffset( sourceOffset )
+                    .dstOffset( destinationOffset )
+                    .size( length )
+            )
+        );
     }
 }

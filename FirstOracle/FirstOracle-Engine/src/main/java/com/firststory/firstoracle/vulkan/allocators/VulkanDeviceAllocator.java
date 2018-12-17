@@ -36,7 +36,7 @@ public class VulkanDeviceAllocator {
     private final VulkanImmutableObjectsRegistry< VulkanTextureLoader > textureLoaders = newImmutableRegistry( VulkanTextureLoader::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanDepthResources > depthResources = newImmutableRegistry( VulkanDepthResources::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanShaderProgram > shaderPrograms = newImmutableRegistry( VulkanShaderProgram::disposeUnsafe );
-    private final VulkanImmutableObjectsRegistry< VulkanTextureSampler > textureSamplers = newImmutableRegistry(VulkanTextureSampler::disposeUnsafe );
+    private final VulkanReusableObjectsRegistry< VulkanTextureSampler > textureSamplers = newReusableRegistry(VulkanTextureSampler::disposeUnsafe, pool -> {} );
     private final VulkanImmutableObjectsRegistry< VulkanImageView > imageViews = newImmutableRegistry( VulkanImageView::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanInMemoryImage > inMemoryImages = newReusableRegistry( VulkanInMemoryImage::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanSwapChainImage > swapChainImages = newReusableRegistry( VulkanSwapChainImage::disposeUnsafe );
@@ -224,7 +224,8 @@ public class VulkanDeviceAllocator {
     
     public VulkanTextureSampler createTextureSampler() {
         return textureSamplers.register(
-            () -> new VulkanTextureSampler( this, device )
+            () -> new VulkanTextureSampler( this, device ),
+            vulkanTextureSampler -> {}
         );
     }
     

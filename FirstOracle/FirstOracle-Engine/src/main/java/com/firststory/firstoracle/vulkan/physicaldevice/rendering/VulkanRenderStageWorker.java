@@ -26,7 +26,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
     private final VulkanPhysicalDevice device;
     private final ExecutorService executorService;
     private final VulkanStage stage;
-    private final VulkanTextureSampler textureSampler;
+//    private final VulkanTextureSampler textureSampler;
     private final List< VulkanDataBuffer > dataBuffers;
     private final Deque< VulkanDataBuffer > availableDataBuffers;
     private final boolean shouldDrawTextures;
@@ -55,7 +55,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         this.device = device;
         this.executorService = executorService;
         this.stage = stage;
-        this.textureSampler = device.getTextureSampler();
+//        this.textureSampler = device.getTextureSampler();
         this.dataBuffers = dataBuffers;
         this.availableDataBuffers = availableDataBuffers;
         this.shouldDrawTextures = shouldDrawTextures;
@@ -254,6 +254,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
             descriptorSet = setsByTexture.computeIfAbsent( getUsedTexture( renderData.getTexture() ), usedTexture -> {
                 var set = descriptorPool.getNextDescriptorSet();
                 var textureBuffer = device.getTextureLoader().bind( usedTexture );
+                var textureSampler = device.getTextureSampler();
                 set.updateDescriptorSet(
                     textureSampler,
                     textureBuffer.getContext(),
@@ -261,24 +262,24 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
                 );
                 return set;
             } );
+        
+            buffer.bindDescriptorSets(
+                linePipelines,
+                descriptorSet
+            );
+            buffer.bindDescriptorSets(
+                trianglePipelines,
+                descriptorSet
+            );
+            
+            buffer.draw(
+                vertexBuffer,
+                uvBuffer,
+                colouringBuffer,
+                dataBuffer,
+                bufferSize
+            );
         }
-        
-        buffer.bindDescriptorSets(
-            linePipelines,
-            descriptorSet
-        );
-        buffer.bindDescriptorSets(
-            trianglePipelines,
-            descriptorSet
-        );
-        
-        buffer.draw(
-            vertexBuffer,
-            uvBuffer,
-            colouringBuffer,
-            dataBuffer,
-            bufferSize
-        );
     }
     
     private Texture getUsedTexture( Texture texture ) {
