@@ -14,5 +14,5 @@ public interface WindowFramework {
     
     double getTime();
     
-    void destroy();
+    void dispose();
 }

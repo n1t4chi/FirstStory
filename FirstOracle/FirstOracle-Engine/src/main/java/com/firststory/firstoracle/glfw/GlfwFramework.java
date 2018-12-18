@@ -158,7 +158,7 @@ public class GlfwFramework implements WindowFramework {
     }
     
     @Override
-    public void destroy() {
+    public void dispose() {
         instances.forEach( GlfwWindowContext::destroy );
     }
 }

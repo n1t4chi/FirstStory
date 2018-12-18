@@ -7,8 +7,7 @@ package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
-import static com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanLinearMemoryLocation.BY_POSITION;
-import static com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanLinearMemoryLocation.BY_TRUE_SIZE;
+import static com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanLinearMemoryLocation.*;
 
 /**
  * @author n1t4chi
@@ -51,7 +50,6 @@ class VulkanLinearMemoryController< Memory extends VulkanLinearMemory< Data >, D
     VulkanLinearMemoryLocation allocate( long length ) {
         synchronized ( freeSpace ) {
             var memoryLocation = freeSpace.stream()
-                .sorted( VulkanLinearMemoryLocation::compareTrueLengthTo )
                 .filter( Location -> Location.getLength() >= length )
                 .min( VulkanLinearMemoryLocation::compareTrueLengthTo )
                 .orElseThrow( () -> new OutOfMemoryException( length ) );

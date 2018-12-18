@@ -115,6 +115,14 @@ public class WindowImpl implements Window {
             context.destroy();
             context = null;
         }
+        if ( renderingFramework != null ) {
+            renderingFramework.dispose();
+            renderingFramework = null;
+        }
+        if ( windowFramework != null ) {
+            windowFramework.dispose();
+            windowFramework = null;
+        }
     }
     
     @Override

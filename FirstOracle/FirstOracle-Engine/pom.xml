@@ -93,6 +93,23 @@
 
     <build>
         <plugins>
+            <!--<plugin>-->
+                <!--<artifactId>maven-assembly-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<descriptorRefs>-->
+                        <!--<descriptorRef>jar-with-dependencies</descriptorRef>-->
+                    <!--</descriptorRefs>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>make-assembly</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>single</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <artifactId>maven-jlink-plugin</artifactId>
                 <version>3.0.0-alpha-1</version>
@@ -112,6 +129,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*.pdn</exclude>
+                        <exclude>**/*.ptg</exclude>
+                        <exclude>**/*.ptgback</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

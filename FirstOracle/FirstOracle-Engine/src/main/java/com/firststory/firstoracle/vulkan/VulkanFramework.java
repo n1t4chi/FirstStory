@@ -4,11 +4,8 @@
 
 package com.firststory.firstoracle.vulkan;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.PropertiesUtil;
-import com.firststory.firstoracle.rendering.FrameworkCommands;
-import com.firststory.firstoracle.rendering.Renderer;
-import com.firststory.firstoracle.rendering.RenderingFramework;
+import com.firststory.firstoracle.*;
+import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.window.WindowContext;
 import org.lwjgl.glfw.GLFWVulkan;
 
@@ -46,7 +43,7 @@ public class VulkanFramework implements RenderingFramework {
     public void compileShaders() {}
     
     @Override
-    public void close() {
+    public void dispose() {
         instance.dispose();
     }
     

@@ -14,7 +14,7 @@ public interface RenderingFramework {
     
     void compileShaders() throws IOException;
     
-    void close();
+    void dispose();
     
     void render( Renderer renderer, double lastFrameUpdate );
 }

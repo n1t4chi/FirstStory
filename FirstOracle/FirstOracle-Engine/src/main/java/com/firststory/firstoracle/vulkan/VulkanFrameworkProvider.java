@@ -5,12 +5,10 @@
 package com.firststory.firstoracle.vulkan;
 
 import com.firststory.firstoracle.Runner;
-import com.firststory.firstoracle.rendering.RenderingFramework;
-import com.firststory.firstoracle.rendering.RenderingFrameworkProvider;
+import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.window.WindowContext;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -34,7 +32,7 @@ public class VulkanFrameworkProvider implements RenderingFrameworkProvider {
     
     @Override
     public void terminate() {
-        instances.forEach( ( thread, vulkanFramework ) -> vulkanFramework.close() );
+        instances.forEach( ( thread, vulkanFramework ) -> vulkanFramework.dispose() );
     }
     
     @Override
