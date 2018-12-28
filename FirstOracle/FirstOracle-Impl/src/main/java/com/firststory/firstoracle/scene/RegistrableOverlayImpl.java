@@ -4,20 +4,17 @@
 
 package com.firststory.firstoracle.scene;
 
-import com.firststory.firstoracle.camera2D.Camera2D;
-import com.firststory.firstoracle.camera2D.IdentityCamera2D;
+import com.firststory.firstoracle.camera2D.*;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author n1t4chi
  */
 public class RegistrableOverlayImpl implements RegistrableOverlay {
     
-    private final Set< PositionableObject2D< ?, ? > > objects = new HashSet<>();
+    private final Set< PositionableObject2D< ?, ? > > objects = new LinkedHashSet<>();
     private Camera2D camera = IdentityCamera2D.getCamera();
     
     @Override

@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class RegistrableScene2DImpl implements RegistrableScene2D {
     
-    private final Set< PositionableObject2D< ?, ? > > objects = new HashSet<>();
+    private final Set< PositionableObject2D< ?, ? > > objects = new LinkedHashSet<>();
     private final Terrain2D< ?, ? >[][] terrainsXY;
     private final Index2D terrainSize;
     private final Index2D terrainShift;

@@ -4,9 +4,8 @@
 
 package com.firststory.firstoracle.templates;
 
-import com.firststory.firstoracle.notyfying.FpsListener;
-import com.firststory.firstoracle.notyfying.FpsNotifier;
-import com.firststory.firstoracle.text.TextObject2D;
+import com.firststory.firstoracle.notyfying.*;
+import com.firststory.firstoracle.object2D.TextObject2D;
 import com.firststory.firstoracle.window.Window;
 
 /**

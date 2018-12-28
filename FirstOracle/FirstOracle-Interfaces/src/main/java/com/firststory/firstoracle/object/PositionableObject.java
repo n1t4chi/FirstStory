@@ -4,14 +4,10 @@
 
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.data.Position;
-import com.firststory.firstoracle.data.Rotation;
-import com.firststory.firstoracle.data.Scale;
+import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.rendering.RenderData;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -92,6 +88,8 @@ public interface PositionableObject<
             .setUvDirection( uvMapDirection )
             .setUvFrame( uvMapFrame )
             .setRotation( getTransformations().getRotation() )
+            .setPosition( getTransformations().getPosition() )
+            .setScale( getTransformations().getScale() )
         );
     }
     

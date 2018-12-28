@@ -7,8 +7,7 @@ import com.firststory.firstoracle.camera2D.Camera2D;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 import com.firststory.firstoracle.rendering.RenderData;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -20,14 +19,11 @@ public interface RenderableOverlay {
     
     Collection< PositionableObject2D< ?, ? > > getOverlayObjects();
     
-    default List< RenderData > getOverlayRenderData(
-        double currentRenderTime,
-        double cameraRotation
-    ) {
+    default List< RenderData > getOverlayRenderData( double currentRenderTime, double cameraRotation ) {
         return getOverlayObjects()
             .stream()
             .flatMap( object -> object.getRenderData( currentRenderTime, cameraRotation ).stream() )
             .collect( Collectors.toList() )
-            ;
+        ;
     }
 }

@@ -13,7 +13,6 @@
     <version>${first.oracle.version}</version>
 
     <properties>
-        <first.oracle.version>0.5-SNAPSHOT</first.oracle.version>
         <first.oracle.out>${project.basedir}/../release/${first.oracle.version}</first.oracle.out>
         <first.oracle.out.javadoc>${first.oracle.out}/javadoc</first.oracle.out.javadoc>
         <first.oracle.out.sources>${first.oracle.out}/sources</first.oracle.out.sources>

@@ -4,12 +4,11 @@
 
 package com.firststory.firstoracle.scene;
 
-import com.firststory.firstoracle.camera2D.Camera2D;
+import com.firststory.firstoracle.camera2D.*;
 import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.object2D.PositionableObject2D;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author n1t4chi
@@ -19,6 +18,14 @@ public class RenderableBackgroundImpl implements RenderableBackground {
     private final List< PositionableObject2D< ?, ? > > objects;
     private final Camera2D camera;
     private final Colour backgroundColour;
+    
+    public RenderableBackgroundImpl( Colour backgroundColour ) {
+        this(
+            IdentityCamera2D.getCamera(),
+            Collections.emptyList(),
+            backgroundColour
+        );
+    }
     
     public RenderableBackgroundImpl( Camera2D camera, List< PositionableObject2D< ?, ? > > objects, Colour backgroundColour ) {
         this.objects = objects;

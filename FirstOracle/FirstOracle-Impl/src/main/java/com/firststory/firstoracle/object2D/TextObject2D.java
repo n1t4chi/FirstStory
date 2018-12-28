@@ -2,14 +2,15 @@
  * Copyright (c) 2018 Piotr "n1t4chi" Olejarz
  */
 
-package com.firststory.firstoracle.text;
+package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.notyfying.*;
-import com.firststory.firstoracle.object.*;
-import com.firststory.firstoracle.object2D.*;
+import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.text.*;
 import com.firststory.firstoracle.window.Window;
+
+import java.awt.geom.Rectangle2D;
 
 /**
  * @author n1t4chi
@@ -18,16 +19,15 @@ public class TextObject2D
     extends
         AbstractPositionableObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >
     implements
-        StaticObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >,
-        PositionableObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >,
-        WindowListener
+        ResolutionBasedObject2D
 {
     private final WindowSettings settings;
     private final TextImageFactory factory;
     private TextData textData;
+    private Rectangle2D rectangle2D = new Rectangle2D.Double();
+    private Colour colour = FirstOracleConstants.BLACK;
     private int posX;
     private int posY;
-    private Colour colour = FirstOracleConstants.BLACK;
     
     public TextObject2D( Window window, String text ) {
         this( window, TextImageFactory.provide(), text );
@@ -60,21 +60,6 @@ public class TextObject2D
     }
     
     @Override
-    public UvMap getUvMap() {
-        return PlaneUvMap.getPlaneUvMap();
-    }
-    
-    @Override
-    public AbsolutePlane2DVertices getVertices() {
-        return AbsolutePlane2DVertices.getPlane2DVertices();
-    }
-    
-    @Override
-    public int getCurrentVertexFrame( double currentTimeSnapshot ) {
-        return 0;
-    }
-    
-    @Override
     public Colour getOverlayColour() {
         return colour;
     }
@@ -85,31 +70,30 @@ public class TextObject2D
     
     public void setText( String text ) {
         this.textData = factory.createText3D( text );
+        updateBounds();
         update();
     }
     
     public void setTextPosition( int x, int y ) {
-        posX = x;
-        posY = y;
-    }
-    
-    public int getPosX() {
-        return posX;
-    }
-    
-    public int getPosY() {
-        return posY;
+        this.posX = x;
+        this.posY = y;
+        updateBounds();
     }
     
     @Override
-    public void notify( WindowSizeEvent event ) {
-        update();
+    public void updateBounds() {
+        var bounds = textData.getBounds();
+        rectangle2D.setFrame( bounds.getX() + posX, bounds.getY() + posY, bounds.getWidth(), bounds.getHeight() );
+        ResolutionBasedObject2D.super.updateBounds();
     }
     
     @Override
-    public void update() {
-        getTransformations().setScale( textData.computeScale2D( settings.getWidth(), settings.getHeight() ) );
-        getTransformations().setPosition( textData.computePosition2D( posX, posY, settings.getWidth(), settings.getHeight() ) );
-        super.update();
+    public Rectangle2D getBounds() {
+        return rectangle2D;
+    }
+    
+    @Override
+    public WindowSettings getSettings() {
+        return settings;
     }
 }
