@@ -77,6 +77,8 @@ public class VulkanFramework implements RenderingFramework {
             setupDebugCallback();
         }
         
+        
+        
     }
     
     @Override
