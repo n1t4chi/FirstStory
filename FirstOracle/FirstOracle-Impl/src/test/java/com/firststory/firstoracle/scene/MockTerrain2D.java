@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.object.*;
+import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.rendering.*;
 
@@ -26,11 +26,6 @@ class MockTerrain2D extends AbstractTerrain2D< MockVertices2D, IdentityPosition2
             .setVertices( vertices )
             .setPosition( getPositionCalculator().indexToPosition( x, y, shift ) )
         ;
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return null;
     }
     
     @Override

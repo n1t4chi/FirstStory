@@ -292,6 +292,7 @@
 
     <modules>
         <module>FirstOracle</module>
+        <module>FirstSlave</module>
         <!--<module>JavaFx</module>-->
     </modules>
 </project>

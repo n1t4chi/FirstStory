@@ -11,15 +11,17 @@ import com.firststory.firstoracle.object2D.*;
 
 import java.util.*;
 
+import static com.firststory.firstoracle.data.Index2D.*;
+
 /**
  * @author n1t4chi
  */
 public class RegistrableScene2DImpl implements RegistrableScene2D {
     
     private final Set< PositionableObject2D< ?, ? > > objects = new LinkedHashSet<>();
-    private final Terrain2D< ?, ? >[][] terrainsXY;
-    private final Index2D terrainSize;
-    private final Index2D terrainShift;
+    private Terrain2D< ?, ? >[][] terrainsXY;
+    private Index2D terrainSize;
+    private Index2D terrainShift;
     private Camera2D camera = IdentityCamera2D.getCamera();
     
     public RegistrableScene2DImpl( Index2D terrainSize, Index2D terrainShift ) {
@@ -31,6 +33,13 @@ public class RegistrableScene2DImpl implements RegistrableScene2D {
             FirstOracleConstants.arraySize( terrains ),
             terrains,
             terrainShift
+        );
+    }
+    
+    public RegistrableScene2DImpl() {
+        this(
+            FirstOracleConstants.INDEX_ZERO_2I,
+            FirstOracleConstants.INDEX_ZERO_2I
         );
     }
     
@@ -52,12 +61,12 @@ public class RegistrableScene2DImpl implements RegistrableScene2D {
     
     @Override
     public void registerTerrain2D( Terrain2D< ?, ? > terrain, Index2D index ) {
-        terrainsXY[index.x()][index.y()] = terrain;
+        setTerrainAt( terrain, index );
     }
     
     @Override
     public void deregisterTerrain2D( Terrain2D< ?, ? > terrain, Index2D index ) {
-        terrainsXY[index.x()][index.y()] = null;
+        setTerrainAt( null, index );
     }
     
     @Override
@@ -91,5 +100,28 @@ public class RegistrableScene2DImpl implements RegistrableScene2D {
     @Override
     public Index2D getTerrain2DShift() {
         return terrainShift;
+    }
+    
+    private void setTerrainAt( Terrain2D< ?, ? > terrain, Index2D index ) {
+        var tabId = index.subtract( terrainShift );
+        
+        if( tabId.belowOrEqual( FirstOracleConstants.INDEX_ZERO_2I ) || terrainSize.belowOrEqual( tabId ) ) {
+            var newTerrainSize = maxId2( terrainSize, tabId.increment() );
+            var newTerrainShift = minId2( terrainShift, index );
+            var newTerrainsXY = new Terrain2D[ newTerrainSize.x() ][ newTerrainSize.y() ];
+            
+            var dx = terrainShift.x() - newTerrainShift.x();
+            var dy = terrainShift.y() - newTerrainShift.y();
+            for( var x = 0; x < terrainSize.x() ; x++ ) {
+                System.arraycopy( terrainsXY[ x ], 0, newTerrainsXY[ x + dx ], dy, terrainSize.y() );
+            }
+            
+            tabId = index.subtract( terrainShift );
+            terrainsXY = newTerrainsXY;
+            terrainShift = newTerrainShift;
+            terrainSize = newTerrainSize;
+        }
+        
+        terrainsXY[ tabId.x() ][ tabId.y() ] = terrain;
     }
 }

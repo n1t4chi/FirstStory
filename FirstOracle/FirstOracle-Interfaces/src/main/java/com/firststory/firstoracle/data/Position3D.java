@@ -4,8 +4,7 @@
 
 package com.firststory.firstoracle.data;
 
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
+import org.joml.*;
 
 /**
  * @author n1t4chi
@@ -31,5 +30,9 @@ public class Position3D extends Position {
     
     public Vector3fc toVec3f() {
         return new Vector3f( x(), y(), z() );
+    }
+    
+    public Position3D add( Position3D pos ) {
+        return pos3( x() + pos.x(), y() + pos.y(), z() + pos.z() );
     }
 }

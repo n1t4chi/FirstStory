@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.*;
 
 /**
@@ -17,7 +18,7 @@ public abstract class SimplePlane3D
         MutableTextureObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
         MutableTransformationsObject3D< Plane3DVertices >
 {
-    private Texture texture;
+    private Texture texture = FirstOracleConstants.EMPTY_TEXTURE;
     private UvMap uvMap;
     
     public SimplePlane3D() {

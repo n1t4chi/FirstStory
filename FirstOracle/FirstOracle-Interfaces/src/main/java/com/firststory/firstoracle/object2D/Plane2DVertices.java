@@ -5,9 +5,7 @@ package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.data.Position2D;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.firststory.firstoracle.data.Position2D.pos2;
 
@@ -35,11 +33,7 @@ public class Plane2DVertices extends FramelessVertices2D {
     
     public static Plane2DVertices getPlane2DVertices( float minX, float maxX, float minY, float maxY ) {
         var tuple = new Tuple( minX, maxX, minY, maxY );
-        return instances.computeIfAbsent( tuple, tuple1 -> {
-            var instance = new Plane2DVertices( minX, maxX, minY, maxY );
-            instances.put( tuple, instance );
-            return instance;
-        } );
+        return instances.computeIfAbsent( tuple, tuple1 -> new Plane2DVertices( minX, maxX, minY, maxY ) );
     }
     
     private static List< Position2D > createPlane2DVerticesArray() {

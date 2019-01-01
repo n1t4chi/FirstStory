@@ -16,10 +16,13 @@ import java.awt.geom.Rectangle2D;
  */
 public interface ResolutionBasedObject2D
     extends
-        StaticObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >,
-        PositionableObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >,
+        StaticObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
+        PositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         WindowListener
 {
+    
+    Plane2DVertices PLANE_2D_VERTICES = Plane2DVertices.getPlane2DVertices( 0, 1, -1, 0 );
+    
     Rectangle2D getBounds();
     
     WindowSettings getSettings();
@@ -30,8 +33,8 @@ public interface ResolutionBasedObject2D
     }
     
     @Override
-    default AbsolutePlane2DVertices getVertices() {
-        return AbsolutePlane2DVertices.getPlane2DVertices();
+    default Plane2DVertices getVertices() {
+        return PLANE_2D_VERTICES;
     }
     
     @Override

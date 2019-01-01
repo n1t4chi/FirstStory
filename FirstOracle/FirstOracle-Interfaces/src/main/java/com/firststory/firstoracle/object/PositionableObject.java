@@ -90,6 +90,9 @@ public interface PositionableObject<
             .setRotation( getTransformations().getRotation() )
             .setPosition( getTransformations().getPosition() )
             .setScale( getTransformations().getScale() )
+            .setOverlayColour( getOverlayColour() )
+            .setTexture( getTexture() )
+            .setMaxAlphaChannel( getMaxAlphaChannel() )
         );
     }
     

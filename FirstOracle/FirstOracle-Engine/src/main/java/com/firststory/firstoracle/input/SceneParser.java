@@ -5,18 +5,15 @@
 package com.firststory.firstoracle.input;
 
 import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.parsers.classes.*;
 import com.firststory.firstoracle.input.parsers.object.*;
 import com.firststory.firstoracle.input.structure.*;
 import com.firststory.firstoracle.object.*;
-import com.firststory.firstoracle.object2D.Terrain2D;
-import com.firststory.firstoracle.object3D.Terrain3D;
+import com.firststory.firstoracle.object3D.PositionableObject3D;
 import com.firststory.firstoracle.scene.*;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.function.*;
+import java.util.function.BiConsumer;
 
 import static com.firststory.firstoracle.input.ParseUtils.*;
 
@@ -25,87 +22,100 @@ import static com.firststory.firstoracle.input.ParseUtils.*;
  */
 public class SceneParser {
     
-    public static ScenePair<
-        OptimisedRegistrableScene2DImpl,
-        OptimisedRegistrableScene3DImpl
-    > parseToOptimised( String text ) {
-        return new SceneParser().parse(
-            text,
-            OptimisedRegistrableScene2DImpl::new,
-            OptimisedRegistrableScene3DImpl::new
-        );
+    private static final ObjectParser2D PARSER_2D = new ObjectParser2D();
+    private static final ObjectParser3D PARSER_3D = new ObjectParser3D();
+    
+    public static OptimisedRegistrableScene2DImpl parseToOptimised2D( String text ) {
+        var scene2D = new OptimisedRegistrableScene2DImpl();
+        new SceneParser( text ).parseScene2D( text, scene2D );
+        return scene2D;
     }
     
-    public static ScenePair<
-        RegistrableScene2DImpl,
-        RegistrableScene3DImpl
-    > parseToNonOptimised( String text ) {
-        return new SceneParser().parse(
-            text,
-            RegistrableScene2DImpl::new,
-            RegistrableScene3DImpl::new
-        );
+    public static OptimisedRegistrableScene3DImpl parseToOptimised3D( String text ) {
+        var scene3D = new OptimisedRegistrableScene3DImpl();
+        new SceneParser( text ).parseScene3D( text, scene3D );
+        return scene3D;
     }
     
-    public <
-        S2D extends RegistrableScene2D,
-        S3D extends RegistrableScene3D
-    > ScenePair< S2D, S3D > parse(
-        String text,
-        SceneSupplier< Index2D, S2D > scene2dSupplier,
-        SceneSupplier< Index3D, S3D > scene3dSupplier
-    ) {
-        var roots = Roots.parse( text );
+    public static RegistrableScene2DImpl parseToNonOptimised2D( String text ) {
+        var scene2D = new RegistrableScene2DImpl();
+        new SceneParser( text ).parseScene2D( text, scene2D );
+        return scene2D;
+    }
     
-        var configuration = new SceneConfiguration( roots.find( CONFIGURATION ) );
-        var sharedData = new SharedData( roots.find( SHARED_PARAM ) );
-        var sharedObjects = new SharedObjects( roots.find( SHARED_OBJECTS ) );
+    public static RegistrableScene3DImpl parseToNonOptimised3D( String text ) {
         
-        return new ScenePair<>(
-            parseScene2D( roots, configuration, sharedData, sharedObjects, scene2dSupplier ),
-            parseScene3D( roots, configuration, sharedData, sharedObjects, scene3dSupplier )
-        );
+        var scene3D = new RegistrableScene3DImpl();
+        new SceneParser( text ).parseScene3D( text, scene3D );
+        return scene3D;
     }
     
-    private < S2D extends RegistrableScene2D > S2D parseScene2D(
-        Roots roots,
-        SceneConfiguration configuration,
-        SharedData sharedData,
-        SharedObjects sharedObjects,
-        SceneSupplier< Index2D, S2D > scene2dSupplier
+    private final Roots configRoot;
+    private final SceneConfiguration configuration;
+    private final SharedData sharedData;
+    private final SharedObjects sharedObjects;
+    
+    public SceneConfiguration getConfiguration() {
+        return configuration;
+    }
+    
+    public SharedData getSharedData() {
+        return sharedData;
+    }
+    
+    public SharedObjects getSharedObjects() {
+        return sharedObjects;
+    }
+    
+    public SceneParser( String dataText ) {
+        configRoot = Roots.parse( dataText );
+        configuration = new SceneConfiguration( configRoot.find( CONFIGURATION ) );
+        sharedData = new SharedData( configRoot.find( SHARED_PARAM ) );
+        sharedObjects = new SharedObjects( configRoot.find( SHARED_OBJECTS ) );
+    }
+    
+    
+    public void parseScene2D( String sceneText, RegistrableScene2D scene2D ) {
+        var sceneRoot = Roots.parse( sceneText );
+        parseScene2D( sceneRoot, scene2D );
+    }
+    
+    public void parseScene3D( String sceneText, RegistrableScene3D scene3D ) {
+        var sceneRoot = Roots.parse( sceneText );
+        parseScene3D( sceneRoot, scene3D );
+    }
+    
+    public PositionableObject3D< ?, ? > createPositionableObject3DFromShared( String objectName ) {
+    
+        MutableComposite objectNode = new MutableComposite( "parsed" );
+        objectNode.addContent( new Leaf( "base", SHARED_NAME_PREFIX+objectName ) );
+        var parsedObjectNode = sharedObjects.getSharedObjects3DParser().parseNode( objectNode );
+        return PARSER_3D.toObject( sharedData, sharedObjects, parsedObjectNode );
+    }
+    
+    private void parseScene2D(
+        Roots sceneRoots,
+        RegistrableScene2D scene2D
     ) {
-        return parseScene(
-            roots.find( SCENE_2D ),
-            sharedData,
-            sharedObjects,
-            configuration.getTerrainSize2D(),
-            configuration.getTerrainShift2D(),
-            scene2dSupplier,
-            new ObjectParser2D(),
+        parseScene(
+            sceneRoots.find( SCENE_2D ),
+            scene2D,
+            PARSER_2D,
             RegistrableScene2D::registerMultipleObjects2D,
-            RegistrableScene2D::registerMultipleTerrains2D,
-            this::getTerrainSize2D
+            RegistrableScene2D::registerMultipleTerrains2D
         );
     }
     
-    private < S3D extends RegistrableScene3D > S3D parseScene3D(
+    private void parseScene3D(
         Roots roots,
-        SceneConfiguration configuration,
-        SharedData sharedData,
-        SharedObjects sharedObjects,
-        SceneSupplier< Index3D, S3D > scene3dSupplier
+        RegistrableScene3D scene3D
     ) {
-        return parseScene(
+        parseScene(
             roots.find( SCENE_3D ),
-            sharedData,
-            sharedObjects,
-            configuration.getTerrainSize3D(),
-            configuration.getTerrainShift3D(),
-            scene3dSupplier,
-            new ObjectParser3D(),
+            scene3D,
+            PARSER_3D,
             RegistrableScene3D::registerMultipleObjects3D,
-            RegistrableScene3D::registerMultipleTerrains3D,
-            this::getTerrainSize3D
+            RegistrableScene3D::registerMultipleTerrains3D
         );
     }
     
@@ -117,13 +127,9 @@ public class SceneParser {
         TerrainType extends Terrain< PositionType, ?, ?, ?, ?, ?, IndexType, ? >,
         ObjectClassParserType extends ObjectClassParser< PositionableObjectType >,
         TerrainClassParserType extends TerrainClassParser< TerrainType >
-    > Scene parseScene(
+    > void parseScene(
         Composite sceneNode,
-        SharedData sharedData,
-        SharedObjects sharedObjects,
-        @Nullable IndexType size,
-        IndexType shift,
-        SceneSupplier< IndexType, Scene > sceneSupplier,
+        Scene scene,
         ObjectParser<
             PositionType,
             IndexType,
@@ -133,76 +139,16 @@ public class SceneParser {
             TerrainClassParserType
         > parser,
         BiConsumer< Scene, Collection< PositionableObjectType > > registerObject,
-        TriConsumer< Scene, TerrainType, Collection< IndexType >  > registerTerrain,
-        BiFunction< IndexType, Collection< TerrainPair< TerrainType, IndexType > >, IndexType > determineFinalSize
+        TriConsumer< Scene, TerrainType, Collection< IndexType >  > registerTerrain
     ) {
         var objects = parser.getObjects( sharedData, sharedObjects, sceneNode );
         var terrains = parser.getTerrains( sharedData, sharedObjects, sceneNode );
-        var terrainSize = determineFinalSize.apply( size, terrains.values() );
     
-        var scene = sceneSupplier.create( terrainSize, shift );
         terrains.forEach( ( name, pair ) ->
             registerTerrain.accept( scene, pair.getTerrain(), pair.getIndices() )
         );
         objects.forEach( ( name, list ) -> {
             registerObject.accept( scene, list );
         } );
-        return scene;
-    }
-    
-    private Index2D getTerrainSize2D(
-        @Nullable Index2D size,
-        Collection< TerrainPair< Terrain2D< ?, ? >, Index2D > > terrains
-    ) {
-        return getTerrainSize(
-            size,
-            terrains,
-            Index2D.id2( -1, -1 ),
-            Index2D::max,
-            Index2D::leftFits,
-            Index2D::increment
-        );
-    }
-    
-    private Index3D getTerrainSize3D(
-        @Nullable Index3D size,
-        Collection< TerrainPair< Terrain3D< ?, ? >, Index3D > > terrains
-    ) {
-        return getTerrainSize(
-            size,
-            terrains,
-            Index3D.id3( -1, -1, -1 ),
-            Index3D::max,
-            Index3D::leftFits,
-            Index3D::increment
-        );
-    }
-    
-    private < IndexType extends Index, TerrainType extends Terrain< ?, ?, ?, ?, ?, ?, IndexType, ? > > IndexType getTerrainSize(
-        @Nullable IndexType size,
-        Collection< TerrainPair< TerrainType, IndexType > > terrains,
-        IndexType negativeOneSize,
-        BinaryOperator< IndexType > sumSize,
-        BiPredicate< IndexType, IndexType > leftFitsInRight,
-        Function< IndexType, IndexType > incrementSize
-    ) {
-        var terrainSize = size;
-        var minArraySize = incrementSize.apply( terrains
-            .stream()
-            .map( TerrainPair::getIndices )
-            .flatMap( Collection::stream )
-            .reduce( negativeOneSize, sumSize )
-        );
-        if( terrainSize == null ) {
-            terrainSize = minArraySize;
-        } else {
-            if( !leftFitsInRight.test( minArraySize, terrainSize ) ) {
-                throw new ParseFailedException(
-                    "Declared terrains do not fit to configured size " + terrainSize + "." +
-                    " Minimum size needed: " + minArraySize
-                );
-            }
-        }
-        return terrainSize;
     }
 }

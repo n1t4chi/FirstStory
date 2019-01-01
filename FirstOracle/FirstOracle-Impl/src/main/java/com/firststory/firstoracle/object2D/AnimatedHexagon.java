@@ -19,7 +19,6 @@ public class AnimatedHexagon
         MutableTextureObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTransformationsObject2D< Hex2DVertices >
 {
-    private Texture texture;
     private FrameController frameController = time -> 0;
     private UvMap uvMap;
     
@@ -38,13 +37,8 @@ public class AnimatedHexagon
     }
     
     @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
     public void setTexture( Texture texture ) {
-        this.texture = texture;
+        super.setTexture( texture );
         this.uvMap = Hex2DUvMap.getHex2DUvMap(
             texture.getFrames(),
             texture.getRows()

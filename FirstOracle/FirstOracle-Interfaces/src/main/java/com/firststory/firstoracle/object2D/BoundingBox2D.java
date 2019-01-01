@@ -172,4 +172,9 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
         return minX <= boundingBox2D.maxX && maxX >= boundingBox2D.minX &&
             minY <= boundingBox2D.maxY && maxY >= boundingBox2D.minY;
     }
+    
+    public boolean contains( double x, double y ) {
+        return minX <= x && maxX >= x &&
+            minY <= y && maxY >= y;
+    }
 }

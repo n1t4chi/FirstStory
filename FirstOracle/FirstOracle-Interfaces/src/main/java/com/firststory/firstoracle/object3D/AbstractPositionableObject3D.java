@@ -3,6 +3,9 @@
  */
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.data.Colour;
+import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.rendering.RenderData;
 
 import java.util.List;
@@ -15,12 +18,17 @@ import java.util.List;
 public abstract class AbstractPositionableObject3D<
     Transformations extends PositionableObject3DTransformations,
     Vertices extends Vertices3D
-> implements 
-    PositionableObject3D< Transformations, Vertices >
+>
+    implements
+        PositionableObject3D< Transformations, Vertices >,
+        MutableTextureObject3D< Transformations, Vertices >
 {
     private Transformations transformations;
     private List< RenderData.RenderDataBuilder > renderDataBuilders;
     private List< RenderData > renderDatas;
+    private Texture texture = FirstOracleConstants.EMPTY_TEXTURE;
+    private Colouring colouring = FirstOracleConstants.EMPTY_COLOURING;
+    private Colour overlayColour = FirstOracleConstants.TRANSPARENT;
     
     @Override
     public Transformations getTransformations() {
@@ -50,5 +58,33 @@ public abstract class AbstractPositionableObject3D<
     @Override
     public List< RenderData.RenderDataBuilder > getStoredRenderDataBuilderList() {
         return renderDataBuilders;
+    }
+    
+    @Override
+    public Texture getTexture() {
+        return texture;
+    }
+    
+    @Override
+    public void setTexture( Texture texture ) {
+        this.texture = texture;
+    }
+    
+    @Override
+    public Colouring getColouring() {
+        return colouring;
+    }
+    
+    public void setColouring( Colouring colouring ) {
+        this.colouring = colouring;
+    }
+    
+    @Override
+    public Colour getOverlayColour() {
+        return overlayColour;
+    }
+    
+    public void setOverlayColour( Colour overlayColour ) {
+        this.overlayColour = overlayColour;
     }
 }

@@ -17,17 +17,6 @@ public class StaticRectangleGrid
         StaticObject2D< Identity2DTransformations, Plane2DVertices >,
         MutableTextureObject2D< Identity2DTransformations, Plane2DVertices >
 {
-    private Texture texture;
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
-    }
     
     @Override
     public UvMap getUvMap() {

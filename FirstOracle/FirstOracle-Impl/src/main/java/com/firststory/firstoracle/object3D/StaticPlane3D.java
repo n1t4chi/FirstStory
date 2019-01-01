@@ -15,7 +15,6 @@ public class StaticPlane3D
     implements
         StaticObject3D< MutablePositionable3DTransformations, Plane3DVertices >
 {
-    private Texture texture;
     private UvMap uvMap;
     
     public StaticPlane3D() {
@@ -23,13 +22,8 @@ public class StaticPlane3D
     }
     
     @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
     public void setTexture( Texture texture ) {
-        this.texture = texture;
+        super.setTexture( texture );
         this.uvMap = PlaneUvMap.getPlaneUvMap(
             texture.getDirections(),
             texture.getFrames(),

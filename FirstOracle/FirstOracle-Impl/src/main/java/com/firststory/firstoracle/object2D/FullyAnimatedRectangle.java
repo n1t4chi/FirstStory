@@ -21,7 +21,6 @@ public class FullyAnimatedRectangle
 {
     private FrameController frameController = time -> 0;
     private DirectionController directionController = direction -> 0;
-    private Texture texture;
     private UvMap uvMap;
     
     public FullyAnimatedRectangle() {
@@ -48,18 +47,13 @@ public class FullyAnimatedRectangle
     }
     
     @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
     public UvMap getUvMap() {
         return uvMap;
     }
     
     @Override
     public void setTexture( Texture texture ) {
-        this.texture = texture;
+        super.setTexture( texture );
         this.uvMap = PlaneUvMap.getPlaneUvMap(
             texture.getDirections(),
             texture.getFrames(),

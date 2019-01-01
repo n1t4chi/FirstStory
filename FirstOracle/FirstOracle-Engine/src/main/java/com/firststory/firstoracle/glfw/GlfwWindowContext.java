@@ -8,8 +8,7 @@ import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.window.WindowContext;
 import org.lwjgl.glfw.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.firststory.firstoracle.glfw.GlfwFramework.deregisterWindow;
 
@@ -171,7 +170,10 @@ public class GlfwWindowContext implements WindowContext {
     private class MouseButtonCallback implements GLFWMouseButtonCallbackI {
         @Override
         public void invoke( long window, int button, int action, int mods ) {
-            var event = new MouseButtonEvent( GlfwWindowContext.this, button, action, mods );
+            var event = new MouseButtonEvent(
+                GlfwWindowContext.this,
+                GlfwMouseButtonMap.parseMouseButtonCode( button, action, mods )
+            );
             mouseListeners.forEach( listener -> listener.notify( event ) );
         }
     }
@@ -188,7 +190,8 @@ public class GlfwWindowContext implements WindowContext {
         @Override
         public void invoke( long window, int key, int scancode, int action, int mods ) {
             var event = new KeyEvent(
-                GlfwWindowContext.this, GlfwKeyMap.parseKeyCode( key, scancode, action, mods )
+                GlfwWindowContext.this,
+                GlfwKeyMap.parseKeyCode( key, scancode, action, mods )
             );
             keyListeners.forEach( listener -> listener.notify( event ) );
         }

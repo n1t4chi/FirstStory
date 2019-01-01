@@ -4,9 +4,7 @@
 
 package com.firststory.firstoracle.controller;
 
-import com.firststory.firstoracle.key.Key;
-import com.firststory.firstoracle.key.KeyCode;
-import com.firststory.firstoracle.key.KeyModificator;
+import com.firststory.firstoracle.input.*;
 
 /**
  * @author n1t4chi
@@ -32,10 +30,10 @@ public class CameraKeyMap {
         Key.prepare( KeyCode.KEY_RIGHT ).build(),
         Key.prepare( KeyCode.KEY_PAGE_UP ).build(),
         Key.prepare( KeyCode.KEY_PAGE_DOWN ).build(),
-        Key.prepare( KeyCode.KEY_LEFT ).setModificators( KeyModificator.CONTROL ).build(),
-        Key.prepare( KeyCode.KEY_RIGHT ).setModificators( KeyModificator.CONTROL ).build(),
-        Key.prepare( KeyCode.KEY_UP ).setModificators( KeyModificator.CONTROL ).build(),
-        Key.prepare( KeyCode.KEY_DOWN ).setModificators( KeyModificator.CONTROL ).build()
+        Key.prepare( KeyCode.KEY_LEFT ).setModificators( InputModificator.CONTROL ).build(),
+        Key.prepare( KeyCode.KEY_RIGHT ).setModificators( InputModificator.CONTROL ).build(),
+        Key.prepare( KeyCode.KEY_UP ).setModificators( InputModificator.CONTROL ).build(),
+        Key.prepare( KeyCode.KEY_DOWN ).setModificators( InputModificator.CONTROL ).build()
     );
     
     public static CameraKeyMap getAlphabetKeyLayout() {

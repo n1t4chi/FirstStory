@@ -4,7 +4,7 @@
 
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.object.*;
+import com.firststory.firstoracle.object.UvMap;
 
 /**
  * @author n1t4chi
@@ -13,21 +13,11 @@ public class Terrain2DImpl
     extends AbstractTerrain2D< Vertices2D, Position2DCalculator >
 {
     private UvMap uvMap;
-    private Texture texture;
     private Vertices2D vertices;
-    private Colouring colouring;
     private Position2DCalculator calculator;
-    
-    public void setColouring( Colouring colouring ) {
-        this.colouring = colouring;
-    }
     
     public void setUvMap( UvMap uvMap ) {
         this.uvMap = uvMap;
-    }
-    
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
     }
     
     public void setVertices( Vertices2D vertices ) {
@@ -39,16 +29,6 @@ public class Terrain2DImpl
     @Override
     public Position2DCalculator getPositionCalculator() {
         return calculator;
-    }
-    
-    @Override
-    public Colouring getColouring() {
-        return colouring;
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
     }
     
     @Override

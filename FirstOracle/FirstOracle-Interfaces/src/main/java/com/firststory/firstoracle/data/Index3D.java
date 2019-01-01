@@ -4,8 +4,9 @@
 
 package com.firststory.firstoracle.data;
 
-import org.joml.Vector3i;
-import org.joml.Vector3ic;
+import org.joml.*;
+
+import java.lang.Math;
 
 /**
  * @author n1t4chi
@@ -20,10 +21,7 @@ public class Index3D extends Index {
         return new Index3D( x, y, z );
     }
     
-    public static Index3D max(
-        Index3D i1,
-        Index3D i2
-    ) {
+    public static Index3D maxId3( Index3D i1, Index3D i2 ) {
         return Index3D.id3(
             Math.max( i1.x(), i2.x() ),
             Math.max( i1.y(), i2.y() ),
@@ -31,19 +29,36 @@ public class Index3D extends Index {
         );
     }
     
-    public static Index3D increment( Index3D index ) {
-        return Index3D.id3( index.x() + 1, index.y() + 1, index.z() + 1 );
-    }
-    
-    public static boolean leftFits(
-        Index3D left,
-        Index3D right
-    ) {
-        return left.x() <= right.x() && left.y() <= right.y() && left.z() <= right.z();
+    public static Index3D minId3( Index3D i1, Index3D i2 ) {
+        return Index3D.id3(
+            Math.min( i1.x(), i2.x() ),
+            Math.min( i1.y(), i2.y() ),
+            Math.min( i1.z(), i2.z() )
+        );
     }
     
     private Index3D( int x, int y, int z ) {
         super( x, y, z );
+    }
+    
+    public Index3D increment() {
+        return Index3D.id3( this.x() + 1, this.y() + 1, this.z() + 1 );
+    }
+    
+    public boolean leftFits( Index3D right ) {
+        return this.x() <= right.x() && this.y() <= right.y() && this.z() <= right.z();
+    }
+    
+    public boolean belowOrEqual( Index3D minBound ) {
+        return this.x() <= minBound.x() || this.y() <= minBound.y() || this.z() <= minBound.z();
+    }
+    
+    public Index3D subtract( Index3D index ) {
+        return id3(
+            this.x() - index.x(),
+            this.y() - index.y(),
+            this.z() - index.z()
+        );
     }
     
     @Override

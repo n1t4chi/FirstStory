@@ -4,8 +4,7 @@
 
 package com.firststory.firstoracle.object;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 /**
  * @author n1t4chi
@@ -18,6 +17,10 @@ public class LoopedFrameController extends SingleAnimationFrameController {
     
     public void setAnimationStart( double animationStart ) {
         this.animationStart = animationStart;
+    }
+    
+    public void stop() {
+        this.frames = 0;
     }
     
     public void setCurrentState( int frames, double animationStart, double duration ) {

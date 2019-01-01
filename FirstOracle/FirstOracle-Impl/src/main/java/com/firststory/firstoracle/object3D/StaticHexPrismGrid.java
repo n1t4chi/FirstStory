@@ -17,21 +17,10 @@ public class StaticHexPrismGrid
         StaticObject3D< Identity3DTransformations, HexPrismVertices >,
         MutableTextureObject3D< Identity3DTransformations, HexPrismVertices >
 {
-    private Texture texture;
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
-    }
     
     @Override
     public UvMap getUvMap() {
         return HexPrismUvMap.getHexPrismUvMap();
-    }
-    
-    @Override
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
     }
 }
 

@@ -4,15 +4,14 @@
 
 package com.firststory.firstoracle.input.structure;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author n1t4chi
  */
 public class ImmutableComposite extends Composite {
     
-    ImmutableComposite( String name ) {
+    public ImmutableComposite( String name ) {
         super( name );
     }
     

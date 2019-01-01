@@ -3,6 +3,9 @@
  */
 package com.firststory.firstoracle.object2D;
 
+import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.data.Colour;
+import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.rendering.RenderData;
 
 import java.util.List;
@@ -15,12 +18,18 @@ import java.util.List;
 public abstract class AbstractPositionableObject2D<
     Transformations extends PositionableObject2DTransformations,
     Vertices extends Vertices2D
-> implements
-    PositionableObject2D< Transformations, Vertices >
+>
+    implements
+        PositionableObject2D< Transformations, Vertices >,
+        MutableTextureObject2D< Transformations, Vertices >
 {
     private Transformations transformations;
     private List< RenderData.RenderDataBuilder > renderDataBuilders;
     private List< RenderData > renderDatas;
+    private Texture texture = FirstOracleConstants.EMPTY_TEXTURE;
+    private Colouring colouring = FirstOracleConstants.EMPTY_COLOURING;
+    private Colour overlayColour = FirstOracleConstants.TRANSPARENT;
+    private float maxAlphaChannel = 1f;
     
     @Override
     public Transformations getTransformations() {
@@ -50,5 +59,42 @@ public abstract class AbstractPositionableObject2D<
     @Override
     public List< RenderData.RenderDataBuilder > getStoredRenderDataBuilderList() {
         return renderDataBuilders;
+    }
+    
+    @Override
+    public Texture getTexture() {
+        return texture;
+    }
+    
+    @Override
+    public void setTexture( Texture texture ) {
+        this.texture = texture;
+    }
+    
+    @Override
+    public Colouring getColouring() {
+        return colouring;
+    }
+    
+    public void setColouring( Colouring colouring ) {
+        this.colouring = colouring;
+    }
+    
+    @Override
+    public Colour getOverlayColour() {
+        return overlayColour;
+    }
+    
+    public void setOverlayColour( Colour overlayColour ) {
+        this.overlayColour = overlayColour;
+    }
+    
+    @Override
+    public float getMaxAlphaChannel() {
+        return maxAlphaChannel;
+    }
+    
+    public void setMaxAlphaChannel( float maxAlphaChannel ) {
+        this.maxAlphaChannel = maxAlphaChannel;
     }
 }

@@ -19,7 +19,6 @@ public class DirectableAutoRotablePlane3D
         NonAnimatedObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
         DirectableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
 {
-    private Texture texture;
     private UvMap uvMap;
     private DirectionController directionController = direction -> 0;
     
@@ -44,13 +43,8 @@ public class DirectableAutoRotablePlane3D
     }
     
     @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
     public void setTexture( Texture texture ) {
-        this.texture = texture;
+        super.setTexture( texture );
         this.uvMap = PlaneUvMap.getPlaneUvMap(
             texture.getDirections(),
             texture.getFrames(),

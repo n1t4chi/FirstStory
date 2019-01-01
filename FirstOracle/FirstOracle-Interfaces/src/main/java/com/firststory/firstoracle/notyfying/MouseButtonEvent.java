@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.notyfying;
 
+import com.firststory.firstoracle.input.*;
 import com.firststory.firstoracle.window.WindowContext;
 
 /**
@@ -11,15 +12,59 @@ import com.firststory.firstoracle.window.WindowContext;
  */
 public class MouseButtonEvent {
     
-    public final WindowContext source;
-    public final int button;
-    public final int action;
-    public final int mods;
+    private final WindowContext source;
+    private final MouseButton mouseButton;
     
-    public MouseButtonEvent( WindowContext source, int button, int action, int mods ) {
+    public MouseButtonEvent( WindowContext source, MouseButton mouseButton ) {
         this.source = source;
-        this.button = button;
-        this.action = action;
-        this.mods = mods;
+        this.mouseButton = mouseButton;
+    }
+    
+    public WindowContext getSource() {
+        return source;
+    }
+    
+    public MouseButton getMouseButton() {
+        return mouseButton;
+    }
+    
+    public InputModificators getModificators() {
+        return mouseButton.getModificators();
+    }
+    
+    public MouseButtonCode getMouseButtonCode() {
+        return mouseButton.getMouseButtonCode();
+    }
+    
+    public InputAction getAction() {
+        return mouseButton.getAction();
+    }
+    
+    public boolean isReleaseAction() {
+        return mouseButton.isReleaseAction();
+    }
+    
+    private boolean isPressAction() {
+        return mouseButton.isPressAction();
+    }
+    
+    private boolean isRepeatedAction() {
+        return mouseButton.isRepeatedAction();
+    }
+    
+    public boolean isShiftDown() {
+        return mouseButton.isShiftDown();
+    }
+    
+    public boolean isControlDown() {
+        return mouseButton.isControlDown();
+    }
+    
+    public boolean isAltDown() {
+        return mouseButton.isAltDown();
+    }
+    
+    public boolean isSuperDown() {
+        return mouseButton.isSuperDown();
     }
 }

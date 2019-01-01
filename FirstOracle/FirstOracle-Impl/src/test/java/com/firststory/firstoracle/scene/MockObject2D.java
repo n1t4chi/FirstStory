@@ -4,11 +4,9 @@
 
 package com.firststory.firstoracle.scene;
 
-import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.object.UvMap;
 import com.firststory.firstoracle.object2D.AbstractPositionableObject2D;
-import com.firststory.firstoracle.rendering.RenderData;
-import com.firststory.firstoracle.rendering.RenderType;
+import com.firststory.firstoracle.rendering.*;
 
 import java.util.List;
 
@@ -51,11 +49,6 @@ class MockObject2D extends AbstractPositionableObject2D< MockTransformations2D, 
     @Override
     public void setTransformations( MockTransformations2D transformations ) {
         throw new UnsupportedOperationException("no changing transformations");
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return null;
     }
     
     @Override

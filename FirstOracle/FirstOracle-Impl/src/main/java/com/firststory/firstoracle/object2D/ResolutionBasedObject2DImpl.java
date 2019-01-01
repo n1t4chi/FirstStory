@@ -4,9 +4,7 @@
 
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.*;
-import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.object.Texture;
+import com.firststory.firstoracle.WindowSettings;
 import com.firststory.firstoracle.window.Window;
 
 import java.awt.geom.Rectangle2D;
@@ -16,14 +14,12 @@ import java.awt.geom.Rectangle2D;
  */
 public class ResolutionBasedObject2DImpl
     extends
-        AbstractPositionableObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >
+        AbstractPositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >
     implements
         ResolutionBasedObject2D
 {
     private final WindowSettings settings;
-    private Texture texture = FirstOracleConstants.EMPTY_TEXTURE;
     private Rectangle2D bounds = new Rectangle2D.Double();
-    private Colour colour = FirstOracleConstants.WHITE;
     
     public ResolutionBasedObject2DImpl( Window window ) {
         this.settings = window.getSettings();
@@ -40,27 +36,20 @@ public class ResolutionBasedObject2DImpl
         return bounds;
     }
     
+    public void setPosition( double posX, double posY )
+    {
+        bounds.setRect( posX, posY, bounds.getWidth(), bounds.getHeight() );
+        updateBounds();
+    }
+    
+    public void setSize( double width, double height )
+    {
+        bounds.setRect( bounds.getX(), bounds.getY(), width, height );
+        updateBounds();
+    }
+    
     @Override
     public WindowSettings getSettings() {
         return settings;
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    public void setTexture( Texture texture )
-    {
-        this.texture = texture;
-    }
-    
-    @Override
-    public Colour getOverlayColour() {
-        return colour;
-    }
-    
-    public void setColour( Colour colour ) {
-        this.colour = colour;
     }
 }

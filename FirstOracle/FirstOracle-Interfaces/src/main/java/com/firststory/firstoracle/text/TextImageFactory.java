@@ -23,6 +23,10 @@ public class TextImageFactory {
         return defaultInstance;
     }
     
+    public static TextImageFactory provide( int size ) {
+        return provide( new Font( "Times New Roman", Font.PLAIN, size ) );
+    }
+    
     public static TextImageFactory provide( String fontName, int style, int size ) {
         return provide( new Font( fontName, style, size ) );
     }
@@ -90,7 +94,7 @@ public class TextImageFactory {
         g.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
         g.setPaint( Color.RED );
         g.setStroke( new BasicStroke( 5 ) );
-        g.drawRect( 2, 2, image.getWidth() - 2, image.getHeight() - 2 );
+//        g.drawRect( 2, 2, image.getWidth() - 2, image.getHeight() - 2 );
         
         g.setFont( font );
         g.setPaint( Color.WHITE );

@@ -16,21 +16,13 @@ import com.firststory.firstoracle.window.WindowBuilder;
 public class TransparentOverlap {
     
     public static void main( String[] args ) throws Exception {
-        var front = new StaticPlane3D() {
-            @Override
-            public Colour getOverlayColour() {
-                return Colour.col( 1,0,0,0.5f );
-            }
-        };
+        var front = new StaticPlane3D();
+        front.setOverlayColour( Colour.col( 1,0,0,0.5f ) );
         front.setTexture( FirstOracleConstants.EMPTY_TEXTURE );
         front.setPosition( Position3D.pos3( 0, 0, 0 ) );
         
-        var back = new StaticPlane3D() {
-            @Override
-            public Colour getOverlayColour() {
-                return Colour.col( 0,0,1,0.5f );
-            }
-        };
+        var back = new StaticPlane3D();
+        back.setOverlayColour( Colour.col( 0,0,1,0.5f ) );
         back.setTexture( FirstOracleConstants.EMPTY_TEXTURE );
         back.setPosition( Position3D.pos3( 1, 1, -1 ) );
         
@@ -63,12 +55,8 @@ public class TransparentOverlap {
         var window = WindowBuilder.registrableWindow( settings ).build();
     
     
-        var plane3 = new StaticPlane3D() {
-            @Override
-            public Colour getOverlayColour() {
-                return Colour.col( 0,1,0,1f );
-            }
-        };
+        var plane3 = new StaticPlane3D();
+        plane3.setOverlayColour( Colour.col( 0,1,0,1f ) );
         plane3.setTexture( FirstOracleConstants.EMPTY_TEXTURE );
         plane3.setPosition( Position3D.pos3( 0, 0, -2 ) );
         plane3.setRotation( Rotation3D.rot3( 0, 0, 45f ) );

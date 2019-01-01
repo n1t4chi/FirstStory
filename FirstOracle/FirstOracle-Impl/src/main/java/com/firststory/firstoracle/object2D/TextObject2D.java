@@ -5,8 +5,6 @@
 package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.*;
-import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.text.*;
 import com.firststory.firstoracle.window.Window;
 
@@ -17,7 +15,7 @@ import java.awt.geom.Rectangle2D;
  */
 public class TextObject2D
     extends
-        AbstractPositionableObject2D< MutablePositionable2DTransformations, AbsolutePlane2DVertices >
+        AbstractPositionableObject2D< MutablePositionable2DTransformations, Plane2DVertices >
     implements
         ResolutionBasedObject2D
 {
@@ -25,7 +23,6 @@ public class TextObject2D
     private final TextImageFactory factory;
     private TextData textData;
     private Rectangle2D rectangle2D = new Rectangle2D.Double();
-    private Colour colour = FirstOracleConstants.BLACK;
     private int posX;
     private int posY;
     
@@ -52,26 +49,21 @@ public class TextObject2D
         this.factory = factory;
         textData = FirstOracleConstants.EMPTY_TEXT;
         setTransformations( new MutablePositionable2DTransformations() );
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return textData.getTexture();
-    }
-    
-    @Override
-    public Colour getOverlayColour() {
-        return colour;
-    }
-    
-    public void setColour( Colour colour ) {
-        this.colour = colour;
+        setOverlayColour( FirstOracleConstants.BLACK );
     }
     
     public void setText( String text ) {
         this.textData = factory.createText3D( text );
+        this.setTexture( textData.getTexture() );
         updateBounds();
-        update();
+    }
+    
+    public void setTextCenterPosition( int x, int y ) {
+        var bounds = textData.getBounds();
+        setTextPosition(
+            ( int ) ( x - bounds.getWidth() / 2 ),
+            ( int ) ( y - bounds.getHeight() / 2 )
+        );
     }
     
     public void setTextPosition( int x, int y ) {

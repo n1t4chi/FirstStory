@@ -17,9 +17,7 @@ public class PositionableObject3DImpl
 {
     
     private UvMap uvMap;
-    private Texture texture;
     private Vertices3D vertices;
-    private Colouring colouring;
     private DirectionController directionController = direction -> 0;
     private FrameController frameController = time -> 0;
     
@@ -35,30 +33,12 @@ public class PositionableObject3DImpl
         setTransformations( new MutablePositionable3DTransformations() );
     }
     
-    public void setColouring( Colouring colouring ) {
-        this.colouring = colouring;
-    }
-    
     public void setUvMap( UvMap uvMap ) {
         this.uvMap = uvMap;
     }
     
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
-    }
-    
     public void setVertices( Vertices3D vertices ) {
         this.vertices = vertices;
-    }
-    
-    @Override
-    public Colouring getColouring() {
-        return colouring;
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
     }
     
     @Override

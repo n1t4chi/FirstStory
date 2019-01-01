@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.scene;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.camera3D.*;
 import com.firststory.firstoracle.data.Index3D;
 import com.firststory.firstoracle.object3D.*;
@@ -11,6 +12,7 @@ import com.firststory.firstoracle.object3D.*;
 import java.util.*;
 
 import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
+import static com.firststory.firstoracle.data.Index3D.*;
 
 /**
  * @author n1t4chi
@@ -18,9 +20,9 @@ import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
 public class RegistrableScene3DImpl implements RegistrableScene3D {
     
     private final Set< PositionableObject3D< ?, ? > > objects = new LinkedHashSet<>();
-    private final Terrain3D< ?, ? >[][][] terrainsXYZ;
-    private final Index3D terrainSize;
-    private final Index3D terrainShift;
+    private Terrain3D< ?, ? >[][][] terrainsXYZ;
+    private Index3D terrainSize;
+    private Index3D terrainShift;
     private Camera3D camera = IdentityCamera3D.getCamera();
     
     public RegistrableScene3DImpl( Index3D terrainSize, Index3D terrainShift ) {
@@ -36,6 +38,13 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
             arraySize( terrains ),
             terrains,
             terrainShift
+        );
+    }
+    
+    public RegistrableScene3DImpl() {
+        this(
+            FirstOracleConstants.INDEX_ZERO_3I,
+            FirstOracleConstants.INDEX_ZERO_3I
         );
     }
     
@@ -65,12 +74,12 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
     
     @Override
     public void registerTerrain3D( Terrain3D< ?, ? > terrain, Index3D index ) {
-        terrainsXYZ[ index.x() ][ index.y() ][ index.z() ] = terrain;
+        setTerrainAt( terrain, index );
     }
     
     @Override
     public void deregisterTerrain3D( Terrain3D< ?, ? > terrain, Index3D index ) {
-        terrainsXYZ[ index.x() ][ index.y() ][ index.z() ] = null;
+        setTerrainAt( null, index );
     }
     
     @Override
@@ -80,9 +89,7 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
             for ( var terrainZ : terrainYZ ) {
                 Arrays.fill( terrainZ, null );
             }
-            Arrays.fill( terrainYZ, null );
         }
-        Arrays.fill( terrainsXYZ, null );
     }
     
     @Override
@@ -108,5 +115,31 @@ public class RegistrableScene3DImpl implements RegistrableScene3D {
     @Override
     public Index3D getTerrain3DShift() {
         return terrainShift;
+    }
+    
+    private void setTerrainAt( Terrain3D< ?, ? > terrain, Index3D index ) {
+        var tabId = index.subtract( terrainShift );
+        
+        if( tabId.belowOrEqual( FirstOracleConstants.INDEX_ZERO_3I ) || terrainSize.belowOrEqual( tabId ) ) {
+            var newTerrainSize = maxId3( terrainSize, tabId.increment() );
+            var newTerrainShift = minId3( terrainShift, tabId );
+            var newTerrainsXYZ = new Terrain3D[ newTerrainSize.x() ][ newTerrainSize.y() ][ newTerrainSize.z() ];
+            
+            var dx = terrainShift.x() - newTerrainShift.x();
+            var dy = terrainShift.y() - newTerrainShift.y();
+            var dz = terrainShift.z() - newTerrainShift.z();
+            for( var x = 0; x < terrainSize.x() ; x++ ) {
+                for( var y = 0; y < terrainSize.y() ; y++ ) {
+                    System.arraycopy( terrainsXYZ[ x ][ y ], 0, newTerrainsXYZ[ x + dx ][ y + dy ], dz, terrainSize.z() );
+                }
+            }
+            
+            tabId = index.subtract( terrainShift );
+            terrainsXYZ = newTerrainsXYZ;
+            terrainShift = newTerrainShift;
+            terrainSize = newTerrainSize;
+        }
+        
+        terrainsXYZ[ tabId.x() ][ tabId.y() ][ tabId.z() ] = terrain;
     }
 }

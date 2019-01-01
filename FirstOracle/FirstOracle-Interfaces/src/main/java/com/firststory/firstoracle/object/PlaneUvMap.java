@@ -5,12 +5,9 @@ package com.firststory.firstoracle.object;
 
 import com.firststory.firstoracle.data.UV;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import static com.firststory.firstoracle.FirstOracleConstants.UV_DELTA;
-import static com.firststory.firstoracle.FirstOracleConstants.array;
+import static com.firststory.firstoracle.FirstOracleConstants.*;
 import static com.firststory.firstoracle.data.UV.uv;
 
 /**
@@ -19,9 +16,10 @@ import static com.firststory.firstoracle.data.UV.uv;
 public class PlaneUvMap extends UvMap {
     
     private static final HashMap< Long, PlaneUvMap > map = new HashMap<>( 25 );
+    private static final PlaneUvMap defaultInstance = getPlaneUvMap( 1, 1, 1, 1 );
     
     public static PlaneUvMap getPlaneUvMap() {
-        return getPlaneUvMap( 1, 1, 1, 1 );
+        return defaultInstance;
     }
     
     /**
@@ -39,10 +37,7 @@ public class PlaneUvMap extends UvMap {
     }
     
     private static long hash( int directions, int frames, int columns, int rows ) {
-        return (
-            ( ( ( ( ( ( long ) columns << 16 ) + rows ) << 16 ) + directions ) << 16 ) + frames
-        );
-        
+        return ( ( ( ( ( ( ( long ) columns << 16 ) + rows ) << 16 ) + directions ) << 16 ) + frames );
     }
     
     @SuppressWarnings( "unchecked" )

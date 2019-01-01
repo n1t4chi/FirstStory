@@ -17,21 +17,10 @@ public class StaticCubeGrid
         StaticObject3D< Identity3DTransformations, CubeVertices >,
         MutableTextureObject3D< Identity3DTransformations, CubeVertices >
 {
-    private Texture texture;
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
-    }
     
     @Override
     public UvMap getUvMap() {
         return CubeUvMap.getCubeUvMap();
-    }
-    
-    @Override
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
     }
 }
 

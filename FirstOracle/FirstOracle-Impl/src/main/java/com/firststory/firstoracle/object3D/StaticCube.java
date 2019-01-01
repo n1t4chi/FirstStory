@@ -17,20 +17,9 @@ public class StaticCube
         MutableTextureObject3D< MutablePositionable3DTransformations, CubeVertices >,
         MutableTransformationsObject3D< CubeVertices >
 {
-    private Texture texture;
     
     public StaticCube() {
         setTransformations( new MutablePositionable3DTransformations() );
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
     }
     
     @Override

@@ -4,6 +4,7 @@
 
 package com.firststory.firstoracle.object3D;
 
+import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.rendering.RenderData;
 
@@ -19,7 +20,7 @@ public class DirectablePlane3D
         NonAnimatedObject3D< MutablePositionable3DTransformations, Plane3DVertices >,
         DirectableObject3D< MutablePositionable3DTransformations, Plane3DVertices >
 {
-    private Texture texture;
+    private Texture texture = FirstOracleConstants.EMPTY_TEXTURE;
     private UvMap uvMap;
     private DirectionController directionController = direction -> 0;
     

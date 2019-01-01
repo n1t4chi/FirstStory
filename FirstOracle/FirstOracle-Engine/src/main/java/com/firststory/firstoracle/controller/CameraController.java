@@ -6,7 +6,7 @@ package com.firststory.firstoracle.controller;
 import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.camera2D.MovableCamera2D;
 import com.firststory.firstoracle.camera3D.IsometricCamera3D;
-import com.firststory.firstoracle.key.*;
+import com.firststory.firstoracle.input.*;
 import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.window.WindowImpl;
 import org.joml.*;
@@ -308,7 +308,7 @@ public class CameraController extends Thread implements
     }
 
     /**
-     * @param key       key
+     * @param key       input
      * @param timeDelta repeat action differentiation
      *
      * @return whether to remove keyCode or not.

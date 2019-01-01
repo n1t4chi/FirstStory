@@ -19,6 +19,10 @@ public class IsometricCamera3D extends Camera3D {
     private float rotationX;
     private float rotationY;
     
+    public IsometricCamera3D( WindowSettings settings ) {
+        this( settings, 10, 0, 0, 0, 0, 0, 1 );
+    }
+    
     /**
      * @param settings  window settings
      * @param size      Initial half of size on X dimension of orthogonal projection.
@@ -114,7 +118,8 @@ public class IsometricCamera3D extends Camera3D {
             camera.setOrtho( -planeX, planeX, -planeY, planeY, -planeZ, planeZ );
             camera.rotateX( ( float ) java.lang.Math.toRadians( 30 + rotationX ) );
             camera.rotateY( ( float ) java.lang.Math.toRadians( 45.0 + rotationY ) );
-            camera.translate( -position.x, 0, -position.z );
+//            camera.translate( -position.x, 0, -position.z );
+            camera.translate( -position.x, -position.y, -position.z );
             updated();
         }
     }

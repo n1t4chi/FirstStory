@@ -4,8 +4,6 @@
 
 package com.firststory.firstoracle.object2D;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.data.Colour;
 import com.firststory.firstoracle.object.*;
 
 /**
@@ -19,10 +17,7 @@ public class PositionableObject2DImpl
 {
     
     private UvMap uvMap = PlaneUvMap.getPlaneUvMap();
-    private Texture texture = FirstOracleConstants.EMPTY_TEXTURE;
     private Vertices2D vertices = AbsolutePlane2DVertices.getPlane2DVertices();
-    private Colouring colouring = FirstOracleConstants.EMPTY_COLOURING;
-    private Colour colour = FirstOracleConstants.WHITE;
     private DirectionController directionController = direction -> 0;
     private FrameController frameController = time -> 0;
     
@@ -38,39 +33,12 @@ public class PositionableObject2DImpl
         setTransformations( new MutablePositionable2DTransformations() );
     }
     
-    public void setColouring( Colouring colouring ) {
-        this.colouring = colouring;
-    }
-    
     public void setUvMap( UvMap uvMap ) {
         this.uvMap = uvMap;
     }
     
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
-    }
-    
     public void setVertices( Vertices2D vertices ) {
         this.vertices = vertices;
-    }
-    
-    @Override
-    public Colouring getColouring() {
-        return colouring;
-    }
-    
-    @Override
-    public Colour getOverlayColour() {
-        return colour;
-    }
-    
-    public void setOverlayColour( Colour colour ) {
-        this.colour = colour;
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
     }
     
     @Override

@@ -18,20 +18,9 @@ public class StaticHexagon
         MutableTextureObject2D< MutablePositionable2DTransformations, Hex2DVertices >,
         MutableTransformationsObject2D< Hex2DVertices >
 {
-    private Texture texture;
     
     public StaticHexagon() {
         setTransformations( new MutablePositionable2DTransformations() );
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
     }
     
     @Override

@@ -18,20 +18,9 @@ public class StaticRectangle
         MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTransformationsObject2D< Plane2DVertices >
 {
-    private Texture texture;
     
     public StaticRectangle() {
         setTransformations( new MutablePositionable2DTransformations() );
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
     }
     
     @Override

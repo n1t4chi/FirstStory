@@ -17,6 +17,10 @@ public class OptimisedRegistrableScene2DImpl extends RegistrableScene2DImpl {
     
     private Position2DCalculator calculator;
     
+    public OptimisedRegistrableScene2DImpl() {
+        super();
+    }
+    
     public OptimisedRegistrableScene2DImpl( Index2D terrainSize, Index2D terrainShift ) {
         super( terrainSize, terrainShift );
     }

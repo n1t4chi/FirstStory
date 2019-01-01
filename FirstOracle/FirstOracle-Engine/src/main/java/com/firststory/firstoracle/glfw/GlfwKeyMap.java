@@ -5,11 +5,13 @@
 package com.firststory.firstoracle.glfw;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.key.*;
+import com.firststory.firstoracle.input.*;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.logging.*;
+
+import static com.firststory.firstoracle.glfw.GlfwInputMap.*;
 
 /**
  * @author n1t4chi
@@ -19,7 +21,7 @@ public class GlfwKeyMap {
     
     public static Key parseKeyCode( int keyCode, int scancode, int action, int mods ) {
         logger.log( Level.FINEST, () -> keystrokeToString( keyCode, action, mods ) );
-        return Key.create( parseKeyCode(keyCode), parseKeyAction(action), parseKeyMods( mods ) );
+        return Key.create( parseKeyCode( keyCode ), parseInputAction( action ), parseInputMods( mods ) );
     }
     
     @NotNull
@@ -28,11 +30,11 @@ public class GlfwKeyMap {
         int action,
         int mods
     ) {
-        return ""
-            +"key: "+keyCode+" -> "+ parseKeyCode(keyCode) +"\n"
-            +"action: "+action+" -> "+parseKeyAction(action) +"\n"
-            +"mods: "+mods+" -> "+parseKeyMods( mods ) +"\n"
-            ;
+        return "" +
+            "input: "+keyCode+" -> " + parseKeyCode( keyCode ) + "\n" +
+            "action: "+action+" -> " + parseInputAction( action ) + "\n" +
+            "mods: "+mods+" -> "+parseInputMods( mods ) +"\n"
+        ;
     }
     
     public static int parseKeyScanCode( int scancode ) {
@@ -163,23 +165,5 @@ public class GlfwKeyMap {
             case GLFW.GLFW_KEY_MENU: return KeyCode.KEY_MENU;
             default: return KeyCode.UNKNOWN;
         }
-    }
-    
-    public static KeyAction parseKeyAction( int action ) {
-        switch(action){
-            case GLFW.GLFW_PRESS: return KeyAction.PRESS;
-            case GLFW.GLFW_RELEASE: return KeyAction.RELEASE;
-            case GLFW.GLFW_REPEAT: return KeyAction.REPEAT;
-            default: return KeyAction.UNKNOWN;
-        }
-    }
-    
-    public static KeyModificators parseKeyMods( int mods ) {
-        return KeyModificators.create(
-            (mods & GLFW.GLFW_MOD_ALT) != 0 ,
-            (mods & GLFW.GLFW_MOD_SHIFT) != 0 ,
-            (mods & GLFW.GLFW_MOD_CONTROL) != 0 ,
-            (mods & GLFW.GLFW_MOD_SUPER) != 0
-        );
     }
 }

@@ -18,20 +18,8 @@ public class StaticHexPrism
         MutableTextureObject3D< MutablePositionable3DTransformations, HexPrismVertices >,
         MutableTransformationsObject3D< HexPrismVertices >
 {
-    private Texture texture;
-    
     public StaticHexPrism() {
         setTransformations( new MutablePositionable3DTransformations() );
-    }
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
     }
     
     @Override

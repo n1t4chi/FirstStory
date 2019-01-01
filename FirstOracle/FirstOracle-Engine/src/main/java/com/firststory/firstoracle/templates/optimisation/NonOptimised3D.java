@@ -28,7 +28,7 @@ public class NonOptimised3D extends BaseApp {
     public NonOptimised3D( String text ) {
         super( new RegistrableSceneImpl(
             new RegistrableScene2DImpl( FirstOracleConstants.INDEX_ZERO_2I, FirstOracleConstants.INDEX_ZERO_2I ),
-            SceneParser.parseToNonOptimised( text ).getScene3D(),
+            SceneParser.parseToNonOptimised3D( text ),
             new RegistrableBackgroundImpl(),
             new RegistrableOverlayImpl()
         ) );

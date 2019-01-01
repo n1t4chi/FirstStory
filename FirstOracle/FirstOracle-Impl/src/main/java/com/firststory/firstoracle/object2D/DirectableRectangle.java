@@ -19,7 +19,6 @@ public class DirectableRectangle
         MutableTextureObject2D< MutablePositionable2DTransformations, Plane2DVertices >,
         MutableTransformationsObject2D< Plane2DVertices >
 {
-    private Texture texture;
     private DirectionController directionController = direction -> 0;
     private UvMap uvMap;
     
@@ -37,13 +36,8 @@ public class DirectableRectangle
     }
     
     @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
     public void setTexture( Texture texture ) {
-        this.texture = texture;
+        super.setTexture( texture );
         this.uvMap = PlaneUvMap.getPlaneUvMap(
             texture.getDirections(),
             texture.getFrames(),

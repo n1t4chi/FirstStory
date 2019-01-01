@@ -17,6 +17,10 @@ import java.util.*;
 public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
     
     private Position3DCalculator calculator;
+    
+    public OptimisedRegistrableScene3DImpl() {
+        super();
+    }
 
     public OptimisedRegistrableScene3DImpl( Index3D terrainSize, Index3D terrainShift ) {
         super( terrainSize, terrainShift );

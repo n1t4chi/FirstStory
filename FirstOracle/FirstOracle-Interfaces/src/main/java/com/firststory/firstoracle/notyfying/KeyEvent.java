@@ -4,10 +4,7 @@
 
 package com.firststory.firstoracle.notyfying;
 
-import com.firststory.firstoracle.key.Key;
-import com.firststory.firstoracle.key.KeyAction;
-import com.firststory.firstoracle.key.KeyCode;
-import com.firststory.firstoracle.key.KeyModificators;
+import com.firststory.firstoracle.input.*;
 import com.firststory.firstoracle.window.WindowContext;
 
 /**
@@ -16,6 +13,7 @@ import com.firststory.firstoracle.window.WindowContext;
 public class KeyEvent {
     private final WindowContext source;
     private final Key key;
+    
     public KeyEvent( WindowContext source, Key key ) {
         this.source = source;
         this.key = key;
@@ -29,7 +27,7 @@ public class KeyEvent {
         return key;
     }
     
-    public KeyModificators getModificators() {
+    public InputModificators getModificators() {
         return key.getModificators();
     }
     
@@ -37,7 +35,7 @@ public class KeyEvent {
         return key.getKeyCode();
     }
     
-    public KeyAction getAction() {
+    public InputAction getAction() {
         return key.getAction();
     }
     

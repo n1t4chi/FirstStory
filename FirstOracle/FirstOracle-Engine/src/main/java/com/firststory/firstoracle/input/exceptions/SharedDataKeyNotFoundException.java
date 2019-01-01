@@ -10,6 +10,6 @@ package com.firststory.firstoracle.input.exceptions;
 public class SharedDataKeyNotFoundException extends ParseFailedException {
     
     public SharedDataKeyNotFoundException( String key, String dataType ) {
-        super( "Cannot find key " + key + " under " + dataType );
+        super( "Cannot find input " + key + " under " + dataType );
     }
 }

@@ -3,18 +3,14 @@
  */
 package com.firststory.firstoracle.object;
 
-import com.firststory.firstoracle.buffer.TextureBuffer;
-import com.firststory.firstoracle.buffer.TextureBufferLoader;
+import com.firststory.firstoracle.buffer.*;
 import com.firststory.firstoracle.data.TextureData;
 import com.firststory.firstoracle.templates.IOUtilities;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
@@ -94,30 +90,15 @@ public final class Texture {
         if ( directions > 1 && !filePathMask.contains( DIRECTION_KEYWORD ) ) {
             throw new IllegalArgumentException( "File path mask does not contain direction keyword" );
         }
-        
-        var inputStreams = new InputStream[frames][directions];
-        for ( var frame = 0; frame < frames; frame++ ) {
-            for ( var direction = 0; direction < directions; direction++ ) {
-                var path = replaceKeywords( filePathMask, frame, direction );
-                var file = new File( path );
-                if ( file.canRead() ) {
-                    inputStreams[frame][direction] = file.toURI().toURL().openStream();
-                }else{
-                    inputStreams[frame][direction] = Texture.class.getClassLoader().getResourceAsStream( path );
-                    if(inputStreams[frame][direction] == null){
-                        throw new IOException( "Image:" + path + " does not exists!" );
-                    }
-                }
-            }
-        }
-        
+    
         var width = -1;
         var height = -1;
-        
         var images = new BufferedImage[frames][directions];
         for ( var frame = 0; frame < frames; frame++ ) {
             for ( var direction = 0; direction < directions; direction++ ) {
-                var image = ImageIO.read( inputStreams[frame][direction] );
+                var path = replaceKeywords( filePathMask, frame, direction );
+                var image = ImageIO.read( IOUtilities.readResource(path) );
+    
                 if ( width == -1 && height == -1 ) {
                     height = image.getHeight();
                     width = image.getWidth();
@@ -244,6 +225,10 @@ public final class Texture {
     
     public int getHeight() {
         return data.getHeight();
+    }
+    
+    public float getRatio() {
+        return (float) data.getWidth() / data.getHeight();
     }
     
     public String getName() {

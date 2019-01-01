@@ -27,7 +27,7 @@ public class Optimised2D extends BaseApp {
     
     public Optimised2D( String text ) {
         super( new RegistrableSceneImpl(
-            SceneParser.parseToOptimised( text ).getScene2D(),
+            SceneParser.parseToOptimised2D( text ),
             new RegistrableScene3DImpl( FirstOracleConstants.INDEX_ZERO_3I, FirstOracleConstants.INDEX_ZERO_3I ),
             new RegistrableBackgroundImpl(),
             new RegistrableOverlayImpl()

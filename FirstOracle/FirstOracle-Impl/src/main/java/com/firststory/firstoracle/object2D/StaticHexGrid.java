@@ -21,18 +21,6 @@ public class StaticHexGrid
         StaticObject2D< Identity2DTransformations, Hex2DVertices >,
         MutableTextureObject2D< Identity2DTransformations, Hex2DVertices >
 {
-    private Texture texture;
-    
-    @Override
-    public Texture getTexture() {
-        return texture;
-    }
-    
-    @Override
-    public void setTexture( Texture texture ) {
-        this.texture = texture;
-    }
-    
     @Override
     public UvMap getUvMap() {
         return Hex2DUvMap.getHex2DUvMap();

@@ -54,7 +54,7 @@ public abstract class ObjectParser<
     
     abstract SharedObjectsParser getSharedObjectsParser( SharedObjects sharedObjects );
     
-    private PositionableObjectType toObject( SharedData sharedData, SharedObjects sharedObjects, Composite node ) {
+    public PositionableObjectType toObject( SharedData sharedData, SharedObjects sharedObjects, Composite node ) {
         return toGraphicObject(
             sharedData,
             getSharedObjectsParser( sharedObjects ),
