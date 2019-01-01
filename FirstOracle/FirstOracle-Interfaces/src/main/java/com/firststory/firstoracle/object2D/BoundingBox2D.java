@@ -5,6 +5,7 @@ package com.firststory.firstoracle.object2D;
 
 import com.firststory.firstoracle.data.Position2D;
 import com.firststory.firstoracle.object.BoundingBox;
+import org.joml.AABBf;
 
 import java.util.List;
 
@@ -48,28 +49,48 @@ public class BoundingBox2D implements BoundingBox< BoundingBox2D, Object2DTransf
     }
     
     private final float minX, maxX, minY, maxY;
+    private final AABBf aabb;
     
     public BoundingBox2D( float minX, float maxX, float minY, float maxY ) {
         this.minX = ( minX < maxX ) ? minX : maxX;
         this.maxX = ( minX > maxX ) ? minX : maxX;
         this.minY = ( minY < maxY ) ? minY : maxY;
         this.maxY = ( minY > maxY ) ? minY : maxY;
+        aabb = new AABBf( minX, minY, 0, maxX, maxY, 0 );
     }
     
+    public AABBf getAabb() {
+        return aabb;
+    }
+    
+    @Override
     public float getMaxX() {
         return maxX;
     }
     
+    @Override
     public float getMaxY() {
         return maxY;
     }
     
+    @Override
     public float getMinX() {
         return minX;
     }
     
+    @Override
     public float getMinY() {
         return minY;
+    }
+    
+    @Override
+    public float getMinZ() {
+        return 0;
+    }
+    
+    @Override
+    public float getMaxZ() {
+        return 0;
     }
     
     public BoundingBox2D getTransformedBoundingBox( PositionableObject2DTransformations transformations ) {

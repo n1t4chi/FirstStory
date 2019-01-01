@@ -44,7 +44,7 @@ public class GlfwApplication2D {
         
         var width = 300;
         var height = 300;
-        settings = new WindowSettings.WindowSettingsBuilder().setVerticalSync( false )
+        settings = WindowSettings.builder().setVerticalSync( false )
             .setResizeable( true )
             .setWindowMode( WindowMode.WINDOWED )
             .setWidth( width )

@@ -69,6 +69,10 @@ public class RegistrableWindow extends WindowImpl {
         provider.registerScene( index, RegistrableSceneImpl.provide( terrain2DSize, terrain2DShift, terrain3DSize, terrain3DShift ) );
     }
     
+    public void createNewOptimisedScene( int index, Index2D terrain2DSize, Index2D terrain2DShift, Index3D terrain3DSize, Index3D terrain3DShift ) {
+        provider.registerScene( index, RegistrableSceneImpl.provideOptimised( terrain2DSize, terrain2DShift, terrain3DSize, terrain3DShift ) );
+    }
+    
     public Integer getCurrentSceneIndex() {
         return provider.getCurrentIndex();
     }

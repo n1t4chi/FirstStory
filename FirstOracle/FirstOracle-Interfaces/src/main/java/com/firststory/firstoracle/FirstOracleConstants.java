@@ -13,6 +13,8 @@ import org.joml.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.lang.Math;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +51,10 @@ public interface FirstOracleConstants {
     int FIRST_ORACLE_VERSION_MINOR = 5;
     int FIRST_ORACLE_VERSION_PATCH = 0;
     
-    float UV_DELTA = 0.00001f;
+    float SMALLEST_DELTA = 0.5f;
+    float SMALL_DELTA = 0.001f;
+    float MID_DELTA = 0.000_001f;
+    float UV_DELTA = MID_DELTA;
     
     int BYTE_SIZE_BYTE = 1;
     int BYTE_SIZE_FLOAT = 4;
@@ -256,4 +261,41 @@ public interface FirstOracleConstants {
         return Logger.getLogger( classObject.getName() );
     }
     
+    static boolean isReallyClose( float f1, float f2 ) {
+        return Math.abs( f1 - f2 ) < MID_DELTA;
+    }
+    
+    static boolean isClose( float f1, float f2 ) {
+        return Math.abs( f1 - f2 ) < SMALL_DELTA;
+    }
+    static boolean isNearby( float f1, float f2 ) {
+        return Math.abs( f1 - f2 ) < SMALLEST_DELTA;
+    }
+    
+    static boolean objectWithinBoundary(
+        float objectMinX,
+        float objectMaxX,
+        float objectMinY,
+        float objectMaxY,
+        float boundaryMinX,
+        float boundaryMaxX,
+        float boundaryMinY,
+        float boundaryMaxY
+    ) {
+        return !(
+            objectMaxX <= boundaryMinX ||
+            objectMinX >= boundaryMaxX ||
+            objectMaxY <= boundaryMinY ||
+            objectMinY >= boundaryMaxY
+        );
+    }
+    DecimalFormat FORMATTER = new DecimalFormat("#.##");
+    
+    static String vec3ToStr( Vector3fc vec ) {
+        return "( " +
+            FORMATTER.format( vec.x() ) +
+            ", " + FORMATTER.format( vec.y() ) +
+            ", " + FORMATTER.format( vec.z() ) +
+        " ) ";
+    }
 }

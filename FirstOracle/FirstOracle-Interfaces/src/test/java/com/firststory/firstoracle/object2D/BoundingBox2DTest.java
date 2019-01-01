@@ -7,8 +7,8 @@ package com.firststory.firstoracle.object2D;
 import com.firststory.firstoracle.data.Position2D;
 import com.firststory.firstoracle.data.Rotation2D;
 import com.firststory.firstoracle.data.Scale2D;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author n1t4chi
@@ -59,9 +59,9 @@ public class BoundingBox2DTest {
                 return pos;
             }
         } );
-        Assert.assertEquals( minX, assertBB.getMinX(), 0.001 );
-        Assert.assertEquals( maxX, assertBB.getMaxX(), 0.001 );
-        Assert.assertEquals( minY, assertBB.getMinY(), 0.001 );
-        Assert.assertEquals( maxY, assertBB.getMaxY(), 0.001 );
+        Assertions.assertEquals( minX, assertBB.getMinX(), 0.001 );
+        Assertions.assertEquals( maxX, assertBB.getMaxX(), 0.001 );
+        Assertions.assertEquals( minY, assertBB.getMinY(), 0.001 );
+        Assertions.assertEquals( maxY, assertBB.getMaxY(), 0.001 );
     }
 }

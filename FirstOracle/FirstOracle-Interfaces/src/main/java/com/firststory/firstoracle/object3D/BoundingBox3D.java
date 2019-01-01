@@ -5,6 +5,7 @@ package com.firststory.firstoracle.object3D;
 
 import com.firststory.firstoracle.data.Position3D;
 import com.firststory.firstoracle.object.BoundingBox;
+import org.joml.AABBf;
 
 import java.util.List;
 
@@ -56,6 +57,7 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
     }
     
     private final float minX, maxX, minY, maxY, minZ, maxZ;
+    private final AABBf aabb;
     
     public BoundingBox3D( float minX, float maxX, float minY, float maxY, float minZ, float maxZ ) {
         this.minX = minX;
@@ -64,6 +66,11 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
         this.maxY = maxY;
         this.minZ = minZ;
         this.maxZ = maxZ;
+        aabb = new AABBf( minX, minY, minZ, maxX, maxY, maxZ );
+    }
+    
+    public AABBf getAabb() {
+        return aabb;
     }
     
     @Override
@@ -101,26 +108,32 @@ public class BoundingBox3D implements BoundingBox< BoundingBox3D, Object3DTransf
             "[" + minZ + "," + maxZ + "]";
     }
     
+    @Override
     public float getMaxX() {
         return maxX;
     }
     
+    @Override
     public float getMaxY() {
         return maxY;
     }
     
+    @Override
     public float getMaxZ() {
         return maxZ;
     }
     
+    @Override
     public float getMinX() {
         return minX;
     }
     
+    @Override
     public float getMinY() {
         return minY;
     }
     
+    @Override
     public float getMinZ() {
         return minZ;
     }

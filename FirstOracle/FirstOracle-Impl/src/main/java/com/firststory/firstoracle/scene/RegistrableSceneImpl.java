@@ -38,6 +38,20 @@ public class RegistrableSceneImpl implements RegistrableScene {
         );
     }
     
+    public static RegistrableSceneImpl provideOptimised(
+        Index2D terrain2DSize,
+        Index2D terrain2DShift,
+        Index3D terrain3DSize,
+        Index3D terrain3DShift
+    ) {
+        return new RegistrableSceneImpl(
+            new OptimisedRegistrableScene2DImpl( terrain2DSize.x(), terrain2DSize.y(), terrain2DShift ),
+            new OptimisedRegistrableScene3DImpl( terrain3DSize.x(), terrain3DSize.y(), terrain3DSize.z(), terrain3DShift ),
+            new RegistrableBackgroundImpl(),
+            new RegistrableOverlayImpl()
+        );
+    }
+    
     public RegistrableSceneImpl(
         RegistrableScene2D scene2D,
         RegistrableScene3D scene3D,

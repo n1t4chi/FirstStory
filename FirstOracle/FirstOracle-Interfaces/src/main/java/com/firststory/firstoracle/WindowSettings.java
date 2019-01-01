@@ -8,6 +8,10 @@ package com.firststory.firstoracle;
  */
 public class WindowSettings {
     
+    public static WindowSettingsBuilder builder() {
+        return new WindowSettingsBuilder();
+    }
+    
     private final WindowMode windowMode;
     private final int monitorIndex;
     private final String title;

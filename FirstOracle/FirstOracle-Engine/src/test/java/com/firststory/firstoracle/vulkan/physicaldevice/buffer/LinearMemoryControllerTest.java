@@ -5,8 +5,8 @@
 package com.firststory.firstoracle.vulkan.physicaldevice.buffer;
 
 import com.firststory.firstoracle.buffer.BufferNotCreatedException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class LinearMemoryControllerTest {
     
@@ -26,7 +26,7 @@ public class LinearMemoryControllerTest {
             () -> controller.createBuffer( outOfMemoryLength )
         );
         var buffer = controller.createBuffer( length );
-        Assert.assertEquals( length, buffer.length() );
+        Assertions.assertEquals( length, buffer.length() );
         
         assertException(
             TestableLinearMemory.WriteMemoryOutOfBoundException.class,
@@ -39,10 +39,10 @@ public class LinearMemoryControllerTest {
                 new VulkanLinearMemoryLocation( 0, outOfMemoryLength, outOfMemoryLength )
             ).readBuffer()
         );
-        Assert.assertArrayEquals( data1, buffer.readBuffer() );
+        Assertions.assertArrayEquals( data1, buffer.readBuffer() );
         
         buffer.load( data2 );
-        Assert.assertArrayEquals( data2, buffer.readBuffer() );
+        Assertions.assertArrayEquals( data2, buffer.readBuffer() );
     }
     
     @Test
@@ -61,8 +61,8 @@ public class LinearMemoryControllerTest {
         buffer1.load( data1 );
         buffer2.load( data2 );
         
-        Assert.assertArrayEquals( data1, buffer1.readBuffer() );
-        Assert.assertArrayEquals( data2, buffer2.readBuffer() );
+        Assertions.assertArrayEquals( data1, buffer1.readBuffer() );
+        Assertions.assertArrayEquals( data2, buffer2.readBuffer() );
     }
     
     @Test
@@ -78,12 +78,12 @@ public class LinearMemoryControllerTest {
     
         var buffer1 = controller.createBuffer( length );
         buffer1.load( data1 );
-        Assert.assertArrayEquals( data1, buffer1.readBuffer() );
+        Assertions.assertArrayEquals( data1, buffer1.readBuffer() );
     
         var buffer2 = controller.createBuffer( length );
         buffer2.load( data2 );
-        Assert.assertArrayEquals( data1, buffer1.readBuffer() );
-        Assert.assertArrayEquals( data2, buffer2.readBuffer() );
+        Assertions.assertArrayEquals( data1, buffer1.readBuffer() );
+        Assertions.assertArrayEquals( data2, buffer2.readBuffer() );
         
         buffer2.delete();
         assertException( BufferNotCreatedException.class, buffer2::delete );
@@ -91,9 +91,9 @@ public class LinearMemoryControllerTest {
         var buffer3 = controller.createBuffer( length );
         buffer3.load( data3 );
         
-        Assert.assertArrayEquals( data1, buffer1.readBuffer() );
+        Assertions.assertArrayEquals( data1, buffer1.readBuffer() );
         assertException( BufferNotCreatedException.class, buffer2::readBuffer );
-        Assert.assertArrayEquals( data3, buffer3.readBuffer() );
+        Assertions.assertArrayEquals( data3, buffer3.readBuffer() );
         
         buffer1.delete();
     
@@ -104,17 +104,17 @@ public class LinearMemoryControllerTest {
         
         assertException( BufferNotCreatedException.class, buffer1::readBuffer );
         assertException( BufferNotCreatedException.class, buffer2::readBuffer );
-        Assert.assertArrayEquals( data3, buffer3.readBuffer() );
-        Assert.assertArrayEquals( data4, buffer4.readBuffer() );
+        Assertions.assertArrayEquals( data3, buffer3.readBuffer() );
+        Assertions.assertArrayEquals( data4, buffer4.readBuffer() );
     }
     
     private void assertException( Class< ? extends Exception > aClass, Failable test ) {
         try {
             test.execute();
-            Assert.fail();
+            Assertions.fail();
         } catch ( Exception ex ) {
             try {
-                Assert.assertEquals( aClass, ex.getClass() );
+                Assertions.assertEquals( aClass, ex.getClass() );
             } catch ( Throwable ex2 ) {
                 ex2.addSuppressed( ex );
                 throw ex2;

@@ -44,7 +44,7 @@ public class GlfwApplication3D {
     public void run() throws Exception {
         //Settings for window, you can switch height/width, fullscreen, borderless and other magics.
         //VerticalSync disabled will uncap FPS.
-        settings = new WindowSettings.WindowSettingsBuilder()
+        settings = WindowSettings.builder()
 //            .setWindowMode( WindowMode.FULLSCREEN )
 //            .setWindowMode( WindowMode.BORDERLESS )
             .setWindowMode( WindowMode.WINDOWED )

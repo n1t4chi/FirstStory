@@ -49,6 +49,7 @@ public class RegistrableSceneProviderImpl< SceneType extends RenderableScene > i
         if( currentIndex == index ) {
             currentIndex = null;
         }
+        removedScene.dispose();
     }
     
     @Override

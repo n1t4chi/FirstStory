@@ -47,7 +47,7 @@ public class TestGlfwApplication2 {
     public void run() throws Exception {
         var width = 300;
         var height = 300;
-        settings = new WindowSettings.WindowSettingsBuilder().setVerticalSync( false )
+        settings = WindowSettings.builder().setVerticalSync( false )
             .setResizeable( true )
             .setWindowMode( WindowMode.WINDOWED )
             .setWidth( width )

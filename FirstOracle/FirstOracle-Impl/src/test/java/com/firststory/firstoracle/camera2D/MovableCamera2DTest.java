@@ -5,11 +5,11 @@ package com.firststory.firstoracle.camera2D;
 
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.toRadians;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author n1t4chi
@@ -102,8 +102,8 @@ public class MovableCamera2DTest {
     
     private void assertVector( float expectedX, float expectedY ) {
         camera.transform( vector );
-        assertEquals( "X", expectedX, vector.x, 0.001 );
-        assertEquals( "Y", expectedY, vector.y, 0.001 );
+        Assertions.assertEquals( expectedX, vector.x, 0.001, "X" );
+        Assertions.assertEquals( expectedY, vector.y, 0.001, "Y" );
     }
     
     private Matrix3f translate( Matrix3f camera, float x, float y ) {

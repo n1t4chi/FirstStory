@@ -15,4 +15,16 @@ public interface BoundingBox<
 > {
     
     Box getTransformedBoundingBox( Transformations transformations, PositionType position );
+    
+    float getMinX();
+    
+    float getMinY();
+    
+    float getMinZ();
+    
+    float getMaxX();
+    
+    float getMaxY();
+    
+    float getMaxZ();
 }
