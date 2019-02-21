@@ -1,0 +1,60 @@
+<!--
+  ~ Copyright (c) 2018 Piotr "n1t4chi" Olejarz
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                          http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>FirstSlave-Application</artifactId>
+    <version>${first.slave.version}</version>
+
+    <parent>
+        <groupId>com.FirstStory.FirstSlave</groupId>
+        <artifactId>FirstSlave</artifactId>
+        <version>${first.slave.version}</version>
+    </parent>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.FirstStory.FirstOracle</groupId>
+            <artifactId>FirstOracle-Engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*.pdn</exclude>
+                        <exclude>**/*.ptg</exclude>
+                        <exclude>**/*.ptgback</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>../../resources/First Slave</directory>
+                <targetPath>resources/First Slave</targetPath>
+            </resource>
+        </resources>
+    </build>
+</project>

@@ -7,9 +7,8 @@ FirstMaster/
 old/
 FirstOracle/FirstOracle-Engine/target/
 FirstOracle/FirstOracle-Interfaces/target/
-FirstSlave/
 FirstUniverse/
 out/
-
+*target/
 api/
 
