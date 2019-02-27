@@ -148,9 +148,7 @@ public interface VulkanHelper {
         assertCallOrThrow( supplier, VK_SUCCESS_TEST, thrower );
     }
     
-    static void assertCall(
-        ResultCodeSupplier supplier, FailAction action
-    ) {
+    static void assertCall( ResultCodeSupplier supplier, FailAction action ) {
         assertCall( supplier, VK_SUCCESS_TEST, action );
     }
     

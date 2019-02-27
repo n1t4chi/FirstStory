@@ -4,18 +4,27 @@
 
 package com.firststory.firstoracle.templates.optimisation;
 
-import com.firststory.firstoracle.*;
-import com.firststory.firstoracle.controller.*;
-import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.notyfying.*;
-import com.firststory.firstoracle.object2D.*;
-import com.firststory.firstoracle.object3D.*;
+import com.firststory.firstoracle.FirstOracleConstants;
+import com.firststory.firstoracle.WindowMode;
+import com.firststory.firstoracle.WindowSettings;
+import com.firststory.firstoracle.controller.CameraController;
+import com.firststory.firstoracle.controller.CameraKeyMap;
+import com.firststory.firstoracle.data.Index2D;
+import com.firststory.firstoracle.data.Index3D;
+import com.firststory.firstoracle.notyfying.WindowListener;
+import com.firststory.firstoracle.notyfying.WindowSizeEvent;
+import com.firststory.firstoracle.object2D.PositionableObject2D;
+import com.firststory.firstoracle.object2D.Terrain2D;
+import com.firststory.firstoracle.object3D.PositionableObject3D;
+import com.firststory.firstoracle.object3D.Terrain3D;
 import com.firststory.firstoracle.scene.RegistrableScene;
 import com.firststory.firstoracle.templates.FpsCounter;
-import com.firststory.firstoracle.window.*;
+import com.firststory.firstoracle.window.RegistrableWindow;
+import com.firststory.firstoracle.window.WindowBuilder;
 
 import java.util.List;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
 
@@ -25,14 +34,15 @@ import static com.firststory.firstoracle.FirstOracleConstants.arraySize;
 public class BaseApp {
     
     private static final int DEFAULT_SCENE = 0;
-    static final BiConsumer< SceneData, RegistrableWindow > createNonOptimisedScene = ( data, window ) -> window.createNewScene(
-        DEFAULT_SCENE,
-        data.terrain2dSize,
-        data.terrain2dShift,
-        data.terrain3dSize,
-        data.terrain3dShift
-    );
-    static final BiConsumer< SceneData, RegistrableWindow > createOptimisedScene = ( data, window ) -> {
+    static final BiConsumer< SceneData, RegistrableWindow > createNonOptimisedScene = ( data, window ) ->
+        window.createNewScene(
+            DEFAULT_SCENE,
+            data.terrain2dSize,
+            data.terrain2dShift,
+            data.terrain3dSize,
+            data.terrain3dShift
+        );
+    static final BiConsumer< SceneData, RegistrableWindow > createOptimisedScene = ( data, window ) ->
         window.createNewOptimisedScene(
             DEFAULT_SCENE,
             data.terrain2dSize,
@@ -40,8 +50,7 @@ public class BaseApp {
             data.terrain3dSize,
             data.terrain3dShift
         );
-    };
-    private Consumer< RegistrableWindow > createScene;
+    private final Consumer< RegistrableWindow > createScene;
     
     BaseApp( RegistrableScene scene ) {
         createScene = ( window ) -> window.registerScene( DEFAULT_SCENE, scene );

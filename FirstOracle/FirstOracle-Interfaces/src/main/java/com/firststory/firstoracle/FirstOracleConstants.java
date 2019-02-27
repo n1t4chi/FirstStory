@@ -8,16 +8,14 @@ import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object2D.Object2D;
 import com.firststory.firstoracle.object3D.Object3D;
 import com.firststory.firstoracle.text.*;
+import com.firststory.firsttools.FirstToolsConstants;
 import org.joml.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.lang.Math;
-import java.lang.reflect.Field;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.*;
-import java.util.function.*;
 import java.util.logging.*;
 import java.util.stream.IntStream;
 
@@ -37,15 +35,12 @@ import static com.firststory.firstoracle.data.UV.uv;
  */
 public interface FirstOracleConstants {
     
-    Logger logger = getLogger( FirstOracleConstants.class );
-    
-    String RESOURCES_FOLDER = "resources/";
-    String RESOURCES_ORACLE_FOLDER = RESOURCES_FOLDER + "First Oracle/";
+    Logger logger = FirstToolsConstants.getLogger( FirstOracleConstants.class );
+
+    String RESOURCES_ORACLE_FOLDER = FirstToolsConstants.RESOURCES_FOLDER + "First Oracle/";
     String SHADER_FILES_LOCATION = RESOURCES_ORACLE_FOLDER + "shader/";
     String GET_FRAMEWORK_PROVIDER_METHOD_NAME = "getProvider";
-    
-    String REFLECT_PROVIDE_METHOD_NAME = "provide";
-    
+
     int NO_FLAGS = 0;
     String FIRST_ORACLE = "FirstOracle";
     int FIRST_ORACLE_VERSION_MAJOR = 0;
@@ -231,8 +226,7 @@ public interface FirstOracleConstants {
         return coordinate / 2 - terrainShift;
     }
     
-    static float transAbsolutePlaneSpaceToDiscrete( float coordinate, float terrainShift )
-    {
+    static float transAbsolutePlaneSpaceToDiscrete( float coordinate, float terrainShift ) {
         return coordinate - terrainShift;
     }
     
@@ -271,11 +265,7 @@ public interface FirstOracleConstants {
         
         return ( float ) finalTranslation;
     }
-    
-    static Logger getLogger( Class< ? > classObject ) {
-        return Logger.getLogger( classObject.getName() );
-    }
-    
+
     static boolean isReallyClose( float f1, float f2 ) {
         return Math.abs( f1 - f2 ) < MID_DELTA;
     }
@@ -304,14 +294,13 @@ public interface FirstOracleConstants {
             objectMinDim2 >= boundaryMaxDim2
         );
     }
-    DecimalFormat FORMATTER = new DecimalFormat("#.##");
     
     static String vec3ToStr( Vector3fc vec ) {
         return "( " +
-            FORMATTER.format( vec.x() ) +
-            ", " + FORMATTER.format( vec.y() ) +
-            ", " + FORMATTER.format( vec.z() ) +
-        " ) ";
+               FirstToolsConstants.FORMATTER.format( vec.x() ) +
+               ", " + FirstToolsConstants.FORMATTER.format( vec.y() ) +
+               ", " + FirstToolsConstants.FORMATTER.format( vec.z() ) +
+               " ) ";
     }
     
     static Index2D arraySize( Object[][] array ) {
@@ -329,28 +318,5 @@ public interface FirstOracleConstants {
             yLength == 0 ? 0 : array[0][0].length
         );
     }
-    
-    static < Type > void executeOnAllFields(
-        Object executingObject,
-        Predicate< Field > isCorrectField,
-        Class< Type > fieldSuperclass,
-        Consumer< Type > execute,
-        boolean shouldThrowException
-    ) {
-        var fields = executingObject.getClass().getDeclaredFields();
-        for ( var field : fields ) {
-            try {
-                if( isCorrectField.test( field ) ) {
-                    field.setAccessible( true );
-                    var obj = fieldSuperclass.cast( field.get( executingObject ) );
-                    execute.accept( obj );
-                }
-            } catch ( Exception ex ) {
-                logger.log( Level.WARNING, "Exception while trying to execute method on fields", ex );
-                if( shouldThrowException ) {
-                    throw new RuntimeException( "Exception while trying to execute method on fields", ex );
-                }
-            }
-        }
-    }
+
 }

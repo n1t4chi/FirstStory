@@ -13,6 +13,7 @@ import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.util.List;
+import java.util.Objects;
 
 public class VulkanQueueFamily {
     
@@ -100,7 +101,7 @@ public class VulkanQueueFamily {
         var that = ( VulkanQueueFamily ) o;
         
         if ( index != that.index ) { return false; }
-        return properties != null ? properties.equals( that.properties ) : that.properties == null;
+        return Objects.equals( properties, that.properties );
     }
     
     @Override

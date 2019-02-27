@@ -79,8 +79,7 @@ class MainMenu implements ControllableScene {
             startTime = newTimeSnapshot;
         }
         var x = newTimeSnapshot - startTime;
-        if( x > 2 )
-        {
+        if( x > 2 ) {
             sceneController.endTechScene();
             title.setMaxAlphaChannel( 1f );
             exit.setMaxAlphaChannel( 1f );

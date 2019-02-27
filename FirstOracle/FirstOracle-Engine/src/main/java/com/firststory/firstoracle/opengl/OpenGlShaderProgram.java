@@ -29,16 +29,12 @@ class OpenGlShaderProgram implements ShaderProgram {
     private static final String FRAGMENT_SHADER_FILE_PATH = SHADER_FILES_LOCATION + "shader.gl.frag";
     
     private static String shaderTypeToString( int type ) {
-        switch ( type ) {
-            case GL20.GL_VERTEX_SHADER:
-                return "Vertex Shader";
-            case GL20.GL_FRAGMENT_SHADER:
-                return "Vertex Shader";
-            case GL32.GL_GEOMETRY_SHADER:
-                return "Geometry Shader";
-            default:
-                return "Other Shader";
-        }
+        return switch ( type ) {
+            case GL20.GL_VERTEX_SHADER -> "Vertex Shader";
+            case GL20.GL_FRAGMENT_SHADER -> "Vertex Shader";
+            case GL32.GL_GEOMETRY_SHADER -> "Geometry Shader";
+            default -> "Other Shader";
+        };
     }
     
     private final String vertexFilePath;

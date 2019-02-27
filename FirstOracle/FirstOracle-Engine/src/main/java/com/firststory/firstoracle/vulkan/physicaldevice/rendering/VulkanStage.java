@@ -33,8 +33,7 @@ class VulkanStage {
     }
     
     void addRenderDatas( List< RenderData > renderDatas ) {
-        synchronized ( renderDatas )
-        {
+        synchronized ( renderDatas ) {
             this.renderDatas = new ArrayList<>( renderDatas );
         }
     }

@@ -10,7 +10,7 @@
 
     <groupId>com.FirstStory</groupId>
     <artifactId>FirstStory</artifactId>
-    <version>${first.story.version}</version>
+    <version>0.2</version>
     <packaging>pom</packaging>
 
     <name>First Story</name>
@@ -21,10 +21,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>12</maven.compiler.source>
         <maven.compiler.target>12</maven.compiler.target>
-        <first.story.version>0.1-SNAPSHOT</first.story.version>
-        <first.slave.version>0.1-SNAPSHOT</first.slave.version>
-        <first.oracle.version>0.5-SNAPSHOT</first.oracle.version>
-
+        <first.story.version>0.2</first.story.version>
+        <first.slave.version>0.1</first.slave.version>
+        <first.inscriptions.version>0.1</first.inscriptions.version>
+        <first.master.version>0.1</first.master.version>
+        <first.tools.version>0.1</first.tools.version>
+        <first.oracle.version>0.6</first.oracle.version>
         <lwjgl.version>3.2.0</lwjgl.version>
         <joml.version>1.9.12</joml.version>
     </properties>
@@ -72,7 +74,7 @@
                     <version>3.0.1</version>
                     <configuration>
                         <additionalJOptions>
-                            <additionalJOption>--enable-preview </additionalJOption>
+                            <additionalJOption>--enable-preview</additionalJOption>
                             <additionalJOption>-source</additionalJOption>
                             <additionalJOption>12</additionalJOption>
                         </additionalJOptions>
@@ -134,6 +136,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <!--First Tools-->
+            <dependency>
+                <groupId>com.FirstStory.FirstTools</groupId>
+                <artifactId>FirstTools</artifactId>
+                <version>${first.tools.version}</version>
+            </dependency>
+
+            <!--First Oracle-->
             <dependency>
                 <groupId>com.FirstStory.FirstOracle</groupId>
                 <artifactId>FirstOracle-Interfaces</artifactId>
@@ -150,16 +160,38 @@
                 <version>${first.oracle.version}</version>
             </dependency>
 
-            <!--<dependency>-->
-                <!--<groupId>jfxgl</groupId>-->
-                <!--<artifactId>jfxgl</artifactId>-->
-                <!--<version>0.7-SNAPSHOT</version>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-                <!--<groupId>jfx</groupId>-->
-                <!--<artifactId>jfx</artifactId>-->
-                <!--<version>0.7-SNAPSHOT</version>-->
-            <!--</dependency>-->
+            <!--First Inscriptions-->
+            <dependency>
+                <groupId>com.FirstStory.FirstInscriptions</groupId>
+                <artifactId>FirstInscriptions-Interfaces</artifactId>
+                <version>${first.inscriptions.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.FirstStory.FirstInscriptions</groupId>
+                <artifactId>FirstInscriptions-Impl</artifactId>
+                <version>${first.inscriptions.version}</version>
+            </dependency>
+
+            <!--First Master-->
+            <dependency>
+                <groupId>com.FirstStory.FirstMaster</groupId>
+                <artifactId>FirstMaster-Server</artifactId>
+                <version>${first.master.version}</version>
+            </dependency>
+
+            <!--First Slave-->
+            <dependency>
+                <groupId>com.FirstStory.FirstSlave</groupId>
+                <artifactId>FirstSlave-Application</artifactId>
+                <version>${first.slave.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.FirstStory.FirstSlave</groupId>
+                <artifactId>FirstSlave-WebClient</artifactId>
+                <version>${first.slave.version}</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>jfxgl</groupId>
                 <artifactId>jfxgl</artifactId>
@@ -258,11 +290,23 @@
                 <artifactId>joml</artifactId>
                 <version>${joml.version}</version>
             </dependency>
+
+
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>2.9.7</version>
             </dependency>
+
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.6</version>
+                <scope>provided</scope>
+            </dependency>
+
+
             <dependency>
                 <groupId>org.easymock</groupId>
                 <artifactId>easymock</artifactId>
@@ -284,7 +328,7 @@
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>RELEASE</version>
+                <version>17.0.0</version>
                 <scope>compile</scope>
             </dependency>
         </dependencies>
@@ -293,6 +337,8 @@
     <modules>
         <module>FirstOracle</module>
         <module>FirstSlave</module>
-        <!--<module>JavaFx</module>-->
+        <module>FirstMaster</module>
+        <module>FirstInscriptions</module>
+        <module>FirstTools</module>
     </modules>
 </project>

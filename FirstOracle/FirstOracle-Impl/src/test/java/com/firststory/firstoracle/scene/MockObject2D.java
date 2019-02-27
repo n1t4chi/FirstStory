@@ -17,7 +17,7 @@ class MockObject2D extends AbstractPositionableObject2D< MockTransformations2D, 
     
     private final MockTransformations2D transformations;
     private final MockVertices2D vertices;
-    private RenderData.RenderDataBuilder builder;
+    private final RenderData.RenderDataBuilder builder;
     
     MockObject2D(
         float minX,

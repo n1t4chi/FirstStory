@@ -7,16 +7,18 @@ package com.firststory.firstoracle.vulkan;
 import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.window.WindowContext;
+import com.firststory.firsttools.FirstToolsConstants;
+import com.firststory.firsttools.PropertyUtils;
 import org.lwjgl.glfw.GLFWVulkan;
 
 import java.util.logging.Logger;
 
 public class VulkanFramework implements RenderingFramework {
     
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanFramework.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanFramework.class );
     
     public static boolean validationLayersAreEnabled() {
-        return PropertiesUtil.isPropertyTrue( PropertiesUtil.VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY );
+        return PropertyUtils.isPropertyTrue( FirstOracleProperties.VULKAN_VALIDATION_LAYERS_ENABLED_PROPERTY );
     }
     
     private final VulkanInstance instance;

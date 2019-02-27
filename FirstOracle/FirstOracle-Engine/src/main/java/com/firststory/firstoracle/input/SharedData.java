@@ -4,7 +4,6 @@
 
 package com.firststory.firstoracle.input;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.input.parsers.ShareableParser;
 import com.firststory.firstoracle.input.parsers.classes.Object2DClassParser;
 import com.firststory.firstoracle.input.parsers.classes.Object3DClassParser;
@@ -14,6 +13,7 @@ import com.firststory.firstoracle.input.parsers.parameters.*;
 import com.firststory.firstoracle.input.parsers.parameters.params2D.*;
 import com.firststory.firstoracle.input.parsers.parameters.params3D.*;
 import com.firststory.firstoracle.input.structure.Composite;
+import com.firststory.firsttools.FirstToolsConstants;
 
 /**
  * @author n1t4chi
@@ -47,7 +47,7 @@ public class SharedData {
     
     
     public SharedData( Composite sharedDataNode ) {
-        FirstOracleConstants.executeOnAllFields(
+        FirstToolsConstants.executeOnAllFields(
             this,
             field -> field.getName().endsWith( "Parser" ),
             ShareableParser.class,

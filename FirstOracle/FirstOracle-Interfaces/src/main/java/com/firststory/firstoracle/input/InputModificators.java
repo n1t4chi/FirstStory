@@ -27,11 +27,11 @@ public class InputModificators {
         var isControlDown = false;
         var isSuperDown = false;
         for( var km : modificators ){
-            switch(km){
-                case ALT: isAltDown = true; break;
-                case CONTROL: isControlDown = true; break;
-                case SHIFT: isShiftDown = true; break;
-                case SUPER: isSuperDown = true; break;
+            switch ( km ) {
+                case ALT -> isAltDown = true;
+                case CONTROL -> isControlDown = true;
+                case SHIFT -> isShiftDown = true;
+                case SUPER -> isSuperDown = true;
             }
         }
         return create( isAltDown,isShiftDown,isControlDown,isSuperDown );

@@ -9,12 +9,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>FirstOracle-Impl</artifactId>
-    <version>${first.oracle.version}</version>
 
     <parent>
         <groupId>com.FirstStory.FirstOracle</groupId>
         <artifactId>FirstOracle</artifactId>
-        <version>${first.oracle.version}</version>
+        <version>0.6</version>
     </parent>
     <packaging>jar</packaging>
 

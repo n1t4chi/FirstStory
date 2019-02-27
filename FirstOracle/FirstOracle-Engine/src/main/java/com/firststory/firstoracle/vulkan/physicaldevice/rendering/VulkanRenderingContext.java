@@ -13,6 +13,8 @@ import com.firststory.firstoracle.vulkan.allocators.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
+import com.firststory.firsttools.FirstToolsConstants;
+import com.firststory.firsttools.PropertyUtils;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import java.util.*;
@@ -24,7 +26,7 @@ import java.util.logging.*;
  */
 public class VulkanRenderingContext implements RenderingContext {
     
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanRenderingContext.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanRenderingContext.class );
     private static final String OVERLAY = "overlay";
     private static final String SCENE_3D = "scene3D";
     private static final String SCENE_2D = "scene2D";
@@ -48,8 +50,8 @@ public class VulkanRenderingContext implements RenderingContext {
         VulkanPhysicalDevice device
     ) {
         this( allocator, device,
-            PropertiesUtil.isPropertyTrue( PropertiesUtil.DRAW_BORDER_PROPERTY ),
-            !PropertiesUtil.isPropertyTrue( PropertiesUtil.DISABLE_TEXTURES_PROPERTY )
+            PropertyUtils.isPropertyTrue( FirstOracleProperties.DRAW_BORDER_PROPERTY ),
+            !PropertyUtils.isPropertyTrue( FirstOracleProperties.DISABLE_TEXTURES_PROPERTY )
         );
     }
     
@@ -63,8 +65,8 @@ public class VulkanRenderingContext implements RenderingContext {
         this.device = device;
         this.shouldDrawBorder = shouldDrawBorder;
         this.shouldDrawTextures = shouldDrawTextures;
-        executorService = Executors.newFixedThreadPool( PropertiesUtil.getIntegerProperty( "vulkan.threads.workers", 1 ) );
-        executorService2 = Executors.newFixedThreadPool( PropertiesUtil.getIntegerProperty( "vulkan.threads.building", 1 ) );
+        executorService = Executors.newFixedThreadPool( PropertyUtils.getIntegerProperty( "vulkan.threads.workers", 1 ) );
+        executorService2 = Executors.newFixedThreadPool( PropertyUtils.getIntegerProperty( "vulkan.threads.building", 1 ) );
     }
     
     public void dispose() {
@@ -150,8 +152,7 @@ public class VulkanRenderingContext implements RenderingContext {
     Future< ? > submit = null;
     
     public void tearDownSingleRender() {
-        if( submit != null )
-        {
+        if( submit != null ) {
             try {
                 submit.get();
             } catch ( InterruptedException e ) {

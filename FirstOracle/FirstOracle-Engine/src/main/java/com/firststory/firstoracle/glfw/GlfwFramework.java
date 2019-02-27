@@ -42,6 +42,7 @@ public class GlfwFramework implements WindowFramework {
                 monitor = GLFW.glfwGetPrimaryMonitor();
             } else {
                 var pointerBuffer = GLFW.glfwGetMonitors();
+                Objects.requireNonNull( pointerBuffer, "Monitors are null!" );
                 if ( settings.getMonitorIndex() > pointerBuffer.capacity() ) {
                     throw new MonitorIndexOutOfBoundException(
                         settings.getMonitorIndex(),
@@ -52,6 +53,7 @@ public class GlfwFramework implements WindowFramework {
             }
     
             var mode = GLFW.glfwGetVideoMode( monitor );
+            Objects.requireNonNull( mode, "Monitor modes are null!" );
     
             // Create the window
             var width = settings.getWidth();

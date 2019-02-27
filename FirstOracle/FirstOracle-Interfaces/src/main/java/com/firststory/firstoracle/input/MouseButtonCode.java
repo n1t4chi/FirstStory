@@ -16,6 +16,5 @@ public enum MouseButtonCode {
     BUTTON_6,
     BUTTON_7,
     BUTTON_8,
-    UNKNOWN;
-    
+    UNKNOWN
 }

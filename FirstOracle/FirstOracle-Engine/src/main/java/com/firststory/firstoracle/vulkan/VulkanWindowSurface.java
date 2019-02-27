@@ -4,10 +4,10 @@
 
 package com.firststory.firstoracle.vulkan;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanWindowSurfaceException;
 import com.firststory.firstoracle.window.WindowContext;
+import com.firststory.firsttools.FirstToolsConstants;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.vulkan.KHRSurface;
 import org.lwjgl.vulkan.VkInstance;
@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  */
 public class VulkanWindowSurface {
     
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanWindowSurface.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanWindowSurface.class );
     
     private final VulkanFrameworkAllocator allocator;
     private final VkInstance instance;

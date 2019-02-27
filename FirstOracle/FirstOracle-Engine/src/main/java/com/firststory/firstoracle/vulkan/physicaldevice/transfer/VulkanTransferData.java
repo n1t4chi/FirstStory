@@ -18,7 +18,7 @@ public class VulkanTransferData {
     private VulkanAddress destination;
     private long destinationOffset;
     private long length;
-    private int id;
+    private final int id;
     private final VkBufferCopy region = VkBufferCopy.calloc();
     private final VkBufferCopy.Buffer regions = VkBufferCopy.calloc( 1 ).put( 0, region );
     

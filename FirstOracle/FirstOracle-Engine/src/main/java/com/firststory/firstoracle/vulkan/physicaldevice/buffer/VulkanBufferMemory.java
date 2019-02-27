@@ -220,7 +220,7 @@ public class VulkanBufferMemory extends VulkanLinearMemory< ByteBuffer > {
         }
         
         private void bindMemoryToBuffer( VulkanAddress bufferAddress, VulkanAddress allocatedMemoryAddress ) {
-            VulkanHelper.assertCall(
+            VulkanHelper.assertCallOrThrow(
                 () -> VK10.vkBindBufferMemory( device.getLogicalDevice(),
                     bufferAddress.getValue(),
                     allocatedMemoryAddress.getValue(),

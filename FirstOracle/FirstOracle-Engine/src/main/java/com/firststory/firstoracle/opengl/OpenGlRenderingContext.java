@@ -112,12 +112,8 @@ public class OpenGlRenderingContext implements RenderingContext {
     
     private void drawLines( int bufferSize, LineType type ) {
         switch ( type ) {
-            case LINE_LOOP:
-                drawLineLoop( bufferSize );
-                break;
-            case LINES:
-            default:
-                drawLines( bufferSize );
+            case LINE_LOOP -> drawLineLoop( bufferSize );
+            default -> drawLines( bufferSize );
         }
     }
     

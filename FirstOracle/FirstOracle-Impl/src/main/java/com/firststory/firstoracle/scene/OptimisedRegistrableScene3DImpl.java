@@ -107,8 +107,7 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
             }
         }
         Pair pair;
-        while( ( pair = queue.poll() ) != null )
-        {
+        while( ( pair = queue.poll() ) != null ) {
            list.addAll( pair.renderData );
         }
         return list;
@@ -121,20 +120,15 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
         int indexZ,
         Index3D terrainSize
     ) {
-        if( indexX <= 0 || indexZ <= 0)
-        {
+        if( indexX <= 0 || indexZ <= 0) {
             return true;
         }
-        if( indexX >= terrainSize.x()-1 || indexY >= terrainSize.y()-1 || indexZ >= terrainSize.z()-1 )
-        {
+        if( indexX >= terrainSize.x()-1 || indexY >= terrainSize.y()-1 || indexZ >= terrainSize.z()-1 ) {
             return true;
         }
-        for( var x = indexX-1; x <= indexX+1 ; x++)
-        {
-            for( var z = indexZ-1; z <= indexZ+1 ; z++)
-            {
-                if( terrainsXYZ[ x ][ indexY ][ z ] == null )
-                {
+        for( var x = indexX-1; x <= indexX+1 ; x++) {
+            for( var z = indexZ-1; z <= indexZ+1 ; z++) {
+                if( terrainsXYZ[ x ][ indexY ][ z ] == null ) {
                     return true;
                 }
             }
@@ -143,8 +137,8 @@ public class OptimisedRegistrableScene3DImpl extends RegistrableScene3DImpl {
     }
     
     private class Pair implements Comparable< Pair > {
-        private Collection< RenderData > renderData;
-        private float distance;
+        private final Collection< RenderData > renderData;
+        private final float distance;
         
     
         private Pair(

@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle;
 
+import com.firststory.firsttools.FirstToolsConstants;
+
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -15,13 +17,13 @@ import java.util.logging.Logger;
  * After engine initialisation it will try to run proper main method of given class
  * and after that method ends it will try to clear up after engine.
  * In order to run, Runner will try to find class given via property given in
- * {@link PropertiesUtil#APPLICATION_CLASS_NAME_PROPERTY}
+ * {@link FirstOracleProperties#APPLICATION_CLASS_NAME_PROPERTY}
  * And then invoke public static void main(String[] args) method of that class.
  * WARNING: Early exit from that method will result in engine termination which might lead to unwanted crashes.
  */
 public class Runner {
     private static final ArrayList< FrameworkProvider > FRAMEWORK_PROVIDERS = new ArrayList<>();
-    private static final Logger logger = FirstOracleConstants.getLogger( Runner.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( Runner.class );
     
     public static void registerFramework( FrameworkProvider provider ) {
         logger.finer( "Registering framework: " + provider );
@@ -61,7 +63,7 @@ public class Runner {
     }
     
     private static String getApplicationClassName() {
-        var className = System.getProperty( PropertiesUtil.APPLICATION_CLASS_NAME_PROPERTY );
+        var className = System.getProperty( FirstOracleProperties.APPLICATION_CLASS_NAME_PROPERTY );
         if ( className == null ) {
             throw new ApplicationPropertyNotSetException();
         }
@@ -91,7 +93,7 @@ public class Runner {
     
     private static class ApplicationPropertyNotSetException extends RunnerException {
         ApplicationPropertyNotSetException() {
-            super("Cannot start Engine. Property not set:" + PropertiesUtil.APPLICATION_CLASS_NAME_PROPERTY + "." );
+            super( "Cannot start Engine. Property not set:" + FirstOracleProperties.APPLICATION_CLASS_NAME_PROPERTY + "." );
         }
     }
     

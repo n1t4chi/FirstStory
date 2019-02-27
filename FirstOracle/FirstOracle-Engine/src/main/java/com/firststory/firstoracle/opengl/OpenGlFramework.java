@@ -4,8 +4,9 @@
 
 package com.firststory.firstoracle.opengl;
 
-import com.firststory.firstoracle.PropertiesUtil;
+import com.firststory.firstoracle.FirstOracleProperties;
 import com.firststory.firstoracle.rendering.*;
+import com.firststory.firsttools.PropertyUtils;
 import org.lwjgl.opengl.*;
 
 import java.io.IOException;
@@ -37,8 +38,8 @@ public class OpenGlFramework implements RenderingFramework, AutoCloseable {
             attributeLoader,
             textureLoader,
             shader,
-            !PropertiesUtil.isPropertyTrue( PropertiesUtil.DISABLE_TEXTURES_PROPERTY ),
-            PropertiesUtil.isPropertyTrue( PropertiesUtil.DRAW_BORDER_PROPERTY )
+            !PropertyUtils.isPropertyTrue( FirstOracleProperties.DISABLE_TEXTURES_PROPERTY ),
+            PropertyUtils.isPropertyTrue( FirstOracleProperties.DRAW_BORDER_PROPERTY )
         );
     }
     

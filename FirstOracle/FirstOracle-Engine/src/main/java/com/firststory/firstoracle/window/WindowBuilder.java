@@ -8,6 +8,7 @@ import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.gui.*;
 import com.firststory.firstoracle.rendering.*;
 import com.firststory.firstoracle.scene.*;
+import com.firststory.firsttools.PropertyUtils;
 
 /**
  * @author n1t4chi
@@ -36,10 +37,10 @@ public abstract class WindowBuilder< WindowType extends WindowImpl > {
     
     private RenderLoop createRenderLoop() {
         RenderLoop renderLoop = new RenderLoopImpl();
-        if ( PropertiesUtil.isPropertyTrue( PropertiesUtil.RENDER_LOOP_PERFORMANCE_LOG_PROPERTY ) ) {
+        if ( PropertyUtils.isPropertyTrue( FirstOracleProperties.RENDER_LOOP_PERFORMANCE_LOG_PROPERTY ) ) {
             renderLoop = new RenderLoopPerformanceTester( renderLoop );
         }
-        if ( PropertiesUtil.isPropertyTrue( PropertiesUtil.FORCE_ONE_LOOP_CYCLE_PROPERTY ) ) {
+        if ( PropertyUtils.isPropertyTrue( FirstOracleProperties.FORCE_ONE_LOOP_CYCLE_PROPERTY ) ) {
             renderLoop = new RenderLoopEarlyExit( renderLoop );
         }
         return renderLoop;

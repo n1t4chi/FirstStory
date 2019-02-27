@@ -5,7 +5,7 @@
 package com.firststory.firstoracle.vulkan;
 
 import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.PropertiesUtil;
+import com.firststory.firstoracle.FirstOracleProperties;
 import com.firststory.firstoracle.rendering.Renderer;
 import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanInstanceException;
@@ -15,6 +15,8 @@ import com.firststory.firstoracle.vulkan.exceptions.NoDeviceSupportingVulkanExce
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.VulkanRenderingContext;
 import com.firststory.firstoracle.window.WindowContext;
+import com.firststory.firsttools.FirstToolsConstants;
+import com.firststory.firsttools.PropertyUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
  */
 class VulkanInstance {
     
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanInstance.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanInstance.class );
     
     private final VulkanFrameworkAllocator allocator;
     private final VkInstanceCreateInfo createInfo;
@@ -89,7 +91,7 @@ class VulkanInstance {
     private Map< String, Long > createEnabledExtensions() {
         Map< String, Long > extensions = new HashMap<>();
         addGlfwInstanceExtensions( extensions );
-        if ( PropertiesUtil.isDebugMode() ) {
+        if ( PropertyUtils.isDebugMode() ) {
             addExtension( extensions, EXTDebugReport.VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
             
         }
@@ -104,7 +106,7 @@ class VulkanInstance {
         var layerNames = layerProperties.stream()
             .map( VkLayerProperties::layerNameString )
             .collect( Collectors.toSet() );
-        var validationLayers = PropertiesUtil.getListFromProperty( PropertiesUtil.VULKAN_VALIDATION_LAYERS_LIST_PROPERTY );
+        var validationLayers = PropertyUtils.getListFromProperty( FirstOracleProperties.VULKAN_VALIDATION_LAYERS_LIST_PROPERTY );
         
         for ( var iterator = validationLayers.iterator(); iterator.hasNext(); ) {
             var layer = iterator.next();
@@ -122,6 +124,7 @@ class VulkanInstance {
     
     private void addGlfwInstanceExtensions( Map< String, Long > enabledExtensions ) {
         var glfwInstanceExtensions = GLFWVulkan.glfwGetRequiredInstanceExtensions();
+        Objects.requireNonNull( glfwInstanceExtensions, "GLFW instance extensions are null!" );
         while ( glfwInstanceExtensions.hasRemaining() ) {
             var address = glfwInstanceExtensions.get();
             enabledExtensions.put( MemoryUtil.memUTF8( address ), address );
@@ -196,7 +199,7 @@ class VulkanInstance {
     }
     
     private PointerBuffer createValidationLayerNamesBuffer() {
-        if( PropertiesUtil.isPropertyTrue( "VulkanValidationLayersEnabled" ) ) {
+        if( PropertyUtils.isPropertyTrue( "VulkanValidationLayersEnabled" ) ) {
             var validationLayerNamesBuffer = MemoryUtil.memAllocPointer( validationLayerNames.size() );
             validationLayerNames.stream().map( MemoryUtil::memUTF8 ).forEach( validationLayerNamesBuffer::put );
             return validationLayerNamesBuffer.flip();
@@ -212,13 +215,13 @@ class VulkanInstance {
     }
     
     private VkApplicationInfo createApplicationInfo() {
-        var applicationName = PropertiesUtil.getProperty( "ApplicationName",
+        var applicationName = PropertyUtils.getProperty( "ApplicationName",
             "Application powered by " + FirstOracleConstants.FIRST_ORACLE
         );
-        var applicationVersion = VK10.VK_MAKE_VERSION( PropertiesUtil.getIntegerProperty( "ApplicationMajorVersion",
+        var applicationVersion = VK10.VK_MAKE_VERSION( PropertyUtils.getIntegerProperty( "ApplicationMajorVersion",
             1 ),
-            PropertiesUtil.getIntegerProperty( "ApplicationMinorVersion", 0 ),
-            PropertiesUtil.getIntegerProperty( "ApplicationPatchVersion", 0 )
+            PropertyUtils.getIntegerProperty( "ApplicationMinorVersion", 0 ),
+            PropertyUtils.getIntegerProperty( "ApplicationPatchVersion", 0 )
         );
         var engineName = FirstOracleConstants.FIRST_ORACLE;
         var engineVersion = VK10.VK_MAKE_VERSION( FirstOracleConstants.FIRST_ORACLE_VERSION_MAJOR,

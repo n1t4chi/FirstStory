@@ -9,7 +9,6 @@ import com.firststory.firstoracle.data.Position3D;
 import com.firststory.firstoracle.object.*;
 import com.firststory.firstoracle.object3D.FullyAnimatedPlane3D;
 import com.firststory.firstoracle.scene.RegistrableScene3D;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.concurrent.*;
@@ -164,7 +163,7 @@ class Hero {
         left,
         right,
         still,
-        pause;
+        pause
     }
     
     private class ControllableFrameController implements FrameController {

@@ -5,6 +5,8 @@ package com.firststory.firstoracle.rendering;
 
 import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.scene.*;
+import com.firststory.firsttools.FirstToolsConstants;
+import com.firststory.firsttools.PropertyUtils;
 
 import java.util.*;
 import java.util.logging.*;
@@ -17,15 +19,15 @@ import static com.firststory.firstoracle.rendering.DummyGrid3D.DUMMY_GRID_3D;
  */
 public class WindowRenderer implements Renderer {
     
-    private static final Logger logger = FirstOracleConstants.getLogger( WindowRenderer.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( WindowRenderer.class );
     
     public static WindowRenderer provide( SceneProvider sceneProvider ) {
         var grid2DRenderer = createGridRenderer(
-            PropertiesUtil.getProperty( PropertiesUtil.WINDOW_RENDERER_GRID_2D_RENDERER_CLASS_NAME_PROPERTY ),
+            PropertyUtils.getProperty( FirstOracleProperties.WINDOW_RENDERER_GRID_2D_RENDERER_CLASS_NAME_PROPERTY ),
             Grid2D.class, DUMMY_GRID_2D
         );
         var grid3DRenderer = createGridRenderer(
-            PropertiesUtil.getProperty( PropertiesUtil.WINDOW_RENDERER_GRID_3D_RENDERER_CLASS_NAME_PROPERTY ),
+            PropertyUtils.getProperty( FirstOracleProperties.WINDOW_RENDERER_GRID_3D_RENDERER_CLASS_NAME_PROPERTY ),
             Grid3D.class, DUMMY_GRID_3D
         );
         return new WindowRenderer(

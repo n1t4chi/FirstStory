@@ -73,17 +73,11 @@ class VulkanShader implements ShaderProgram {
             .module( address.getValue() )
             .pName( MemoryUtil.memUTF8( "main" ) )
         ;
-        int stage;
-        switch ( type ) {
-            case VERTEX:
-                stage = VK10.VK_SHADER_STAGE_VERTEX_BIT;
-                break;
-            case FRAGMENT:
-                stage = VK10.VK_SHADER_STAGE_FRAGMENT_BIT;
-                break;
-            default:
-                throw new UnsupportedOperationException( "Unknown shader type:"+type );
-        }
+        int stage = switch ( type ) {
+            case VERTEX -> VK10.VK_SHADER_STAGE_VERTEX_BIT;
+            case FRAGMENT -> VK10.VK_SHADER_STAGE_FRAGMENT_BIT;
+            default -> throw new UnsupportedOperationException( "Unknown shader type:" + type );
+        };
         stageCreateInfo.stage( stage );
         return stageCreateInfo;
     }

@@ -4,9 +4,9 @@
 
 package com.firststory.firstoracle.vulkan;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.vulkan.allocators.VulkanFrameworkAllocator;
+import com.firststory.firsttools.FirstToolsConstants;
+import com.firststory.firsttools.PropertyUtils;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * @author n1t4chi
  */
 public class VulkanDebugCallback {
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanDebugCallback.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanDebugCallback.class );
     private final VulkanFrameworkAllocator allocator;
     private final VkInstance instance;
     private final VulkanAddress debugCallbackAddress = new VulkanAddress();
@@ -29,7 +29,7 @@ public class VulkanDebugCallback {
     public VulkanDebugCallback( VulkanFrameworkAllocator allocator, VkInstance instance ) {
         this.allocator = allocator;
         this.instance = instance;
-        if( PropertiesUtil.isDebugMode() ) {
+        if( PropertyUtils.isDebugMode() ) {
             var callback = VkDebugReportCallbackEXT.create( new DebugLogger() );
             var createInfo = VkDebugReportCallbackCreateInfoEXT
                 .calloc()

@@ -79,21 +79,21 @@ class GameScene implements ControllableScene {
     @Override
     public void keyPress( Key key ) {
         switch ( key.getKeyCode() ) {
-            case KEY_ESCAPE: pauseMenu(); break;
-            case KEY_UP: case KEY_W: hero.walkUp(); break;
-            case KEY_DOWN: case KEY_S: hero.walkDown(); break;
-            case KEY_LEFT: case KEY_A: hero.walkLeft(); break;
-            case KEY_RIGHT: case KEY_D: hero.walkRight(); break;
+            case KEY_ESCAPE -> pauseMenu();
+            case KEY_UP, KEY_W -> hero.walkUp();
+            case KEY_DOWN, KEY_S -> hero.walkDown();
+            case KEY_LEFT, KEY_A -> hero.walkLeft();
+            case KEY_RIGHT, KEY_D -> hero.walkRight();
         }
     }
     
     @Override
     public void keyRelease( Key key ) {
         switch ( key.getKeyCode() ) {
-            case KEY_UP: case KEY_W: hero.stopWalkUp(); break;
-            case KEY_DOWN: case KEY_S: hero.stopWalkDown(); break;
-            case KEY_LEFT: case KEY_A: hero.stopWalkLeft(); break;
-            case KEY_RIGHT: case KEY_D: hero.stopWalkRight(); break;
+            case KEY_UP, KEY_W -> hero.stopWalkUp();
+            case KEY_DOWN, KEY_S -> hero.stopWalkDown();
+            case KEY_LEFT, KEY_A -> hero.stopWalkLeft();
+            case KEY_RIGHT, KEY_D -> hero.stopWalkRight();
         }
     }
     

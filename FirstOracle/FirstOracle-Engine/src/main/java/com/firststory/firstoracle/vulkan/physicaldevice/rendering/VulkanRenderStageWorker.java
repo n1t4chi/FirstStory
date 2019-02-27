@@ -9,6 +9,7 @@ import com.firststory.firstoracle.object.Texture;
 import com.firststory.firstoracle.rendering.RenderData;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanDataBuffer;
+import com.firststory.firsttools.FirstToolsConstants;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
 import java.util.*;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
  * @author n1t4chi
  */
 class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanRenderStageWorker.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanRenderStageWorker.class );
     
     private final VulkanPhysicalDevice device;
     private final ExecutorService executorService;
@@ -65,8 +66,7 @@ class VulkanRenderStageWorker implements Callable< VulkanRenderBatchData > {
         
         var renderDatas = stage.getRenderDatas();
         List< List< RenderData > > batches = new ArrayList<>(  );
-        for( var i=0; i < renderDatas.size() ; i += CHUNK_SIZE )
-        {
+        for( var i=0; i < renderDatas.size() ; i += CHUNK_SIZE ) {
             batches.add( renderDatas.subList( i, Math.min( i + CHUNK_SIZE, renderDatas.size() ) ) );
         }
         if( batches.isEmpty() ) {

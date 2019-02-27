@@ -4,12 +4,12 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice.commands;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.allocators.VulkanCommandBufferAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.VulkanCommandBufferException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
+import com.firststory.firsttools.FirstToolsConstants;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkCommandBuffer;
 import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  * @author n1t4chi
  */
 public abstract class VulkanCommandBuffer< SELF extends VulkanCommandBuffer< ? > > {
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandBuffer.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanCommandBuffer.class );
     private final VulkanCommandBufferAllocator< SELF > allocator;
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;

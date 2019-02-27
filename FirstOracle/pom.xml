@@ -10,7 +10,7 @@
 
     <groupId>com.FirstStory.FirstOracle</groupId>
     <artifactId>FirstOracle</artifactId>
-    <version>${first.oracle.version}</version>
+    <version>0.6</version>
 
     <properties>
         <first.oracle.out>${project.basedir}/../release/${first.oracle.version}</first.oracle.out>
@@ -24,9 +24,15 @@
     <parent>
         <groupId>com.FirstStory</groupId>
         <artifactId>FirstStory</artifactId>
-        <version>${first.story.version}</version>
+        <version>0.2</version>
     </parent>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.FirstStory.FirstTools</groupId>
+            <artifactId>FirstTools</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

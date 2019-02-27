@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle;
 
+import com.firststory.firsttools.FirstToolsConstants;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -143,7 +145,7 @@ public class ReflectionUtils {
         @Override
         public MethodInstanceCreator< T > provide( Class< T > aClass, Class< ? >[] paremeterClasses ) throws Exception {
             return new MethodInstanceCreator<>( aClass.getMethod(
-                FirstOracleConstants.REFLECT_PROVIDE_METHOD_NAME,
+                FirstToolsConstants.REFLECT_PROVIDE_METHOD_NAME,
                 paremeterClasses
             ) );
         }
@@ -217,11 +219,11 @@ public class ReflectionUtils {
         
         private static String constructorMessage( Class< ? > aClass, Class< ? >[] parameterClasses ) {
             return "Class " +
-                aClass +
-                " does not have public static method " +
-                FirstOracleConstants.REFLECT_PROVIDE_METHOD_NAME +
-                " with parameters: " +
-                Arrays.toString( parameterClasses );
+                   aClass +
+                   " does not have public static method " +
+                   FirstToolsConstants.REFLECT_PROVIDE_METHOD_NAME +
+                   " with parameters: " +
+                   Arrays.toString( parameterClasses );
         }
         
         private ReflectiveCreateException(

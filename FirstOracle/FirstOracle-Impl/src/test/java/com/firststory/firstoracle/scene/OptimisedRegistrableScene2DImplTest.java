@@ -6,9 +6,12 @@ package com.firststory.firstoracle.scene;
 
 import com.firststory.firstoracle.data.Index2D;
 import com.firststory.firstoracle.rendering.RenderData;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.firststory.firstoracle.scene.SceneTestUtils.*;
@@ -88,9 +91,11 @@ class OptimisedRegistrableScene2DImplTest {
         Assertions.assertTrue( objects2DRenderData.size() >= ( terrainsData.size() + objectsData.size() ) );
         Assertions.assertTrue( objects2DRenderData.containsAll( terrainsData ) );
         Assertions.assertTrue( objects2DRenderData.containsAll( objectsData ) );
-        objects2DRenderData.forEach( renderData -> {
-            Assertions.assertTrue( isInside2D( renderData, SIZE_TER_XY, MID_OBJ_XY ) );
-        } );
+        objects2DRenderData.forEach( renderData -> Assertions.assertTrue( isInside2D(
+            renderData,
+            SIZE_TER_XY,
+            MID_OBJ_XY
+        ) ) );
     }
     
     /**
@@ -109,9 +114,11 @@ class OptimisedRegistrableScene2DImplTest {
         );
         Assertions.assertTrue( objects2DRenderData.containsAll( terrainsData ) );
         Assertions.assertTrue( objects2DRenderData.containsAll( objectsData ) );
-        objects2DRenderData.forEach( renderData -> {
-            Assertions.assertTrue( isInside2D( renderData, size, MID_OBJ_XY ) );
-        } );
+        objects2DRenderData.forEach( renderData -> Assertions.assertTrue( isInside2D(
+            renderData,
+            size,
+            MID_OBJ_XY
+        ) ) );
     }
     
     private Set< RenderData > allObjectsData() {

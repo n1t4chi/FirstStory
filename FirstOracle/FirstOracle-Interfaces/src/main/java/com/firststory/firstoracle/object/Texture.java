@@ -45,7 +45,7 @@ public final class Texture {
     private static final String FRAME_KEYWORD = "#frame#";
     private static final String DIRECTION_KEYWORD = "#direction#";
     
-    public static Texture createText( String text ) throws IOException {
+    public static Texture createText( String text ) {
     
         var image = new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB );
         

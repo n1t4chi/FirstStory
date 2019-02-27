@@ -20,7 +20,7 @@ public class GenerateScripts {
         Arrays.stream( scripts )
             .map( GenerateScripts::read )
             .filter( Objects::nonNull )
-            .forEach( GenerateScripts::save );
+            .forEach( GenerateScripts::save )
         ;
     }
     

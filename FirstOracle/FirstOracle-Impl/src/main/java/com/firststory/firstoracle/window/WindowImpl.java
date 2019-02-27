@@ -7,6 +7,7 @@ import com.firststory.firstoracle.*;
 import com.firststory.firstoracle.gui.*;
 import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.rendering.*;
+import com.firststory.firsttools.FirstToolsConstants;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
 public class WindowImpl implements Window {
     
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
-    private static final Logger logger = FirstOracleConstants.getLogger( Window.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( Window.class );
     
     private final WindowSettings settings;
     private final ArrayList< TimeListener > timeListeners = new ArrayList<>();

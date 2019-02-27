@@ -4,10 +4,10 @@
 
 package com.firststory.firstslave;
 
-import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.scene.*;
 import com.firststory.firstoracle.window.*;
+import com.firststory.firsttools.PropertyUtils;
 
 import java.util.*;
 
@@ -31,7 +31,7 @@ class SceneController implements SceneProvider, MouseListener, KeyListener, Wind
         gameScene,
         gameMenu
     );
-    private ControllableScene currentScene = PropertiesUtil.isPropertyTrue( "SkipDemo" ) ? mainMenu : techScene;
+    private ControllableScene currentScene = PropertyUtils.isPropertyTrue( "SkipDemo" ) ? mainMenu : techScene;
     private Window window;
     
     @Override

@@ -9,6 +9,7 @@ import com.firststory.firstoracle.camera3D.IsometricCamera3D;
 import com.firststory.firstoracle.input.*;
 import com.firststory.firstoracle.notyfying.*;
 import com.firststory.firstoracle.window.WindowImpl;
+import com.firststory.firsttools.FirstToolsConstants;
 import org.joml.*;
 
 import java.lang.Math;
@@ -28,7 +29,7 @@ public class CameraController extends Thread implements
     TimeListener
 {
     
-    private static final Logger logger = FirstOracleConstants.getLogger( CameraController.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( CameraController.class );
     private static final AtomicInteger instanceCounter = new AtomicInteger( 0 );
     private final CameraKeyMap cameraKeyMap;
     private final long refreshLatency;

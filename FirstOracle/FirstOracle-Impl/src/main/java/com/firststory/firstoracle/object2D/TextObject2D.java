@@ -22,7 +22,7 @@ public class TextObject2D
     private final WindowSettings settings;
     private final TextImageFactory factory;
     private TextData textData;
-    private Rectangle2D rectangle2D = new Rectangle2D.Double();
+    private final Rectangle2D rectangle2D = new Rectangle2D.Double();
     private int posX;
     private int posY;
     

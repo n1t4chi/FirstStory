@@ -78,22 +78,19 @@ public class ExampleObjects {
         
         var window = WindowBuilder.registrableWindow( settings ).build();
         
-        if( terrain2D != null )
-        {
+        if( terrain2D != null ) {
             Terrain2D< ?, ? >[][] terrain2DS = new Terrain2D[10][10];
             IntStream.range( 0, 10 ).forEach( x -> IntStream.range( 0, 10 ).forEach( y -> terrain2DS[x][y] = terrain2D ) );
             window.createNewScene2D( 0, Index2D.id2( 10, 10 ), FirstOracleConstants.INDEX_ZERO_2I );
             window.registerMultipleTerrains2D( 0, terrain2DS );
         }
-        if( terrain3D != null )
-        {
+        if( terrain3D != null ) {
             Terrain3D< ?, ? >[][][] terrain3DS = new Terrain3D[10][1][10];
             IntStream.range( 0, 10 ).forEach( x -> IntStream.range( 0, 10 ).forEach( z -> terrain3DS[x][0][z] = terrain3D ) );
             window.createNewScene3D( 0, Index3D.id3( 10,1, 10 ), FirstOracleConstants.INDEX_ZERO_3I );
             window.registerMultipleTerrains3D( 0, terrain3DS );
         }
-        if( object3DSupplier != null )
-        {
+        if( object3DSupplier != null ) {
             var list = new ArrayList< PositionableObject3D< ?, ? > >();
             IntStream.range( 0, 10 ).forEach( x -> IntStream.range( 0, 10 ).forEach( z -> {
                 var object = object3DSupplier.get();

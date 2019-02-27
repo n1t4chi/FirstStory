@@ -36,14 +36,12 @@ public class ResolutionBasedObject2DImpl
         return bounds;
     }
     
-    public void setPosition( double posX, double posY )
-    {
+    public void setPosition( double posX, double posY ) {
         bounds.setRect( posX, posY, bounds.getWidth(), bounds.getHeight() );
         updateBounds();
     }
     
-    public void setSize( double width, double height )
-    {
+    public void setSize( double width, double height ) {
         bounds.setRect( bounds.getX(), bounds.getY(), width, height );
         updateBounds();
     }

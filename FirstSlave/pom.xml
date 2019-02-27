@@ -10,19 +10,18 @@
 
     <groupId>com.FirstStory.FirstSlave</groupId>
     <artifactId>FirstSlave</artifactId>
-    <version>${first.slave.version}</version>
+    <version>0.1</version>
 
     <parent>
         <groupId>com.FirstStory</groupId>
         <artifactId>FirstStory</artifactId>
-        <version>${first.story.version}</version>
+        <version>0.2</version>
     </parent>
 
     <packaging>pom</packaging>
 
     <modules>
-        <module>
-            FirstSlave-Application
-        </module>
+        <module>FirstSlave-Application</module>
+        <module>FirstSlave-WebClient</module>
     </modules>
 </project>

@@ -18,21 +18,21 @@ public class FrameworkProviderContext {
     
     public static RenderingFrameworkProvider createRenderingFrameworkProvider() {
         return createRenderingFrameworkProvider( System.getProperty( 
-            PropertiesUtil.RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY,
+            FirstOracleProperties.RENDERING_FRAMEWORK_CLASS_NAME_PROPERTY,
             OpenGlFrameworkProvider.class.getName()
         ) );
     }
     
     public static WindowFrameworkProvider createWindowFrameworkProvider() {
         return createWindowFrameworkProvider( System.getProperty(
-            PropertiesUtil.WINDOW_FRAMEWORK_CLASS_NAME_PROPERTY,
+            FirstOracleProperties.WINDOW_FRAMEWORK_CLASS_NAME_PROPERTY,
             GlfwFrameworkProvider.class.getName()
         ) );
     }
     
     public static GuiFrameworkProvider< GuiApplicationData< ? > > createGuiFrameworkProvider() {
         return createGuiFrameworkProvider( System.getProperty(
-            PropertiesUtil.GUI_FRAMEWORK_CLASS_NAME_PROPERTY,
+            FirstOracleProperties.GUI_FRAMEWORK_CLASS_NAME_PROPERTY,
             DummyGuiFrameworkProvider.class.getName()
         ) );
     }

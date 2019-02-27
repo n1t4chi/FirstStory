@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle.notyfying;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -20,8 +22,7 @@ public class NotifyingEngine {
     
     public static < Listener, Action extends NotifyAction< Listener > > void notify(
         Collection< Listener > listeners, Action action
-    )
-    {
+    ) {
         executor.execute( () -> {
             for ( var listener : listeners ) {
                 action.notify( listener );
@@ -79,7 +80,7 @@ public class NotifyingEngine {
     private static class NotifyingExecutor implements Executor {
         
         @Override
-        public void execute( Runnable command ) {
+        public void execute( @NotNull Runnable command ) {
             commands.add( command );
             updateThread();
         }

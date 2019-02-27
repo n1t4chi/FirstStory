@@ -9,12 +9,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>FirstSlave-Application</artifactId>
-    <version>${first.slave.version}</version>
 
     <parent>
         <groupId>com.FirstStory.FirstSlave</groupId>
         <artifactId>FirstSlave</artifactId>
-        <version>${first.slave.version}</version>
+        <version>0.1</version>
     </parent>
 
     <packaging>jar</packaging>

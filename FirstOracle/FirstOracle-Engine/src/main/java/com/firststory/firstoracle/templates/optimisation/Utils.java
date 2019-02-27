@@ -4,10 +4,10 @@
 
 package com.firststory.firstoracle.templates.optimisation;
 
-import com.firststory.firstoracle.PropertiesUtil;
 import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.object2D.*;
 import com.firststory.firstoracle.object3D.*;
+import com.firststory.firsttools.PropertyUtils;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public interface Utils {
     }
     
     static boolean isOptimised() {
-        return PropertiesUtil.isPropertyTrue( USE_OPTIMISED_PROPERTY );
+        return PropertyUtils.isPropertyTrue( USE_OPTIMISED_PROPERTY );
     }
     
 }

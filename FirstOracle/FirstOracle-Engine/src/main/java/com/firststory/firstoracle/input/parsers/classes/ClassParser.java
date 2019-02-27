@@ -4,9 +4,9 @@
 
 package com.firststory.firstoracle.input.parsers.classes;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.input.SceneParser;
 import com.firststory.firstoracle.input.exceptions.ParsedClassNotFoundException;
+import com.firststory.firsttools.FirstToolsConstants;
 
 import java.util.logging.Logger;
 
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  */
 public interface ClassParser< Type > {
     
-    Logger logger = FirstOracleConstants.getLogger( ClassParser.class );
+    Logger logger = FirstToolsConstants.getLogger( ClassParser.class );
     
     Class< Type > getBaseClass();
     

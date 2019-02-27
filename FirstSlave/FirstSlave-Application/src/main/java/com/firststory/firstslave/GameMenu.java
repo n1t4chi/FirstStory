@@ -6,7 +6,6 @@ package com.firststory.firstslave;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.Colour;
-import com.firststory.firstoracle.input.*;
 import com.firststory.firstoracle.object2D.StaticRectangle;
 import com.firststory.firstoracle.scene.*;
 import com.firststory.firstoracle.window.Window;

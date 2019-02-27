@@ -4,6 +4,8 @@
 
 package com.firststory.firstoracle.data;
 
+import java.util.Objects;
+
 import static com.firststory.firstoracle.data.Colour.col;
 
 /**
@@ -68,6 +70,6 @@ public class LineData {
         var lineData = ( LineData ) o;
         
         if ( Float.compare( lineData.width, width ) != 0 ) { return false; }
-        return colour != null ? colour.equals( lineData.colour ) : lineData.colour == null;
+        return Objects.equals( colour, lineData.colour );
     }
 }

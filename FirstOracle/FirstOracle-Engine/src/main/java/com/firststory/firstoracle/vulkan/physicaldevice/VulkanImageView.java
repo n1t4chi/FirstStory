@@ -13,6 +13,8 @@ import org.lwjgl.vulkan.VkComponentMapping;
 import org.lwjgl.vulkan.VkImageSubresourceRange;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
 
+import java.util.Objects;
+
 /**
  * @author n1t4chi
  */
@@ -49,8 +51,8 @@ public class VulkanImageView {
     
         var that = ( VulkanImageView ) o;
         
-        if ( device != null ? !device.equals( that.device ) : that.device != null ) { return false; }
-        return address != null ? address.equals( that.address ) : that.address == null;
+        if ( !Objects.equals( device, that.device ) ) { return false; }
+        return Objects.equals( address, that.address );
     }
     
     public VulkanAddress getAddress() {

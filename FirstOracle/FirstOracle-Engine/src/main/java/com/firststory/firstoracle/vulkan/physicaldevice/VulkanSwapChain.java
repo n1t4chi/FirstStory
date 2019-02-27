@@ -4,14 +4,15 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
-import com.firststory.firstoracle.FirstOracleConstants;
-import com.firststory.firstoracle.PropertiesUtil;
+import com.firststory.firstoracle.FirstOracleProperties;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.VulkanWindowSurface;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanSwapChainException;
 import com.firststory.firstoracle.vulkan.exceptions.SwapChainIsNotSupportedException;
+import com.firststory.firsttools.FirstToolsConstants;
+import com.firststory.firsttools.PropertyUtils;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
  */
 public class VulkanSwapChain {
     
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanSwapChain.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanSwapChain.class );
     private final VulkanDeviceAllocator allocator;
     private final Set< VkSurfaceFormatKHR > formats = new HashSet<>();
     private final Map< Integer, VulkanSwapChainImage > images = new HashMap<>();
@@ -245,7 +246,7 @@ public class VulkanSwapChain {
             .findAny()
             .orElse( null );
         
-        if ( PropertiesUtil.isPropertyTrue( PropertiesUtil.VULKAN_USE_SRGB_PROPERTY ) ) {
+        if ( PropertyUtils.isPropertyTrue( FirstOracleProperties.VULKAN_USE_SRGB_PROPERTY ) ) {
             selectedFormat = collect.stream()
                 .filter( format -> format.format() == VK10.VK_FORMAT_B8G8R8A8_SRGB )
                 .findAny()

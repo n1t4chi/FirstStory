@@ -63,8 +63,7 @@ public class TechScene implements ControllableScene {
             startTime = newTimeSnapshot;
         }
         var x = newTimeSnapshot - startTime;
-        if( x > 6 )
-        {
+        if( x > 6 ) {
             sceneController.endTechScene();
             firstOracleLogo.setMaxAlphaChannel( 0f );
             poweredByLabel.setMaxAlphaChannel( 0f );

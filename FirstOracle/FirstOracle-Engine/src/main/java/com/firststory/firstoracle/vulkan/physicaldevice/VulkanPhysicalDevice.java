@@ -4,13 +4,13 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.vulkan.*;
 import com.firststory.firstoracle.vulkan.allocators.*;
 import com.firststory.firstoracle.vulkan.exceptions.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
+import com.firststory.firsttools.FirstToolsConstants;
 import org.lwjgl.*;
 import org.lwjgl.system.*;
 import org.lwjgl.vulkan.*;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > {
     
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanPhysicalDevice.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanPhysicalDevice.class );
     private static final Set< String > requiredExtensions = new HashSet<>();
     
     static {
@@ -373,9 +373,10 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         Integer tiling, Integer features, Set< VulkanFormatProperty > properties
     ) {
         for ( var property : properties ) {
-            if ( tiling == VK10.VK_IMAGE_TILING_LINEAR && ( property.linearTilingFeatures() & features ) == features ||
-                tiling == VK10.VK_IMAGE_TILING_OPTIMAL && ( property.optimalTilingFeatures() & features ) == features )
-            {
+            if (
+                tiling == VK10.VK_IMAGE_TILING_LINEAR && ( property.linearTilingFeatures() & features ) == features ||
+                tiling == VK10.VK_IMAGE_TILING_OPTIMAL && ( property.optimalTilingFeatures() & features ) == features
+            ) {
                 return property;
             }
         }
@@ -626,8 +627,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         Predicate< VulkanQueueFamily > familyChecker,
         Comparator< VulkanQueueFamily > familyComparator,
         String familyName
-    )
-    {
+    ) {
         return selectSuitableFamily( familyChecker, familyComparator, () -> {
             logger.warning( "Could not select " + familyName + " family!" );
             throw new CannotSelectVulkanQueueFamilyException( this, familyName );
@@ -638,8 +638,7 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
         Predicate< VulkanQueueFamily > familyChecker,
         Comparator< VulkanQueueFamily > familyComparator,
         Supplier< VulkanQueueFamily > noSelectedFamilyAction
-    )
-    {
+    ) {
         VulkanQueueFamily selectedFamily = null;
         for ( var family : availableQueueFamilies ) {
             if ( familyChecker.test( family ) && familyComparator.compare( selectedFamily, family ) < 0 ) {
@@ -668,17 +667,11 @@ public class VulkanPhysicalDevice implements Comparable< VulkanPhysicalDevice > 
     }
     
     private long typeMultiplier() {
-        switch ( properties.deviceType() ) {
-            case VK10.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-                return 6;
-            case VK10.VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-            case VK10.VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-                return 5;
-            case VK10.VK_PHYSICAL_DEVICE_TYPE_CPU:
-            case VK10.VK_PHYSICAL_DEVICE_TYPE_OTHER:
-            default:
-                return 4;
-        }
+        return switch ( properties.deviceType() ) {
+            case VK10.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU -> 6;
+            case VK10.VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU, VK10.VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU -> 5;
+            default -> 4;
+        };
     }
     
 }

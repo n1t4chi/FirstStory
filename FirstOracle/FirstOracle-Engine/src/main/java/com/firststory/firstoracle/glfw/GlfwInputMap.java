@@ -12,12 +12,12 @@ import org.lwjgl.glfw.GLFW;
  */
 public class GlfwInputMap {
     public static InputAction parseInputAction( int action ) {
-        switch ( action ) {
-            case GLFW.GLFW_PRESS: return InputAction.PRESS;
-            case GLFW.GLFW_RELEASE: return InputAction.RELEASE;
-            case GLFW.GLFW_REPEAT: return InputAction.REPEAT;
-            default: return InputAction.UNKNOWN;
-        }
+        return switch ( action ) {
+            case GLFW.GLFW_PRESS -> InputAction.PRESS;
+            case GLFW.GLFW_RELEASE -> InputAction.RELEASE;
+            case GLFW.GLFW_REPEAT -> InputAction.REPEAT;
+            default -> InputAction.UNKNOWN;
+        };
     }
     
     public static InputModificators parseInputMods( int mods ) {

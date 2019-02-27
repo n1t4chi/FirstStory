@@ -19,7 +19,7 @@ public class GameLoading implements ControllableScene {
     private final RegistrableOverlayImpl overlay = new RegistrableOverlayImpl();
     private final RenderableBackgroundImpl renderableBackground = new RenderableBackgroundImpl( FirstOracleConstants.BLACK );
     private final SceneController sceneController;
-    private TextObject2D[] loadingLabels = new TextObject2D[4];
+    private final TextObject2D[] loadingLabels = new TextObject2D[4];
     private double startTime;
     private int labelWidth = Integer.MIN_VALUE;
     

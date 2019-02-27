@@ -11,6 +11,7 @@ import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanFenceException;
 import com.firststory.firstoracle.vulkan.exceptions.VulkanFenceExecutionException;
 import com.firststory.firstoracle.vulkan.exceptions.VulkanFenceExecutionTimeoutException;
+import com.firststory.firsttools.FirstToolsConstants;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkFenceCreateInfo;
 
@@ -25,7 +26,7 @@ import java.util.logging.Logger;
  * @author n1t4chi
  */
 public class VulkanFence {
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanFence.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanFence.class );
     
     private static final long NANOS_IN_MICRO = 1000;
     private static final long MICROS_IN_MILI = 1000;
@@ -36,7 +37,7 @@ public class VulkanFence {
     private final VulkanPhysicalDevice device;
     private final VulkanAddress address;
     private final ExecutorService executorService;
-    private List< Future< ? > > futures = new ArrayList<>();
+    private final List< Future< ? > > futures = new ArrayList<>();
     
     public VulkanFence( VulkanDeviceAllocator allocator, VulkanPhysicalDevice device ) {
         this.allocator = allocator;

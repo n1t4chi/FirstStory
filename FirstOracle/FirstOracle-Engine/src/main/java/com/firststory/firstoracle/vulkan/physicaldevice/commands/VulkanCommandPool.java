@@ -4,7 +4,6 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice.commands;
 
-import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
@@ -12,6 +11,7 @@ import com.firststory.firstoracle.vulkan.exceptions.CannotAllocateVulkanCommandB
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanCommandPoolException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanQueueFamily;
+import com.firststory.firsttools.FirstToolsConstants;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
@@ -21,7 +21,7 @@ import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 import java.util.logging.Logger;
 
 public abstract class VulkanCommandPool {
-    private static final Logger logger = FirstOracleConstants.getLogger( VulkanCommandPool.class );
+    private static final Logger logger = FirstToolsConstants.getLogger( VulkanCommandPool.class );
     private final VulkanDeviceAllocator allocator;
     private final VulkanPhysicalDevice device;
     private final VulkanQueueFamily usedQueueFamily;

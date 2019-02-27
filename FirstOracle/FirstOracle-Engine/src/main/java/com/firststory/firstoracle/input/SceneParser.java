@@ -147,8 +147,6 @@ public class SceneParser {
         terrains.forEach( ( name, pair ) ->
             registerTerrain.accept( scene, pair.getTerrain(), pair.getIndices() )
         );
-        objects.forEach( ( name, list ) -> {
-            registerObject.accept( scene, list );
-        } );
+        objects.forEach( ( name, list ) -> registerObject.accept( scene, list ) );
     }
 }

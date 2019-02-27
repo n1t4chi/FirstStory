@@ -45,8 +45,6 @@ public abstract class SharedObjectsParser {
     
     private void parseSharedNode( Composite sharedObjectsNode ) {
         var objects = sharedObjectsNode.findComposite( getSharedName() );
-        objects.getComposites().forEach( node -> {
-            instances.put( node.getName(), node );
-        } );
+        objects.getComposites().forEach( node -> instances.put( node.getName(), node ) );
     }
 }

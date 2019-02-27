@@ -5,7 +5,6 @@
 package com.firststory.firstslave;
 
 import com.firststory.firstoracle.WindowSettings;
-import com.firststory.firstoracle.scene.*;
 import com.firststory.firstoracle.window.*;
 
 /**
