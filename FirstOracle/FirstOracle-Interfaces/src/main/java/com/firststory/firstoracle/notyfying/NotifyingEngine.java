@@ -4,8 +4,6 @@
 
 package com.firststory.firstoracle.notyfying;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -80,7 +78,7 @@ public class NotifyingEngine {
     private static class NotifyingExecutor implements Executor {
         
         @Override
-        public void execute( @NotNull Runnable command ) {
+        public void execute( Runnable command ) {
             commands.add( command );
             updateThread();
         }

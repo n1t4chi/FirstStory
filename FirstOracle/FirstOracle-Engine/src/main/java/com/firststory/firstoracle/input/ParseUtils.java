@@ -7,7 +7,6 @@ package com.firststory.firstoracle.input;
 import com.firststory.firstoracle.data.*;
 import com.firststory.firstoracle.input.exceptions.InvalidValueException;
 import com.firststory.firstoracle.input.exceptions.ParseFailedException;
-import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 
 import java.util.ArrayList;
@@ -373,7 +372,6 @@ public interface ParseUtils {
         }
     }
     
-    @NotNull
     static String normalizeVectorText( String text ) {
         return text.replaceAll( "[{} ]", "" );
     }

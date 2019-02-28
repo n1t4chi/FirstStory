@@ -6,7 +6,6 @@ package com.firststory.firstoracle.glfw;
 
 import com.firststory.firstoracle.input.*;
 import com.firststory.firsttools.FirstToolsConstants;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.logging.*;
@@ -25,7 +24,6 @@ public class GlfwMouseButtonMap {
         return MouseButton.create( parseMouseButtonCode( button ), parseInputAction( action ), parseInputMods( mods ) );
     }
     
-    @NotNull
     public static String mouseButtonStrokeToString( int mouseButtonCode, int action, int mods ) {
         return "" +
             "input: " + mouseButtonCode + " -> " + parseMouseButtonCode( mouseButtonCode ) + "\n" +

@@ -8,7 +8,6 @@ import com.firststory.firstoracle.input.exceptions.ParseFailedException;
 import com.firststory.firstoracle.input.exceptions.SharedDataKeyNotFoundException;
 import com.firststory.firstoracle.input.structure.Composite;
 import com.firststory.firstoracle.input.structure.Leaf;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -32,7 +31,7 @@ public abstract class ParameterParser< Type, ShareableContainer > implements Sha
     public abstract Type unbox( ShareableContainer container );
     
     @Override
-    public int compareTo( @NotNull ParameterParser< ?, ? > o ) {
+    public int compareTo( ParameterParser< ?, ? > o ) {
         return Integer.compare( getPriority(), o.getPriority() );
     }
     
