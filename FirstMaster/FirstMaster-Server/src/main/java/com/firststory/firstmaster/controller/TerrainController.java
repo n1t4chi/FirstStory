@@ -1,6 +1,6 @@
 package com.firststory.firstmaster.controller;
 
-import com.firststory.firstinscriptions.TerrainTransferData;
+import com.firststory.firstinscriptions.transfer.objects.TerrainNode;
 import com.firststory.firstmaster.services.TerrainService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,17 +23,17 @@ public class TerrainController {
     }
 
     @GetMapping( "" )
-    public Collection< TerrainTransferData > findTerrains( @RequestParam( value = "pattern" ) String pattern ) {
+    public Collection< TerrainNode > findTerrains( @RequestParam( value = "pattern" ) String pattern ) {
         return terrainService.findByNameLike( pattern );
     }
 
     @PutMapping( "" )
-    public Collection< TerrainTransferData > saveTerrains( @RequestParam( value = "terrains" ) Collection< TerrainTransferData > terrains ) {
+    public Collection< TerrainNode > saveTerrains( @RequestParam( value = "terrains" ) Collection< TerrainNode > terrains ) {
         return terrainService.save( terrains );
     }
 
     @DeleteMapping( "" )
-    public void deleteTerrains( @RequestParam( value = "terrains" ) Collection< TerrainTransferData > terrains ) {
+    public void deleteTerrains( @RequestParam( value = "terrains" ) Collection< TerrainNode > terrains ) {
         terrainService.delete( terrains );
     }
 }

@@ -1,6 +1,6 @@
 package com.firststory.firstmaster.services;
 
-import com.firststory.firstinscriptions.TextureTransferData;
+import com.firststory.firstinscriptions.transfer.objects.TextureNode;
 import com.firststory.firstmaster.repos.TextureRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +17,12 @@ public class TextureService {
     }
 
     @Transactional( readOnly = true )
-    public TextureTransferData findByName( String name ) {
+    public TextureNode findByName( String name ) {
         return TextureRepository.findByName( name );
     }
 
     @Transactional( readOnly = true )
-    public Collection< TextureTransferData > findByNameLike( String name ) {
+    public Collection< TextureNode > findByNameLike( String name ) {
         return TextureRepository.findByNameLike( name );
     }
 }

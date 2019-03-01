@@ -1,6 +1,6 @@
 package com.firststory.firstslave;
 
-import com.firststory.firstinscriptions.TerrainTransferData;
+import com.firststory.firstinscriptions.transfer.objects.TerrainNode;
 import com.firststory.firsttools.PropertyUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -39,13 +39,13 @@ public class FirstSlave {
     private static void printTerrains() {
         RestTemplate restTemplate = getRestTemplate();
         
-        ResponseEntity< List< TerrainTransferData > > terrainData = restTemplate.exchange(
+        ResponseEntity< List< TerrainNode > > terrainData = restTemplate.exchange(
             getPropertyOrThrow( MASTER_URL_PROPERTY ) + "terrain?pattern={pattern}",
             HttpMethod.GET,
             null, new ParameterizedTypeReference<>() {},
             Map.of( "pattern", "*" )
         );
-        List< TerrainTransferData > body = terrainData.getBody();
+        List< TerrainNode > body = terrainData.getBody();
         System.err.println( body );
     }
     

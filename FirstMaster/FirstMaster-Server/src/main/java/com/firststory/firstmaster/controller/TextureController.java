@@ -1,6 +1,6 @@
 package com.firststory.firstmaster.controller;
 
-import com.firststory.firstinscriptions.TextureTransferData;
+import com.firststory.firstinscriptions.transfer.objects.TextureNode;
 import com.firststory.firstmaster.services.TextureService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +20,7 @@ public class TextureController {
     }
 
     @GetMapping( "" )
-    public Collection< TextureTransferData > extractTerrain( @RequestParam( value = "name" ) String name ) {
+    public Collection< TextureNode > extractTerrain( @RequestParam( value = "name" ) String name ) {
         return textureService.findByNameLike( name );
     }
 }

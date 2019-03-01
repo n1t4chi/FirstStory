@@ -1,7 +1,7 @@
 package com.firststory.firstmaster.services;
 
-import com.firststory.firstinscriptions.TerrainTransferData;
-import com.firststory.firstinscriptions.WithTextureRelation;
+import com.firststory.firstinscriptions.transfer.objects.TerrainNode;
+import com.firststory.firstinscriptions.transfer.relations.WithTexture;
 import com.firststory.firstmaster.repos.TerrainRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,19 +21,19 @@ public class TerrainService {
     }
 
     @Transactional()
-    public Collection< TerrainTransferData > save( Collection< TerrainTransferData > terrain ) {
-        Collection< TerrainTransferData > terrains = new ArrayList<>();
+    public Collection< TerrainNode > save( Collection< TerrainNode > terrain ) {
+        Collection< TerrainNode > terrains = new ArrayList<>();
         TerrainRepository.saveAll( terrain ).forEach( terrains::add );
         return terrains;
     }
 
     @Transactional()
-    public void delete( Collection< TerrainTransferData > terrain ) {
+    public void delete( Collection< TerrainNode > terrain ) {
         TerrainRepository.deleteAll( terrain );
     }
 
     @Transactional( readOnly = true )
-    public Collection< TerrainTransferData > findByNameLike( String pattern ) {
+    public Collection< TerrainNode > findByNameLike( String pattern ) {
         return TerrainRepository.findByNameLike( pattern );
     }
 
@@ -42,16 +42,16 @@ public class TerrainService {
         return toD3Format( TerrainRepository.graph( limit ) );
     }
 
-    private Map< String, Object > toD3Format( Collection< TerrainTransferData > terrains ) {
+    private Map< String, Object > toD3Format( Collection< TerrainNode > terrains ) {
         List< Map< String, Object > > nodes = new ArrayList<>();
         List< Map< String, Object > > rels = new ArrayList<>();
-        for ( TerrainTransferData terrain : terrains ) {
+        for ( TerrainNode terrain : terrains ) {
             nodes.add( Map.of( "name", terrain.getName(), "label", "Terrain" ) );
-            Collection< WithTextureRelation > withTextures = terrain.getWithTexture();
+            Collection< WithTexture > withTextures = terrain.getTexture();
             withTextures.forEach( withTexture -> rels.add( Map.of( "source",
-                withTexture.getTerrain(),
+                withTexture.getStart(),
                 "target",
-                withTexture.getTexture()
+                withTexture.getEnd()
             ) ) );
         }
         return Map.of( "nodes", nodes, "links", rels );

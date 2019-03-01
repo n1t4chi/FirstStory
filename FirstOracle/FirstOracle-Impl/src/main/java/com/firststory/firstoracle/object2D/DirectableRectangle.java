@@ -31,6 +31,7 @@ public class DirectableRectangle
         return directionController;
     }
     
+    @Override
     public void setDirectionController( DirectionController directionController ) {
         this.directionController = directionController;
     }
