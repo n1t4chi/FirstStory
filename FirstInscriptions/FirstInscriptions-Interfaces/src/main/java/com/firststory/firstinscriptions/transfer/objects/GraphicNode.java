@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.firststory.firstinscriptions.transfer.relations.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -11,8 +12,9 @@ import java.util.Collection;
 
 @NodeEntity( label = "GraphicObject" )
 @EqualsAndHashCode( callSuper = true )
+@ToString( callSuper = true )
 @Data
-public class GraphicNode extends Node {
+class GraphicNode extends Node {
     
     @JsonIgnoreProperties( "start" )
     @Relationship( type = "withTexture" )
