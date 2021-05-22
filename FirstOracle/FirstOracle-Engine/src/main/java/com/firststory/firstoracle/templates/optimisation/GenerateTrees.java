@@ -6,7 +6,9 @@ package com.firststory.firstoracle.templates.optimisation;
 
 import com.firststory.firstoracle.data.Index2D;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -28,7 +30,7 @@ public class GenerateTrees {
             }
             indices.add( index );
         }
-        System.err.print( `"position": [` );
+        System.err.print( "\"position\": [" );
         var i = 0;
         for( var index : indices ) {
             if( i%10 == 0 ) {

@@ -1,6 +1,8 @@
 package com.firststory.firstslave;
 
 import com.firststory.firstinscriptions.transfer.objects.TerrainNode;
+import com.firststory.firstoracle.input.SceneParser;
+import com.firststory.firstoracle.templates.IOUtilities;
 import com.firststory.firsttools.PropertyUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -32,9 +34,22 @@ import static com.firststory.firsttools.PropertyUtils.getPropertyOrThrow;
 public class FirstSlave {
 
     public static void main( String[] args ) throws Exception {
-        printTerrains();
-        websockets();
+//        printTerrains();
+//        websockets();
+        uploadInitialConfig();
         
+    }
+    
+    private static void uploadInitialConfig() {
+        SceneParser sceneParser;
+        try {
+            var textResource = IOUtilities.readTextResource( "resources/First Slave/map1.json" );
+            sceneParser = new SceneParser( textResource );
+        } catch ( Exception ex ) {
+            throw new RuntimeException( "Cannot load scene", ex );
+        }
+        var sharedData = sceneParser.getSharedData();
+        var sharedObjects = sceneParser.getSharedObjects();
     }
     
     private static void printTerrains() {
@@ -43,7 +58,8 @@ public class FirstSlave {
         ResponseEntity< List< TerrainNode > > terrainData = restTemplate.exchange(
             getPropertyOrThrow( MASTER_URL_PROPERTY ) + "terrain?pattern={pattern}",
             HttpMethod.GET,
-            null, new ParameterizedTypeReference<>() {},
+            null,
+            new ParameterizedTypeReference<>() {},
             Map.of( "pattern", "*" )
         );
         List< TerrainNode > body = terrainData.getBody();

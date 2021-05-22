@@ -19,8 +19,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>12</maven.compiler.source>
-        <maven.compiler.target>12</maven.compiler.target>
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
         <first.story.version>0.1-SNAPSHOT</first.story.version>
         <lwjgl.version>3.2.0</lwjgl.version>
         <joml.version>1.9.12</joml.version>
@@ -33,7 +33,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.0.0-M1</version>
                     <configuration>
-                        <argLine>--enable-preview</argLine>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -41,10 +40,9 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.0</version>
                     <configuration>
-                        <target>12</target>
-                        <release>12</release>
+                        <target>16</target>
+                        <release>16</release>
                         <compilerArgs>
-                            <arg>--enable-preview</arg>
                             <arg>-Xlint:all</arg>
                             <arg>-Xdiags:verbose</arg>
                         </compilerArgs>
@@ -69,9 +67,8 @@
                     <version>3.0.1</version>
                     <configuration>
                         <additionalJOptions>
-                            <additionalJOption>--enable-preview </additionalJOption>
                             <additionalJOption>-source</additionalJOption>
-                            <additionalJOption>12</additionalJOption>
+                            <additionalJOption>16</additionalJOption>
                         </additionalJOptions>
                     </configuration>
                     <executions>

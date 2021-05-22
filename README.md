@@ -30,13 +30,11 @@ But if you want to see the code that drives the game, then it is best to start w
 [directory](FirstOracle/FirstOracle-Engine/src/main/java/com/firststory/firstoracle/templates)
 
 ## Requirements
-Currently the project is developed with Java 12 and it's preview features so most likely you head out to
-OpenJDK [site](https://jdk.java.net/12/) and download the newest build for your system. 
-Running the application by hand is a bit problematic at the moment 
-due to omnipresent `--enable-preview` when compiling or running the application.
-So if you have any problem, most likely just check out scripts in First Oracle [releases](FirstOracle/release)
+Currently the project is developed with Java 16 so most likely you head out to
+OpenJDK [site](https://jdk.java.net/16/) and download the newest build for your system.
+If you have any problem, most likely just check out scripts in First Oracle [releases](FirstOracle/release)
 for examples with parameters on how to run it.
 
-For compiling application Maven is also needed to take care of dependencies. You might need new maven version due to Java 12
+For compiling application Maven is also needed to take care of dependencies. You might need new maven version due to Java 16
 
 

@@ -6,12 +6,19 @@ package com.firststory.firstoracle.input;
 
 import com.firststory.firstoracle.FirstOracleConstants;
 import com.firststory.firstoracle.data.*;
-import com.firststory.firstoracle.object.*;
-import com.firststory.firstoracle.object2D.*;
-import com.firststory.firstoracle.object3D.*;
+import com.firststory.firstoracle.object.PositionableObject;
+import com.firststory.firstoracle.object.Terrain;
+import com.firststory.firstoracle.object2D.PositionableObject2DImpl;
+import com.firststory.firstoracle.object2D.RectanglePositionCalculator;
+import com.firststory.firstoracle.object2D.Terrain2DImpl;
+import com.firststory.firstoracle.object3D.CubePositionCalculator;
+import com.firststory.firstoracle.object3D.PositionableObject3DImpl;
+import com.firststory.firstoracle.object3D.Terrain3DImpl;
 import com.firststory.firstoracle.rendering.RenderType;
-import com.firststory.firstoracle.scene.*;
-import org.junit.jupiter.api.*;
+import com.firststory.firstoracle.scene.RegistrableScene2DImpl;
+import com.firststory.firstoracle.scene.RegistrableScene3DImpl;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -38,23 +45,25 @@ class SceneParserTest {
     
     @Test
     void parseOneObject2d() {
-        var scene2D = SceneParser.parseToNonOptimised2D( "{\n" +
-        "    \"scene2D\": {\n" +
-        "        \"objects\": {\n" +
-        "            \"object1\": {\n" +
-        "                \"class\": \"PositionableObject2DImpl\",\n" +
-        "                \"transformations\": \"MutablePositionable2DTransformations\",\n" +
-        "                \"position\": \"4, 3\",\n" +
-        "                \"rotation\": \"45\",\n" +
-        "                \"scale\": \"2, 6\",\n" +
-        "                \"texture\": \"resources/First Oracle/textures/grass2D.png\",\n" +
-        "                \"uvMap\": \"[ [ [ {1,1},  {2,2}, {3,3} ] ] ]\",\n" +
-        "                \"vertices\": \"[ [ {1,1}, {2,2}, {3,3} ] ]\",\n" +
-        "                \"colouring\": \"[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]\"\n" +
-        "            }\n" +
-        "        }\n" +
-        "    }\n" +
-        "}\n" );
+        var scene2D = SceneParser.parseToNonOptimised2D( """
+            {
+                "scene2D": {
+                    "objects": {
+                        "object1": {
+                            "class": "PositionableObject2DImpl",
+                            "transformations": "MutablePositionable2DTransformations",
+                            "position": "4, 3",
+                            "rotation": "45",
+                            "scale": "2, 6",
+                            "texture": "resources/First Oracle/textures/grass2D.png",
+                            "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                            "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
+                            "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                        }
+                    }
+                }
+            }
+            """ );
         assertSize2D( scene2D,  1, INDEX_ZERO_2I );
         assertObject(
             scene2D.getObjects2D().iterator().next(),
@@ -71,23 +80,25 @@ class SceneParserTest {
     
     @Test
     void parseOneObject3d() {
-        var scene3D = SceneParser.parseToNonOptimised3D( "{\n" +
-        "    \"scene3D\": {\n" +
-        "        \"objects\": {\n" +
-        "            \"object1\": {\n" +
-        "                \"class\": \"PositionableObject3DImpl\",\n" +
-        "                \"transformations\": \"MutablePositionable3DTransformations\",\n" +
-        "                \"position\": \"4, 3, 2\",\n" +
-        "                \"rotation\": \"10, 20, 30\",\n" +
-        "                \"scale\": \"2, 6, 12\",\n" +
-        "                \"texture\": \"resources/First Oracle/textures/grass2D.png\",\n" +
-        "                \"uvMap\": \"[ [ [ {1,1},  {2,2}, {3,3} ] ] ]\",\n" +
-        "                \"vertices\": \"[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]\",\n" +
-        "                \"colouring\": \"[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]\"\n" +
-        "            }\n" +
-        "        }\n" +
-        "    }\n" +
-        "}\n" );
+        var scene3D = SceneParser.parseToNonOptimised3D( """
+            {
+                "scene3D": {
+                    "objects": {
+                        "object1": {
+                            "class": "PositionableObject3DImpl",
+                            "transformations": "MutablePositionable3DTransformations",
+                            "position": "4, 3, 2",
+                            "rotation": "10, 20, 30",
+                            "scale": "2, 6, 12",
+                            "texture": "resources/First Oracle/textures/grass2D.png",
+                            "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                            "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
+                            "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                        }
+                    }
+                }
+            }
+            """ );
         assertSize3D( scene3D,  1, INDEX_ZERO_3I );
         
         assertObject(
@@ -105,25 +116,27 @@ class SceneParserTest {
     
 //    @Test
     void parseOneTerrain2d() {
-        var scene2D = SceneParser.parseToNonOptimised2D( "{\n" +
-        "    \"configuration\": {\n" +
-        "        \"terrain2DShift\": \"{3,3}\",\n" +
-        "        \"terrain2DSize\": \"{1,3}\"\n" +
-        "    },\n" +
-        "    \"scene2D\": {\n" +
-        "        \"terrains\": {\n" +
-        "            \"object1\": {\n" +
-        "                \"class\": \"Terrain2DImpl\",\n" +
-        "                \"texture\": \"resources/First Oracle/textures/grass2D.png\",\n" +
-        "                \"uvMap\": \"[ [ [ {1,1},  {2,2}, {3,3} ] ] ]\",\n" +
-        "                \"vertices\": \"[ [ {1,1}, {2,2}, {3,3} ] ]\",\n" +
-        "                \"colouring\": \"[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]\",\n" +
-        "                \"indices\": \"[ {0,2} ]\",\n" +
-        "                \"positionCalculator\": \"RectanglePositionCalculator\"\n" +
-        "            }\n" +
-        "        }\n" +
-        "    }\n" +
-        "}\n" );
+        var scene2D = SceneParser.parseToNonOptimised2D( """
+            {
+                "configuration": {
+                    "terrain2DShift": "{3,3}",
+                    "terrain2DSize": "{1,3}"
+                },
+                "scene2D": {
+                    "terrains": {
+                        "object1": {
+                            "class": "Terrain2DImpl",
+                            "texture": "resources/First Oracle/textures/grass2D.png",
+                            "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                            "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
+                            "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
+                            "indices": "[ {0,2} ]",
+                            "positionCalculator": "RectanglePositionCalculator"
+                        }
+                    }
+                }
+            }
+            """ );
         Assertions.assertEquals( Index2D.id2( 3, 3 ), scene2D.getTerrain2DShift() );
         assertSize2D( scene2D, 0, Index2D.id2( 1, 3 ) );
         Assertions.assertNull( scene2D.getTerrains2D()[0][0] );
@@ -143,25 +156,27 @@ class SceneParserTest {
     
 //    @Test
     void parseOneTerrain3d() {
-        var scene3D = SceneParser.parseToNonOptimised3D( "{\n" +
-        "    \"configuration\": {\n" +
-        "        \"terrain3DShift\": \"{3,3,3}\",\n" +
-        "        \"terrain3DSize\": \"{1,1,3}\"\n" +
-        "    },\n" +
-        "    \"scene3D\": {\n" +
-        "        \"terrains\": {\n" +
-        "            \"object1\": {\n" +
-        "                \"class\": \"Terrain3DImpl\",\n" +
-        "                \"texture\": \"resources/First Oracle/textures/grass2D.png\",\n" +
-        "                \"uvMap\": \"[ [ [ {1,1},  {2,2}, {3,3} ] ] ]\",\n" +
-        "                \"vertices\": \"[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]\",\n" +
-        "                \"colouring\": \"[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]\",\n" +
-        "                \"indices\": \"[ {0,0,2} ]\",\n" +
-        "                \"positionCalculator\": \"CubePositionCalculator\"\n" +
-        "            }\n" +
-        "        }\n" +
-        "    }\n" +
-        "}\n" );
+        var scene3D = SceneParser.parseToNonOptimised3D( """
+            {
+                "configuration": {
+                    "terrain3DShift": "{3,3,3}",
+                    "terrain3DSize": "{1,1,3}"
+                },
+                "scene3D": {
+                    "terrains": {
+                        "object1": {
+                            "class": "Terrain3DImpl",
+                            "texture": "resources/First Oracle/textures/grass2D.png",
+                            "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                            "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
+                            "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
+                            "indices": "[ {0,0,2} ]",
+                            "positionCalculator": "CubePositionCalculator"
+                        }
+                    }
+                }
+            }
+            """ );
 //        Assertions.assertEquals( Index3D.id3( 3, 3, 3 ), scene3D.getTerrain3DShift() );
         assertSize3D( scene3D, 0, Index3D.id3( 1, 1, 3 ) );
         Assertions.assertNull( scene3D.getTerrains3D()[0][0][0] );
@@ -181,135 +196,137 @@ class SceneParserTest {
     
     @Test
     void parseSharedData() {
-        var text = "{\n" +
-        "    \"sharedData\": {\n" +
-        "        \"objectClasses2D\": {\n" +
-        "            \"obj2d\": \"PositionableObject2DImpl\"\n" +
-        "        },\n" +
-        "        \"positionableTransformations2D\": {\n" +
-        "            \"trans2d\": \"MutablePositionable2DTransformations\"\n" +
-        "        },\n" +
-        "        \"positionableTransformations3D\": {\n" +
-        "            \"trans3d\": \"MutablePositionable3DTransformations\"\n" +
-        "        },\n" +
-        "        \"terrainClasses2D\": {\n" +
-        "            \"terr2d\": \"Terrain2DImpl\"\n" +
-        "        },\n" +
-        "        \"positions2D\": {\n" +
-        "            \"pos2d\": \"4, 3\"\n" +
-        "        },\n" +
-        "        \"rotations2D\": {\n" +
-        "            \"rot2d\": \"45\"\n" +
-        "        },\n" +
-        "        \"scales2D\": {\n" +
-        "            \"scl2d\": \"2, 6\"\n" +
-        "        },\n" +
-        "        \"vertices2D\": {\n" +
-        "            \"vert2d\": \"[ [ {1,1}, {2,2}, {3,3} ] ]\"\n" +
-        "        },\n" +
-        "        \"objectClasses3D\": {\n" +
-        "            \"obj3d\": \"PositionableObject3DImpl\"\n" +
-        "        },\n" +
-        "        \"terrainClasses3D\": {\n" +
-        "            \"terr3d\": \"Terrain3DImpl\"\n" +
-        "        },\n" +
-        "        \"positions3D\": {\n" +
-        "            \"pos3d\": \"4, 3, 2\"\n" +
-        "        },\n" +
-        "        \"rotations3D\": {\n" +
-        "            \"rot3d\": \"10, 20, 30\"\n" +
-        "        },\n" +
-        "        \"scales3D\": {\n" +
-        "            \"scl3d\": \"2, 6, 12\"\n" +
-        "        },\n" +
-        "        \"vertices3D\": {\n" +
-        "            \"vert3d\": \"[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]\"\n" +
-        "        },\n" +
-        "        \"textures\": {\n" +
-        "            \"tex\": \"resources/First Oracle/textures/grass2D.png\"\n" +
-        "        },\n" +
-        "        \"uvMaps\": {\n" +
-        "            \"uv\": \"[ [ [ {1,1},  {2,2}, {3,3} ] ] ]\"\n" +
-        "        },\n" +
-        "        \"colourings\": {\n" +
-        "            \"col\": \"[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]\"\n" +
-        "        }\n" +
-        "    },\n" +
-        "    \"scene2D\": {\n" +
-        "        \"objects\": {\n" +
-        "            \"object1\": {\n" +
-        "                \"class\": \"$obj2d\",\n" +
-        "                \"transformations\": \"$trans2d\",\n" +
-        "                \"position\": \"$pos2d\",\n" +
-        "                \"rotation\": \"$rot2d\",\n" +
-        "                \"scale\": \"$scl2d\",\n" +
-        "                \"texture\": \"$tex\",\n" +
-        "                \"uvMap\": \"$uv\",\n" +
-        "                \"vertices\": \"$vert2d\",\n" +
-        "                \"colouring\": \"$col\"\n" +
-        "            },\n" +
-        "            \"object2\": {\n" +
-        "                \"class\": \"$obj2d\",\n" +
-        "                \"transformations\": \"$trans2d\",\n" +
-        "                \"position\": \"$pos2d\",\n" +
-        "                \"rotation\": \"$rot2d\",\n" +
-        "                \"scale\": \"$scl2d\",\n" +
-        "                \"texture\": \"$tex\",\n" +
-        "                \"uvMap\": \"$uv\",\n" +
-        "                \"vertices\": \"$vert2d\",\n" +
-        "                \"colouring\": \"$col\"\n" +
-        "            }\n" +
-        "        },\n" +
-        "        \"terrains\": {\n" +
-        "            \"terrain1\": {\n" +
-        "                \"class\": \"$terr2d\",\n" +
-        "                \"texture\": \"$tex\",\n" +
-        "                \"uvMap\": \"$uv\",\n" +
-        "                \"vertices\": \"$vert2d\",\n" +
-        "                \"colouring\": \"$col\",\n" +
-        "                \"indices\": \"[ {0,0}x{0,2}, {1,2} ]\",\n" +
-        "                \"positionCalculator\": \"RectanglePositionCalculator\"\n" +
-        "            }\n" +
-        "        }\n" +
-        "    },\n" +
-        "    \"scene3D\": {\n" +
-        "        \"objects\": {\n" +
-        "            \"object3\": {\n" +
-        "                \"class\": \"$obj3d\",\n" +
-        "                \"transformations\": \"$trans3d\",\n" +
-        "                \"position\": \"$pos3d\",\n" +
-        "                \"rotation\": \"$rot3d\",\n" +
-        "                \"scale\": \"$scl3d\",\n" +
-        "                \"texture\": \"$tex\",\n" +
-        "                \"uvMap\": \"$uv\",\n" +
-        "                \"vertices\": \"$vert3d\",\n" +
-        "                \"colouring\": \"$col\"\n" +
-        "            },\n" +
-        "            \"object4\": {\n" +
-        "                \"class\": \"$obj3d\",\n" +
-        "                \"transformations\": \"$trans3d\",\n" +
-        "                \"position\": \"$pos3d\",\n" +
-        "                \"rotation\": \"$rot3d\",\n" +
-        "                \"scale\": \"$scl3d\",\n" +
-        "                \"texture\": \"$tex\",\n" +
-        "                \"uvMap\": \"$uv\",\n" +
-        "                \"vertices\": \"$vert3d\",\n" +
-        "                \"colouring\": \"$col\"\n" +
-        "            }\n" +
-        "        },\n" +
-        "        \"terrains\": {\n" +
-        "            \"terrain2\": {\n" +
-        "                \"class\": \"$terr3d\",\n" +
-        "                \"texture\": \"$tex\",\n" +
-        "                \"uvMap\": \"$uv\",\n" +
-        "                \"vertices\": \"$vert3d\",\n" +
-        "                \"colouring\": \"$col\",\n" +
-        "                \"indices\": \"[ {0,0,0}x{0,0,2} ]\",\n" +
-        "                \"positionCalculator\": \"CubePositionCalculator\"\n" +
-        "            }\n" +
-        "        }\n" +
-        "    }\n" +
-        "}\n";
+        var text = """
+            {
+                "sharedData": {
+                    "objectClasses2D": {
+                        "obj2d": "PositionableObject2DImpl"
+                    },
+                    "positionableTransformations2D": {
+                        "trans2d": "MutablePositionable2DTransformations"
+                    },
+                    "positionableTransformations3D": {
+                        "trans3d": "MutablePositionable3DTransformations"
+                    },
+                    "terrainClasses2D": {
+                        "terr2d": "Terrain2DImpl"
+                    },
+                    "positions2D": {
+                        "pos2d": "4, 3"
+                    },
+                    "rotations2D": {
+                        "rot2d": "45"
+                    },
+                    "scales2D": {
+                        "scl2d": "2, 6"
+                    },
+                    "vertices2D": {
+                        "vert2d": "[ [ {1,1}, {2,2}, {3,3} ] ]"
+                    },
+                    "objectClasses3D": {
+                        "obj3d": "PositionableObject3DImpl"
+                    },
+                    "terrainClasses3D": {
+                        "terr3d": "Terrain3DImpl"
+                    },
+                    "positions3D": {
+                        "pos3d": "4, 3, 2"
+                    },
+                    "rotations3D": {
+                        "rot3d": "10, 20, 30"
+                    },
+                    "scales3D": {
+                        "scl3d": "2, 6, 12"
+                    },
+                    "vertices3D": {
+                        "vert3d": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]"
+                    },
+                    "textures": {
+                        "tex": "resources/First Oracle/textures/grass2D.png"
+                    },
+                    "uvMaps": {
+                        "uv": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]"
+                    },
+                    "colourings": {
+                        "col": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                    }
+                },
+                "scene2D": {
+                    "objects": {
+                        "object1": {
+                            "class": "$obj2d",
+                            "transformations": "$trans2d",
+                            "position": "$pos2d",
+                            "rotation": "$rot2d",
+                            "scale": "$scl2d",
+                            "texture": "$tex",
+                            "uvMap": "$uv",
+                            "vertices": "$vert2d",
+                            "colouring": "$col"
+                        },
+                        "object2": {
+                            "class": "$obj2d",
+                            "transformations": "$trans2d",
+                            "position": "$pos2d",
+                            "rotation": "$rot2d",
+                            "scale": "$scl2d",
+                            "texture": "$tex",
+                            "uvMap": "$uv",
+                            "vertices": "$vert2d",
+                            "colouring": "$col"
+                        }
+                    },
+                    "terrains": {
+                        "terrain1": {
+                            "class": "$terr2d",
+                            "texture": "$tex",
+                            "uvMap": "$uv",
+                            "vertices": "$vert2d",
+                            "colouring": "$col",
+                            "indices": "[ {0,0}x{0,2}, {1,2} ]",
+                            "positionCalculator": "RectanglePositionCalculator"
+                        }
+                    }
+                },
+                "scene3D": {
+                    "objects": {
+                        "object3": {
+                            "class": "$obj3d",
+                            "transformations": "$trans3d",
+                            "position": "$pos3d",
+                            "rotation": "$rot3d",
+                            "scale": "$scl3d",
+                            "texture": "$tex",
+                            "uvMap": "$uv",
+                            "vertices": "$vert3d",
+                            "colouring": "$col"
+                        },
+                        "object4": {
+                            "class": "$obj3d",
+                            "transformations": "$trans3d",
+                            "position": "$pos3d",
+                            "rotation": "$rot3d",
+                            "scale": "$scl3d",
+                            "texture": "$tex",
+                            "uvMap": "$uv",
+                            "vertices": "$vert3d",
+                            "colouring": "$col"
+                        }
+                    },
+                    "terrains": {
+                        "terrain2": {
+                            "class": "$terr3d",
+                            "texture": "$tex",
+                            "uvMap": "$uv",
+                            "vertices": "$vert3d",
+                            "colouring": "$col",
+                            "indices": "[ {0,0,0}x{0,0,2} ]",
+                            "positionCalculator": "CubePositionCalculator"
+                        }
+                    }
+                }
+            }
+            """;
         var scene2D = SceneParser.parseToNonOptimised2D( text );
         var scene3D = SceneParser.parseToNonOptimised3D( text );
         Assertions.assertEquals( Index3D.id3( 0, 0, 0 ), scene3D.getTerrain3DShift() );
@@ -394,82 +411,84 @@ class SceneParserTest {
     
     @Test
     void parseSharedObjects() {
-        var text = "{\n" +
-        "    \"sharedObjects\": {\n" +
-        "        \"objects2D\": {\n" +
-        "            \"baseObj2d\": {\n" +
-        "                \"class\": \"PositionableObject2DImpl\",\n" +
-        "                \"transformations\": \"MutablePositionable2DTransformations\",\n" +
-        "                \"rotation\": \"45\",\n" +
-        "                \"scale\": \"2, 6\",\n" +
-        "                \"texture\": \"resources/First Oracle/textures/grass2D.png\",\n" +
-        "                \"uvMap\": \"[ [ [ {1,1},  {2,2}, {3,3} ] ] ]\",\n" +
-        "                \"vertices\": \"[ [ {1,1}, {2,2}, {3,3} ] ]\",\n" +
-        "                \"colouring\": \"[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]\"\n" +
-        "            }\n" +
-        "        },\n" +
-        "        \"terrains2D\": {\n" +
-        "            \"baseTer2d\": {\n" +
-        "                \"class\": \"Terrain2DImpl\",\n" +
-        "                \"texture\": \"resources/First Oracle/textures/grass2D.png\",\n" +
-        "                \"uvMap\": \"[ [ [ {1,1},  {2,2}, {3,3} ] ] ]\",\n" +
-        "                \"vertices\": \"[ [ {1,1}, {2,2}, {3,3} ] ]\",\n" +
-        "                \"colouring\": \"[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]\",\n" +
-        "                \"positionCalculator\": \"RectanglePositionCalculator\"\n" +
-        "            }\n" +
-        "        },\n" +
-        "        \"objects3D\": {\n" +
-        "            \"baseObj3d\": {\n" +
-        "                \"class\": \"PositionableObject3DImpl\",\n" +
-        "                \"transformations\": \"MutablePositionable3DTransformations\",\n" +
-        "                \"rotation\": \"10, 20, 30\",\n" +
-        "                \"scale\": \"2, 6, 12\",\n" +
-        "                \"texture\": \"resources/First Oracle/textures/grass2D.png\",\n" +
-        "                \"uvMap\": \"[ [ [ {1,1},  {2,2}, {3,3} ] ] ]\",\n" +
-        "                \"vertices\": \"[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]\",\n" +
-        "                \"colouring\": \"[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]\"\n" +
-        "            }\n" +
-        "        },\n" +
-        "        \"terrains3D\": {\n" +
-        "            \"baseTer3d\": {\n" +
-        "                \"class\": \"Terrain3DImpl\",\n" +
-        "                \"texture\": \"resources/First Oracle/textures/grass2D.png\",\n" +
-        "                \"uvMap\": \"[ [ [ {1,1},  {2,2}, {3,3} ] ] ]\",\n" +
-        "                \"vertices\": \"[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]\",\n" +
-        "                \"colouring\": \"[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]\",\n" +
-        "                \"positionCalculator\": \"CubePositionCalculator\"\n" +
-        "            }\n" +
-        "        }\n" +
-        "    },\n" +
-        "    \"scene2D\": {\n" +
-        "        \"objects\": {\n" +
-        "            \"object1\": {\n" +
-        "                \"base\": \"$baseObj2d\",\n" +
-        "                \"positions\": \"[{1,1},{2,2}]\"\n" +
-        "            }\n" +
-        "        },\n" +
-        "        \"terrains\": {\n" +
-        "            \"terrain1\": {\n" +
-        "                \"base\": \"$baseTer2d\",\n" +
-        "                \"indices\": \"[ {0,0}x{2,2} ]\"\n" +
-        "            }\n" +
-        "        }\n" +
-        "    },\n" +
-        "    \"scene3D\": {\n" +
-        "        \"objects\": {\n" +
-        "            \"object3\": {\n" +
-        "                \"base\": \"$baseObj3d\",\n" +
-        "                \"positions\": \"[{1,1,1},{2,2,2}]\"\n" +
-        "            }\n" +
-        "        },\n" +
-        "        \"terrains\": {\n" +
-        "            \"terrain2\": {\n" +
-        "                \"base\": \"$baseTer3d\",\n" +
-        "                \"indices\": \"[ {0,0,0}x{2,2,2} ]\"\n" +
-        "            }\n" +
-        "        }\n" +
-        "    }\n" +
-        "}\n";
+        var text = """
+            {
+                "sharedObjects": {
+                    "objects2D": {
+                        "baseObj2d": {
+                            "class": "PositionableObject2DImpl",
+                            "transformations": "MutablePositionable2DTransformations",
+                            "rotation": "45",
+                            "scale": "2, 6",
+                            "texture": "resources/First Oracle/textures/grass2D.png",
+                            "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                            "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
+                            "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                        }
+                    },
+                    "terrains2D": {
+                        "baseTer2d": {
+                            "class": "Terrain2DImpl",
+                            "texture": "resources/First Oracle/textures/grass2D.png",
+                            "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                            "vertices": "[ [ {1,1}, {2,2}, {3,3} ] ]",
+                            "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
+                            "positionCalculator": "RectanglePositionCalculator"
+                        }
+                    },
+                    "objects3D": {
+                        "baseObj3d": {
+                            "class": "PositionableObject3DImpl",
+                            "transformations": "MutablePositionable3DTransformations",
+                            "rotation": "10, 20, 30",
+                            "scale": "2, 6, 12",
+                            "texture": "resources/First Oracle/textures/grass2D.png",
+                            "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                            "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
+                            "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]"
+                        }
+                    },
+                    "terrains3D": {
+                        "baseTer3d": {
+                            "class": "Terrain3DImpl",
+                            "texture": "resources/First Oracle/textures/grass2D.png",
+                            "uvMap": "[ [ [ {1,1},  {2,2}, {3,3} ] ] ]",
+                            "vertices": "[ [ {1,1,1}, {2,2,2}, {3,3,3} ] ]",
+                            "colouring": "[ {1,1,1,1}, {2,2,2,2}, {3,3,3,3} ]",
+                            "positionCalculator": "CubePositionCalculator"
+                        }
+                    }
+                },
+                "scene2D": {
+                    "objects": {
+                        "object1": {
+                            "base": "$baseObj2d",
+                            "positions": "[{1,1},{2,2}]"
+                        }
+                    },
+                    "terrains": {
+                        "terrain1": {
+                            "base": "$baseTer2d",
+                            "indices": "[ {0,0}x{2,2} ]"
+                        }
+                    }
+                },
+                "scene3D": {
+                    "objects": {
+                        "object3": {
+                            "base": "$baseObj3d",
+                            "positions": "[{1,1,1},{2,2,2}]"
+                        }
+                    },
+                    "terrains": {
+                        "terrain2": {
+                            "base": "$baseTer3d",
+                            "indices": "[ {0,0,0}x{2,2,2} ]"
+                        }
+                    }
+                }
+            }
+            """;
         var scene2D = SceneParser.parseToNonOptimised2D( text );
         var scene3D = SceneParser.parseToNonOptimised3D( text );
         Assertions.assertEquals( Index2D.id2( 0, 0 ), scene2D.getTerrain2DShift() );

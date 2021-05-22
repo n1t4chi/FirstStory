@@ -25,28 +25,28 @@ public class RootsTest {
     
     @Test
     void throwsWhenNoMatchingEndTag() {
-        Assertions.assertThrows( ParseFailedException.class , () -> Roots.parse( `
+        Assertions.assertThrows( ParseFailedException.class , () -> Roots.parse( """
         { "scene2d": {
             "object1": {
                 "class": "PositionableObject2DImpl",
                 "position": "4, 3"
-        } }` ) );
+        } }""" ) );
     }
     
     @Test
     void throwsWhenNoMatchingStartTag() {
-        Assertions.assertThrows( ParseFailedException.class , () -> Roots.parse( `
+        Assertions.assertThrows( ParseFailedException.class , () -> Roots.parse( """
         { "scene2d": {
             "object1":
                 "class": "PositionableObject2DImpl",
                 "position": "4, 3"
             }
-        } }` ) );
+        } }""" ) );
     }
     
     @Test
     void throwsWhenOrphanedEntryNode() {
-        Assertions.assertThrows( OrphanedEntryNodeException.class , () -> Roots.parse( `
+        Assertions.assertThrows( OrphanedEntryNodeException.class , () -> Roots.parse( """
         { "scene2d": {
             "object1": {
                 "class": "PositionableObject2DImpl",
@@ -54,12 +54,13 @@ public class RootsTest {
             }
         } }
         "class": "PositionableObject2DImpl"
-        ` ) );
+        """ ) );
     }
     
     @Test
     void complexTest() {
-        var roots = Roots.parse( `{
+        var roots = Roots.parse( """
+        {
             "scene2d": {
                 "object1": {
                     "class": "PositionableObject2DImpl"
@@ -80,7 +81,7 @@ public class RootsTest {
                     "position": "4, 4"
                 }
             }
-        }` );
+        }""" );
         var scenes = roots.getRoots();
         Assertions.assertEquals( 2, scenes.size() );
         var scene2d = scenes.get( 0 );
