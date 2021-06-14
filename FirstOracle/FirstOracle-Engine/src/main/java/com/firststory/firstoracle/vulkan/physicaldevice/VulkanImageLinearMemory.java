@@ -62,7 +62,6 @@ class VulkanImageLinearMemory {
     }
     
     public void disposeUnsafe() {
-        System.out.println( "disposing vulkan linear memory" );
         VK10.vkFreeMemory( device.getLogicalDevice(), address.getValue(), null );
         address.setNull();
     }

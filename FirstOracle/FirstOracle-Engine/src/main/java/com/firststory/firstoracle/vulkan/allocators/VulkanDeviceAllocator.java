@@ -46,12 +46,12 @@ public class VulkanDeviceAllocator {
     private final VulkanReusableObjectsRegistry< VulkanSwapChainImage > swapChainImages = newReusableRegistry( VulkanSwapChainImage::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanSemaphore > semaphores = newImmutableRegistry( VulkanSemaphore::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanTextureData > textureDatas = newReusableRegistry( VulkanTextureData::disposeUnsafe );
+    private final VulkanImageLinearMemoryManager imageLinearMemoryManager = newImageLinearMemoryManager();
     private final VulkanReusableObjectsRegistry< VulkanFence > fences = newReusableRegistry( VulkanFence::disposeUnsafe, fence -> {} );
     private final VulkanImmutableObjectsRegistry< VulkanCommandBufferAllocator<?> > commandBufferAllocators = newImmutableRegistry( VulkanCommandBufferAllocator::disposeUnsafe );
     private final VulkanReusableObjectsRegistry< VulkanTransferData > transferDatas = newReusableRegistry( data -> {}, data -> {} );
     private final VulkanImmutableObjectsRegistry< VulkanPipelineAllocator > pipelineAllocators = newImmutableRegistry( VulkanPipelineAllocator::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanDataBufferAllocator > dataBufferAllocators = newImmutableRegistry( VulkanDataBufferAllocator::disposeUnsafe );
-    private final VulkanImageLinearMemoryManager imageLinearMemoryManager;
     
     private <T> VulkanImmutableObjectsRegistry< T > newImmutableRegistry( Consumer< T > disposeAction ) {
         var registry = new VulkanImmutableObjectsRegistry<>( disposeAction );
@@ -81,17 +81,21 @@ public class VulkanDeviceAllocator {
         return registry;
     }
     
+    private VulkanImageLinearMemoryManager newImageLinearMemoryManager() {
+        var registry = new VulkanImageLinearMemoryManager();
+        registryList.add( registry );
+        return registry;
+    }
+    
     public VulkanDeviceAllocator(
         VulkanFrameworkAllocator allocator,
         VulkanPhysicalDevice device
     ) {
         this.allocator = allocator;
         this.device = device;
-        imageLinearMemoryManager = new VulkanImageLinearMemoryManager( device );
     }
     
     public void disposeUnsafe() {
-        imageLinearMemoryManager.disposeUnsafe();
         registryList.forEach( VulkanRegistry::dispose );
     }
     

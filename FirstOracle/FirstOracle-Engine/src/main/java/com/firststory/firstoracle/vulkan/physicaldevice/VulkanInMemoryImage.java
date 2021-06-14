@@ -241,11 +241,12 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
     
     private VulkanImageLinearMemory bindImageMemory(
+        VulkanPhysicalDevice device,
         VulkanAddress image,
         VkMemoryRequirements memoryRequirements,
         VulkanMemoryType memoryType
     ) {
-        return manager.bindImageMemory( image, memoryRequirements, memoryType );
+        return manager.bindImageMemory( device, image, memoryRequirements, memoryType );
     }
     
     private VulkanImageLinearMemory bindImageMemory( VulkanPhysicalDevice device, int[] desiredMemoryFlags, VulkanAddress image ) {
@@ -255,7 +256,7 @@ public class VulkanInMemoryImage extends VulkanImage {
         var memoryType = device.selectMemoryType( memoryRequirements.memoryTypeBits(),
             desiredMemoryFlags
         );
-        return bindImageMemory( image, memoryRequirements, memoryType );
+        return bindImageMemory( device, image, memoryRequirements, memoryType );
     }
     
     private void invokeBlitImage( VulkanTransferCommandBuffer commandBuffer, int mipWidth, int mipHeight, int index ) {
