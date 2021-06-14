@@ -61,10 +61,6 @@ public abstract class VulkanCommandBuffer< SELF extends VulkanCommandBuffer< ? >
         allocator.deregisterBuffer( (SELF) this );
     }
     
-    public void update() {
-        resetCommandBuffer();
-    }
-    
     public void disposeUnsafe() {
         VK10.vkFreeCommandBuffers( device.getLogicalDevice(), commandPool.getAddress().getValue(), commandBuffer );
     }
@@ -75,16 +71,6 @@ public abstract class VulkanCommandBuffer< SELF extends VulkanCommandBuffer< ? >
     
     protected VkCommandBufferInheritanceInfo createInheritanceInfo() {
         return null;
-    }
-    
-    private void resetCommandBuffer() {
-        VulkanHelper.assertCallOrThrow(
-            () -> VK10.vkResetCommandBuffer( commandBuffer, VK10.VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT ),
-            resultCode -> {
-                logger.warning( "Failed to reset command buffer!" );
-                return new VulkanCommandBufferException( device, this, "Failed to reset command buffer" );
-            }
-        );
     }
     
     private void beginRecordingCommandBuffer() {

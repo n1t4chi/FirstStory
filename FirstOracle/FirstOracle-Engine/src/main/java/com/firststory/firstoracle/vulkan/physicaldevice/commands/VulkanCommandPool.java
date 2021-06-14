@@ -9,6 +9,7 @@ import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
 import com.firststory.firstoracle.vulkan.exceptions.CannotAllocateVulkanCommandBuffersException;
 import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanCommandPoolException;
+import com.firststory.firstoracle.vulkan.exceptions.VulkanCommandPoolException;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanPhysicalDevice;
 import com.firststory.firstoracle.vulkan.physicaldevice.VulkanQueueFamily;
 import com.firststory.firsttools.FirstToolsConstants;
@@ -40,6 +41,17 @@ public abstract class VulkanCommandPool {
     
     public VulkanPhysicalDevice getDevice() {
         return device;
+    }
+    
+    public void resetCommandPool() {
+        VulkanHelper.assertCallOrThrow(
+            () -> VK10.vkResetCommandPool( device.getLogicalDevice(), address.getValue(), 0 ),
+            resultCode -> {
+                logger.warning( "Failed to reset command pool!" );
+                return new VulkanCommandPoolException( device, this, "Failed to reset command buffer" );
+            }
+        );
+        VK10.vkResetCommandPool( device.getLogicalDevice(), address.getValue(), 0 );
     }
     
     public void dispose() {
@@ -109,9 +121,7 @@ public abstract class VulkanCommandPool {
             .sType( VK10.VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO )
             .queueFamilyIndex( usedQueueFamily.getIndex() )
             .flags(
-                //0
-                //todo: when rendering is complete maybe they can raise performance:
-                VK10.VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK10.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
+                VK10.VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
             );
     }
     

@@ -16,7 +16,7 @@ public class VulkanCommandBufferAllocator< CommandBuffer extends VulkanCommandBu
     private final VulkanDeviceAllocator allocator;
     private final Supplier< CommandBuffer > supplier;
     
-    private final VulkanReusableObjectsRegistry< CommandBuffer > buffers = new VulkanReusableObjectsRegistry<>( VulkanCommandBuffer::disposeUnsafe, buffer -> {} );
+    private final VulkanImmutableObjectsRegistry< CommandBuffer > buffers = new VulkanImmutableObjectsRegistry<>( VulkanCommandBuffer::disposeUnsafe );
     
     
     VulkanCommandBufferAllocator(
@@ -32,10 +32,7 @@ public class VulkanCommandBufferAllocator< CommandBuffer extends VulkanCommandBu
     }
     
     public CommandBuffer createBuffer() {
-        return buffers.register(
-            supplier,
-            VulkanCommandBuffer::update
-        );
+        return buffers.register( supplier );
     }
     
     public void deregisterBuffer( CommandBuffer image ) {

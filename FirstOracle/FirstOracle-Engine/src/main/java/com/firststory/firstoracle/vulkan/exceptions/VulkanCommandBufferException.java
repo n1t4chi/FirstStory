@@ -13,7 +13,7 @@ import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBu
 public class VulkanCommandBufferException extends VulkanException {
     
     public VulkanCommandBufferException(
-        VulkanPhysicalDevice physicalDevice, VulkanCommandBuffer commandBuffer, String message
+        VulkanPhysicalDevice physicalDevice, VulkanCommandBuffer<?> commandBuffer, String message
     ) {
         super( commandBuffer+" @ "+ physicalDevice+" : "+ message );
     }

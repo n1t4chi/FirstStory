@@ -51,8 +51,7 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool {
             primaryBufferAllocator,
             getDevice(),
             this,
-            new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ),
-            VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
+            new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) )
         );
     }
     
@@ -62,7 +61,7 @@ public class VulkanGraphicCommandPool extends VulkanCommandPool {
             getDevice(),
             this,
             new VulkanAddress( createSecondaryCommandBufferBuffer( 1 ).get( 0 ) ),
-            VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK10.VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT
+            VK10.VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT
         );
     }
 }

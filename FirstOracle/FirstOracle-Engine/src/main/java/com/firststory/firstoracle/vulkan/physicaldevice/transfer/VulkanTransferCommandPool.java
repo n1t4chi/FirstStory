@@ -61,7 +61,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         }
     }
     
-    private class Holder< T > {
+    private static class Holder< T > {
         T value;
         
         void hold( T newValue ) {
@@ -181,8 +181,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
             bufferAllocator,
             getDevice(),
             this,
-            new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) ),
-            VK10.VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
+            new VulkanAddress( createPrimaryCommandBufferBuffer( 1 ).get( 0 ) )
         );
     }
     

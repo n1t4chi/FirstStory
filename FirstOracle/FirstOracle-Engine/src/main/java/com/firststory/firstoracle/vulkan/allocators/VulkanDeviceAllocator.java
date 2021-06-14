@@ -8,6 +8,7 @@ import com.firststory.firstoracle.vulkan.VulkanAddress;
 import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
+import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandPool;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferData;
@@ -356,7 +357,7 @@ public class VulkanDeviceAllocator {
     public VulkanGraphicCommandPool createGraphicCommandPool() {
         return graphicCommandPools.register(
             () -> new VulkanGraphicCommandPool( this, device ),
-            pool -> {}
+            VulkanCommandPool::resetCommandPool
         );
     }
     
