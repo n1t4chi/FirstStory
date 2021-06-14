@@ -127,6 +127,8 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
     
     @Override
     protected void dispose( VulkanDeviceAllocator allocator ) {
+        datasToTransfer.forEach( getAllocator()::deregisterTransferData );
+        datasToTransfer.clear();
         allocator.deregisterTransferCommandPool( this );
     }
     
@@ -139,6 +141,7 @@ public class VulkanTransferCommandPool extends VulkanCommandPool {
         }
         synchronized ( datasToTransfer ) {
             datasToTransferCopy = new ArrayList<>( datasToTransfer );
+            datasToTransfer.forEach( getAllocator()::deregisterTransferData );
             datasToTransfer.clear();
         }
         

@@ -4,9 +4,11 @@
 
 package com.firststory.firstoracle.vulkan.physicaldevice;
 
-import com.firststory.firstoracle.vulkan.*;
+import com.firststory.firstoracle.vulkan.VulkanAddress;
+import com.firststory.firstoracle.vulkan.VulkanHelper;
 import com.firststory.firstoracle.vulkan.allocators.VulkanDeviceAllocator;
-import com.firststory.firstoracle.vulkan.exceptions.*;
+import com.firststory.firstoracle.vulkan.exceptions.CannotCreateVulkanImageException;
+import com.firststory.firstoracle.vulkan.exceptions.CannotTransitionVulkanImage;
 import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandBuffer;
 import org.lwjgl.vulkan.*;
 
@@ -14,16 +16,18 @@ import org.lwjgl.vulkan.*;
  * @author n1t4chi
  */
 public class VulkanInMemoryImage extends VulkanImage {
-    
-    private VulkanAddress memoryAddress;
+    private final VulkanImageLinearMemoryManager manager;
+    private VulkanImageLinearMemory linearMemory;
     private int width;
     private int height;
     
     public VulkanInMemoryImage(
         VulkanDeviceAllocator allocator,
-        VulkanPhysicalDevice device
+        VulkanPhysicalDevice device,
+        VulkanImageLinearMemoryManager manager
     ) {
         super( allocator, device );
+        this.manager = manager;
     }
     
     public VulkanInMemoryImage update(
@@ -46,7 +50,7 @@ public class VulkanInMemoryImage extends VulkanImage {
                 usageFlags
             )
         );
-        memoryAddress = bindImageMemory( getDevice(), desiredMemoryFlags, getAddress() );
+        linearMemory = bindImageMemory( getDevice(), desiredMemoryFlags, getAddress() );
         this.width = width;
         this.height = height;
         return this;
@@ -127,10 +131,8 @@ public class VulkanInMemoryImage extends VulkanImage {
     }
     
     public void disposeUnsafe() {
-        VK10.vkFreeMemory( getDevice().getLogicalDevice(), memoryAddress.getValue(), null );
         VK10.vkDestroyImage( getDevice().getLogicalDevice(), getAddress().getValue(), null );
         updateAddress( new VulkanAddress() );
-        memoryAddress.setNull();
         width = 0;
         height = 0;
     }
@@ -238,46 +240,22 @@ public class VulkanInMemoryImage extends VulkanImage {
         return 31 - Integer.numberOfLeadingZeros( number );
     }
     
-    private VulkanAddress bindImageMemory(
-        VulkanPhysicalDevice device,
+    private VulkanImageLinearMemory bindImageMemory(
         VulkanAddress image,
         VkMemoryRequirements memoryRequirements,
         VulkanMemoryType memoryType
     ) {
-        var allocateInfo = VkMemoryAllocateInfo.calloc()
-            .sType( VK10.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO )
-            .allocationSize( memoryRequirements.size() )
-            .memoryTypeIndex( memoryType.getIndex() );
-    
-        var textureImageMemory = VulkanHelper.createAddress( address -> VK10.vkAllocateMemory(
-                device.getLogicalDevice(),
-                allocateInfo,
-                null,
-                address
-            ),
-            resultCode -> new CannotAllocateVulkanImageMemoryException( device, resultCode )
-        );
-        
-        VulkanHelper.assertCallOrThrow(
-            () -> VK10.vkBindImageMemory( device.getLogicalDevice(),
-                image.getValue(),
-                textureImageMemory.getValue(),
-                0
-            ),
-            resultCode -> new CannotBindVulkanImageMemoryException( device, resultCode )
-        );
-        
-        return textureImageMemory;
+        return manager.bindImageMemory( image, memoryRequirements, memoryType );
     }
     
-    private VulkanAddress bindImageMemory( VulkanPhysicalDevice device, int[] desiredMemoryFlags, VulkanAddress image ) {
+    private VulkanImageLinearMemory bindImageMemory( VulkanPhysicalDevice device, int[] desiredMemoryFlags, VulkanAddress image ) {
         var memoryRequirements = VkMemoryRequirements.calloc();
         VK10.vkGetImageMemoryRequirements( device.getLogicalDevice(), image.getValue(), memoryRequirements );
     
         var memoryType = device.selectMemoryType( memoryRequirements.memoryTypeBits(),
             desiredMemoryFlags
         );
-        return bindImageMemory( device, image, memoryRequirements, memoryType );
+        return bindImageMemory( image, memoryRequirements, memoryType );
     }
     
     private void invokeBlitImage( VulkanTransferCommandBuffer commandBuffer, int mipWidth, int mipHeight, int index ) {

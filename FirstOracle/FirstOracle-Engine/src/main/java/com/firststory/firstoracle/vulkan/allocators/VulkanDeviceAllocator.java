@@ -9,10 +9,13 @@ import com.firststory.firstoracle.vulkan.physicaldevice.*;
 import com.firststory.firstoracle.vulkan.physicaldevice.buffer.VulkanBufferProvider;
 import com.firststory.firstoracle.vulkan.physicaldevice.commands.VulkanCommandBuffer;
 import com.firststory.firstoracle.vulkan.physicaldevice.rendering.*;
-import com.firststory.firstoracle.vulkan.physicaldevice.transfer.*;
+import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferCommandPool;
+import com.firststory.firstoracle.vulkan.physicaldevice.transfer.VulkanTransferData;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author n1t4chi
@@ -47,6 +50,7 @@ public class VulkanDeviceAllocator {
     private final VulkanReusableObjectsRegistry< VulkanTransferData > transferDatas = newReusableRegistry( data -> {}, data -> {} );
     private final VulkanImmutableObjectsRegistry< VulkanPipelineAllocator > pipelineAllocators = newImmutableRegistry( VulkanPipelineAllocator::disposeUnsafe );
     private final VulkanImmutableObjectsRegistry< VulkanDataBufferAllocator > dataBufferAllocators = newImmutableRegistry( VulkanDataBufferAllocator::disposeUnsafe );
+    private final VulkanImageLinearMemoryManager imageLinearMemoryManager;
     
     private <T> VulkanImmutableObjectsRegistry< T > newImmutableRegistry( Consumer< T > disposeAction ) {
         var registry = new VulkanImmutableObjectsRegistry<>( disposeAction );
@@ -76,18 +80,17 @@ public class VulkanDeviceAllocator {
         return registry;
     }
     
-    
-    
-    
     public VulkanDeviceAllocator(
         VulkanFrameworkAllocator allocator,
         VulkanPhysicalDevice device
     ) {
         this.allocator = allocator;
         this.device = device;
+        imageLinearMemoryManager = new VulkanImageLinearMemoryManager( device );
     }
     
     public void disposeUnsafe() {
+        imageLinearMemoryManager.disposeUnsafe();
         registryList.forEach( VulkanRegistry::dispose );
     }
     
@@ -132,8 +135,8 @@ public class VulkanDeviceAllocator {
         );
     }
     
-    public void deregisterTransferData( VulkanTransferData image ) {
-        transferDatas.deregister( image );
+    public void deregisterTransferData( VulkanTransferData transferData ) {
+        transferDatas.deregister( transferData );
     }
     
     @SuppressWarnings( "unchecked" )
@@ -183,7 +186,7 @@ public class VulkanDeviceAllocator {
         int[] desiredMemoryFlags
     ) {
         return inMemoryImages.register(
-            () -> new VulkanInMemoryImage( this, device ),
+            () -> new VulkanInMemoryImage( this, device, imageLinearMemoryManager ),
             image -> image.update(
                 width,
                 height,
